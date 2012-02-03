@@ -1,0 +1,18 @@
+=== Far from Ready
+
+This gem only contains the JRuby mapping of the Neo4j graph database.
+I plan to split the neo4j.rb into two or more gems.
+
+Changes from the neo4j.rb
+* Use YARD
+* Use more mocking combined with real testing of the Java layer
+* Some tidy up of the API and code
+* Change of Ruby module structure
+
+This gem contains two modules: Neo4j and Neo4j::Core
+The Neo4j modules are public and the Neo4j::Core(::*) are private modules
+
+This gem will be included by neo4j 2.0.0 gem (if successful).
+
+*Don't use it yet !*
+
