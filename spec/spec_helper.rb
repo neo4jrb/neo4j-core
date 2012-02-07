@@ -31,11 +31,8 @@ begin
   Neo4j::Config[:storage_path] = File.join(Dir.tmpdir, "neo4j-core-rspec-db")
   Neo4j::Config[:debug_java] = true
 
-  puts "Neo4j::Config[:storage_path]=#{Neo4j::Config[:storage_path]}"
-
   # Util
   def rm_db_storage
-    puts "DELETE DB #{Neo4j::Config[:storage_path]}"
     FileUtils.rm_rf Neo4j::Config[:storage_path]
     raise "Can't delete db" if File.exist?(Neo4j::Config[:storage_path])
   end
