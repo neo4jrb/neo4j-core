@@ -17,13 +17,10 @@ module Neo4j
       end
 
       def self.default_embedded_db
-#        CallChain.print "default_embedded_db==#{@default_embedded_db}"
-
         @default_embedded_db || Java::OrgNeo4jKernel::EmbeddedGraphDatabase
       end
 
       def self.default_embedded_db=(db)
-#        CallChain.print "default_embedded_db==#{db}"
         @default_embedded_db = db
       end
 

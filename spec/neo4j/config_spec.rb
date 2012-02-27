@@ -1,4 +1,4 @@
-require '../spec_helper'
+require 'spec_helper'
 
 describe Neo4j::Config do
 
@@ -39,8 +39,8 @@ describe Neo4j::Config do
     end
 
     it "can be changed" do
-      Neo4j::Config[:storage_path] = 'foo_bar'
-      Neo4j::Config[:storage_path].should == 'foo_bar'
+      Neo4j::Config[:qwe] = 'foo_bar'
+      Neo4j::Config[:qwe].should == 'foo_bar'
     end
   end
 

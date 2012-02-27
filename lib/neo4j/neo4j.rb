@@ -7,7 +7,7 @@
 #
 # === Starting and Stopping Neo4j
 # You don't normally need to start the Neo4j database since it will be automatically started when needed.
-# Before the database is started you should configure where the database is stored, see Neo4j::Config.
+# Before the database is started you should configure where the database is stored, see {Neo4j::Config]}.
 #
 module Neo4j
 
@@ -91,7 +91,7 @@ module Neo4j
     #  q.first['n'] #=> the @node
     #  q.columns.first => 'n'
     #
-    # @see http://docs.neo4j.org/chunked/milestone/cypher-query-lang.html
+    # @see {http://docs.neo4j.org/chunked/milestone/cypher-query-lang.html The Cypher Query Language Documentation}
     # @note Returns a read-once only forward iterable.
     # @return [Enumerable] a forward read once only Enumerable, containing hash values.
     def query(query, params = {})
@@ -198,8 +198,6 @@ module Neo4j
     #
     # Neo4j.management(org.neo4j.management.HighAvailability).isMaster
     #
-    # ==== Arguments
-    #
     # @param jmx_clazz the JMX class http://api.neo4j.org/current/org/neo4j/management/package-summary.html
     # @param this_db default currently runnig instance or a newly started neo4j db instance
     # @see for the jmx_clazz p
@@ -218,7 +216,6 @@ module Neo4j
     end
 
     # @return [Neo4j::Core::EventHandler] the event handler
-    #
     def event_handler(this_db = db)
       this_db.event_handler
     end

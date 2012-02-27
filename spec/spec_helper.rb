@@ -30,11 +30,29 @@ begin
   Neo4j::Config[:logger_level] = Logger::ERROR
   Neo4j::Config[:storage_path] = File.join(Dir.tmpdir, "neo4j-core-rspec-db")
   Neo4j::Config[:debug_java] = true
+  EMBEDDED_DB_PATH = File.join(Dir.tmpdir, "neo4j-core-rspec-db2")
 
   # Util
-  def rm_db_storage
-    FileUtils.rm_rf Neo4j::Config[:storage_path]
-    raise "Can't delete db" if File.exist?(Neo4j::Config[:storage_path])
+  FileUtils.rm_rf Neo4j::Config[:storage_path]
+
+
+  def embedded_db
+    @@db ||= begin
+      puts "START JAVA DB"
+      FileUtils.rm_rf EMBEDDED_DB_PATH
+      db = Java::OrgNeo4jKernel::EmbeddedGraphDatabase.new(EMBEDDED_DB_PATH, Neo4j.config.to_java_map)
+      at_exit do
+        puts "SHUTDOWN";
+        db.shutdown
+        FileUtils.rm_rf EMBEDDED_DB_PATH
+        end
+      db
+    end
+  end
+
+  def new_java_tx(db)
+    finish_tx if @tx
+    @tx = db.begin_tx
   end
 
   def finish_tx
@@ -54,15 +72,16 @@ begin
     $name_counter = 0
     c.filter_run_excluding :slow => ENV['TRAVIS'] != 'true'
 
-    c.before(:each, :type => :transactional) do
+    c.before(:each, :type => :integration) do
       new_tx
     end
 
-    c.after(:each, :type => :transactional) do
+    c.after(:each, :type => :integration) do
       finish_tx
     end
 
     c.before(:each, :type => :mock_db) do
+      Neo4j.shutdown
       @mock_db = MockDb.new
       @mock_db_class = double("JavaGraphDbClass")
       @mock_db_class.stub!(:new) { |*| @mock_db }
@@ -75,14 +94,6 @@ begin
       @mock_db = nil
       @mock_db_class = nil
     end
-
-    c.after(:each, :type => :java_integration) do
-    end
-
-    c.before(:all, :type => :java_integration) do
-      rm_db_storage #unless Neo4j.running?
-    end
-
   end
 
 end unless @_neo4j_rspec_loaded

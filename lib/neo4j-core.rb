@@ -3,12 +3,14 @@ require 'neo4j/config'
 
 require 'neo4j-community'
 
+
 require 'neo4j-core/relationship_set'
 require 'neo4j-core/event_handler'
 require 'neo4j-core/database'
 require 'neo4j-core/to_java'
 
-
+require 'neo4j-core/node/node'
+require 'neo4j-core/node/class_methods'
 
 require 'neo4j-core/rels/rels'
 require 'neo4j-core/rels/traverser'

@@ -34,11 +34,11 @@ module Neo4j
   # The Neo4j::NodeMixin and Neo4j::Rails::Model wraps the Neo4j::Node object. The raw java node/Neo4j::Node object can be access with the Neo4j::NodeMixin#java_node method.
   #
   class Node
+    extend Neo4j::Core::Node::ClassMethods
     extend Neo4j::Core::Index::ClassMethods
     extend Neo4j::Core::Load
 
     self.node_indexer self
-
 
     ##
     # :method: del
@@ -166,96 +166,16 @@ module Neo4j
 
     class << self
 
-      # Returns a new neo4j Node.
-      # The return node is actually an Java obejct of type org.neo4j.graphdb.Node java object
-      # which has been extended (see the included mixins for Neo4j::Node).
-      #
-      # The created node will have a unique id - Neo4j::Property#neo_id
-      #
-      # ==== Parameters
-      # *args :: a hash of properties to initialize the node with or nil
-      #
-      # ==== Returns
-      # org.neo4j.graphdb.Node java object
-      #
-      # ==== Examples
-      #
-      #  Neo4j::Transaction.run do
-      #    Neo4j::Node.new
-      #    Neo4j::Node.new :name => 'foo', :age => 100
-      #  end
-      #
-      #
-      def new(*args)
-        # the first argument can be an hash of properties to set
-        props = args[0].respond_to?(:each_pair) && args[0]
-
-        # a db instance can be given, is the first argument if that was not a hash, or otherwise the second
-        db = (!props && args[0]) || args[1] || Neo4j.started_db
-
-        node = db.graph.create_node
-        props.each_pair { |k, v| node[k]= v } if props
-        node
-      end
-
-      # create is the same as new
-      alias_method :create, :new
-
-      # Loads a node or wrapped node given a native java node or an id.
-      # If there is a Ruby wrapper for the node then it will create a Ruby object that will
-      # wrap the java node (see Neo4j::NodeMixin).
-      #
-      # If the node does not exist it will return nil
-      #
-      def load(node_id, db = Neo4j.started_db)
-        node = _load(node_id, db)
-        node && node.wrapper
-      end
-
-      # Same as load but does not return the node as a wrapped Ruby object.
-      #
-      def _load(node_id, db = Neo4j.started_db)
-        return nil if node_id.nil?
-        db.graph.get_node_by_id(node_id.to_i)
-      rescue java.lang.IllegalStateException
-        nil # the node has been deleted
-      rescue Java::OrgNeo4jGraphdb.NotFoundException
-        nil
-      end
 
       def extend_java_class(java_clazz) #:nodoc:
         java_clazz.class_eval do
+          extend Neo4j::Core::Node
           include Neo4j::Core::Property
           include Neo4j::Core::Rels
           # include Neo4j::Core::Traversal TODO
           include Neo4j::Core::Equal
           include Neo4j::Core::Index
-
-          def del #:nodoc:
-            _rels.each { |r| r.del }
-            delete
-            nil
-          end
-
-          def exist? #:nodoc:
-            Neo4j::Node.exist?(self)
-          end
-
-          def wrapped_entity #:nodoc:
-            self
-          end
-
-          def wrapper #:nodoc:
-            self.class.wrapper(self)
-          end
-
-          def _java_node #:nodoc:
-            self
-          end
-
-          def class #:nodoc:
-            Neo4j::Node
-          end
+          include Neo4j::Core::Node
         end
       end
     end

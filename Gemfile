@@ -2,11 +2,12 @@ source :gemcutter
 
 gemspec
 
-gem 'neo4j-advanced', "1.6.0.alpha.9",  :require => false
-gem 'neo4j-enterprise', "1.6.0.alpha.9", :require => false
+gem 'neo4j-advanced', "1.6.1.alpha.1",  :require => false
+gem 'neo4j-enterprise', "1.6.1.alpha.1", :require => false
 
 group 'development' do
   gem 'guard'
+  gem 'rcov', '0.9.11'
   gem 'ruby_gntp', :require => false # GrowlNotify for Mac
   gem 'rb-inotify', :require => false
   gem 'rb-fsevent', :require => false
