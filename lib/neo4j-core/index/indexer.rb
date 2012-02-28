@@ -225,6 +225,27 @@ module Neo4j
           end
         end
 
+
+        # Called when the neo4j shutdown in order to release references to indexes
+        def on_neo4j_shutdown
+           @indexes.clear
+         end
+
+
+        # Called from the event handler when a new node or relationships is about to be committed.
+        def update_index_on(node, field, old_val, new_val)
+          if @via_relationships.include?(field)
+            dsl = @via_relationships[field]
+            target_class = dsl.target_class
+
+            dsl._all_relationships(node).each do |rel|
+              other = rel._start_node
+              target_class._indexer.update_single_index_on(other, field, old_val, new_val)
+            end
+          end
+          update_single_index_on(node, field, old_val, new_val)
+        end
+
         protected
 
         def index_prefix
@@ -279,19 +300,6 @@ module Neo4j
           end
         end
 
-        def update_index_on(node, field, old_val, new_val) #:nodoc:
-          if @via_relationships.include?(field)
-            dsl = @via_relationships[field]
-            target_class = dsl.target_class
-
-            dsl._all_relationships(node).each do |rel|
-              other = rel._start_node
-              target_class._indexer.update_single_index_on(other, field, old_val, new_val)
-            end
-          end
-          update_single_index_on(node, field, old_val, new_val)
-        end
-
         def update_single_index_on(node, field, old_val, new_val) #:nodoc:
           if @field_types.has_key?(field)
             rm_index(node, field, old_val) if old_val
@@ -319,12 +327,6 @@ module Neo4j
             org.neo4j.index.lucene.ValueContext.new(value)
           end
         end
-
-        def on_neo4j_shutdown
-           # Since we might start the database again we must make sure that we don't keep any references to
-           # an old lucene index in memory.
-           @indexes.clear
-         end
 
          # Removes the cached lucene index, can be useful for some RSpecs which needs to restart the Neo4j.
          #
