@@ -20,7 +20,7 @@ module Neo4j
         # @return [Object, nil] If the node does not exist it will return nil otherwise the loaded node or wrapped node.
         def load(node_id, db = Neo4j.started_db)
           node = _load(node_id, db)
-          node && (node.class.respond_to?(:wrapper) ? node.class.wrapper(node) : node)
+          node && node.wrapper
         end
       end
 

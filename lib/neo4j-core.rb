@@ -36,4 +36,7 @@ require 'neo4j-core/loader/loader'
 require 'neo4j-core/loader/class_methods'
 
 require 'neo4j/transaction'
+
+require 'neo4j-core/type_converters/type_converters'
+
 require 'neo4j/node'

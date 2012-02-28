@@ -28,7 +28,6 @@ module Neo4j
       # Sets the location of the configuration YAML file and old deletes configurations.
       #
       # @param [String] file_path represent the path to the file.
-      #
       def default_file=(file_path)
         @configuration = nil
         @defaults = nil

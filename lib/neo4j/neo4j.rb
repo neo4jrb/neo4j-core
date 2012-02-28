@@ -37,7 +37,7 @@ module Neo4j
 
 
     # Sets which Neo4j::Database instance to use. It wraps both the Neo4j Database and Lucene Database.
-    # @params [Neo4j::Database] my_db - the database instance to use
+    # @param [Neo4j::Database] my_db - the database instance to use
     def db=(my_db)
       @db = my_db
     end

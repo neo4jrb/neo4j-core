@@ -8,6 +8,9 @@ module Neo4j
         Neo4j::Node.exist?(self)
       end
 
+      def wrapper
+        self.class.respond_to?(:wrapper) ? self.class.wrapper(node) : self
+      end
     end
   end
 end

@@ -4,69 +4,6 @@ module Neo4j
       module ClassMethods
         attr_reader :_indexer
 
-        extend Forwardable
-
-        def wp_query(options, pager, args, &block) #:nodoc:
-          params = {}
-          params[:page] = pager.current_page
-          params[:per_page] = pager.per_page
-          query = if args.empty?
-                    find(options, params, &block)
-                  else
-                    args << params.merge(options)
-                    find(*args, &block)
-                  end
-
-          pager.replace [*query]
-          pager.total_entries = query.size
-        end
-
-
-        ##
-        # See Neo4j::Index::Indexer#index
-        # Forwards to the indexer that should be used.
-        # It is possible to share the same index for several different classes, see #node_indexer.
-        # :singleton-method: index
-
-        ##
-        # See Neo4j::Index::Indexer#find
-        # Forwards to the indexer that should be used.
-        # It is possible to share the same index for several different classes, see #node_indexer.
-        # :singleton-method: find
-
-        ##
-        # Specifies the location on the filesystem of the lucene index for the given index type.
-        #
-        # If not specified it will have the default location:
-        #
-        #   Neo4j.config[:storage_path]/index/lucene/node|relationship/ParentModuleName_SubModuleName_ClassName-indextype
-        #
-        # Forwards to the Indexer#index_names class
-        #
-        # ==== Example
-        #  module Foo
-        #    class Person
-        #       include Neo4j::NodeMixin
-        #       index :name
-        #       index_names[:fulltext] = 'my_location'
-        #    end
-        #  end
-        #
-        #  Person.index_names[:fulltext] => 'my_location'
-        #  Person.index_names[:exact] => 'Foo_Person-exact' # default Location
-        #
-        # The index can be prefixed, see Neo4j#threadlocal_ref_node= and multi dendency.
-        #
-        # :singleton-method: index_names
-
-
-        ##
-        # Returns a hash of which indexes has been defined and the type of index (:exact or :fulltext)
-        #
-        # :singleton-method: index_types
-
-
-        def_delegators :@_indexer, :index, :find, :index?, :index_type?, :delete_index_type, :rm_field_type, :add_index, :rm_index, :index_type_for, :index_names, :index_types
 
         # Sets which indexer should be used for the given node class.
         # You can share an indexer between several different classes.
@@ -104,7 +41,41 @@ module Neo4j
         def indexer(clazz, type) #:nodoc:
           @_indexer ||= IndexerRegistry.create_for(self, clazz, type)
         end
+
+
+        class << self
+          private
+
+
+          # @macro [attach] index.delegate
+          #   @method $1(*args, &block)
+          #   Sends the `$1` message to @_indexer instance with the supplied parameters.
+          #   @see Neo4j::Core::Index::Indexer#$1
+          def delegate(method_name)
+            class_eval(<<-EOM, __FILE__, __LINE__)
+              def #{method_name}(*args, &block)
+                @_indexer.send(:#{method_name}, *args, &block)
+              end
+            EOM
+          end
+
+        end
+
+        delegate :index
+        delegate :find
+        delegate :index?
+        delegate :index_type?
+        delegate :delete_index_type
+        delegate :rm_field_type
+        delegate :add_index
+        delegate :rm_index
+        delegate :index_type_for
+        delegate :index_names
+        delegate :index_types
+
       end
+
+
     end
   end
 end
