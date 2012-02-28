@@ -4,6 +4,7 @@ describe "Neo4j::Node", :type => :integration do
 
   describe "#new" do
     subject do
+      new_tx
       node = Neo4j::Node.new
       finish_tx
       node
@@ -21,6 +22,7 @@ describe "Neo4j::Node", :type => :integration do
 
   describe "#del" do
     subject do
+      new_tx
       node = Neo4j::Node.new
       finish_tx
       new_tx

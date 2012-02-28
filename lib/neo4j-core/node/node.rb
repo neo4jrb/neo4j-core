@@ -18,6 +18,9 @@ module Neo4j
         nil
       end
 
+      # This method can be used to access the none wrapped neo4j node/relationship java object.
+      # Notice that this method is defined in the  org.neo4j.kernel.impl.core.NodeProxy or RelationshipProxy which is return by Neo4j::Node.new
+      # @return the java node/relationship object representing this object unless it is already the java object.
       def _java_node
         self
       end

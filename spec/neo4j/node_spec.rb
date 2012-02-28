@@ -24,7 +24,6 @@ describe Neo4j::Node, :type => :mock_db do
   describe "#del" do
     it "should call the delete java method" do
       new_node = MockNode.new
-      iter = double("java iterator", :hasNext => false)
       new_node.should_receive(:get_relationships).and_return([])
       new_node.should_receive(:delete)
       new_node.del.should be_nil

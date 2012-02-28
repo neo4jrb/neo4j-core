@@ -28,21 +28,14 @@ begin
 
   # Config
   Neo4j::Config[:logger_level] = Logger::ERROR
-  Neo4j::Config[:storage_path] = File.join(Dir.tmpdir, "neo4j-core-rspec-db")
   Neo4j::Config[:debug_java] = true
   EMBEDDED_DB_PATH = File.join(Dir.tmpdir, "neo4j-core-rspec-db2")
 
-  # Util
-  FileUtils.rm_rf Neo4j::Config[:storage_path]
-
-
   def embedded_db
     @@db ||= begin
-      puts "START JAVA DB"
       FileUtils.rm_rf EMBEDDED_DB_PATH
       db = Java::OrgNeo4jKernel::EmbeddedGraphDatabase.new(EMBEDDED_DB_PATH, Neo4j.config.to_java_map)
       at_exit do
-        puts "SHUTDOWN";
         db.shutdown
         FileUtils.rm_rf EMBEDDED_DB_PATH
         end
@@ -69,11 +62,11 @@ begin
 
 
   RSpec.configure do |c|
-    $name_counter = 0
     c.filter_run_excluding :slow => ENV['TRAVIS'] != 'true'
 
-    c.before(:each, :type => :integration) do
-      new_tx
+    c.before(:all, :type => :integration) do
+      Neo4j::Config[:storage_path] = File.join(Dir.tmpdir, "neo4j_core_integration_rspecs")
+      FileUtils.rm_rf Neo4j::Config[:storage_path]
     end
 
     c.after(:each, :type => :integration) do
