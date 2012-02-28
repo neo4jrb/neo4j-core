@@ -37,16 +37,6 @@ module Neo4j
         # create is the same as new
         alias_method :create, :new
 
-        # Loads a node or wrapped node given a native java node or an id.
-        # If there is a Ruby wrapper for the node then it will create a Ruby object that will
-        # wrap the java node (see Neo4j::NodeMixin).
-        #
-        # If the node does not exist it will return nil
-        #
-        def load(node_id, db = Neo4j.started_db)
-          node = _load(node_id, db)
-          node && node.wrapper
-        end
 
         # Same as load but does not return the node as a wrapped Ruby object.
         #

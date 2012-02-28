@@ -12,9 +12,6 @@ describe "Neo4j::Node", :type => :integration do
     its(:neo_id) { should > 0 }
     its(:exist?) { should be_true }
     its(:class) { should == Neo4j::Node }
-    its(:wrapped_entity) { should == subject }
-    its(:wrapper) { should == subject }
-    its(:_java_node) { should == subject }
     it "can be loaded with Neo4j::Node.load" do
       id = subject.neo_id
       n = Neo4j::Node.load(id)

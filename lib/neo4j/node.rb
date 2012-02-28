@@ -1,10 +1,4 @@
 # external neo4j dependencies
-require 'neo4j-core/property/property'
-require 'neo4j-core/rels/rels'
-require 'neo4j-core/traversal/traversal'
-require 'neo4j-core/index/index'
-require 'neo4j-core/equal'
-require 'neo4j-core/load'
 
 module Neo4j
   # A node in the graph with properties and relationships to other entities.
@@ -36,28 +30,10 @@ module Neo4j
   class Node
     extend Neo4j::Core::Node::ClassMethods
     extend Neo4j::Core::Index::ClassMethods
-    extend Neo4j::Core::Load
+    extend Neo4j::Core::Loader::ClassMethods
 
     self.node_indexer self
 
-    ##
-    # :method: del
-    # Delete the node and all its relationship.
-    #
-    # It might raise an exception if this method was called without a Transaction,
-    # or if it failed to delete the node (it maybe was already deleted).
-    #
-    # If this method raise an exception you may also get an exception when the transaction finish.
-    # This method is  defined in the  org.neo4j.kernel.impl.core.NodeProxy which is return by Neo4j::Node.new
-    #
-    # ==== Returns
-    # nil or raise an exception
-    #
-
-    ##
-    # :method: exist?
-    # returns true if the node exists in the database
-    # This method is  defined in the  org.neo4j.kernel.impl.core.NodeProxy which is return by Neo4j::Node.new
 
     ##
     # :method: wrapped_entity
@@ -176,6 +152,7 @@ module Neo4j
           include Neo4j::Core::Equal
           include Neo4j::Core::Index
           include Neo4j::Core::Node
+          include Neo4j::Core::Loader
         end
       end
     end
