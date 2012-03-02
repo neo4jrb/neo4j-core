@@ -81,6 +81,46 @@ describe Neo4j::Node, "index", :type => :integration do
     ages.should == [5, 4, 2, 1, 3]
   end
 
+
+  it "compound AND query " do
+    pending "Need support for numericIndex without Neo4j::NodeMixin"
+    new_tx
+
+    Neo4j::Node.new :name => 'pelle', :age => 3
+    Neo4j::Node.new :name => 'pelle', :age => 2
+    Neo4j::Node.new :name => 'pelle', :age => 4
+    Neo4j::Node.new :name => 'pelle', :age => 1
+    Neo4j::Node.new :name => 'pelle', :age => 5
+
+    new_tx
+
+    result = Neo4j::Node.find('name: pelle').and(:age).between(0, 9)#('age:[0 TO 9]')
+    ages   = result.collect { |x| x[:age] }
+    puts "AGES = #{ages.inspect}"
+    ages.size.should == 3
+
+  end
+
+  it "can do a range search" do
+    new_tx
+
+    Neo4j::Node.new :name => 'zebbe@gmail.com', :age => 3
+    Neo4j::Node.new :name => 'pelle@gmail.com', :age => 2
+    Neo4j::Node.new :name => 'pelle@gmail.com', :age => 4
+    Neo4j::Node.new :name => 'pelle@gmail.com', :age => 1
+    Neo4j::Node.new :name => 'andreas@gmail.com', :age => 5
+
+    new_tx
+
+    result = Neo4j::Node.find('name: p*')#.and(:age).between(0, 500)
+
+    # then
+    ages   = result.collect { |x| x[:age] }
+    puts "AGES = #{ages.inspect}"
+    ages.size.should == 3
+
+  end
+
   it "can find several nodes with the same index" do
     new_tx
 
@@ -211,39 +251,6 @@ describe Neo4j::Node, "index", :type => :integration do
 
     # then
     Neo4j::Node.find('name: andreas').first.should_not == new_node
-  end
-
-  it "will automatically close the connection if a block was provided with the find method" do
-    indexer     = Neo4j::Core::Index::Indexer.new('mocked-indexer', :node)
-    index       = double('index')
-    indexer.should_receive(:index_for_type).and_return(index)
-    hits        = double('hits')
-    index.should_receive(:query).and_return(hits)
-    old_indexer = Neo4j::Node._indexer
-    Neo4j::Node.instance_eval { @_indexer = indexer }
-    hits.should_receive(:close)
-    hits.should_receive(:first).and_return("found_node")
-    found_node  = Neo4j::Node.find('name: andreas', :wrapped => false) { |h| h.first }
-    found_node.should == 'found_node'
-
-    # restore
-    Neo4j::Node.instance_eval { @_indexer = old_indexer }
-  end
-
-  it "will automatically close the connection even if the block provided raises an exception" do
-    indexer     = Neo4j::Core::Index::Indexer.new('mocked-indexer', :node)
-    index       = double('index')
-    indexer.should_receive(:index_for_type).and_return(index)
-    hits        = double('hits')
-    index.should_receive(:query).and_return(hits)
-    old_indexer = Neo4j::Node.instance_eval { @_indexer }
-    Neo4j::Node.instance_eval { @_indexer = indexer }
-    hits.should_receive(:close)
-    expect { Neo4j::Node.find('name: andreas', :wrapped => false) { |h| raise "oops" } }.to raise_error
-
-
-    # restore
-    Neo4j::Node.instance_eval { @_indexer = old_indexer }
   end
 
   describe "add_index" do

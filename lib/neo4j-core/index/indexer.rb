@@ -1,6 +1,36 @@
 module Neo4j
   module Core
     module Index
+
+      class IndexConfig
+        def initialize(indexer_for)
+          @props = {}
+          @indexer_for = indexer_for
+        end
+
+        def add_index(args)
+          conf = args.last.kind_of?(Hash) ? args.pop : {}
+          args.uniq.each do |field|
+            @props[field.to_s] = {:index_type => (conf[:type] || :exact)}
+          end
+        end
+
+        def decl_props
+          @index_config ||= @indexer_for.respond_to?(:_decl_props) && @indexer_for._decl_props
+        end
+
+        def decl_type_on(field)
+          decl_props && decl_props[field] && decl_props[field][:type]
+        end
+
+        def numeric?(field)
+          type = decl_props && decl_props[field.to_sym] && decl_props[field.to_sym][:type]
+          type && !type.is_a?(String)
+        end
+
+      end
+
+
       # This class is delegated from the Neo4j::Core::Index::ClassMethod
       # @see Neo4j::Core::Index::ClassMethods
       class Indexer
@@ -8,19 +38,17 @@ module Neo4j
         # @return [Hash] a hash of which indexes has been defined and the type of index (:exact or :fulltext)
         attr_reader :field_types
 
-        attr_reader :indexer_for, :via_relationships, :entity_type, :parent_indexers, :via_relationships
+        attr_reader :via_relationships, :entity_type, :parent_indexers, :via_relationships
         alias_method :index_types, :field_types
 
         def initialize(clazz, type)
-          # part of the unique name of the index
-          @indexer_for = clazz
-
           # do we want to index nodes or relationships ?
           @entity_type = type
 
           @indexes = {} # key = type, value = java neo4j index
           @field_types = {} # key = field, value = type (e.g. :exact or :fulltext)
-          @via_relationships = {} # key = field, value = relationship
+
+          @config = IndexConfig.new(clazz)
 
           # to enable subclass indexing to work properly, store a list of parent indexers and
           # whenever an operation is performed on this one, perform it on all
@@ -29,7 +57,7 @@ module Neo4j
 
 
         def to_s
-          "Indexer @#{object_id} [index_for:#{@indexer_for}, field_types=#{@field_types.keys.join(', ')}, via=#{@via_relationships.inspect}]"
+          "Indexer @#{object_id} [field_types=#{@field_types.keys.join(', ')}}]"
         end
 
         # Add an index on a field so that it will be automatically updated by neo4j transactional events.
@@ -83,21 +111,9 @@ module Neo4j
         #
         def index(*args)
           conf = args.last.kind_of?(Hash) ? args.pop : {}
-          conf_no_via = conf.reject { |k, v| k == :via } # avoid endless recursion
 
           args.uniq.each do |field|
-            if conf[:via]
-              rel_dsl = @indexer_for._decl_rels[conf[:via]]
-              raise "No relationship defined for '#{conf[:via]}'. Check class '#{@indexer_for}': index :#{field}, via=>:#{conf[:via]} <-- error. Define it with a has_one or has_n" unless rel_dsl
-              raise "Only incoming relationship are possible to define index on. Check class '#{@indexer_for}': index :#{field}, via=>:#{conf[:via]}" unless rel_dsl.incoming?
-              via_indexer = rel_dsl.target_class._indexer
-
-              field = field.to_s
-              @via_relationships[field] = rel_dsl
-              via_indexer.index(field, conf_no_via)
-            else
-              @field_types[field.to_s] = conf[:type] || :exact
-            end
+            @field_types[field.to_s] = conf[:type] || :exact
           end
         end
 
@@ -142,35 +158,29 @@ module Neo4j
         #
         # In order to use this you have to declare an index on the fields first, see #index.
         # Notice that you should close the lucene query after the query has been executed.
-        # You can do that either by provide an block or calling the Neo4j::Index::LuceneQuery#close
+        # You can do that either by provide an block or calling the Neo4j::Core::Index::LuceneQuery#close
         # method. When performing queries from Ruby on Rails you do not need this since it will be automatically closed
         # (by Rack).
         #
-        # === Example, with a block
+        # @example with a block
         #
         #   Person.find('name: kalle') {|query| puts "#{[*query].join(', )"}
         #
-        # ==== Example
+        # @example
         #
         #   query = Person.find('name: kalle')
         #   puts "First item #{query.first}"
         #   query.close
         #
-        # === Return Value
-        # It will return a Neo4j::Index::LuceneQuery object
-        #
-        #
+        # @return [Neoj::Core::Index::LuceneQuery] a query object
         def find(query, params = {})
-          # we might need to know what type the properties are when indexing and querying
-          @decl_props ||= @indexer_for.respond_to?(:_decl_props) && @indexer_for._decl_props
-
           index = index_for_type(params[:type] || :exact)
           if query.is_a?(Hash) && (query.include?(:conditions) || query.include?(:sort))
-            params.merge! query.except(:conditions)
+            params.merge! query.reject{|k,_| k == :conditions}
             query.delete(:sort)
             query = query.delete(:conditions) if query.include?(:conditions)
           end
-          query = (params[:wrapped].nil? || params[:wrapped]) ? LuceneQuery.new(index, @decl_props, query, params) : index.query(query)
+          query = (params[:wrapped].nil? || params[:wrapped]) ? LuceneQuery.new(index, @config, query, params) : index.query(query)
 
           if block_given?
             begin
@@ -187,7 +197,6 @@ module Neo4j
         # delete the index, if no type is provided clear all types of indexes
         def delete_index_type(type=nil)
           if type
-            #raise "can't clear index of type '#{type}' since it does not exist ([#{@field_types.values.join(',')}] exists)" unless index_type?(type)
             key = index_key(type)
             @indexes[key] && @indexes[key].delete
             @indexes[key] = nil
@@ -234,16 +243,12 @@ module Neo4j
 
         # Called from the event handler when a new node or relationships is about to be committed.
         def update_index_on(node, field, old_val, new_val)
-          if @via_relationships.include?(field)
-            dsl = @via_relationships[field]
-            target_class = dsl.target_class
-
-            dsl._all_relationships(node).each do |rel|
-              other = rel._start_node
-              target_class._indexer.update_single_index_on(other, field, old_val, new_val)
-            end
-          end
           update_single_index_on(node, field, old_val, new_val)
+        end
+
+        # Called from the event handler when deleting a property
+        def remove_index_on_fields(node, props, deleted_relationship_set)
+          @field_types.keys.each { |field| rm_index(node, field, props[field]) if props[field] }
         end
 
         protected
@@ -257,17 +262,6 @@ module Neo4j
           prefix.blank? ? "" : prefix + "_"
         end
 
-        def remove_index_on_fields(node, props, deleted_relationship_set) #:nodoc:
-          @field_types.keys.each { |field| rm_index(node, field, props[field]) if props[field] }
-          # remove all via indexed fields
-          @via_relationships.each_value do |dsl|
-            indexer = dsl.target_class._indexer
-            deleted_relationship_set.relationships(node.getId).each do |rel|
-              indexer.remove_index_on_fields(rel._start_node, props, deleted_relationship_set)
-            end
-          end
-        end
-
         def update_on_deleted_relationship(relationship) #:nodoc:
           update_on_relationship(relationship, false)
         end
@@ -279,25 +273,6 @@ module Neo4j
         def update_on_relationship(relationship, is_created) #:nodoc:
           rel_type = relationship.rel_type
           end_node = relationship._end_node
-          # find which via relationship match rel_type
-          @via_relationships.each_pair do |field, dsl|
-            # have we declared an index on this changed relationship ?
-            next unless dsl.rel_type == rel_type
-
-            # yes, so find the node and value we should update the index on
-            val = end_node[field]
-            start_node = relationship._start_node
-
-            # find the indexer to use
-            indexer = dsl.target_class._indexer
-
-            # is the relationship created or deleted ?
-            if is_created
-              indexer.update_index_on(start_node, field, nil, val)
-            else
-              indexer.update_index_on(start_node, field, val, nil)
-            end
-          end
         end
 
         def update_single_index_on(node, field, old_val, new_val) #:nodoc:
@@ -310,20 +285,15 @@ module Neo4j
         def inherit_fields_from(parent_index) #:nodoc:
           return unless parent_index
           @field_types.reverse_merge!(parent_index.field_types) if parent_index.respond_to?(:field_types)
-          @via_relationships.reverse_merge!(parent_index.via_relationships) if parent_index.respond_to?(:via_relationships)
           @parent_indexers << parent_index
         end
 
         def indexed_value_for(field, value)
-          # we might need to know what type the properties are when indexing and querying
-          @decl_props ||= @indexer_for.respond_to?(:_decl_props) && @indexer_for._decl_props
-
-          type = @decl_props && @decl_props[field.to_sym] && @decl_props[field.to_sym][:type]
-          return value unless type
-
-          if String != type
+          if @config.numeric?(field)
+            puts "NUMERIC on #{field} value: #{value.inspect}/#{value.class}"
             org.neo4j.index.lucene.ValueContext.new(value).indexNumeric
           else
+            puts "NOT NUMERIC on #{field} value: #{value.inspect}/#{value.class}"
             org.neo4j.index.lucene.ValueContext.new(value)
           end
         end

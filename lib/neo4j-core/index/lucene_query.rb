@@ -2,49 +2,42 @@ module Neo4j
   module Core
 
     module Index
-      # == LuceneQuery
-      #
       # This object is returned when you call the #find method on the Node, Relationship.
       # The actual query is not executed until the first item is requested.
       #
       # You can perform a query in many different ways:
       #
-      # ==== By Hash
+      # @example By Hash
       #
-      # Example:
       #  Person.find(:name => 'foo', :age => 3)
       #
-      # ==== By Range
+      # @example By Range
       #
-      # Example:
       #  Person.find(:age).between(15,35)
       #
-      # ==== By Lucene Query Syntax
+      # @example By Lucene Query Syntax
       #
-      # Example
       #  Car.find('wheels:"4" AND colour: "blue")
       #
       # For more information about the syntax see http://lucene.apache.org/java/3_0_2/queryparsersyntax.html
       #
-      # ==== By Compound Queries
+      # @example: By Compound Queries
+      #
+      #   Vehicle.find(:weight).between(5.0, 100000.0).and(:name).between('a', 'd')
       #
       # You can combine several queries by <tt>AND</tt>ing those together.
       #
-      # Example:
-      #   Vehicle.find(:weight).between(5.0, 100000.0).and(:name).between('a', 'd')
-      #
-      # === See Also
-      # * Neo4j::Index::Indexer#index
-      # * Neo4j::Index::Indexer#find - which returns an LuceneQuery
+      # @see Neo4j::Core::Index::Indexer#index
+      # @see Neo4j::Core::Index::Indexer#find - which returns an LuceneQuery
       #
       class LuceneQuery
         include Enumerable
-        attr_accessor :left_and_query, :left_or_query, :right_not_query
+        attr_accessor :left_and_query, :left_or_query, :right_not_query, :query, :order
 
-        def initialize(index, decl_props, query, params={})
+        def initialize(index, index_config, query, params={})
           @index = index
           @query = query
-          @decl_props = decl_props
+          @index_config = index_config
           @params = params
 
           if params.include?(:sort)
@@ -71,28 +64,22 @@ module Neo4j
           @hits = nil
         end
 
-        # True if there is no search hits.
+        # @return [true, false] True if there is no search hits.
         def empty?
           hits.size == 0
         end
 
-        # returns the n'th search item
         # Does simply loop all search items till the n'th is found.
-        #
+        # @return[Neo4j::Node, Neo4j::Relationship] the n'th search item
         def [](index)
           i = 0
           each { |x| return x if i == index; i += 1 }
           nil # out of index
         end
 
-        # Returns the number of search hits
+        # @return[Fixnum] the number of search hits
         def size
           hits.size
-        end
-
-        def hits #:nodoc:
-          close
-          @hits = perform_query
         end
 
         # Performs a range query
@@ -100,9 +87,9 @@ module Neo4j
         #
         def between(lower, upper, lower_incusive=false, upper_inclusive=false)
           raise "Expected a symbol. Syntax for range queries example: index(:weight).between(a,b)" unless Symbol === @query
-          raise "Can't only do range queries on Neo4j::NodeMixin, Neo4j::Model, Neo4j::RelationshipMixin" unless @decl_props
+#          raise "Can't only do range queries on Neo4j::NodeMixin, Neo4j::Model, Neo4j::RelationshipMixin" unless @decl_props
           # check that we perform a range query on the same values as we have declared with the property :key, :type => ...
-          type = @decl_props[@query] && @decl_props[@query][:type]
+          type = @index_config.decl_type_on(@query)
           raise "find(#{@query}).between(#{lower}, #{upper}): #{lower} not a #{type}" if type && !type === lower.class
           raise "find(#{@query}).between(#{lower}, #{upper}): #{upper} not a #{type}" if type && !type === upper.class
 
@@ -117,11 +104,14 @@ module Neo4j
 
           case lower
             when Fixnum
-              org.apache.lucene.search.NumericRangeQuery.new_long_range(field.to_s, lower, upper, lower_incusive, upper_inclusive)
+              puts "FIXNUM '#{field.inspect}', lower:'#{lower.inspect}', upper:'#{upper.inspect}'"
+              Java::OrgApacheLuceneSearch::NumericRangeQuery.new_long_range(field.to_s, lower, upper, lower_incusive, upper_inclusive)
             when Float
-              org.apache.lucene.search.NumericRangeQuery.new_double_range(field.to_s, lower, upper, lower_incusive, upper_inclusive)
+              puts "FLOAT"
+              Java::OrgApacheLuceneSearch::NumericRangeQuery.new_double_range(field.to_s, lower, upper, lower_incusive, upper_inclusive)
             else
-              org.apache.lucene.search.TermRangeQuery.new(field.to_s, lower, upper, lower_incusive, upper_inclusive)
+              puts "STRING"
+              Java::OrgApacheLuceneSearch::TermRangeQuery.new(field.to_s, lower, upper, lower_incusive, upper_inclusive)
           end
         end
 
@@ -136,7 +126,7 @@ module Neo4j
         #  Person.find(:name=>'kalle').and(:age => 3)
         #
         def and(query2)
-          LuceneQuery.new(@index, @decl_props, query2).tap { |new_query| new_query.left_and_query = self }
+          LuceneQuery.new(@index, @index_config, query2).tap { |new_query| new_query.left_and_query = self }
         end
 
         # Create an OR lucene query.
@@ -149,7 +139,7 @@ module Neo4j
         #  Person.find(:name=>'kalle').or(:age => 3)
         #
         def or(query2)
-          LuceneQuery.new(@index, @decl_props, query2).tap { |new_query| new_query.left_or_query = self }
+          LuceneQuery.new(@index, @index_config, query2).tap { |new_query| new_query.left_or_query = self }
         end
 
         # Create a NOT lucene query.
@@ -162,78 +152,94 @@ module Neo4j
         #  Person.find(:age => 3).not(:name=>'kalle')
         #
         def not(query2)
-          LuceneQuery.new(@index, @decl_props, query2).tap { |new_query| new_query.right_not_query = self }
+          LuceneQuery.new(@index, @index_config, query2).tap { |new_query| new_query.right_not_query = self }
         end
 
 
         # Sort descending the given fields.
+        # @param [Symbol] fields it should sort
         def desc(*fields)
           @order = fields.inject(@order || {}) { |memo, field| memo[field] = true; memo }
           self
         end
 
         # Sort ascending the given fields.
+        # @param [Symbol] fields it should sort
         def asc(*fields)
           @order = fields.inject(@order || {}) { |memo, field| memo[field] = false; memo }
           self
         end
 
-        def build_and_query(query) #:nodoc:
-          build_composite_query(@left_and_query.build_query, query, org.apache.lucene.search.BooleanClause::Occur::MUST)
+        protected
+
+        def build_and_query(query)
+          build_composite_query(@left_and_query.build_query, query, Java::OrgApacheLuceneSearch::BooleanClause::Occur::MUST)
         end
 
-        def build_or_query(query) #:nodoc:
-          build_composite_query(@left_or_query.build_query, query, org.apache.lucene.search.BooleanClause::Occur::SHOULD)
+        def build_or_query(query)
+          build_composite_query(@left_or_query.build_query, query, Java::OrgApacheLuceneSearch::BooleanClause::Occur::SHOULD)
         end
 
-        def build_not_query(query) #:nodoc:
+        def build_not_query(query)
           right_query = @right_not_query.build_query
-          composite_query = org.apache.lucene.search.BooleanQuery.new
-          composite_query.add(query, org.apache.lucene.search.BooleanClause::Occur::MUST_NOT)
-          composite_query.add(right_query, org.apache.lucene.search.BooleanClause::Occur::MUST)
+          composite_query = Java::OrgApacheLuceneSearch::BooleanQuery.new
+          composite_query.add(query, Java::OrgApacheLuceneSearch::BooleanClause::Occur::MUST_NOT)
+          composite_query.add(right_query, Java::OrgApacheLuceneSearch::BooleanClause::Occur::MUST)
           composite_query
         end
 
-        def build_composite_query(left_query, right_query, opeartor) #:nodoc:
-          composite_query = org.apache.lucene.search.BooleanQuery.new
-          composite_query.add(left_query, opeartor)
-          composite_query.add(right_query, opeartor)
+        def build_composite_query(left_query, right_query, operator) #:nodoc:
+          puts "left_query=#{left_query.inspect}"
+          puts "right_query=#{right_query.inspect}"
+
+          composite_query = Java::OrgApacheLuceneSearch::BooleanQuery.new
+          version = Java::OrgApacheLuceneUtil::Version::LUCENE_35
+          analyzer = org.apache.lucene.analysis.standard::StandardAnalyzer.new(version)
+          parser = Java::org.apache.lucene.queryParser.QueryParser.new(version,'name', analyzer )
+
+          left_query = parser.parse(left_query) if left_query.is_a?(String)
+          right_query = parser.parse(right_query) if right_query.is_a?(String)
+          #left_query = Java::OrgApacheLuceneSearch::TermQuery.new(Java::OrgApacheLuceneIndex::Term.new("age", "*"))
+          puts "LEFT QUERY #{left_query}/#{left_query.class}"
+
+          composite_query.add(left_query, operator)
+          composite_query.add(right_query, operator)
           composite_query
         end
 
         def build_sort_query(query) #:nodoc:
           java_sort_fields = @order.keys.inject([]) do |memo, field|
-            decl_type = @decl_props && @decl_props[field] && @decl_props[field][:type]
+            decl_type = @index_config.decl_type_on(field)
             type = case
                      when Float == decl_type
-                       org.apache.lucene.search.SortField::DOUBLE
+                       Java::OrgApacheLuceneSearch::SortField::DOUBLE
                      when Fixnum == decl_type || DateTime == decl_type || Date == decl_type || Time == decl_type
-                       org.apache.lucene.search.SortField::LONG
+                       Java::OrgApacheLuceneSearch::SortField::LONG
                      else
-                       org.apache.lucene.search.SortField::STRING
+                       Java::OrgApacheLuceneSearch::SortField::STRING
                    end
-            memo << org.apache.lucene.search.SortField.new(field.to_s, type, @order[field])
+            memo << Java::OrgApacheLuceneSearch::SortField.new(field.to_s, type, @order[field])
           end
-          sort = org.apache.lucene.search.Sort.new(*java_sort_fields)
-          org.neo4j.index.lucene.QueryContext.new(query).sort(sort)
+          sort = Java::OrgApacheLuceneSearch::Sort.new(*java_sort_fields)
+          Java::OrgNeo4jIndexLucene::QueryContext.new(query).sort(sort)
         end
 
         def build_hash_query(query) #:nodoc:
-          and_query = org.apache.lucene.search.BooleanQuery.new
+          and_query = Java::OrgApacheLuceneSearch::BooleanQuery.new
 
           query.each_pair do |key, value|
-            type = @decl_props && @decl_props[key.to_sym] && @decl_props[key.to_sym][:type]
+            type = @index_config && @index_config[key.to_sym] && @index_config[key.to_sym][:type]
             if !type.nil? && type != String
               if Range === value
-                and_query.add(range_query(key, value.first, value.last, true, !value.exclude_end?), org.apache.lucene.search.BooleanClause::Occur::MUST)
+                and_query.add(range_query(key, value.first, value.last, true, !value.exclude_end?), Java::OrgApacheLuceneIndex::BooleanClause::Occur::MUST)
               else
-                and_query.add(range_query(key, value, value, true, true), org.apache.lucene.search.BooleanClause::Occur::MUST)
+                and_query.add(range_query(key, value, value, true, true), Java::OrgApacheLuceneIndex::BooleanClause::Occur::MUST)
               end
             else
               conv_value = type ? TypeConverters.convert(value) : value.to_s
-              term = org.apache.lucene.index.Term.new(key.to_s, conv_value)
-              term_query = org.apache.lucene.search.TermQuery.new(term)
-              and_query.add(term_query, org.apache.lucene.search.BooleanClause::Occur::MUST)
+              term = Java::OrgApacheLuceneIndex::Term.new(key.to_s, conv_value)
+              term_query = Java::OrgApacheLuceneIndex::TermQuery.new(term)
+              and_query.add(term_query, Java::OrgApacheLuceneIndex::BooleanClause::Occur::MUST)
             end
           end
           and_query
@@ -252,6 +258,14 @@ module Neo4j
         def perform_query #:nodoc:
           @index.query(build_query)
         end
+
+
+        def hits #:nodoc:
+          close
+          @hits = perform_query
+        end
+
+
       end
     end
   end

@@ -69,18 +69,14 @@ RSpec.configure do |c|
     finish_tx
   end
 
-  c.before(:each, :type => :mock_db) do
+  c.before(:all, :type => :mock_db) do
     Neo4j.shutdown
-    @mock_db = MockDb.new
-    @mock_db_class = double("JavaGraphDbClass")
-    @mock_db_class.stub!(:new) { |*| @mock_db }
-    Neo4j::Core::Database.default_embedded_db= @mock_db_class
+    Neo4j::Core::Database.default_embedded_db= MockDb
+    Neo4j.start
   end
 
-  c.after(:each, :type => :mock_db) do
+  c.after(:all, :type => :mock_db) do
     Neo4j.shutdown
     Neo4j::Core::Database.default_embedded_db = nil
-    @mock_db = nil
-    @mock_db_class = nil
   end
 end
