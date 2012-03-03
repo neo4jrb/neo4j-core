@@ -40,7 +40,6 @@ module Neo4j
           indexer(clazz, :rel)
         end
 
-        protected
 
         def indexer(clazz, type)
           @_indexer ||= IndexerRegistry.create_for(self, clazz, type)

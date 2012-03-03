@@ -49,7 +49,7 @@ module Neo4j
   # (Those mixin are actually not included in the Neo4j::Relationship but instead directly included in the java class org.neo4j.kernel.impl.core.RelationshipProxy)
   #
   class Relationship
-    extend Neo4j::Index::ClassMethods
+    extend Neo4j::Core::Index::ClassMethods
 
     self.rel_indexer self
 

@@ -115,10 +115,10 @@ module Neo4j
 
         # Create a compound lucene query.
         #
-        # ==== Parameters
-        # query2 :: the query that should be AND together
+        # @param [String] query2 the query that should be AND together
+        # @return [Neo4j::Core::Index::LuceneQuery] a new query object
         #
-        # ==== Example
+        # @example
         #
         #  Person.find(:name=>'kalle').and(:age => 3)
         #
@@ -128,10 +128,10 @@ module Neo4j
 
         # Create an OR lucene query.
         #
-        # ==== Parameters
-        # query2 :: the query that should be OR together
+        # @param [String] query2 the query that should be OR together
+        # @return [Neo4j::Core::Index::LuceneQuery] a new query object
         #
-        # ==== Example
+        # @example
         #
         #  Person.find(:name=>'kalle').or(:age => 3)
         #
@@ -141,10 +141,10 @@ module Neo4j
 
         # Create a NOT lucene query.
         #
-        # ==== Parameters
-        # query2 :: the query that should exclude matching results
+        # @param [String] query2  the query that should exclude matching results
+        # @return [Neo4j::Core::Index::LuceneQuery] a new query object
         #
-        # ==== Example
+        # @example
         #
         #  Person.find(:age => 3).not(:name=>'kalle')
         #
