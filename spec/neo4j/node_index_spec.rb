@@ -3,15 +3,14 @@ require 'spec_helper'
 describe Neo4j::Node, "index", :type => :integration do
   before(:each) do
     Neo4j::Node.index(:name) # default :exact
-    Neo4j::Node.index(:age) # default :exact
+    Neo4j::Node.index(:age, :numeric => true) # default :exact
     Neo4j::Node.index(:description, :type => :fulltext)
   end
 
   after(:each) do
     new_tx
-    Neo4j::Node.rm_field_type :exact
-    Neo4j::Node.rm_field_type :fulltext
-    Neo4j::Node.delete_index_type  # delete all indexes
+    Neo4j::Node.rm_index_config
+    Neo4j::Node.rm_index_type  # delete all indexes
     finish_tx
   end
 
@@ -82,43 +81,40 @@ describe Neo4j::Node, "index", :type => :integration do
   end
 
 
-  it "compound AND query " do
-    pending "Need support for numericIndex without Neo4j::NodeMixin"
+  it "range search with compound queries works" do
     new_tx
-
     Neo4j::Node.new :name => 'pelle', :age => 3
     Neo4j::Node.new :name => 'pelle', :age => 2
     Neo4j::Node.new :name => 'pelle', :age => 4
     Neo4j::Node.new :name => 'pelle', :age => 1
     Neo4j::Node.new :name => 'pelle', :age => 5
-
     new_tx
 
-    result = Neo4j::Node.find('name: pelle').and(:age).between(0, 9)#('age:[0 TO 9]')
-    ages   = result.collect { |x| x[:age] }
-    puts "AGES = #{ages.inspect}"
-    ages.size.should == 3
+    # when
+    result = Neo4j::Node.find('name: pelle').and(:age).between(2, 5)
 
+    # then
+    ages   = result.collect { |x| x[:age] }
+    ages.size.should == 2
+    ages.should include(3,4)
   end
 
   it "can do a range search" do
     new_tx
-
     Neo4j::Node.new :name => 'zebbe@gmail.com', :age => 3
     Neo4j::Node.new :name => 'pelle@gmail.com', :age => 2
     Neo4j::Node.new :name => 'pelle@gmail.com', :age => 4
     Neo4j::Node.new :name => 'pelle@gmail.com', :age => 1
     Neo4j::Node.new :name => 'andreas@gmail.com', :age => 5
-
     new_tx
 
-    result = Neo4j::Node.find('name: p*')#.and(:age).between(0, 500)
+    # when
+    result = Neo4j::Node.find(:age).between(2, 5)
 
     # then
     ages   = result.collect { |x| x[:age] }
-    puts "AGES = #{ages.inspect}"
-    ages.size.should == 3
-
+    ages.size.should == 2
+    ages.should include(3,4)
   end
 
   it "can find several nodes with the same index" do
@@ -135,14 +131,14 @@ describe Neo4j::Node, "index", :type => :integration do
     Neo4j::Node.find("name: thing", :wrapped => true).should include(thing3)
   end
 
-  it "#rm_field_type will make the index not updated when transaction finishes" do
+  it "#rm_index_config will make the index not updated when transaction finishes" do
     new_tx
 
     new_node = Neo4j::Node.new :name => 'andreas'
     Neo4j::Node.find("name: andreas").first.should_not == new_node
 
     # when
-    Neo4j::Node.rm_field_type(:exact)
+    Neo4j::Node.rm_index_config
     finish_tx
 
     # then

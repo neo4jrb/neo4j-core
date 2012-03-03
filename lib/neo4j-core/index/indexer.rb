@@ -2,51 +2,16 @@ module Neo4j
   module Core
     module Index
 
-      class IndexConfig
-        def initialize(indexer_for)
-          @props = {}
-          @indexer_for = indexer_for
-        end
-
-        def add_index(args)
-          conf = args.last.kind_of?(Hash) ? args.pop : {}
-          args.uniq.each do |field|
-            @props[field.to_s] = {:index_type => (conf[:type] || :exact)}
-          end
-        end
-
-        def decl_props
-          @index_config ||= @indexer_for.respond_to?(:_decl_props) && @indexer_for._decl_props
-        end
-
-        def decl_type_on(field)
-          decl_props && decl_props[field] && decl_props[field][:type]
-        end
-
-        def numeric?(field)
-          type = decl_props && decl_props[field.to_sym] && decl_props[field.to_sym][:type]
-          type && !type.is_a?(String)
-        end
-
-      end
-
-
       # This class is delegated from the Neo4j::Core::Index::ClassMethod
       # @see Neo4j::Core::Index::ClassMethods
       class Indexer
-
-        # @return [Hash] a hash of which indexes has been defined and the type of index (:exact or :fulltext)
-        attr_reader :field_types
-
-        attr_reader :via_relationships, :entity_type, :parent_indexers, :via_relationships
-        alias_method :index_types, :field_types
+        attr_reader :entity_type, :parent_indexers
 
         def initialize(clazz, type)
           # do we want to index nodes or relationships ?
           @entity_type = type
 
           @indexes = {} # key = type, value = java neo4j index
-          @field_types = {} # key = field, value = type (e.g. :exact or :fulltext)
 
           @config = IndexConfig.new(clazz)
 
@@ -57,16 +22,15 @@ module Neo4j
 
 
         def to_s
-          "Indexer @#{object_id} [field_types=#{@field_types.keys.join(', ')}}]"
+          "Indexer @#{object_id} [index on #{@config.fields.join(', ')}]"
         end
 
         # Add an index on a field so that it will be automatically updated by neo4j transactional events.
         #
         # The index method takes an optional configuration hash which allows you to:
         #
-        # === Add an index on an a property
+        # @example Add an index on an a property
         #
-        # Example:
         #   class Person
         #     include Neo4j::NodeMixin
         #     index :name
@@ -74,10 +38,8 @@ module Neo4j
         #
         # When the property name is changed/deleted or the node created it will keep the lucene index in sync.
         # You can then perform a lucene query like this: Person.find('name: andreas')
-        #'
-        # === Add index on other nodes.
         #
-        # Example:
+        # @example Add index on other nodes.
         #
         #   class Person
         #     include Neo4j::NodeMixin
@@ -90,17 +52,17 @@ module Neo4j
         # In the example above an index <tt>user_id</tt> will be added to all Person nodes which has a <tt>friends</tt> relationship
         # that person with that user_id. This allows you to do lucene queries on your friends properties.
         #
-        # === Set the type value to index
-        # By default all values will be indexed as Strings.
-        # If you want for example to do a numerical range query you must tell Neo4j.rb to index it as a numeric value.
-        # You do that with the key <tt>type</tt> on the property.
+        # @example Set the type value to index
         #
-        # Example:
         #   class Person
         #     include Neo4j::NodeMixin
         #     property :height, :weight, :type => Float
         #     index :height, :weight
         #   end
+        #
+        # By default all values will be indexed as Strings.
+        # If you want for example to do a numerical range query you must tell Neo4j.rb to index it as a numeric value.
+        # You do that with the key <tt>type</tt> on the property.
         #
         # Supported values for <tt>:type</tt> is <tt>String</tt>, <tt>Float</tt>, <tt>Date</tt>, <tt>DateTime</tt> and <tt>Fixnum</tt>
         #
@@ -110,34 +72,30 @@ module Neo4j
         # @see #find
         #
         def index(*args)
-          conf = args.last.kind_of?(Hash) ? args.pop : {}
-
-          args.uniq.each do |field|
-            @field_types[field.to_s] = conf[:type] || :exact
-          end
+          @config.add_config(args)
         end
 
         # @return [true,false] if there is an index on the given field.
         def index?(field)
-          @field_types.include?(field.to_s)
+          @config.indexed?(field)
         end
 
         # @return [Symbol] the type of index for the given field (e.g. :exact or :fulltext)
         def index_type_for(field)
           return nil unless index?(field)
-          @field_types[field.to_s]
+          @config.index_type(field)
         end
 
         # @return [true,false]  if there is an index of the given type defined.
         def index_type?(type)
-          @field_types.values.include?(type)
+          @config.has_index_type?(type)
         end
 
         # Adds an index on the given entity
         # This is normally not needed since you can instead declare an index which will automatically keep
         # the lucene index in sync. See #index
         def add_index(entity, field, value)
-          return false unless @field_types.has_key?(field)
+          return false unless index?(field)
           conv_value = indexed_value_for(field, value)
           index = index_for_field(field.to_s)
           index.add(entity, field, conv_value)
@@ -149,7 +107,7 @@ module Neo4j
         # This is normally not needed since you can instead declare an index which will automatically keep
         # the lucene index in sync. See #index
         def rm_index(entity, field, value)
-          return false unless @field_types.has_key?(field)
+          return false unless index?(field)
           index_for_field(field).remove(entity, field, value)
           @parent_indexers.each { |i| i.rm_index(entity, field, value) }
         end
@@ -172,7 +130,7 @@ module Neo4j
         #   puts "First item #{query.first}"
         #   query.close
         #
-        # @return [Neoj::Core::Index::LuceneQuery] a query object
+        # @return [Neo4j::Core::Index::LuceneQuery] a query object
         def find(query, params = {})
           index = index_for_type(params[:type] || :exact)
           if query.is_a?(Hash) && (query.include?(:conditions) || query.include?(:sort))
@@ -194,8 +152,13 @@ module Neo4j
           end
         end
 
+        # Delete all index configuration. No more automatic indexing will be performed
+        def rm_index_config
+          @config.rm_index_config
+        end
+
         # delete the index, if no type is provided clear all types of indexes
-        def delete_index_type(type=nil)
+        def rm_index_type(type=nil)
           if type
             key = index_key(type)
             @indexes[key] && @indexes[key].delete
@@ -240,7 +203,6 @@ module Neo4j
            @indexes.clear
          end
 
-
         # Called from the event handler when a new node or relationships is about to be committed.
         def update_index_on(node, field, old_val, new_val)
           update_single_index_on(node, field, old_val, new_val)
@@ -248,7 +210,7 @@ module Neo4j
 
         # Called from the event handler when deleting a property
         def remove_index_on_fields(node, props, deleted_relationship_set)
-          @field_types.keys.each { |field| rm_index(node, field, props[field]) if props[field] }
+          @config.fields.each { |field| rm_index(node, field, props[field]) if props[field] }
         end
 
         protected
@@ -262,27 +224,29 @@ module Neo4j
           prefix.blank? ? "" : prefix + "_"
         end
 
-        def update_on_deleted_relationship(relationship) #:nodoc:
+        def update_on_deleted_relationship(relationship)
           update_on_relationship(relationship, false)
         end
 
-        def update_on_new_relationship(relationship) #:nodoc:
+        def update_on_new_relationship(relationship)
           update_on_relationship(relationship, true)
         end
 
-        def update_on_relationship(relationship, is_created) #:nodoc:
+        def update_on_relationship(relationship, is_created)
           rel_type = relationship.rel_type
           end_node = relationship._end_node
         end
 
-        def update_single_index_on(node, field, old_val, new_val) #:nodoc:
-          if @field_types.has_key?(field)
+        def update_single_index_on(node, field, old_val, new_val)
+          if index?(field)
             rm_index(node, field, old_val) if old_val
             add_index(node, field, new_val) if new_val
           end
         end
 
-        def inherit_fields_from(parent_index) #:nodoc:
+        def inherit_fields_from(parent_index)
+          # TODO
+          raise "not implemented" if true
           return unless parent_index
           @field_types.reverse_merge!(parent_index.field_types) if parent_index.respond_to?(:field_types)
           @parent_indexers << parent_index
@@ -290,30 +254,18 @@ module Neo4j
 
         def indexed_value_for(field, value)
           if @config.numeric?(field)
-            puts "NUMERIC on #{field} value: #{value.inspect}/#{value.class}"
             org.neo4j.index.lucene.ValueContext.new(value).indexNumeric
           else
-            puts "NOT NUMERIC on #{field} value: #{value.inspect}/#{value.class}"
             org.neo4j.index.lucene.ValueContext.new(value)
           end
         end
 
-         # Removes the cached lucene index, can be useful for some RSpecs which needs to restart the Neo4j.
-         #
-         def rm_field_type(type=nil)
-           if type
-             @field_types.delete_if { |k, v| v == type }
-           else
-             @field_types.clear
-           end
-         end
-
          def index_for_field(field) #:nodoc:
-           type = @field_types[field]
+           type = @config.index_type(field)
            @indexes[index_key(type)] ||= create_index_with(type)
          end
 
-         def index_for_type(type) #:nodoc:
+         def index_for_type(type)
            @indexes[index_key(type)] ||= create_index_with(type)
          end
 

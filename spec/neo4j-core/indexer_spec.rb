@@ -35,7 +35,12 @@ describe Neo4j::Core::Index::Indexer, :type => :mock_db do
       its(:index_type?, :exact) { should be_true }
       its(:index_type?, :fulltext) { should be_false }
 
-      its(:field_types) { should include("foo")}
+      describe "index" do
+        it "adds one index" do
+          subject.index(:my_index)
+
+        end
+      end
 
       describe "add_index" do
         it "returns false if there is no index on the property" do

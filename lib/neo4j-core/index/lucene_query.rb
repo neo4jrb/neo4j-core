@@ -104,13 +104,10 @@ module Neo4j
 
           case lower
             when Fixnum
-              puts "FIXNUM '#{field.inspect}', lower:'#{lower.inspect}', upper:'#{upper.inspect}'"
               Java::OrgApacheLuceneSearch::NumericRangeQuery.new_long_range(field.to_s, lower, upper, lower_incusive, upper_inclusive)
             when Float
-              puts "FLOAT"
               Java::OrgApacheLuceneSearch::NumericRangeQuery.new_double_range(field.to_s, lower, upper, lower_incusive, upper_inclusive)
             else
-              puts "STRING"
               Java::OrgApacheLuceneSearch::TermRangeQuery.new(field.to_s, lower, upper, lower_incusive, upper_inclusive)
           end
         end
@@ -189,9 +186,6 @@ module Neo4j
         end
 
         def build_composite_query(left_query, right_query, operator) #:nodoc:
-          puts "left_query=#{left_query.inspect}"
-          puts "right_query=#{right_query.inspect}"
-
           composite_query = Java::OrgApacheLuceneSearch::BooleanQuery.new
           version = Java::OrgApacheLuceneUtil::Version::LUCENE_35
           analyzer = org.apache.lucene.analysis.standard::StandardAnalyzer.new(version)
@@ -199,8 +193,6 @@ module Neo4j
 
           left_query = parser.parse(left_query) if left_query.is_a?(String)
           right_query = parser.parse(right_query) if right_query.is_a?(String)
-          #left_query = Java::OrgApacheLuceneSearch::TermQuery.new(Java::OrgApacheLuceneIndex::Term.new("age", "*"))
-          puts "LEFT QUERY #{left_query}/#{left_query.class}"
 
           composite_query.add(left_query, operator)
           composite_query.add(right_query, operator)

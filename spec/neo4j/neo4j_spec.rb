@@ -56,10 +56,9 @@ describe Neo4j do
 
 
   describe "reference node", :type => :mock_db do
-    #after(:each) { Neo4j.threadlocal_ref_node = nil }
 
     it "#ref_node returns the reference node" do
-      @mock_db.should_receive(:reference_node).and_return(MockNode.new)
+      Neo4j.db.graph.should_receive(:reference_node).and_return(MockNode.new)
       Neo4j.ref_node.should be_kind_of(Java::OrgNeo4jGraphdb::Node)
     end
 

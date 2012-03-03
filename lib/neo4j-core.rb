@@ -24,6 +24,7 @@ require 'neo4j-core/traversal/traverser'
 require 'neo4j-core/index/index'
 require 'neo4j-core/index/class_methods'
 require 'neo4j-core/index/indexer_registry'
+require 'neo4j-core/index/index_config'
 require 'neo4j-core/index/indexer'
 require 'neo4j-core/index/lucene_query'
 

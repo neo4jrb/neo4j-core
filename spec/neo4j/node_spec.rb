@@ -4,14 +4,14 @@ describe Neo4j::Node, :type => :mock_db do
   describe "#new" do
     it "created node should exist in db before transaction finish" do
       node = double("a node")
-      @mock_db.should_receive(:create_node).and_return(node)
+      Neo4j.db.graph.should_receive(:create_node).and_return(node)
       new_node = Neo4j::Node.new
       new_node.should == node
     end
 
     it "initialize it with the given hash of properties" do
       node = double("a node")
-      @mock_db.should_receive(:create_node).and_return(node)
+      Neo4j.db.graph.should_receive(:create_node).and_return(node)
 
       node.should_receive(:[]=).with(:name, 'my name')
       node.should_receive(:[]=).with(:age, 42)
@@ -74,14 +74,14 @@ describe Neo4j::Node, :type => :mock_db do
     context "the node exists" do
       it "returns the node" do
         a_new_node = MockNode.new
-        @mock_db.should_receive(:get_node_by_id).and_return(a_new_node)
+        Neo4j.db.graph.should_receive(:get_node_by_id).and_return(a_new_node)
         Neo4j::Node.load(123).should == a_new_node
       end
     end
 
     context "the node does not exist" do
       it "returns nil" do
-        @mock_db.should_receive(:get_node_by_id).and_raise(Java::OrgNeo4jGraphdb::NotFoundException.new)
+        Neo4j.db.graph.should_receive(:get_node_by_id).and_raise(Java::OrgNeo4jGraphdb::NotFoundException.new)
         Neo4j::Node.load(123).should be_nil
       end
     end

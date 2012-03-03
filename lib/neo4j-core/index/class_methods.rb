@@ -2,13 +2,16 @@ module Neo4j
   module Core
     module Index
       module ClassMethods
+
+        # The indexer which we are delegating to
         attr_reader :_indexer
 
 
         # Sets which indexer should be used for the given node class.
         # You can share an indexer between several different classes.
         #
-        # ==== Example
+        # @example
+        #
         #   class Contact
         #      include Neo4j::NodeMixin
         #      index :name
@@ -25,8 +28,7 @@ module Neo4j
         #   # Find an contact with a phone number, this works since they share the same index
         #   Contact.find('phone: 12345').first #=> a phone object !
         #
-        # ==== Returns
-        # The indexer that should be used to index the given class
+        # @return The indexer that should be used to index the given class
         def node_indexer(clazz)
           indexer(clazz, :node)
         end
@@ -38,7 +40,9 @@ module Neo4j
           indexer(clazz, :rel)
         end
 
-        def indexer(clazz, type) #:nodoc:
+        protected
+
+        def indexer(clazz, type)
           @_indexer ||= IndexerRegistry.create_for(self, clazz, type)
         end
 
@@ -65,8 +69,8 @@ module Neo4j
         delegate :find
         delegate :index?
         delegate :index_type?
-        delegate :delete_index_type
-        delegate :rm_field_type
+        delegate :rm_index_type
+        delegate :rm_index_config
         delegate :add_index
         delegate :rm_index
         delegate :index_type_for

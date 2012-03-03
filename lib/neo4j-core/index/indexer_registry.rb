@@ -5,7 +5,7 @@ module Neo4j
         class << self
 
           def delete_all_indexes
-            @@indexers.values.each {|i| i.delete_index_type}
+            @@indexers.values.each {|i| i.rm_index_type}
           end
 
           def create_for(this_clazz, using_other_clazz, type)
