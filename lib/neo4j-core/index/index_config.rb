@@ -3,10 +3,21 @@ module Neo4j
     module Index
 
       class IndexConfig
-        def initialize(indexer_for)
-          @indexer_for = indexer_for
+        attr_reader :_trigger_on, :_index_names, :entity_type
+
+        def initialize(entity_type)
+          @entity_type = entity_type
           @index_type = {}
           @numeric_types = []
+        end
+
+        # DSL method
+        def trigger_on(hash)
+          @_trigger_on = hash
+        end
+
+        def index_names(hash)
+          @_index_names = hash
         end
 
         def add_config(args)
@@ -18,10 +29,6 @@ module Neo4j
           end
         end
 
-        def decl_props
-          @index_config ||= @indexer_for.respond_to?(:_decl_props) && @indexer_for._decl_props
-        end
-
         def rm_index_config
           @index_type = {}
           @numeric_types = []
@@ -29,10 +36,6 @@ module Neo4j
 
         def index_type(field)
           @index_type[field.to_s]
-        end
-
-        def decl_type_on(field)
-          decl_props && decl_props[field] && decl_props[field][:type]
         end
 
         def has_index_type?(type)
@@ -47,10 +50,14 @@ module Neo4j
           @index_type.include?(field.to_s)
         end
 
+        # TODO
+        #def decl_type_on(field)
+        #  decl_props && decl_props[field] && decl_props[field][:type]
+        #end
+
         def numeric?(field)
           return true if @numeric_types.include?(field)
-          type = decl_props && decl_props[field.to_sym] && decl_props[field.to_sym][:type]
-          type && !type.is_a?(String)
+          # TODO callback to numeric dsl for Neo4j::NodeMixin decl_props check
         end
 
       end

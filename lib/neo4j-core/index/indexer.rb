@@ -5,16 +5,11 @@ module Neo4j
       # This class is delegated from the Neo4j::Core::Index::ClassMethod
       # @see Neo4j::Core::Index::ClassMethods
       class Indexer
-        attr_reader :entity_type, :parent_indexers
+        attr_reader :entity_type, :parent_indexers, :config
 
-        def initialize(clazz, type)
-          # do we want to index nodes or relationships ?
-          @entity_type = type
-
+        def initialize(config)
+          @config = config
           @indexes = {} # key = type, value = java neo4j index
-
-          @config = IndexConfig.new(clazz)
-
           # to enable subclass indexing to work properly, store a list of parent indexers and
           # whenever an operation is performed on this one, perform it on all
           @parent_indexers = []
@@ -282,7 +277,7 @@ module Neo4j
          def create_index_with(type) #:nodoc:
            db = Neo4j.started_db
            index_config = lucene_config(type)
-           if @entity_type == :node
+           if config.entity_type == :node
              db.lucene.for_nodes(index_names[type], index_config)
            else
              db.lucene.for_relationships(index_names[type], index_config)

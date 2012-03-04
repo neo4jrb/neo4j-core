@@ -7,10 +7,29 @@ module Neo4j
         attr_reader :_indexer
 
 
+        # TODO fix YARD docs update using DSL
         # Sets which indexer should be used for the given node class.
         # You can share an indexer between several different classes.
         #
-        # @example
+        # @example Using custom index
+        #
+        #   class MyIndex
+        #      extend Neo4j::Core::Index::ClassMethods
+        #      include Neo4j::Core::Index
+        #
+        #      node_indexer do
+        #        index_names :exact => 'myindex_exact', :fulltext => 'myindex_fulltext'
+        #        trigger_on :ntype => 'foo', :name => 'bar'
+        #
+        #        TODO ...
+        #        numeric do
+        #           type = decl_props && decl_props[field.to_sym] && decl_props[field.to_sym][:type]
+        #           type && !type.is_a?(String)
+        #        end
+        #      end
+        #   end
+        #
+        # @example Using Neo4j::NodeMixin
         #
         #   class Contact
         #      include Neo4j::NodeMixin
@@ -28,21 +47,24 @@ module Neo4j
         #   # Find an contact with a phone number, this works since they share the same index
         #   Contact.find('phone: 12345').first #=> a phone object !
         #
-        # @return The indexer that should be used to index the given class
-        def node_indexer(clazz)
-          indexer(clazz, :node)
+        # @return [Neo4j::Core::Index::Indexer] The indexer that should be used to index the given class
+        def node_indexer(&config_dsl)
+          # TODO reuse of index config using old index config (clazz parameter)
+          indexer(IndexConfig.new(:node).instance_eval(config_dsl))
         end
 
         # Sets which indexer should be used for the given relationship class
         # Same as #node_indexer except that it indexes relationships instead of nodes.
         #
+        # @see #node_indexer
+        # @return [Neo4j::Core::Index::Indexer] The indexer that should be used to index the given class
         def rel_indexer(clazz)
           indexer(clazz, :rel)
         end
 
 
-        def indexer(clazz, type)
-          @_indexer ||= IndexerRegistry.create_for(self, clazz, type)
+        def indexer(index_config)
+          @_indexer ||= IndexerRegistry.register(Indexer.new(index_config))
         end
 
 

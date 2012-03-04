@@ -22,7 +22,8 @@ module Neo4j
     include Neo4j::Core::Node
     include Neo4j::Core::Loader
 
-    self.node_indexer self
+    # TODO
+#    self.node_indexer self
 
     class << self
 
