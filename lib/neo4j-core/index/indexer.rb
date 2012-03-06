@@ -5,7 +5,9 @@ module Neo4j
       # This class is delegated from the Neo4j::Core::Index::ClassMethod
       # @see Neo4j::Core::Index::ClassMethods
       class Indexer
-        attr_reader :entity_type, :parent_indexers, :config
+        # @return [Neo4j::Core::Index::IndexConfig]
+        attr_reader :config
+        attr_reader :parent_indexers
 
         def initialize(config)
           @config = config
@@ -67,22 +69,26 @@ module Neo4j
         # @see #find
         #
         def index(*args)
-          @config.add_config(args)
+          @config.index(args)
         end
 
         # @return [true,false] if there is an index on the given field.
         def index?(field)
-          @config.indexed?(field)
+          @config.index?(field)
+        end
+
+        # @return [true,false] if the
+        def trigger_on?(props)
+          @config.trigger_on?(props)
         end
 
         # @return [Symbol] the type of index for the given field (e.g. :exact or :fulltext)
-        def index_type_for(field)
-          return nil unless index?(field)
+        def index_type(field)
           @config.index_type(field)
         end
 
         # @return [true,false]  if there is an index of the given type defined.
-        def index_type?(type)
+        def has_index_type?(type)
           @config.has_index_type?(type)
         end
 
@@ -200,12 +206,15 @@ module Neo4j
 
         # Called from the event handler when a new node or relationships is about to be committed.
         def update_index_on(node, field, old_val, new_val)
-          update_single_index_on(node, field, old_val, new_val)
+          if index?(field)
+            rm_index(node, field, old_val) if old_val
+            add_index(node, field, new_val) if new_val
+          end
         end
 
         # Called from the event handler when deleting a property
-        def remove_index_on_fields(node, props, deleted_relationship_set)
-          @config.fields.each { |field| rm_index(node, field, props[field]) if props[field] }
+        def remove_index_on(node, old_props)
+          @config.fields.each { |field| rm_index(node, field, old_props[field]) if old_props[field] }
         end
 
         protected
@@ -219,25 +228,6 @@ module Neo4j
           prefix.blank? ? "" : prefix + "_"
         end
 
-        def update_on_deleted_relationship(relationship)
-          update_on_relationship(relationship, false)
-        end
-
-        def update_on_new_relationship(relationship)
-          update_on_relationship(relationship, true)
-        end
-
-        def update_on_relationship(relationship, is_created)
-          rel_type = relationship.rel_type
-          end_node = relationship._end_node
-        end
-
-        def update_single_index_on(node, field, old_val, new_val)
-          if index?(field)
-            rm_index(node, field, old_val) if old_val
-            add_index(node, field, new_val) if new_val
-          end
-        end
 
         def inherit_fields_from(parent_index)
           # TODO
@@ -280,6 +270,7 @@ module Neo4j
            if config.entity_type == :node
              db.lucene.for_nodes(index_names[type], index_config)
            else
+             raise "O no"
              db.lucene.for_relationships(index_names[type], index_config)
            end
          end

@@ -49,8 +49,10 @@ module Neo4j
         #
         # @return [Neo4j::Core::Index::Indexer] The indexer that should be used to index the given class
         def node_indexer(&config_dsl)
-          # TODO reuse of index config using old index config (clazz parameter)
-          indexer(IndexConfig.new(:node).instance_eval(config_dsl))
+          # TODO reuse an existing index config
+          config = IndexConfig.new(:node)
+          config.instance_eval(&config_dsl)
+          indexer(config)
         end
 
         # Sets which indexer should be used for the given relationship class
@@ -64,7 +66,7 @@ module Neo4j
 
 
         def indexer(index_config)
-          @_indexer ||= IndexerRegistry.register(Indexer.new(index_config))
+          @_indexer ||= IndexerRegistry.instance.register(Indexer.new(index_config))
         end
 
 
@@ -74,7 +76,7 @@ module Neo4j
 
           # @macro [attach] index.delegate
           #   @method $1(*args, &block)
-          #   Sends the `$1` message to @_indexer instance with the supplied parameters.
+          #   Delegates the `$1` message to @_indexer instance with the supplied parameters.
           #   @see Neo4j::Core::Index::Indexer#$1
           def delegate(method_name)
             class_eval(<<-EOM, __FILE__, __LINE__)
@@ -89,12 +91,12 @@ module Neo4j
         delegate :index
         delegate :find
         delegate :index?
-        delegate :index_type?
+        delegate :has_index_type?
         delegate :rm_index_type
         delegate :rm_index_config
         delegate :add_index
         delegate :rm_index
-        delegate :index_type_for
+        delegate :index_type
         delegate :index_names
         delegate :index_types
 

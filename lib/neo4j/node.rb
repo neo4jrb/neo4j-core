@@ -11,19 +11,14 @@ module Neo4j
   #
   class Node
     extend Neo4j::Core::Node::ClassMethods
-    extend Neo4j::Core::Index::ClassMethods
     extend Neo4j::Core::Loader::ClassMethods
 
     include Neo4j::Core::Property
     include Neo4j::Core::Rels
     # include Neo4j::Core::Traversal TODO
     include Neo4j::Core::Equal
-    include Neo4j::Core::Index
     include Neo4j::Core::Node
     include Neo4j::Core::Loader
-
-    # TODO
-#    self.node_indexer self
 
     class << self
 
