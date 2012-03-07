@@ -23,7 +23,7 @@ describe Neo4j::Core::Index::IndexConfig do
       it "should merge the arrays" do
         subject.trigger_on :_classname => %w[Hoho Haha], :itype => %w[ajaj]
         subject._trigger_on['itype'].should include('ajaj')
-        subject._trigger_on['_classname'].should include('Foo','Bar', 'Hoho', 'Haha')
+        subject._trigger_on['_classname'].should include('Foo', 'Bar', 'Hoho', 'Haha')
         subject._trigger_on['_classname'].size.should == 4
       end
     end
@@ -32,8 +32,35 @@ describe Neo4j::Core::Index::IndexConfig do
       it "should merge the arrays" do
         subject.trigger_on :_classname => 'hoj', :itype => 'ojoj'
         subject._trigger_on['itype'].should include('ojoj')
-        subject._trigger_on['_classname'].should include('Foo','Bar', 'hoj')
+        subject._trigger_on['_classname'].should include('Foo', 'Bar', 'hoj')
         subject._trigger_on['_classname'].size.should == 3
+      end
+    end
+
+    describe "prefix_index_name" do
+      before do
+        subject.index_names :exact => 'myindex_exact', :fulltext => 'myindex_fulltext'
+        subject.prefix_index_name do
+          @foo ||= ""
+          @foo << @foo.size.to_s
+        end
+      end
+
+      describe "_prefix_index_name" do
+        it "returns the prefix" do
+          subject._prefix_index_name.should == "0"
+        end
+
+        it "will evaluate the block each time it is called" do
+          subject._prefix_index_name.should == "0"
+          subject._prefix_index_name.should == "01"
+        end
+      end
+
+      describe "index_name_for_type" do
+        it "exact index is prefixed" do
+          subject.index_name_for_type(:exact).should == '0myindex_exact'
+        end
       end
     end
 

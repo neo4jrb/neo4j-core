@@ -58,6 +58,8 @@ module Neo4j
         #   Contact.find('phone: 12345').first #=> a phone object !
         #
         # @return [Neo4j::Core::Index::Indexer] The indexer that should be used to index the given class
+        # @see Neo4j::Core::Index::IndexConfig for possible configuration values in the +config_dsl+ block
+        # @yield evaluated in the a Neo4j::Core::Index::IndexConfig object to configure it.
         def node_indexer(&config_dsl)
           # TODO reuse an existing index config
           config = IndexConfig.new(:node)

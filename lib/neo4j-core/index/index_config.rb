@@ -55,7 +55,16 @@ module Neo4j
 
         # @return the index name for the lucene index given a type
         def index_name_for_type(type)
-          @_index_names[type]  # TODO index prefix for multitenancy
+          _prefix_index_name + @_index_names[type]  # TODO index prefix for multitenancy
+        end
+
+        # Defines the
+        def prefix_index_name(&block)
+          @prefix_index_name_block = block
+        end
+
+        def _prefix_index_name
+          @prefix_index_name_block.nil? ? "" : @prefix_index_name_block.call
         end
 
         def index_names(hash)
