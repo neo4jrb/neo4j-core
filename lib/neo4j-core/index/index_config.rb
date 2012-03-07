@@ -48,8 +48,14 @@ module Neo4j
           @decl_type[prop] || String
         end
 
+        # @return [true, false] if the props can/should trigger an index operation
         def trigger_on?(props)
-          @_trigger_on.each_pair { |k, v| break true if props[k] == v } == true
+          @_trigger_on.each_pair { |k, v| break true if (a = props[k]) && (v.include?(a)) } == true
+        end
+
+        # @return the index name for the lucene index given a type
+        def index_name_for_type(type)
+          @_index_names[type]  # TODO index prefix for multitenancy
         end
 
         def index_names(hash)
@@ -86,7 +92,10 @@ module Neo4j
         private
 
         def merge_and_to_string(existing_hash, new_hash)
-          new_hash.each_pair { |k, v| existing_hash[k.to_s] = v }
+          new_hash.each_pair do |k, v|
+            existing_hash[k.to_s] ||= Set.new
+            existing_hash[k.to_s].merge(v.is_a?(Array)? v : [v])
+          end
         end
       end
     end

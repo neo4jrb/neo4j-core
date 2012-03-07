@@ -138,7 +138,7 @@ describe Neo4j::Core::Index::Indexer, :type => :mock_db do
         it "index the field if there is an index on the property" do
           node = double("A node")
           node_index_manager.should_receive(:add).with(node, "foo", kind_of(Java::OrgNeo4jIndexLucene::ValueContext))
-          subject.add_index(node, "foo", "some value").should be_true
+          subject.add_index(node, "foo", "some value")
         end
 
       end
@@ -152,7 +152,7 @@ describe Neo4j::Core::Index::Indexer, :type => :mock_db do
         it "removes the index" do
           node = double("A node")
           node_index_manager.should_receive(:remove).with(node, "foo", "some value")
-          subject.rm_index(node, "foo", "some value").should be_true
+          subject.rm_index(node, "foo", "some value")
         end
 
       end

@@ -7,19 +7,17 @@ module Neo4j
       class Indexer
         # @return [Neo4j::Core::Index::IndexConfig]
         attr_reader :config
-        attr_reader :parent_indexers
 
         def initialize(config)
           @config = config
           @indexes = {} # key = type, value = java neo4j index
-          # to enable subclass indexing to work properly, store a list of parent indexers and
-          # whenever an operation is performed on this one, perform it on all
-          @parent_indexers = []
+                        # to enable subclass indexing to work properly, store a list of parent indexers and
+                        # whenever an operation is performed on this one, perform it on all
         end
 
 
         def to_s
-          "Indexer @#{object_id} [index on #{@config.fields.join(', ')}]"
+          "Indexer @#{object_id} index on: [#{@config.fields.map{|f| @config.numeric?(f)? "#{f} (numeric)" : f}.join(', ')}]"
         end
 
         # Add an index on a field so that it will be automatically updated by neo4j transactional events.
@@ -94,23 +92,23 @@ module Neo4j
 
         # Adds an index on the given entity
         # This is normally not needed since you can instead declare an index which will automatically keep
-        # the lucene index in sync. See #index
+        # the lucene index in sync.
+        # @see #index
         def add_index(entity, field, value)
           return false unless index?(field)
           conv_value = indexed_value_for(field, value)
           index = index_for_field(field.to_s)
           index.add(entity, field, conv_value)
-          @parent_indexers.each { |i| i.add_index(entity, field, value) }
         end
 
 
         # Removes an index on the given entity
         # This is normally not needed since you can instead declare an index which will automatically keep
-        # the lucene index in sync. See #index
+        # the lucene index in sync.
+        # @see #index
         def rm_index(entity, field, value)
           return false unless index?(field)
           index_for_field(field).remove(entity, field, value)
-          @parent_indexers.each { |i| i.rm_index(entity, field, value) }
         end
 
         # Performs a Lucene Query.
@@ -135,7 +133,7 @@ module Neo4j
         def find(query, params = {})
           index = index_for_type(params[:type] || :exact)
           if query.is_a?(Hash) && (query.include?(:conditions) || query.include?(:sort))
-            params.merge! query.reject{|k,_| k == :conditions}
+            params.merge! query.reject { |k, _| k == :conditions }
             query.delete(:sort)
             query = query.delete(:conditions) if query.include?(:conditions)
           end
@@ -161,7 +159,7 @@ module Neo4j
         # delete the index, if no type is provided clear all types of indexes
         def rm_index_type(type=nil)
           if type
-            key = index_key(type)
+            key = @config.index_name_for_type(type)
             @indexes[key] && @indexes[key].delete
             @indexes[key] = nil
           else
@@ -170,39 +168,10 @@ module Neo4j
           end
         end
 
-        # Specifies the location on the filesystem of the lucene index for the given index type.
-        #
-        # If not specified it will have the default location:
-        #
-        #   Neo4j.config[:storage_path]/index/lucene/node|relationship/ParentModuleName_SubModuleName_ClassName-indextype
-        #
-        # @example
-        #
-        #  module Foo
-        #    class Person
-        #       include Neo4j::NodeMixin
-        #       index :name
-        #       index_names[:fulltext] = 'my_location'
-        #    end
-        #  end
-        #
-        #  Person.index_names[:fulltext] => 'my_location'
-        #  Person.index_names[:exact] => 'Foo_Person-exact' # default Location
-        #
-        # The index can be prefixed, see Neo4j#threadlocal_ref_node= and multi dependency.
-        #
-        def index_names
-          @index_names ||= Hash.new do |hash, index_type|
-            default_filename = index_prefix + @indexer_for.to_s.gsub('::', '_')
-            hash.fetch(index_type) { "#{default_filename}_#{index_type}" }
-          end
-        end
-
-
         # Called when the neo4j shutdown in order to release references to indexes
         def on_neo4j_shutdown
-           @indexes.clear
-         end
+          @indexes.clear
+        end
 
         # Called from the event handler when a new node or relationships is about to be committed.
         def update_index_on(node, field, old_val, new_val)
@@ -217,63 +186,55 @@ module Neo4j
           @config.fields.each { |field| rm_index(node, field, old_props[field]) if old_props[field] }
         end
 
-        protected
-
-        def index_prefix
-          return "" unless Neo4j.running?
-          return "" unless @indexer_for.respond_to?(:ref_node_for_class)
-          ref_node = @indexer_for.ref_node_for_class.wrapper
-          prefix = ref_node.send(:_index_prefix) if ref_node.respond_to?(:_index_prefix)
-          prefix ||= ref_node[:name] # To maintain backward compatiblity
-          prefix.blank? ? "" : prefix + "_"
-        end
-
-
-        def inherit_fields_from(parent_index)
-          # TODO
-          raise "not implemented" if true
-          return unless parent_index
-          @field_types.reverse_merge!(parent_index.field_types) if parent_index.respond_to?(:field_types)
-          @parent_indexers << parent_index
-        end
-
+        # Creates a wrapped ValueContext for the given value. Checks if it's numeric value in the configuration.
+        # @return [Java::OrgNeo4jIndexLucene::ValueContext] a wrapped neo4j lucene value context
         def indexed_value_for(field, value)
           if @config.numeric?(field)
-            org.neo4j.index.lucene.ValueContext.new(value).indexNumeric
+            Java::OrgNeo4jIndexLucene::ValueContext.new(value).indexNumeric
           else
-            org.neo4j.index.lucene.ValueContext.new(value)
+            Java::OrgNeo4jIndexLucene::ValueContext.new(value)
           end
         end
 
-         def index_for_field(field) #:nodoc:
-           type = @config.index_type(field)
-           @indexes[index_key(type)] ||= create_index_with(type)
-         end
+        # @return [Java::OrgNeo4jGraphdb::Index] for the given field
+        def index_for_field(field)
+          type = @config.index_type(field)
+          index_name = index_name_for_type(type)
+          @indexes[index_name] ||= create_index_with(type, index_name)
+        end
 
-         def index_for_type(type)
-           @indexes[index_key(type)] ||= create_index_with(type)
-         end
+        # @return [Java::OrgNeo4jGraphdb::Index] for the given index type
+        def index_for_type(type)
+          index_name = index_name_for_type(type)
+          @indexes[index_name] ||= create_index_with(type, index_name)
+        end
 
-         def index_key(type)
-           index_names[type] + type.to_s
-         end
+        # @return [String] the name of the index which are stored on the filesystem
+        def index_name_for_type(type)
+          @config.index_name_for_type(type)
+        end
 
-         def lucene_config(type) #:nodoc:
-           conf = Neo4j::Config[:lucene][type.to_s]
-           raise "unknown lucene type #{type}" unless conf
-           conf
-         end
+        # @return [Hash] the lucene config for the given index type
+        def lucene_config(type)
+          conf = Neo4j::Config[:lucene][type.to_s]
+          raise "unknown lucene type #{type}" unless conf
+          conf
+        end
 
-         def create_index_with(type) #:nodoc:
-           db = Neo4j.started_db
-           index_config = lucene_config(type)
-           if config.entity_type == :node
-             db.lucene.for_nodes(index_names[type], index_config)
-           else
-             raise "O no"
-             db.lucene.for_relationships(index_names[type], index_config)
-           end
-         end
+        # Creates a new lucene index using the lucene configuration for the given index_name
+        #
+        # @param [:node, :relationship] type relationship or node index
+        # @param [String] index_name the (file) name of the index
+        # @return [Java::OrgNeo4jGraphdb::Index] for the given index type
+        def create_index_with(type, index_name)
+          db = Neo4j.started_db
+          index_config = lucene_config(type)
+          if config.entity_type == :node
+            db.lucene.for_nodes(index_name, index_config)
+          else
+            db.lucene.for_relationships(index_name, index_config)
+          end
+        end
 
 
       end

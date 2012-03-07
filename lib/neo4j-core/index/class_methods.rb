@@ -19,7 +19,17 @@ module Neo4j
         #
         #      node_indexer do
         #        index_names :exact => 'myindex_exact', :fulltext => 'myindex_fulltext'
-        #        trigger_on :ntype => 'foo', :name => 'bar'
+        #        trigger_on :ntype => 'foo', :name => ['bar', 'foobar']
+        #        # TODO multitenancy support
+        #        prefix_index_name do
+        #          return "" unless Neo4j.running?
+        #          return "" unless @indexer_for.respond_to?(:ref_node_for_class)
+        #          ref_node = @indexer_for.ref_node_for_class.wrapper
+        #          prefix = ref_node.send(:_index_prefix) if ref_node.respond_to?(:_index_prefix)
+        #          prefix ||= ref_node[:name] # To maintain backward compatiblity
+        #          prefix.blank? ? "" : prefix + "_"
+        #         end
+        #
         #
         #        TODO ...
         #        numeric do
@@ -97,9 +107,6 @@ module Neo4j
         delegate :add_index
         delegate :rm_index
         delegate :index_type
-        delegate :index_names
-        delegate :index_types
-
       end
 
 

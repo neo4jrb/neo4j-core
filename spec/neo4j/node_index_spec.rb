@@ -15,8 +15,6 @@ describe Neo4j::Node, "index", :type => :integration do
       @wrapped_entity = self.class.new_node(props)
     end
 
-
-    # TODO
     self.node_indexer do
       index_names :exact => 'myindex_exact', :fulltext => 'myindex_fulltext'
       trigger_on :myindex => true
@@ -29,6 +27,7 @@ describe Neo4j::Node, "index", :type => :integration do
 
   before(:each) do
     MyIndex.index(:name) # default :exact
+    MyIndex.index(:things)
     MyIndex.index(:age, :numeric => true) # default :exact
     MyIndex.index(:description, :type => :fulltext)
   end
@@ -41,120 +40,130 @@ describe Neo4j::Node, "index", :type => :integration do
   end
 
 
-  it "#asc(:field) sorts the given field as strings in ascending order " do
-    new_tx
-    MyIndex.new_node :name => 'pelle@gmail.com'
-    MyIndex.new_node :name => 'gustav@gmail.com'
-    MyIndex.new_node :name => 'andreas@gmail.com'
-    MyIndex.new_node :name => 'orjan@gmail.com'
+  describe "sorting" do
+    it "#asc(:field) sorts the given field as strings in ascending order " do
+      new_tx
+      MyIndex.new_node :name => 'pelle@gmail.com'
+      MyIndex.new_node :name => 'gustav@gmail.com'
+      MyIndex.new_node :name => 'andreas@gmail.com'
+      MyIndex.new_node :name => 'orjan@gmail.com'
 
-    new_tx
-    result = MyIndex.find('name: *@gmail.com').asc(:name)
+      new_tx
+      result = MyIndex.find('name: *@gmail.com').asc(:name)
 
-    # then
-    emails = result.collect { |x| x[:name] }
-    emails.should == %w[andreas@gmail.com gustav@gmail.com orjan@gmail.com pelle@gmail.com]
+      # then
+      emails = result.collect { |x| x[:name] }
+      emails.should == %w[andreas@gmail.com gustav@gmail.com orjan@gmail.com pelle@gmail.com]
+    end
+
+    it "#desc(:field) sorts the given field as strings in desc order " do
+      new_tx
+      MyIndex.new_node :name => 'pelle@gmail.com'
+      MyIndex.new_node :name => 'gustav@gmail.com'
+      MyIndex.new_node :name => 'andreas@gmail.com'
+      MyIndex.new_node :name => 'zebbe@gmail.com'
+
+      new_tx
+      result = MyIndex.find('name: *@gmail.com').desc(:name)
+
+      # then
+      emails = result.collect { |x| x[:name] }
+      emails.should == %w[zebbe@gmail.com pelle@gmail.com gustav@gmail.com andreas@gmail.com ]
+    end
+
+    it "#asc(:field1,field2) sorts the given field as strings in ascending order " do
+      new_tx
+      MyIndex.new_node :name => 'zebbe@gmail.com', :age => 3
+      MyIndex.new_node :name => 'pelle@gmail.com', :age => 2
+      MyIndex.new_node :name => 'pelle@gmail.com', :age => 4
+      MyIndex.new_node :name => 'pelle@gmail.com', :age => 1
+      MyIndex.new_node :name => 'andreas@gmail.com', :age => 5
+
+      new_tx
+
+      result = MyIndex.find('name: *@gmail.com').asc(:name, :age)
+
+      # then
+      ages = result.collect { |x| x[:age] }
+      ages.should == [5, 1, 2, 4, 3]
+    end
+
+    it "#asc(:field1).desc(:field2) sort the given field both ascending and descending orders" do
+      new_tx
+
+      MyIndex.new_node :name => 'zebbe@gmail.com', :age => 3
+      MyIndex.new_node :name => 'pelle@gmail.com', :age => 2
+      MyIndex.new_node :name => 'pelle@gmail.com', :age => 4
+      MyIndex.new_node :name => 'pelle@gmail.com', :age => 1
+      MyIndex.new_node :name => 'andreas@gmail.com', :age => 5
+
+      new_tx
+
+      result = MyIndex.find('name: *@gmail.com').asc(:name).desc(:age)
+
+      # then
+      ages = result.collect { |x| x[:age] }
+      ages.should == [5, 4, 2, 1, 3]
+    end
+
   end
 
-  it "#desc(:field) sorts the given field as strings in desc order " do
-    new_tx
-    MyIndex.new_node :name => 'pelle@gmail.com'
-    MyIndex.new_node :name => 'gustav@gmail.com'
-    MyIndex.new_node :name => 'andreas@gmail.com'
-    MyIndex.new_node :name => 'zebbe@gmail.com'
 
-    new_tx
-    result = MyIndex.find('name: *@gmail.com').desc(:name)
+  describe "range queries" do
 
-    # then
-    emails = result.collect { |x| x[:name] }
-    emails.should == %w[zebbe@gmail.com pelle@gmail.com gustav@gmail.com andreas@gmail.com ]
+    it "range search with compound queries works" do
+      new_tx
+      MyIndex.new_node :name => 'pelle', :age => 3
+      MyIndex.new_node :name => 'pelle', :age => 2
+      MyIndex.new_node :name => 'pelle', :age => 4
+      MyIndex.new_node :name => 'pelle', :age => 1
+      MyIndex.new_node :name => 'pelle', :age => 5
+      new_tx
+
+      # when
+      result = MyIndex.find('name: pelle').and(:age).between(2, 5)
+
+      # then
+      ages = result.collect { |x| x[:age] }
+      ages.size.should == 2
+      ages.should include(3, 4)
+    end
+
+    it "can do a range search" do
+      new_tx
+      MyIndex.new_node :name => 'zebbe@gmail.com', :age => 3
+      MyIndex.new_node :name => 'pelle@gmail.com', :age => 2
+      MyIndex.new_node :name => 'pelle@gmail.com', :age => 4
+      MyIndex.new_node :name => 'pelle@gmail.com', :age => 1
+      MyIndex.new_node :name => 'andreas@gmail.com', :age => 5
+      new_tx
+
+      # when
+      result = MyIndex.find(:age).between(2, 5)
+
+      # then
+      ages = result.collect { |x| x[:age] }
+      ages.size.should == 2
+      ages.should include(3, 4)
+    end
+
   end
 
-  it "#asc(:field1,field2) sorts the given field as strings in ascending order " do
-    new_tx
-    MyIndex.new_node :name => 'zebbe@gmail.com', :age => 3
-    MyIndex.new_node :name => 'pelle@gmail.com', :age => 2
-    MyIndex.new_node :name => 'pelle@gmail.com', :age => 4
-    MyIndex.new_node :name => 'pelle@gmail.com', :age => 1
-    MyIndex.new_node :name => 'andreas@gmail.com', :age => 5
+  describe "find" do
+    it "can find several nodes with the same index" do
+      new_tx
 
-    new_tx
+      thing1 = MyIndex.new_node :name => 'thing'
+      thing2 = MyIndex.new_node :name => 'thing'
+      thing3 = MyIndex.new_node :name => 'thing'
 
-    result = MyIndex.find('name: *@gmail.com').asc(:name, :age)
+      finish_tx
 
-    # then
-    ages = result.collect { |x| x[:age] }
-    ages.should == [5, 1, 2, 4, 3]
-  end
+      MyIndex.find("name: thing", :wrapped => true).should include(thing1)
+      MyIndex.find("name: thing", :wrapped => true).should include(thing2)
+      MyIndex.find("name: thing", :wrapped => true).should include(thing3)
+    end
 
-  it "#asc(:field1).desc(:field2) sort the given field both ascending and descending orders" do
-    new_tx
-
-    MyIndex.new_node :name => 'zebbe@gmail.com', :age => 3
-    MyIndex.new_node :name => 'pelle@gmail.com', :age => 2
-    MyIndex.new_node :name => 'pelle@gmail.com', :age => 4
-    MyIndex.new_node :name => 'pelle@gmail.com', :age => 1
-    MyIndex.new_node :name => 'andreas@gmail.com', :age => 5
-
-    new_tx
-
-    result = MyIndex.find('name: *@gmail.com').asc(:name).desc(:age)
-
-    # then
-    ages = result.collect { |x| x[:age] }
-    ages.should == [5, 4, 2, 1, 3]
-  end
-
-
-  it "range search with compound queries works" do
-    new_tx
-    MyIndex.new_node :name => 'pelle', :age => 3
-    MyIndex.new_node :name => 'pelle', :age => 2
-    MyIndex.new_node :name => 'pelle', :age => 4
-    MyIndex.new_node :name => 'pelle', :age => 1
-    MyIndex.new_node :name => 'pelle', :age => 5
-    new_tx
-
-    # when
-    result = MyIndex.find('name: pelle').and(:age).between(2, 5)
-
-    # then
-    ages = result.collect { |x| x[:age] }
-    ages.size.should == 2
-    ages.should include(3, 4)
-  end
-
-  it "can do a range search" do
-    new_tx
-    MyIndex.new_node :name => 'zebbe@gmail.com', :age => 3
-    MyIndex.new_node :name => 'pelle@gmail.com', :age => 2
-    MyIndex.new_node :name => 'pelle@gmail.com', :age => 4
-    MyIndex.new_node :name => 'pelle@gmail.com', :age => 1
-    MyIndex.new_node :name => 'andreas@gmail.com', :age => 5
-    new_tx
-
-    # when
-    result = MyIndex.find(:age).between(2, 5)
-
-    # then
-    ages = result.collect { |x| x[:age] }
-    ages.size.should == 2
-    ages.should include(3, 4)
-  end
-
-  it "can find several nodes with the same index" do
-    new_tx
-
-    thing1 = MyIndex.new_node :name => 'thing'
-    thing2 = MyIndex.new_node :name => 'thing'
-    thing3 = MyIndex.new_node :name => 'thing'
-
-    finish_tx
-
-    MyIndex.find("name: thing", :wrapped => true).should include(thing1)
-    MyIndex.find("name: thing", :wrapped => true).should include(thing2)
-    MyIndex.find("name: thing", :wrapped => true).should include(thing3)
   end
 
   it "#rm_index_config will make the index not updated when transaction finishes" do
@@ -176,105 +185,110 @@ describe Neo4j::Node, "index", :type => :integration do
     MyIndex.index(:name)
   end
 
-  it "does not remove old index when a property is reindexed" do
-    new_tx
+  describe "rm_index" do
+    let!(:my_node) do
+      new_tx
+      puts "MYINDEX #{MyIndex._indexer}"
+      new_node = MyIndex.new(:name => 'abcdef')
+      new_node.add_index(:name)
+      new_node.add_index(:things, 'aa')
+      new_node.add_index(:things, 'bb')
+      new_node.add_index(:things, 'cc')
+      finish_tx
+      new_node.wrapped_entity
+    end
 
-    new_node = MyIndex.new
-    new_node[:name] = 'Kalle Kula'
-    new_node.add_index(:name)
+    it "remove entity index" do
+      MyIndex.find('name: abcdef').first.should == my_node
+      MyIndex.find('things: aa').first.should == my_node
+      MyIndex.find('things: cc').first.should == my_node
+      MyIndex.find('things: qd').first.should_not == my_node
+    end
 
-    # when
-    new_node[:name] = 'lala'
-    new_node.add_index(:name)
+    it "removes entity index and property key" do
+      new_tx
 
-    # then
-    MyIndex.find('name: lala').first.should == new_node.wrapped_entity
-    MyIndex.find('name: "Kalle Kula"').first.should == new_node.wrapped_entity
+      new_node = MyIndex.new
+      new_node[:name] = 'Kalle Kula'
+      new_node.add_index(:name)
+
+      # when
+      new_node.rm_index(:name)
+
+      new_node[:name] = 'lala'
+      new_node.add_index(:name)
+
+      # then
+      MyIndex.find('name: lala').first.should == new_node.wrapped_entity
+      MyIndex.find('name: "Kalle Kula"').first.should_not == new_node.wrapped_entity
+    end
   end
 
-  it "#rm_index removes an index" do
-    new_tx
+  describe "update index when a node changes" do
+    it "updates an index automatically when a property changes" do
+      new_tx
 
-    new_node = MyIndex.new
-    new_node[:name] = 'Kalle Kula'
-    new_node.add_index(:name)
+      new_node = MyIndex.new_node(:name => 'Kalle Kula')
 
-    # when
-    new_node.rm_index(:name)
+      new_tx
+      MyIndex.find('name: "Kalle Kula"').first.should == new_node
+      MyIndex.find('name: lala').first.should_not == new_node
 
-    new_node[:name] = 'lala'
-    new_node.add_index(:name)
+      new_node[:name] = 'lala'
 
-    # then
-    MyIndex.find('name: lala').first.should == new_node.wrapped_entity
-    MyIndex.find('name: "Kalle Kula"').first.should_not == new_node.wrapped_entity
-  end
+      new_tx
 
-  it "updates an index automatically when a property changes" do
-    new_tx
+      # then
+      result = MyIndex.find('name: lala').first
+      MyIndex.find('name: lala').first.should == new_node
+      MyIndex.find('name: "Kalle Kula"').first.should_not == new_node
+    end
 
-    new_node = MyIndex.new_node(:name => 'Kalle Kula')
+    it "deleting an indexed property should not be found" do
+      new_tx
 
-    new_tx
-    MyIndex.find('name: "Kalle Kula"').first.should == new_node
-    MyIndex.find('name: lala').first.should_not == new_node
+      new_node = MyIndex.new_node :name => 'andreas'
+      new_tx
 
-    new_node[:name] = 'lala'
+      MyIndex.find('name: andreas').first.should == new_node
 
-    new_tx
+      # when deleting an indexed property
+      new_node[:name] = nil
+      new_tx
+      MyIndex.find('name: andreas').first.should_not == new_node
+    end
 
-    # then
-    result = MyIndex.find('name: lala').first
-    puts "GOT result=#{result.props.inspect}"
-    puts "JAVA CLASS #{result.java_class}"
-    MyIndex.find('name: lala').first.should == new_node
-    MyIndex.find('name: "Kalle Kula"').first.should_not == new_node
-  end
+    it "deleting the node deletes its index" do
+      new_tx
 
-  it "deleting an indexed property should not be found" do
-    new_tx
+      new_node = MyIndex.new_node :name => 'hejhopp'
+      new_tx
+      MyIndex.find('name: hejhopp').first.should == new_node
 
-    new_node = MyIndex.new_node :name => 'andreas'
-    new_tx
+      # when
+      new_node.del
+      finish_tx
+      # then
+      MyIndex.find('name: hejhopp').first.should_not == new_node
+    end
 
-    MyIndex.find('name: andreas').first.should == new_node
+    it "both deleting a property and deleting the node should work" do
+      new_tx
 
-    # when deleting an indexed property
-    new_node[:name] = nil
-    new_tx
-    MyIndex.find('name: andreas').first.should_not == new_node
-  end
+      new_node = MyIndex.new_node :name => 'andreas', :age => 21
+      new_tx
+      MyIndex.find('name: andreas').first.should == new_node
 
-  it "deleting the node deletes its index" do
-    new_tx
+      # when
+      new_node[:name] = nil
+      new_node[:age] = nil
+      new_node.del
+      finish_tx
 
-    new_node = MyIndex.new_node :name => 'andreas'
-    new_tx
-    MyIndex.find('name: andreas').first.should == new_node
+      # then
+      MyIndex.find('name: andreas').first.should_not == new_node
+    end
 
-    # when
-    new_node.del
-    finish_tx
-
-    # then
-    MyIndex.find('name: andreas').first.should_not == new_node
-  end
-
-  it "both deleting a property and deleting the node should work" do
-    new_tx
-
-    new_node = MyIndex.new_node :name => 'andreas', :age => 21
-    new_tx
-    MyIndex.find('name: andreas').first.should == new_node
-
-    # when
-    new_node[:name] = nil
-    new_node[:age] = nil
-    new_node.del
-    finish_tx
-
-    # then
-    MyIndex.find('name: andreas').first.should_not == new_node
   end
 
   describe "add_index" do
@@ -303,6 +317,22 @@ describe Neo4j::Node, "index", :type => :integration do
 
       # then
       MyIndex.find('description: "hej"', :type => :fulltext, :wrapped => false).get_single.should == new_node.wrapped_entity
+    end
+
+    it "does not remove old index when calling add_index twice" do
+      new_tx
+
+      new_node = MyIndex.new
+      new_node[:name] = 'Kalle Kula'
+      new_node.add_index(:name)
+
+      # when
+      new_node[:name] = 'lala'
+      new_node.add_index(:name)
+
+      # then
+      MyIndex.find('name: lala').first.should == new_node.wrapped_entity
+      MyIndex.find('name: "Kalle Kula"').first.should == new_node.wrapped_entity
     end
 
 
