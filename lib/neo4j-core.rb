@@ -13,6 +13,7 @@ require 'neo4j-core/to_java'
 require 'neo4j-core/property/property'
 
 require 'neo4j-core/rels/rels'
+require 'neo4j-core/rels/traverser'
 
 require 'neo4j-core/traversal/traversal'
 require 'neo4j-core/traversal/traversal'

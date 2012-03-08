@@ -3,15 +3,20 @@ module Neo4j
     module Rels
 
       # Traverse relationships of depth one from one node.
-      # This object is returned when using the Neo4j::Rels which is included in the Neo4j::Node class.
-      #
+      # This object is returned from the Neo4j::Node#rels method.
       class Traverser
         include Enumerable
+        include Neo4j::Core::ToJava
 
-        def initialize(node, types, dir)
+        attr_reader :node
+        attr_reader :dir
+        attr_reader :types
+        attr_reader :type
+
+        def initialize(node, types, dir = :both)
           @node = node
           if types.size > 1
-            @types = types.inject([]) { |result, type| result << ToJava.type_to_java(type) }.to_java(:'org.neo4j.graphdb.RelationshipType')
+            @types = types.inject([]) { |result, type| result << type_to_java(type) }.to_java(Java::OrgNeo4jGraphdb::RelationshipType)
           elsif types.size == 1
             @type = type_to_java(types[0])
           end

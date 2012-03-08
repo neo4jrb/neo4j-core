@@ -27,7 +27,7 @@ module Neo4j
         r && r._other_node(self._java_node)
       end
 
-      # Returns an enumeration of relationship objects.
+      # Returns an enumeration of relationship objects using the builder pattern.
       # It always returns relationship of depth one.
       #
       # @example Return both incoming and outgoing relationships
@@ -39,7 +39,7 @@ module Neo4j
       # @see [Neo4j::Relationship]
       # @return [Neo4j::Core::Rels::Traverser]
       def rels(*type)
-        Traverser.new(self, type, :both)
+        Neo4j::Core::Rels::Traverser.new(self, type)
       end
 
 
@@ -82,10 +82,11 @@ module Neo4j
       # Returns true if there are one or more relationships from this node to other nodes
       # with the given relationship.
       #
+      # @param [:both, :incoming, :outgoing] dir  optional default :both (either, :outgoing, :incoming, :both)
       # @param [String,Symbol] type the key and value to be set, default any type
-      # @param [Symbol] dir  optional default :both (either, :outgoing, :incoming, :both)
       # @return [Boolean] true if one or more relationships exists for the given type and dir otherwise false
-      def rel? (type=nil, dir=:both)
+      def rel?(dir=:both, type=nil)
+        raise "Illegal direction'#{dir}', only :both, :incoming or :outgoing accepted (has been changed in 2.0)" unless [:both, :incoming, :outgoing].include?(dir)
         if type
           has_relationship(ToJava.type_to_java(type), ToJava.dir_to_java(dir))
         else

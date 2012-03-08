@@ -160,7 +160,7 @@ describe Neo4j::Node, :type => :mock_db do
     let(:other_node) { MockNode.new }
 
     it "accept two arguments" do
-      subject.should_receive(:has_relationship).with(:outgoing, :foo).and_return(true)
+      subject.should_receive(:has_relationship).with(:foo, :outgoing).and_return(true)
       subject.rel?(:outgoing, :foo).should be_true
     end
 
@@ -168,14 +168,14 @@ describe Neo4j::Node, :type => :mock_db do
       subject.should_receive(:has_relationship).with().and_return(true)
       subject.rel?.should be_true
     end
+
+    it "raise an exception if unknown direction" do
+      lambda{subject.rel(:foo)}.should raise_error
+    end
   end
 
   describe "_rels" do
     subject { MockNode.new }
-
-    #it "returns a Neo4j::Core::Rels::Traverser object" do
-    #  subject.rels
-    #end
 
     it "accept no arguments which return both direction all types" do
       subject.should_receive(:get_relationships).with(:both).and_return("stuff")
@@ -187,6 +187,14 @@ describe Neo4j::Node, :type => :mock_db do
       subject._rels(:incoming).should == "stuff"
     end
 
+  end
+
+  describe "rels" do
+    subject { MockNode.new }
+
+    it "returns a Neo4j::Core::Rels::Traverser object" do
+      subject.rels(:thing).should be_kind_of(Neo4j::Core::Rels::Traverser)
+    end
   end
 end
 

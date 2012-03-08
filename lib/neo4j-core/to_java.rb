@@ -2,42 +2,41 @@ module Neo4j
   module Core
     # A Utility class for translating Ruby object to Neo4j Java types
     module ToJava
-      class << self
-        def type_to_java(type)
-          org.neo4j.graphdb.DynamicRelationshipType.withName(type.to_s)
-        end
+      def type_to_java(type)
+        Java::OrgNeo4jGraphdb::DynamicRelationshipType.withName(type.to_s)
+      end
 
-        def dir_from_java(dir)
-          case dir
-            when org.neo4j.graphdb.Direction::OUTGOING then
-              :outgoing
-            when org.neo4j.graphdb.Direction::BOTH then
-              :both
-            when org.neo4j.graphdb.Direction::INCOMING then
-              :incoming
-            else
-              raise "unknown direction '#{dir} / #{dir.class}'"
-          end
-        end
+      module_function :type_to_java
 
-        def dir_to_java(dir)
-          case dir
-            when :outgoing then
-              org.neo4j.graphdb.Direction::OUTGOING
-            when :both then
-              org.neo4j.graphdb.Direction::BOTH
-            when :incoming then
-              org.neo4j.graphdb.Direction::INCOMING
-            else
-              raise "unknown direction '#{dir}', expects :outgoing, :incoming or :both"
-          end
-        end
-
-        def ensure_valid_props(hash)
-          hash ||= {}
-          Hash[hash.each_pair.map { |k, v| [k.to_s, v] }]
+      def dir_from_java(dir)
+        case dir
+          when Java::OrgNeo4jGraphdb::Direction::OUTGOING then
+            :outgoing
+          when Java::OrgNeo4jGraphdb::Direction::BOTH then
+            :both
+          when Java::OrgNeo4jGraphdb::Direction::INCOMING then
+            :incoming
+          else
+            raise "unknown direction '#{dir} / #{dir.class}'"
         end
       end
+
+      module_function :dir_from_java
+
+      def dir_to_java(dir)
+        case dir
+          when :outgoing then
+            Java::OrgNeo4jGraphdb::Direction::OUTGOING
+          when :both then
+            Java::OrgNeo4jGraphdb::Direction::BOTH
+          when :incoming then
+            Java::OrgNeo4jGraphdb::Direction::INCOMING
+          else
+            raise "unknown direction '#{dir}', expects :outgoing, :incoming or :both"
+        end
+      end
+
+      module_function :dir_to_java
 
     end
   end
