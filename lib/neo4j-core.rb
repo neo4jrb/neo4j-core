@@ -30,11 +30,11 @@ require 'neo4j-core/index/lucene_query'
 
 require 'neo4j-core/equal/equal'
 
+require 'neo4j-core/relationship/relationship'
+require 'neo4j-core/relationship/class_methods'
+
 require 'neo4j-core/node/node'
 require 'neo4j-core/node/class_methods'
-
-require 'neo4j-core/loader/loader'
-require 'neo4j-core/loader/class_methods'
 
 require 'neo4j/transaction'
 

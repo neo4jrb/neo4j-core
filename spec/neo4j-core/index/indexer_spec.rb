@@ -18,7 +18,6 @@ describe Neo4j::Core::Index::Indexer, :type => :mock_db do
 
   describe "node index" do
     let(:node_index) do
-      clazz = double("Class")
       Neo4j::Core::Index::Indexer.new(node_config)
     end
 

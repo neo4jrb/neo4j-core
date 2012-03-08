@@ -97,6 +97,12 @@ describe Java::OrgNeo4jGraphdb::Node, :type => :java_integration do
           end
         end
 
+        describe "has_property" do
+          it "raise Java::JavaLang::IllegalStateException" do
+            lambda { before_commit_deleted_node.has_property("Foo") }.should raise_error(Java::JavaLang::IllegalStateException)
+          end
+        end
+
         describe "set_property" do
           it "raise Java::JavaLang::IllegalStateException and it should not be possible to commit the transaction" do
             lambda { before_commit_deleted_node.set_property("Foo", "Bar") }.should raise_error(Java::JavaLang::IllegalStateException)

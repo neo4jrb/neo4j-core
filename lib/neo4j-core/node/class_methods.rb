@@ -6,22 +6,22 @@ module Neo4j
         # The return node is actually an Java object of type org.neo4j.graphdb.Node java object
         # which has been extended (see the included mixins for Neo4j::Node).
         #
+        #
         # The created node will have a unique id - Neo4j::Property#neo_id
         #
-        # ==== Parameters
-        # *args :: a hash of properties to initialize the node with or nil
+        # @param [Hash, Array] args either an hash of properties or an array where the first item is the database to be used and the second item is the properties
+        # @return [Java::OrgNeo4jGraphdb::Node] the java node which implements the Neo4j::Node mixins
         #
-        # ==== Returns
-        # org.neo4j.graphdb.Node java object
-        #
-        # ==== Examples
+        # @example using default database
         #
         #  Neo4j::Transaction.run do
         #    Neo4j::Node.new
         #    Neo4j::Node.new :name => 'foo', :age => 100
         #  end
         #
+        # @example using a different database
         #
+        #   Neo4j::Node.new({:name => 'foo', :age => 100}, my_db)
         def new(*args)
           # the first argument can be an hash of properties to set
           props = args[0].respond_to?(:each_pair) && args[0]
@@ -43,10 +43,32 @@ module Neo4j
         def _load(node_id, db = Neo4j.started_db)
           return nil if node_id.nil?
           db.graph.get_node_by_id(node_id.to_i)
-        rescue java.lang.IllegalStateException
-          nil # the node has been deleted
         rescue Java::OrgNeo4jGraphdb.NotFoundException
           nil
+        end
+
+
+        # Checks if the given entity node or entity id (Neo4j::Node#neo_id) exists in the database.
+        # @return [true, false] if exist
+        def exist?(entity_or_entity_id, db = Neo4j.started_db)
+          id = entity_or_entity_id.kind_of?(Fixnum) ? entity_or_entity_id : entity_or_entity_id.id
+          node = _load(id, db)
+          return false unless node
+          node.has_property?('a')
+          true
+        rescue java.lang.IllegalStateException
+          nil # the node has been deleted
+        end
+
+        # Loads a node or wrapped node given a native java node or an id.
+        # If there is a Ruby wrapper for the node then it will create a Ruby object that will
+        # wrap the java node (see Neo4j::NodeMixin).
+        # To implement a wrapper you must implement a wrapper class method in the Neo4j::Node or Neo4j::Relationship.
+        #
+        # @return [Object, nil] If the node does not exist it will return nil otherwise the loaded node or wrapped node.
+        def load(node_id, db = Neo4j.started_db)
+          node = _load(node_id, db)
+          node && node.wrapper
         end
 
       end

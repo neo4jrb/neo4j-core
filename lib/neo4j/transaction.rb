@@ -2,15 +2,15 @@ module Neo4j
   #
   # All modifying operations that work with the node space must be wrapped in a transaction. Transactions are thread confined.
   # Neo4j does not implement true nested transaction, instead it uses flat nested transactions
-  # see http://wiki.neo4j.org/content/Flat_nested_transactions
   #
+  # @see http://docs.neo4j.org/chunked/milestone/transactions.html
   class Transaction
 
     # Starts a new Neo4j Transaction
-    # Returns a Java Neo4j Transaction object
-    # See http://api.neo4j.org/current/org/neo4j/graphdb/Transaction.html
+    # @return [Java::OrgNeo4jGraphdb::Transaction] a Java Neo4j Transaction object
+    # @see http://api.neo4j.org/current/org/neo4j/graphdb/Transaction.html
     #
-    # Example:
+    # @example
     #  tx = Neo4j::Transaction.new
     #  # modify something
     #  tx.success
@@ -27,29 +27,24 @@ module Neo4j
     # If one transaction is already running then a 'placebo' transaction will be created.
     # Performing a finish on a placebo transaction will not finish the 'real' transaction.
     #
-    # ==== Params
-    # ::yield:: the block to be performed in one transaction
+    # If an exception occurs inside the block the transaction will rollback automatically.
     #
-    # ==== Examples
-    #  include 'neo4j'
+    # @example
     #
-    #  Neo4j::Transaction.run {
-    #    node = PersonNode.new
-    #  }
+    #  Neo4j::Transaction.run { node = PersonNode.new }
     #
-    # You have also access to transaction object
+    # @example access to the transaction and rollback
     #
-    #   Neo4j::Transaction.run { |t|
+    #   Neo4j::Transaction.run do |t|
     #     # something failed
     #     t.failure # will cause a rollback
-    #   }
-
-    # If an exception occurs inside the block the transaction will rollback automatically
+    #   end
     #
-    # ==== Returns
-    # The value of the evaluated provided block
+    # @yield the block which should be run under one transaction
+    # @yieldparam [Neo4j::Transaction]
+    # @return The value of the evaluated provided block
     #
-    def self.run # :yield: block that will be executed in a transaction
+    def self.run
       raise ArgumentError.new("Expected a block to run in Transaction.run") unless block_given?
 
       begin
@@ -61,7 +56,6 @@ module Neo4j
           puts "Java Exception in a transaction, cause: #{e.cause}"
           e.cause.print_stack_trace
         end
-
         tx.failure unless tx.nil?
         raise
       ensure

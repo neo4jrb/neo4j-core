@@ -21,21 +21,38 @@ describe "Neo4j::Node", :type => :integration do
   end
 
   describe "#del" do
-    subject do
-      new_tx
-      node = Neo4j::Node.new
-      finish_tx
-      new_tx
-      node.del
-      finish_tx
-      node
+    context "before commit" do
+      subject do
+        new_tx
+        node = Neo4j::Node.new
+        new_tx
+        node.del
+        node
+      end
+
+      its(:exist?) { should be_false }
+
+      it "will load it with Neo4j::Node.load" do
+        Neo4j::Node.load(subject.neo_id).should == subject
+      end
+
     end
 
-    its(:exist?) { should be_false }
+    context "after commit" do
+      subject do
+        new_tx
+        node = Neo4j::Node.new
+        new_tx
+        node.del
+        finish_tx
+        node
+      end
 
-    it "Neo4j::Node.load returns nil" do
-      Neo4j::Node.load(subject.neo_id).should == nil
+      its(:exist?) { should be_false }
+
+      it "Neo4j::Node.load returns nil" do
+        Neo4j::Node.load(subject.neo_id).should == nil
+      end
     end
-
   end
 end

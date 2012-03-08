@@ -188,7 +188,6 @@ describe Neo4j::Node, "index", :type => :integration do
   describe "rm_index" do
     let!(:my_node) do
       new_tx
-      puts "MYINDEX #{MyIndex._indexer}"
       new_node = MyIndex.new(:name => 'abcdef')
       new_node.add_index(:name)
       new_node.add_index(:things, 'aa')

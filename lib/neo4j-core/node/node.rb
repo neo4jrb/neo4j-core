@@ -12,7 +12,7 @@ module Neo4j
       # This method is  defined in the  org.neo4j.kernel.impl.core.NodeProxy which is return by Neo4j::Node.new
       #
       # @return nil or raise an exception
-      def del #:nodoc:
+      def del
         _rels.each { |r| r.del }
         delete
         nil
@@ -23,6 +23,18 @@ module Neo4j
       # @return the java node/relationship object representing this object unless it is already the java object.
       def _java_node
         self
+      end
+
+      # Same as {Neo4j::Node#exist?} or {Neo4j::Relationship#exist?}
+      # @return [true, false] if the node exists in the database
+      def exist?
+        Neo4j::Node.exist?(self)
+      end
+
+      # Tries to load the wrapper object for this node by calling the class wrapper method (if it exists)
+      # @return a wrapper object or self
+      def wrapper
+        self.class.respond_to?(:wrapper) ? self.class.wrapper(node) : self
       end
 
       def class
