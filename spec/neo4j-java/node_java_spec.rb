@@ -144,6 +144,22 @@ describe Java::OrgNeo4jGraphdb::Node, :type => :java_integration do
     end
 
 
+    describe "get_relationships" do
+      it "works with one direction argument" do
+        existing_node.get_relationships(Neo4j::Core::ToJava.dir_to_java(:incoming)).to_a.should == []
+      end
+
+      it "works with two argument, direction and type" do
+        existing_node.get_relationships(Neo4j::Core::ToJava.type_to_java(:friends), Neo4j::Core::ToJava.dir_to_java(:outgoing)).to_a.should == []
+      end
+
+      it "works with several arguments, direction and several types" do
+        types = [:friends, :work]
+        java_types = types.inject([]) { |result, type| result << Neo4j::Core::ToJava.type_to_java(type) }.to_java(:'org.neo4j.graphdb.RelationshipType')
+        existing_node.get_relationships(Neo4j::Core::ToJava.dir_to_java(:incoming), java_types).to_a.should == []
+      end
+    end
+
   end
 
 

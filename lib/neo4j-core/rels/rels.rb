@@ -63,17 +63,18 @@ module Neo4j
         get_single_relationship(ToJava.type_to_java(type), ToJava.dir_to_java(dir))
       end
 
-      # Returns the raw java neo4j relationship object.
+      # Finds relationship starting from this node given a direction and/or relationship type(s).
+      # @param [:both, :incoming, :outgoing] the direction
+      # @param [Array] types the requested relationship types we want, if none it gets all.
+      # @return [Enumerable] of Neo4j::Relationship objects
       def _rels(dir=:both, *types)
         if types.size > 1
           java_types = types.inject([]) { |result, type| result << ToJava.type_to_java(type) }.to_java(:'org.neo4j.graphdb.RelationshipType')
-          get_relationships(java_types)
+          get_relationships(ToJava.dir_to_java(dir), java_types)
         elsif types.size == 1
           get_relationships(ToJava.type_to_java(types[0]), ToJava.dir_to_java(dir))
-        elsif dir == :both
-          get_relationships(ToJava.dir_to_java(dir))
         else
-          raise "illegal argument, does not accept #{dir} #{types.join(',')} - only dir=:both for any relationship types"
+          get_relationships(ToJava.dir_to_java(dir))
         end
       end
 
@@ -86,9 +87,9 @@ module Neo4j
       # @return [Boolean] true if one or more relationships exists for the given type and dir otherwise false
       def rel? (type=nil, dir=:both)
         if type
-          hasRelationship(ToJava.type_to_java(type), ToJava.dir_to_java(dir))
+          has_relationship(ToJava.type_to_java(type), ToJava.dir_to_java(dir))
         else
-          hasRelationship
+          has_relationship
         end
       end
 

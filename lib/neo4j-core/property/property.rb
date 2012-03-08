@@ -39,7 +39,7 @@ module Neo4j
         strict = options[:strict]
         keys_to_delete = props.keys - %w(_neo_id _classname) if strict
         struct_or_hash.each_pair do |key, value|
-          next if %w(_neo_id _classname).include? key.to_s
+          next if key.to_s[0..0] == '_'
           # do not allow special properties to be mass assigned
           keys_to_delete.delete(key.to_s) if strict
           self[key] = value

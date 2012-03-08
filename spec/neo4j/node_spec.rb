@@ -1,6 +1,11 @@
 require 'spec_helper'
 
 describe Neo4j::Node, :type => :mock_db do
+  before do
+    Neo4j::Core::ToJava.stub(:type_to_java) { |x| x }
+    Neo4j::Core::ToJava.stub(:dir_to_java) { |x| x }
+  end
+
   describe "#new" do
     it "created node should exist in db before transaction finish" do
       node = double("a node")
@@ -85,6 +90,11 @@ describe Neo4j::Node, :type => :mock_db do
       new_node.update({:kalle => 42}, {:strict => true})
     end
 
+    it "does not update properties starting with character '_'" do
+      new_node = MockNode.new
+      new_node.update({:_kalle => 42})
+    end
+
   end
 
   describe "#load" do
@@ -104,17 +114,79 @@ describe Neo4j::Node, :type => :mock_db do
     end
   end
 
-    describe "node" do
-      subject { MockNode.new }
-      it "returns a single node" do
-        Neo4j::Core::ToJava.stub(:type_to_java){|x| x}
-        Neo4j::Core::ToJava.stub(:dir_to_java){|x| x}
-        other_node = MockNode.new
-        rel = MockRelationship.new(:foo, subject, other_node)
-        subject.should_receive(:get_single_relationship).with(:foo, :outgoing).and_return(rel)
-        subject.node(:outgoing, :foo).should == other_node
-      end
+  describe "node and _node" do
+    let(:other_node) { MockNode.new }
+    subject { MockNode.new }
 
+    it "returns a single (wrapped) node" do
+      other_node.should_receive(:wrapper).and_return("the wrapper")
+      rel = MockRelationship.new(:foo, subject, other_node)
+      subject.should_receive(:get_single_relationship).with(:foo, :outgoing).and_return(rel)
+      subject.node(:outgoing, :foo).should == "the wrapper"
     end
+
+    it "returns a single node" do
+      other_node.should_not_receive(:wrapper)
+      rel = MockRelationship.new(:foo, subject, other_node)
+      subject.should_receive(:get_single_relationship).with(:foo, :outgoing).and_return(rel)
+      subject._node(:outgoing, :foo).should == other_node
+    end
+  end
+
+
+  describe "rel and _rel" do
+    subject { MockNode.new }
+
+    let(:other_node) { MockNode.new }
+
+    it "returns a single (wrapped) relationship" do
+      rel = MockRelationship.new(:foo, subject, other_node)
+      rel.should_receive(:wrapper).and_return("the wrapper")
+      subject.should_receive(:get_single_relationship).with(:foo, :outgoing).and_return(rel)
+      subject.rel(:outgoing, :foo).should == "the wrapper"
+    end
+
+    it "returns a single relationship" do
+      rel = MockRelationship.new(:foo, subject, other_node)
+      rel.should_not_receive(:wrapper)
+      subject.should_receive(:get_single_relationship).with(:foo, :outgoing).and_return(rel)
+      subject._rel(:outgoing, :foo).should == rel
+    end
+  end
+
+  describe "rel?" do
+    subject { MockNode.new }
+
+    let(:other_node) { MockNode.new }
+
+    it "accept two arguments" do
+      subject.should_receive(:has_relationship).with(:outgoing, :foo).and_return(true)
+      subject.rel?(:outgoing, :foo).should be_true
+    end
+
+    it "accept no arguments" do
+      subject.should_receive(:has_relationship).with().and_return(true)
+      subject.rel?.should be_true
+    end
+  end
+
+  describe "_rels" do
+    subject { MockNode.new }
+
+    #it "returns a Neo4j::Core::Rels::Traverser object" do
+    #  subject.rels
+    #end
+
+    it "accept no arguments which return both direction all types" do
+      subject.should_receive(:get_relationships).with(:both).and_return("stuff")
+      subject._rels.should == "stuff"
+    end
+
+    it "accept one direction argument which return only relationship of that direction but of any type" do
+      subject.should_receive(:get_relationships).with(:incoming).and_return("stuff")
+      subject._rels(:incoming).should == "stuff"
+    end
+
+  end
 end
 
