@@ -6,9 +6,25 @@ module Neo4j
     #
     # This class is also responsible for checking if there is already a running neo4j database.
     # If one tries to start an already started database then a read only instance to neo4j will be used.
+    # Many of the methods here are delegated from the Neo4j module
     #
     class Database
-      attr_reader :graph, :lucene, :event_handler, :storage_path
+
+      # The Java graph database
+      # @see http://components.neo4j.org/neo4j/1.6.1/apidocs/org/neo4j/graphdb/GraphDatabaseService.html
+      # @return [Java::OrgNeo4jGraphdb::GraphDatabaseService]
+      attr_reader :graph
+
+      # The lucene index manager
+      # @see http://components.neo4j.org/neo4j/1.6.1/apidocs/org/neo4j/graphdb/index/IndexManager.html
+      # @return [Java::OrgNeo4jGraphdbIndex::IndexManager]
+      attr_reader :lucene
+
+      # @return [Neo4j::EventHandler] the event handler listining to commit events
+      attr_reader :event_handler
+
+      # @return [String] The location of the database
+      attr_reader :storage_path
 
       alias_method :index, :lucene # needed by cypher
 
@@ -24,7 +40,9 @@ module Neo4j
         @default_embedded_db = db
       end
 
-      def start #:nodoc:
+      # Private start method, use Neo4j.start instead
+      # @see Neo4j#start
+      def start
         return if running?
         @running = true
         @storage_path = Config.storage_path
@@ -47,13 +65,82 @@ module Neo4j
         at_exit { shutdown }
       end
 
-      def start_readonly_graph_db #:nodoc:
+
+      def running? #:nodoc:
+        @running
+      end
+
+      # Returns true if the neo4j db was started in read only mode.
+      # This can occur if the database was locked (it was already one instance running).
+      # @see Neo4j#read_only?
+      def read_only?
+        @graph.java_class == Java::OrgNeo4jKernel::EmbeddedReadOnlyGraphDatabase
+      end
+
+      # check if the database is locked. A neo4j database is locked when the database is running.
+      def self.locked?
+        lock_file = File.join(Neo4j.config.storage_path, 'neostore')
+        return false unless File.exist?(lock_file)
+        rfile = java.io.RandomAccessFile.new(lock_file, 'rw')
+        begin
+          lock = rfile.getChannel.tryLock
+          lock.release if lock
+          return lock == nil # we got the lock, so that means it is not locked.
+        rescue Exception => e
+          return false
+        end
+      end
+
+      # Internal method, see Neo4j#shutdown
+      def shutdown
+        if @running
+          @graph.unregister_transaction_event_handler(@event_handler) unless read_only?
+          @event_handler.neo4j_shutdown(self)
+          @graph.shutdown
+          @graph = nil
+          @lucene = nil
+          @running = false
+          @neo4j_manager = nil
+        end
+      end
+
+
+      # @see Neo4j.management
+      def management(jmx_clazz)
+        @neo4j_manager ||= Java::OrgNeo4jManagement::Neo4jManager.new(@graph.get_management_bean(org.neo4j.jmx.Kernel.java_class))
+        @neo4j_manager.getBean(jmx_clazz.java_class)
+      end
+
+      # private method, used from Neo4j::Transaction.new
+      def begin_tx
+        @graph.begin_tx
+      end
+
+      # @see Neo4j.all_nodes
+      def each_node
+        iter = @graph.all_nodes.iterator
+        while (iter.hasNext)
+          yield iter.next.wrapper
+        end
+      end
+
+      # @see Neo4j._all_nodes
+      def _each_node
+        iter = @graph.all_nodes.iterator
+        while (iter.hasNext)
+          yield iter.next
+        end
+      end
+
+      private
+
+      def start_readonly_graph_db
         Neo4j.logger.info "Starting Neo4j in readonly mode since the #{@storage_path} is locked"
         @graph = Java::OrgNeo4jKernel::EmbeddedReadOnlyGraphDatabase.new(@storage_path, Config.to_java_map)
         @lucene = @graph.index
       end
 
-      def start_local_graph_db #:nodoc:
+      def start_local_graph_db
         Neo4j.logger.info "Starting local Neo4j using db #{@storage_path} using #{self.class.default_embedded_db}"
         @graph = self.class.default_embedded_db.new(@storage_path, Config.to_java_map)
         @graph.register_transaction_event_handler(@event_handler)
@@ -98,69 +185,6 @@ module Neo4j
         end
       end
 
-      def running? #:nodoc:
-        @running
-      end
-
-      # Returns true if the neo4j db was started in read only mode.
-      # This can occur if the database was locked (it was already one instance running).
-      def read_only?
-        @graph.java_class == Java::OrgNeo4jKernel::EmbeddedReadOnlyGraphDatabase
-      end
-
-      # check if the database is locked. A neo4j database is locked when the database is running.
-      def self.locked?
-        lock_file = File.join(Neo4j.config.storage_path, 'neostore')
-        return false unless File.exist?(lock_file)
-        rfile = java.io.RandomAccessFile.new(lock_file, 'rw')
-        begin
-          lock = rfile.getChannel.tryLock
-          lock.release if lock
-          return lock == nil # we got the lock, so that means it is not locked.
-        rescue Exception => e
-          return false
-        end
-      end
-
-      def shutdown #:nodoc:
-        if @running
-          @graph.unregister_transaction_event_handler(@event_handler) unless read_only?
-          @event_handler.neo4j_shutdown(self)
-          @graph.shutdown
-          @graph = nil
-          @lucene = nil
-          @running = false
-          @neo4j_manager = nil
-        end
-
-      end
-
-
-      def management(jmx_clazz) #:nodoc:
-        @neo4j_manager ||= Java::OrgNeo4jManagement::Neo4jManager.new(@graph.get_management_bean(org.neo4j.jmx.Kernel.java_class))
-        @neo4j_manager.getBean(jmx_clazz.java_class)
-      end
-
-      def begin_tx #:nodoc:
-        @graph.begin_tx
-      end
-
-
-      def each_node #:nodoc:
-        iter = @graph.all_nodes.iterator
-        while (iter.hasNext)
-          yield iter.next.wrapper
-        end
-      end
-
-      def _each_node #:nodoc:
-        iter = @graph.all_nodes.iterator
-        while (iter.hasNext)
-          yield iter.next
-        end
-      end
-
     end
-
   end
 end
