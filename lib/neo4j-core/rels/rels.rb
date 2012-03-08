@@ -69,12 +69,12 @@ module Neo4j
       # Returns the raw java neo4j relationship object.
       def _rels(dir=:both, *types)
         if types.size > 1
-          java_types = types.inject([]) { |result, type| result << type_to_java(type) }.to_java(:'org.neo4j.graphdb.RelationshipType')
+          java_types = types.inject([]) { |result, type| result << ToJava.type_to_java(type) }.to_java(:'org.neo4j.graphdb.RelationshipType')
           get_relationships(java_types)
         elsif types.size == 1
-          get_relationships(type_to_java(types[0]), dir_to_java(dir))
+          get_relationships(ToJava.type_to_java(types[0]), ToJava.dir_to_java(dir))
         elsif dir == :both
-          get_relationships(dir_to_java(dir))
+          get_relationships(ToJava.dir_to_java(dir))
         else
           raise "illegal argument, does not accept #{dir} #{types.join(',')} - only dir=:both for any relationship types"
         end
@@ -84,13 +84,10 @@ module Neo4j
       # Returns true if there are one or more relationships from this node to other nodes
       # with the given relationship.
       #
-      # ==== Parameters
-      # type:: the key and value to be set, default any type
-      # dir:: optional default :both (either, :outgoing, :incoming, :both)
+      # @param [String,Symbol] type the key and value to be set, default any type
+      # @param [Symbol] dir  optional default :both (either, :outgoing, :incoming, :both)
       #
-      # ==== Returns
-      # true if one or more relationships exists for the given type and dir
-      # otherwise false
+      # @return [Boolean] true if one or more relationships exists for the given type and dir otherwise false
       #
       def rel? (type=nil, dir=:both)
         if type

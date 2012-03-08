@@ -42,53 +42,50 @@ module Neo4j
       # This is a very convenient operation when you're manually traversing the node space by invoking one of the #rels
       # method on a node. For example, to get the node "at the other end" of a relationship, use the following:
       #
+      # @example
       #   end_node = node.rels.first.other_node(node)
       #
-      # This operation will throw a runtime exception if node is neither this relationship's start node nor its end node.
+      # @raise This operation will throw a runtime exception if node is neither this relationship's start node nor its end node.
       #
-      # === Parameters
-      #
-      # node :: the node that we don't want to return
+      # @param [Neo4j::Node] node the node that we don't want to return
+      # @return [Neo4j::Node] the other node wrapper
       def other_node(node)
         getOtherNode(node._java_node).wrapper
       end
 
 
-      # same as _java_rel
+      # same as #_java_rel
       # Used so that we have same method for both relationship and nodes
       def wrapped_entity
         self
       end
 
+      # @return self
       def _java_rel
         self
       end
 
-
-      # Returns true if the relationship exists
+      # @return [true, false] if the relationship exists
       def exist?
         Neo4j::Relationship.exist?(self)
       end
 
-      # Loads the Ruby wrapper for this node
-      # If there is no _classname property for this node then it will simply return itself.
-      # Same as Neo4j::Node.load_wrapper(node)
+      # Loads the wrapper using the #wrapper class method if it exists, otherwise return self.
       def wrapper
-        self.class.wrapper(self)
+        self.class.respond_to?(:wrapper) ? self.class.wrapper(node) : self
       end
 
 
       # Returns the relationship name
       #
-      # ==== Example
+      # @example
       #   a = Neo4j::Node.new
       #   a.outgoing(:friends) << Neo4j::Node.new
       #   a.rels.first.rel_type # => 'friends'
-      #
+      # @return [String] the type of the relationship
       def rel_type
         getType().name()
       end
-
 
       def class
         Neo4j::Relationship

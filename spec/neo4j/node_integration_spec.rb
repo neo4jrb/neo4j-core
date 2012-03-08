@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "Neo4j::Node", :type => :integration do
+describe Neo4j::Node, :type => :integration do
 
   describe "#new" do
     subject do

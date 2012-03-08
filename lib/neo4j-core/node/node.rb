@@ -25,7 +25,7 @@ module Neo4j
         self
       end
 
-      # Same as {Neo4j::Node#exist?} or {Neo4j::Relationship#exist?}
+      # Same as Neo4j::Node#exist? or Neo4j::Relationship#exist?
       # @return [true, false] if the node exists in the database
       def exist?
         Neo4j::Node.exist?(self)

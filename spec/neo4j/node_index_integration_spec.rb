@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 
-describe Neo4j::Node, "index", :type => :integration do
+describe "Neo4j::Node#index", :type => :integration do
 
   class MyIndex
     extend Neo4j::Core::Index::ClassMethods

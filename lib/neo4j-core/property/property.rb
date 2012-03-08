@@ -5,7 +5,7 @@ module Neo4j
       # @return [Hash] all properties plus the id of the node with the key <tt>_neo_id</tt>
       def props
         ret = {"_neo_id" => neo_id}
-        iter = getPropertyKeys.iterator
+        iter = get_property_keys.iterator
         while (iter.hasNext) do
           key = iter.next
           ret[key] = get_property(key)
@@ -31,10 +31,9 @@ module Neo4j
       # If the option <code>{:strict => true}</code> is given, any properties present on
       # the node but not present in the hash will be removed from the node.
       #
-      # ==== Parameters
-      # struct_or_hash:: the key and value to be set, should respond to <tt>each_pair</tt>
-      # options:: further options defining the context of the update, should be a Hash
-      #
+      # @param [Hash, :each_pair] struct_or_hash the key and value to be set
+      # @param [Hash] options further options defining the context of the update
+      # @option options [Boolean] :strict any properties present on the node but not present in the hash will be removed from the node if true
       # @return self
       def update(struct_or_hash, options={})
         strict = options[:strict]
@@ -42,7 +41,7 @@ module Neo4j
         struct_or_hash.each_pair do |key, value|
           next if %w(_neo_id _classname).include? key.to_s
           # do not allow special properties to be mass assigned
-          keys_to_delete.delete(key) if strict
+          keys_to_delete.delete(key.to_s) if strict
           self[key] = value
         end
         keys_to_delete.each { |key| remove_property(key) } if strict
@@ -50,7 +49,7 @@ module Neo4j
       end
 
 
-      # Returns the value of the given key or nil if the property does not exist.
+      # @return the value of the given key or nil if the property does not exist.
       def [](key)
         return unless property?(key)
         val = get_property(key.to_s)
@@ -64,6 +63,8 @@ module Neo4j
       # * Values in the array must be of the same type.
       # * You can *not* delete or add one item in the array (e.g. person.phones.delete('123')) but instead you must create a new array instead.
       #
+      # @param [String, Symbol] key of the property to set
+      # @param [String,Fixnum,Float,true,false, Array] value to set
       def []=(key, value)
         k = key.to_s
         if value.nil?

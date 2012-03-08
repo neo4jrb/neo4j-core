@@ -70,6 +70,23 @@ describe Neo4j::Node, :type => :mock_db do
     end
   end
 
+  describe "#update" do
+    it "update properties" do
+      new_node = MockNode.new
+      new_node.should_receive(:set_property).with('kalle', 42)
+      new_node.update(:kalle => 42)
+    end
+
+    it "update properties strict removed old properties" do
+      new_node = MockNode.new
+      new_node.stub(:props) { {"kalle" => 3, "hej" => "hoj"} }
+      new_node.should_receive(:remove_property).with('hej')
+      new_node.should_receive(:set_property).with('kalle', 42)
+      new_node.update({:kalle => 42}, {:strict => true})
+    end
+
+  end
+
   describe "#load" do
     context "the node exists" do
       it "returns the node" do

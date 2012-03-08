@@ -41,3 +41,4 @@ require 'neo4j/transaction'
 require 'neo4j-core/type_converters/type_converters'
 
 require 'neo4j/node'
+require 'neo4j/relationship'

@@ -56,14 +56,11 @@ def new_tx
   @tx = Neo4j::Transaction.new
 end
 
+Neo4j::Config[:storage_path] = File.join(Dir.tmpdir, "neo4j_core_integration_rspec")
+FileUtils.rm_rf Neo4j::Config[:storage_path]
 
 RSpec.configure do |c|
   c.filter_run_excluding :slow => ENV['TRAVIS'] != 'true'
-
-  c.before(:all, :type => :integration) do
-    Neo4j::Config[:storage_path] = File.join(Dir.tmpdir, "neo4j_core_integration_rspecs")
-    FileUtils.rm_rf Neo4j::Config[:storage_path]
-  end
 
   c.after(:each, :type => :integration) do
     finish_tx
@@ -71,6 +68,8 @@ RSpec.configure do |c|
 
   c.before(:all, :type => :mock_db) do
     Neo4j.shutdown
+    Neo4j::Config[:storage_path] = File.join(Dir.tmpdir, "neo4j_core_integration_rspec")
+    FileUtils.rm_rf Neo4j::Config[:storage_path]
     Neo4j::Core::Database.default_embedded_db= MockDb
     Neo4j.start
   end
