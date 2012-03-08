@@ -102,7 +102,19 @@ describe Neo4j::Node, :type => :mock_db do
         Neo4j::Node.load(123).should be_nil
       end
     end
-
   end
+
+    describe "node" do
+      subject { MockNode.new }
+      it "returns a single node" do
+        Neo4j::Core::ToJava.stub(:type_to_java){|x| x}
+        Neo4j::Core::ToJava.stub(:dir_to_java){|x| x}
+        other_node = MockNode.new
+        rel = MockRelationship.new(:foo, subject, other_node)
+        subject.should_receive(:get_single_relationship).with(:foo, :outgoing).and_return(rel)
+        subject.node(:outgoing, :foo).should == other_node
+      end
+
+    end
 end
 

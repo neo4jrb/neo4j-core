@@ -16,3 +16,10 @@ This gem will be included by neo4j 2.0.0 gem (if successful).
 
 *Don't use it yet !*
 
+== The public API
+
+{Neo4j::Node} The Java Neo4j Node
+
+{Neo4j::Relationship} The Java Relationship
+
+{Neo4j} The Database

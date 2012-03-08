@@ -7,12 +7,11 @@ module Neo4j
       #
       class Traverser
         include Enumerable
-        include ToJava
 
         def initialize(node, types, dir)
           @node = node
           if types.size > 1
-            @types = types.inject([]) { |result, type| result << type_to_java(type) }.to_java(:'org.neo4j.graphdb.RelationshipType')
+            @types = types.inject([]) { |result, type| result << ToJava.type_to_java(type) }.to_java(:'org.neo4j.graphdb.RelationshipType')
           elsif types.size == 1
             @type = type_to_java(types[0])
           end
@@ -45,9 +44,9 @@ module Neo4j
           if @types
             @node.get_relationships(@types).iterator
           elsif @type
-            @node.get_relationships(@type, dir_to_java(@dir))
+            @node.get_relationships(@type, ToJava.dir_to_java(@dir))
           else
-            @node.get_relationships(dir_to_java(@dir))
+            @node.get_relationships(ToJava.dir_to_java(@dir))
           end
         end
 

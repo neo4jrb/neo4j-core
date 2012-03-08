@@ -2,8 +2,6 @@ module Neo4j
   module Core
     # Contains methods for traversing relationship object of depth one from one node.
     module Rels
-      include ToJava
-
       # Returns the only node of a given type and direction that is attached to this node, or nil.
       # This is a convenience method that is used in the commonly occuring situation where a node has exactly zero or one relationships of a given type and direction to another node.
       # Typically this invariant is maintained by the rest of the code: if at any time more than one such relationships exist, it is a fatal error that should generate an exception.
@@ -32,15 +30,14 @@ module Neo4j
       # Returns an enumeration of relationship objects.
       # It always returns relationship of depth one.
       #
-      # See Neo4j::Relationship
-      #
-      # ==== Examples
-      #   # Return both incoming and outgoing relationships
+      # @example Return both incoming and outgoing relationships
       #   me.rels(:friends, :work).each {|relationship|...}
       #
-      #   # Only return outgoing relationship of given type
+      # @example Only return outgoing relationship of given type
       #   me.rels(:friends).outgoing.first.end_node # => my friend node
       #
+      # @see [Neo4j::Relationship]
+      # @return [Neo4j::Core::Rels::Traverser]
       def rels(*type)
         Traverser.new(self, type, :both)
       end
@@ -63,7 +60,7 @@ module Neo4j
 
       # Same as rel but does not return a ruby wrapped object but instead returns the Java object.
       def _rel(dir, type)
-        get_single_relationship(type_to_java(type), dir_to_java(dir))
+        get_single_relationship(ToJava.type_to_java(type), ToJava.dir_to_java(dir))
       end
 
       # Returns the raw java neo4j relationship object.
@@ -86,12 +83,10 @@ module Neo4j
       #
       # @param [String,Symbol] type the key and value to be set, default any type
       # @param [Symbol] dir  optional default :both (either, :outgoing, :incoming, :both)
-      #
       # @return [Boolean] true if one or more relationships exists for the given type and dir otherwise false
-      #
       def rel? (type=nil, dir=:both)
         if type
-          hasRelationship(type_to_java(type), dir_to_java(dir))
+          hasRelationship(ToJava.type_to_java(type), ToJava.dir_to_java(dir))
         else
           hasRelationship
         end

@@ -2,14 +2,14 @@ module Neo4j
 
 
   # A relationship between two nodes in the graph. A relationship has a start node, an end node and a type.
-  # You can attach properties to relationships with the API specified in Neo4j::JavaPropertyMixin.
+  # You can attach properties to relationships like Neo4j::Node.
   #
   # The fact that the relationship API gives meaning to start and end nodes implicitly means that all relationships have a direction.
   # In the example above, rel would be directed from node to otherNode.
   # A relationship's start node and end node and their relation to outgoing and incoming are defined so that the assertions in the following code are true:
   #
   # Furthermore, Neo4j guarantees that a relationship is never "hanging freely,"
-  # i.e. start_node, end_node and other_node are guaranteed to always return valid, non-null nodes.
+  # i.e. start_node, end_node and other_node are guaranteed to always return valid, non-nil nodes.
   #
   # === Wrapping
   #
@@ -27,7 +27,7 @@ module Neo4j
   #
   # @example using the << operator on the Neo4j::Node relationship methods
   #
-  #  node.outgoing(:friends) << other_node << yet_another_node
+  #   node.outgoing(:friends) << other_node << yet_another_node
   #
   # @see http://api.neo4j.org/current/org/neo4j/graphdb/Relationship.html
   #
