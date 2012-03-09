@@ -208,6 +208,20 @@ describe Neo4j::Node, :type => :mock_db do
     end
   end
 
+  describe "nodes" do
+    subject { MockNode.new }
+
+    it "can returns all outgoing wrapped nodes of depth one" do
+      n1 = MockNode.new
+      rel_1 = MockRelationship.new(:friends, subject, n1)
+      rels = [rel_1]
+      n1.should_receive(:wrapper).and_return("WrappedNode")
+      subject.should_receive(:_rels).with(:outgoing, :friends).and_return(rels)
+      subject.nodes(:outgoing, :friends).to_a.should == ["WrappedNode"]
+    end
+
+  end
+
   describe "_nodes" do
     subject { MockNode.new }
     let(:rel_1) { MockRelationship.new(:friends, subject) }
@@ -216,13 +230,13 @@ describe Neo4j::Node, :type => :mock_db do
     it "can returns all outgoing nodes of depth one" do
       rels = [rel_1, rel_2]
       subject.should_receive(:_rels).with(:outgoing, :friends).and_return(rels)
-      subject._nodes(:outgoing, :friends).should == [rel_1.end_node, rel_2.end_node]
+      subject._nodes(:outgoing, :friends).to_a.should == [rel_1.end_node, rel_2.end_node]
     end
 
     it "returns no outgoing relationships if there are none" do
       rels = []
       subject.should_receive(:_rels).with(:outgoing, :friends).and_return(rels)
-      subject._nodes(:outgoing, :friends).should == []
+      subject._nodes(:outgoing, :friends).to_a.should == []
     end
 
     it "can returns all incoming nodes of depth one" do
@@ -232,7 +246,7 @@ describe Neo4j::Node, :type => :mock_db do
       rel_2 = MockRelationship.new(:friends, n2, subject)
       rels = [rel_1, rel_2]
       subject.should_receive(:_rels).with(:incoming, :friends).and_return(rels)
-      subject._nodes(:incoming, :friends).should == [n1, n2]
+      subject._nodes(:incoming, :friends).to_a.should == [n1, n2]
     end
 
     it "can returns both incoming and outgoing nodes of depth one" do
@@ -242,9 +256,8 @@ describe Neo4j::Node, :type => :mock_db do
       rel_2 = MockRelationship.new(:friends, subject, n2)
       rels = [rel_1, rel_2]
       subject.should_receive(:_rels).with(:both, :friends).and_return(rels)
-      subject._nodes(:both, :friends).should == [n1, n2]
+      subject._nodes(:both, :friends).to_a.should == [n1, n2]
     end
-
   end
 end
 

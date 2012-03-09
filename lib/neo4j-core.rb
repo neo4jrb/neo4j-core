@@ -5,6 +5,7 @@ require 'neo4j-community'
 
 require 'neo4j/neo4j'
 
+require 'neo4j-core/lazy_map'
 require 'neo4j-core/relationship_set'
 require 'neo4j-core/event_handler'
 require 'neo4j-core/database'

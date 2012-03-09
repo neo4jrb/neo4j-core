@@ -33,15 +33,14 @@ module Neo4j
       # @see #rels
       # @return [Enumerable<Neo4j::Node>]
       def _nodes(dir, *types)
-        # TODO MUST DO THIS LAZY !!!
         r = _rels(dir, *types)
         case dir
           when :outgoing then
-            r.map { |x| x._end_node }
+            Neo4j::Core::LazyMap.new(r, &:_end_node)
           when :incoming then
-            r.map { |x| x._start_node }
+            Neo4j::Core::LazyMap.new(r, &:_start_node)
           when :both then
-            r.map { |x| x._other_node(self) }
+            Neo4j::Core::LazyMap.new(r) { |x| x._other_node(self) }
         end
       end
 
@@ -50,8 +49,9 @@ module Neo4j
       # @param (see #rels)
       # @see Neo4j::Core::Node#wrapper #wrapper - The method used wrap to the node in a Ruby object if the node was found
       # @return [Enumerable] an Enumeration of either Neo4j::Node objects or wrapped Neo4j::Node objects
+      # @notice it's possible that the same node is returned more then once because of several relationship reaching to the same node, see #outgoing for alternative
       def nodes(dir, *types)
-        _nodes(dir, *types)  # TODO LAZY #wrapper map
+        Neo4j::Core::LazyMap.new(_nodes(dir, *types), &:wrapper)
       end
 
 

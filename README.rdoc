@@ -1,20 +1,16 @@
-=== Far from Ready
-
 This gem only contains the JRuby mapping of the Neo4j graph database.
-I plan to split the neo4j.rb into two or more gems.
+The neo4j.rb gem will be split up into two gems, neo4j-core and neo4j.
+This gem will be included by neo4j 2.0.0 gem (if successful).
 
 Changes from the neo4j.rb
-* Use YARD
-* Use more mocking combined with real testing of the Java layer
-* Some tidy up of the API and code
-* Change of Ruby module structure
+* Use of YARD instead of RDoc
+* Some tidy up of the API and code (e.g. Neo4j::Node#rels methods)
+* Change of Ruby module structure.
+* More RSpecs and more use of mocking combined with real testing of the Java layer
+* Make sure that we retrieve relationships and nodes lazy if possible.
 
 This gem contains two modules: Neo4j and Neo4j::Core
 The Neo4j modules are public and the Neo4j::Core(::*) are private modules
-
-This gem will be included by neo4j 2.0.0 gem (if successful).
-
-*Don't use it yet !*
 
 == The public API
 
@@ -23,3 +19,7 @@ This gem will be included by neo4j 2.0.0 gem (if successful).
 {Neo4j::Relationship} The Java Relationship
 
 {Neo4j} The Database
+
+== Not Impemented Yet
+
+Neo4j::Node#outgoing, #incoming, #both methods
