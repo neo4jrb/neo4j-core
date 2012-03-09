@@ -4,6 +4,7 @@ module Neo4j
 
       # Traverse relationships of depth one from one node.
       # This object is returned from the Neo4j::Node#rels method.
+      # @see Neo4j::Core::Node#rels
       class Traverser
         include Enumerable
         include Neo4j::Core::ToJava
@@ -11,50 +12,53 @@ module Neo4j
         attr_reader :node
         attr_reader :dir
         attr_reader :types
-        attr_reader :type
 
+        # Called from Neo4j::Core::Node#rels
         def initialize(node, types, dir = :both)
           @node = node
-          if types.size > 1
-            @types = types.inject([]) { |result, type| result << type_to_java(type) }.to_java(Java::OrgNeo4jGraphdb::RelationshipType)
-          elsif types.size == 1
-            @type = type_to_java(types[0])
-          end
+          @types = types
           @dir = dir
         end
 
         def to_s
-          if @type
-            "#{self.class} [type: #{@type} dir:#{@dir}]"
-          elsif @types
-            "#{self.class} [types: #{@types.join(',')} dir:#{@dir}]"
-          else
-            "#{self.class} [types: ANY dir:#{@dir}]"
-          end
+          "#{self.class} [types: #{@types.join(',')} dir:#{@dir}]"
         end
 
+        # Implements the Ruby Enumerable mixin
         def each
           iter = iterator
-          while (iter.hasNext())
+          while (iter.has_next())
             rel = iter.next
             yield rel.wrapper if match_to_other?(rel)
           end
         end
 
+        # @return [true,false] if there are no relationships of specified dir and type(s)
         def empty?
           first == nil
         end
 
+        # @return The Java Iterator
         def iterator
-          if @types
-            @node.get_relationships(@types).iterator
-          elsif @type
-            @node.get_relationships(@type, ToJava.dir_to_java(@dir))
-          else
-            @node.get_relationships(ToJava.dir_to_java(@dir))
-          end
+          @node._rels(@dir, *@types)
         end
 
+        # @return [Fixnum] the size of all matched relationship, also check if it #to_other node
+        # @see #to_other
+        def size
+          c = 0
+          iter = iterator
+          while (iter.has_next())
+            rel = iter.next
+            next unless match_to_other?(rel)
+            c += 1
+          end
+          c
+        end
+
+
+        # @return [true,false] true if it match the specified other node
+        # @see #to_other
         def match_to_other?(rel)
           if @to_other.nil?
             true
@@ -67,32 +71,37 @@ module Neo4j
           end
         end
 
+        # Specifies that we only want relationship to the given node
+        # @param [Neo4j::Node] to_other a node or an object that implements the Neo4j::Core::Equal mixin
+        # @return self
         def to_other(to_other)
           @to_other = to_other
           self
         end
 
+        # Deletes all the relationships
         def del
           each { |rel| rel.del }
         end
 
-        def size
-          [*self].size
-        end
 
+        # Specifies that we want both incoming and outgoing direction
+        # @return self
         def both
           @dir = :both
           self
         end
 
+        # Specifies that we only want incoming relationships
+        # @return self
         def incoming
-          raise "Not allowed calling incoming when finding several relationships types" if @types
           @dir = :incoming
           self
         end
 
+        # Specifies that only outgoing relationships is wanted.
+        # @return self
         def outgoing
-          raise "Not allowed calling outgoing when finding several relationships types" if @types
           @dir = :outgoing
           self
         end

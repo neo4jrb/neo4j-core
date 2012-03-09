@@ -28,13 +28,13 @@ module Neo4j
       # Same as Java::OrgNeo4jGraphdb::Relationship#getEndNode but returns the wrapper for it (if it exist)
       # @see Neo4j::Node#wrapper
       def end_node
-        getEndNode.wrapper
+        _end_node.wrapper
       end
 
       # Same as Java::OrgNeo4jGraphdb::Relationship#getStartNode but returns the wrapper for it (if it exist)
       # @see Neo4j::Node#wrapper
       def start_node
-        getStartNode.wrapper
+        _start_node.wrapper
       end
 
       # A convenience operation that, given a node that is attached to this relationship, returns the other node.
@@ -50,7 +50,7 @@ module Neo4j
       # @param [Neo4j::Node] node the node that we don't want to return
       # @return [Neo4j::Node] the other node wrapper
       def other_node(node)
-        getOtherNode(node._java_node).wrapper
+        _other_node(node._java_node).wrapper
       end
 
 

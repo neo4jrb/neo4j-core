@@ -31,7 +31,9 @@ module Neo4j
         Neo4j::Node.exist?(self)
       end
 
-      # Tries to load the wrapper object for this node by calling the class wrapper method (if it exists)
+      # Tries to load the wrapper object for this node by calling the class #wrapper method.
+      # This allows you to create a custom Ruby wrapper class around the Neo4j::Node.
+      # This is for example done in the <tt>neo4j<//t> ruby gem <tt>Neo4j::NodeMixin</tt>
       # @return a wrapper object or self
       def wrapper
         self.class.respond_to?(:wrapper) ? self.class.wrapper(node) : self

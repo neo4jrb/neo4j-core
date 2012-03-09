@@ -1,12 +1,20 @@
 module Neo4j
   module Core
     # A Utility class for translating Ruby object to Neo4j Java types
+    # @private
     module ToJava
       def type_to_java(type)
         Java::OrgNeo4jGraphdb::DynamicRelationshipType.withName(type.to_s)
       end
 
       module_function :type_to_java
+
+      def types_to_java(types)
+        types.inject([]) { |result, type| result << type_to_java(type) }.to_java(Java::OrgNeo4jGraphdb::RelationshipType)
+      end
+
+      module_function :types_to_java
+
 
       def dir_from_java(dir)
         case dir
@@ -32,7 +40,7 @@ module Neo4j
           when :incoming then
             Java::OrgNeo4jGraphdb::Direction::INCOMING
           else
-            raise "unknown direction '#{dir}', expects :outgoing, :incoming or :both"
+            raise "unknown direction '#{dir}', expects argument: outgoing, :incoming or :both"
         end
       end
 

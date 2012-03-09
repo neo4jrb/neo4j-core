@@ -8,6 +8,7 @@ module Neo4j
     # If one tries to start an already started database then a read only instance to neo4j will be used.
     # Many of the methods here are delegated from the Neo4j module
     #
+    # @private
     class Database
 
       # The Java graph database

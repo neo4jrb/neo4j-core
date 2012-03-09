@@ -4,7 +4,7 @@ end
 Neo4j::Relationship.extend_java_class(MockRelationship)
 
 class MockRelationship
-  def initialize(type, start_node, end_node)
+  def initialize(type=:friends, start_node=MockNode.new, end_node=MockNode.new)
     @@id_counter ||= 0
     @@id_counter += 1
     @id = @@id_counter

@@ -36,6 +36,7 @@ module Neo4j
 
       # @return [Hash] the default file loaded by yaml
       def defaults
+        require 'yaml'
         @defaults ||= YAML.load_file(default_file)
       end
 

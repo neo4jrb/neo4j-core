@@ -2,6 +2,7 @@ require 'spec_helper'
 
 describe Neo4j::Node, :type => :mock_db do
   before do
+    Neo4j::Core::ToJava.stub(:types_to_java) { |x| x }
     Neo4j::Core::ToJava.stub(:type_to_java) { |x| x }
     Neo4j::Core::ToJava.stub(:dir_to_java) { |x| x }
   end
@@ -164,8 +165,13 @@ describe Neo4j::Node, :type => :mock_db do
       subject.rel?(:outgoing, :foo).should be_true
     end
 
+    it "accept one arguments" do
+      subject.should_receive(:has_relationship).with(:incoming).and_return(true)
+      subject.rel?(:incoming).should be_true
+    end
+
     it "accept no arguments" do
-      subject.should_receive(:has_relationship).with().and_return(true)
+      subject.should_receive(:has_relationship).with(:both).and_return(true)
       subject.rel?.should be_true
     end
 
@@ -187,6 +193,11 @@ describe Neo4j::Node, :type => :mock_db do
       subject._rels(:incoming).should == "stuff"
     end
 
+    it "accept one direction argument and several rel types which return only relationships of that direction and types" do
+      subject.should_receive(:get_relationships).with(:incoming, [:foo, :bar]).and_return("stuff")
+      subject._rels(:incoming, :foo, :bar).should == "stuff"
+    end
+
   end
 
   describe "rels" do
@@ -195,6 +206,45 @@ describe Neo4j::Node, :type => :mock_db do
     it "returns a Neo4j::Core::Rels::Traverser object" do
       subject.rels(:thing).should be_kind_of(Neo4j::Core::Rels::Traverser)
     end
+  end
+
+  describe "_nodes" do
+    subject { MockNode.new }
+    let(:rel_1) { MockRelationship.new(:friends, subject) }
+    let(:rel_2) { MockRelationship.new(:friends, subject) }
+
+    it "can returns all outgoing nodes of depth one" do
+      rels = [rel_1, rel_2]
+      subject.should_receive(:_rels).with(:outgoing, :friends).and_return(rels)
+      subject._nodes(:outgoing, :friends).should == [rel_1.end_node, rel_2.end_node]
+    end
+
+    it "returns no outgoing relationships if there are none" do
+      rels = []
+      subject.should_receive(:_rels).with(:outgoing, :friends).and_return(rels)
+      subject._nodes(:outgoing, :friends).should == []
+    end
+
+    it "can returns all incoming nodes of depth one" do
+      n1 = MockNode.new
+      n2 = MockNode.new
+      rel_1 = MockRelationship.new(:friends, n1, subject)
+      rel_2 = MockRelationship.new(:friends, n2, subject)
+      rels = [rel_1, rel_2]
+      subject.should_receive(:_rels).with(:incoming, :friends).and_return(rels)
+      subject._nodes(:incoming, :friends).should == [n1, n2]
+    end
+
+    it "can returns both incoming and outgoing nodes of depth one" do
+      n1 = MockNode.new
+      n2 = MockNode.new
+      rel_1 = MockRelationship.new(:friends, n1, subject)
+      rel_2 = MockRelationship.new(:friends, subject, n2)
+      rels = [rel_1, rel_2]
+      subject.should_receive(:_rels).with(:both, :friends).and_return(rels)
+      subject._nodes(:both, :friends).should == [n1, n2]
+    end
+
   end
 end
 
