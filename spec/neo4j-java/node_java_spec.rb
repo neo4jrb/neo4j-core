@@ -123,19 +123,19 @@ describe Java::OrgNeo4jGraphdb::Node, :type => :java_integration do
         end
 
         describe "get_node_by_id" do
-          it "raise org.neo4j.graphdb.NotFoundException" do
+          it "raise Java::OrgNeo4jGraphdb::NotFoundException" do
             lambda { embedded_db.get_node_by_id(after_commit_deleted_node.getId) }.should raise_error(Java::OrgNeo4jGraphdb::NotFoundException)
           end
         end
 
         describe "get_property" do
-          it "raise org.neo4j.graphdb.NotFoundException" do
+          it "raise Java::OrgNeo4jGraphdb::NotFoundException" do
             lambda { after_commit_deleted_node.get_property("Foo") }.should raise_error(Java::OrgNeo4jGraphdb::NotFoundException)
           end
         end
 
         describe "set_property" do
-          it "raise org.neo4j.graphdb.NotFoundException" do
+          it "raise Java::OrgNeo4jGraphdb::NotFoundException" do
             lambda { after_commit_deleted_node.set_property("Foo", "Bar") }.should raise_error(Java::OrgNeo4jGraphdb::NotFoundException)
           end
         end

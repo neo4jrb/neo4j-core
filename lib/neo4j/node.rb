@@ -14,7 +14,7 @@ module Neo4j
 
     include Neo4j::Core::Property
     include Neo4j::Core::Rels
-    # include Neo4j::Core::Traversal TODO
+    include Neo4j::Core::Traversal
     include Neo4j::Core::Equal
     include Neo4j::Core::Node
 
@@ -26,7 +26,7 @@ module Neo4j
         java_clazz.class_eval do
           include Neo4j::Core::Property
           include Neo4j::Core::Rels
-          # include Neo4j::Core::Traversal TODO
+          include Neo4j::Core::Traversal
           include Neo4j::Core::Equal
           include Neo4j::Core::Node
         end

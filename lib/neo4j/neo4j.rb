@@ -22,7 +22,7 @@ module Neo4j
     # be used if you want to embed neo4j.rb and already got an instance of the Java Neo4j Database service.
     #
     # @param [String] config_file (optionally) if this is nil or not given use the Neo4j::Config, otherwise setup the Neo4j::Config file using the provided YAML configuration file.
-    # @param [org.neo4j.kernel.EmbeddedGraphDatabase] external_db (optionally) use this Java Neo4j instead of creating a new neo4j database service.
+    # @param [Java::OrgNeo4jKernel::EmbeddedGraphDatabase] external_db (optionally) use this Java Neo4j instead of creating a new neo4j database service.
     def start(config_file=nil, external_db = $NEO4J_SERVER)
       return if @db && @db.running?
 

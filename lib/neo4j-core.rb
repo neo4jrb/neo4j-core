@@ -42,5 +42,12 @@ require 'neo4j/transaction'
 
 require 'neo4j-core/type_converters/type_converters'
 
+require 'neo4j-core/traversal/evaluator'
+require 'neo4j-core/traversal/filter_predicate'
+require 'neo4j-core/traversal/prune_evaluator'
+require 'neo4j-core/traversal/rel_expander'
+require 'neo4j-core/traversal/traversal'
+require 'neo4j-core/traversal/traverser'
+
 require 'neo4j/node'
 require 'neo4j/relationship'

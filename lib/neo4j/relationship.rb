@@ -14,7 +14,7 @@ module Neo4j
   # === Wrapping
   #
   # Notice that the Neo4j::Relationship.new does not create a Ruby object. Instead, it returns a Java
-  # org.neo4j.graphdb.Relationship object which has been modified to feel more rubyish (like Neo4j::Node).
+  # Java::OrgNeo4jGraphdb::Relationship object which has been modified to feel more rubyish (like Neo4j::Node).
   #
   # @example
   #   a = Neo4j::Node.new

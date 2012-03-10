@@ -3,7 +3,7 @@ module Neo4j
     module Node
       module ClassMethods
         # Returns a new neo4j Node.
-        # The return node is actually an Java object of type org.neo4j.graphdb.Node java object
+        # The return node is actually an Java object of type Java::OrgNeo4jGraphdb::Node java object
         # which has been extended (see the included mixins for Neo4j::Node).
         #
         #

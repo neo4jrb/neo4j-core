@@ -2,47 +2,21 @@ module Neo4j
   module Core
     module Traversal
 
-      class Evaluator #:nodoc:
-        include org.neo4j.graphdb.traversal.Evaluator
-
-        def initialize(&eval_block)
-          @eval_block = eval_block
-        end
-
-        # Implements the Java Interface:
-        #  evaluate(Path path)
-        #  Evaluates a Path and returns an Evaluation containing information about whether or not to include it in the traversal result, i.e return it from the Traverser.
-        def evaluate(path)
-          ret = @eval_block.call(path)
-          case ret
-            when :exclude_and_continue then
-              org.neo4j.graphdb.traversal.Evaluation::EXCLUDE_AND_CONTINUE
-            when :exclude_and_prune then
-              org.neo4j.graphdb.traversal.Evaluation::EXCLUDE_AND_PRUNE
-            when :include_and_continue then
-              org.neo4j.graphdb.traversal.Evaluation::INCLUDE_AND_CONTINUE
-            when :include_and_prune then
-              org.neo4j.graphdb.traversal.Evaluation::INCLUDE_AND_PRUNE
-            else
-              raise "Got #{ret}, only accept :exclude_and_continue,:exclude_and_prune,:include_and_continue and :include_and_prune"
-          end
-        end
-      end
 
       class Traverser
         include Enumerable
-        include Neo4j::Core::ToJava
+        include ToJava
 
 
         def initialize(from, type = nil, dir=nil)
           @from = from
           @depth = 1
           if type.nil? || dir.nil?
-            @td = org.neo4j.kernel.impl.traversal.TraversalDescriptionImpl.new.breadth_first()
+            @td = Java::OrgNeo4jKernelImplTraversal::TraversalDescriptionImpl.new.breadth_first()
           else
             @type = type_to_java(type)
             @dir = dir_to_java(dir)
-            @td = org.neo4j.kernel.impl.traversal.TraversalDescriptionImpl.new.breadth_first().relationships(@type, @dir)
+            @td = Java::OrgNeo4jKernelImplTraversal::TraversalDescriptionImpl.new.breadth_first().relationships(@type, @dir)
           end
         end
 
@@ -56,9 +30,9 @@ module Neo4j
         def depth_first(pre_or_post = :pre)
           case pre_or_post
             when :pre then
-              @td = @td.order(org.neo4j.kernel.Traversal.preorderDepthFirst())
+              @td = @td.order(Java::OrgNeo4jKernel::Traversal.preorderDepthFirst())
             when :post then
-              @td = @td.order(org.neo4j.kernel.Traversal.postorderDepthFirst())
+              @td = @td.order(Java::OrgNeo4jKernel::Traversal.postorderDepthFirst())
             else
               raise "Unknown type #{pre_or_post}, should be :pre or :post"
           end
@@ -69,20 +43,22 @@ module Neo4j
         # Sets traversing breadth first (default).
         #
         # This is the default ordering if none is defined.
-        # The <tt>pre_or_post</tt> parameter parameter can have two values: :pre or :post
+        # The <tt>pre_or_post</tt> parameter parameter can have two values: <tt>:pre</tt> or <tt>:post</tt>
         # * :pre - Traversing breadth first, visiting each node before visiting its child nodes (default)
         # * :post - Traversing breadth first, visiting each node after visiting its child nodes.
         #
-        #	==== Note
-        # Please note that breadth first traversals have a higher memory overhead than depth first traversals.
-        # BranchSelectors carries state and hence needs to be uniquely instantiated for each traversal. Therefore it is supplied to the TraversalDescription through a BranchOrderingPolicy interface, which is a factory of BranchSelector instances.
+        # @param [:pre, :post] pre_or_post The traversal order
+        # @return self
+        #	@note Please note that breadth first traversals have a higher memory overhead than depth first traversals.
+        # BranchSelectors carries state and hence needs to be uniquely instantiated for each traversal.
+        # Therefore it is supplied to the TraversalDescription through a BranchOrderingPolicy interface, which is a factory of BranchSelector instances.
         #
         def breadth_first(pre_or_post = :pre)
           case pre_or_post
             when :pre then
-              @td = @td.order(org.neo4j.kernel.Traversal.preorderBreadthFirst())
+              @td = @td.order(Java::OrgNeo4jKernel::Traversal.preorderBreadthFirst())
             when :post then
-              @td = @td.order(org.neo4j.kernel.Traversal.postorderBreadthFirst())
+              @td = @td.order(Java::OrgNeo4jKernel::Traversal.postorderBreadthFirst())
             else
               raise "Unknown type #{pre_or_post}, should be :pre or :post"
           end
@@ -95,29 +71,34 @@ module Neo4j
           self
         end
 
+        # Sets the rules for how positions can be revisited during a traversal as stated in Uniqueness.
+        # Default is <tt>:node_global</tt>
+        # @param[:node_global, :node_path, :node_recent, :none, :rel_global, :rel_path, :rel_recent] u the uniqueness option
+        # @return self
+        # @see http://docs.neo4j.org/chunked/stable/tutorial-traversal-java-api.html#_uniqueness
         def unique(u = :node_global)
           case u
             when :node_global then
               # A node cannot be traversed more than once.
-              @td = @td.uniqueness(org.neo4j.kernel.Uniqueness::NODE_GLOBAL)
+              @td = @td.uniqueness(Java::OrgNeo4jKernel::Uniqueness::NODE_GLOBAL)
             when :node_path then
               # For each returned node there 's a unique path from the start node to it.
-              @td = @td.uniqueness(org.neo4j.kernel.Uniqueness::NODE_PATH)
+              @td = @td.uniqueness(Java::OrgNeo4jKernel::Uniqueness::NODE_PATH)
             when :node_recent then
               # This is like NODE_GLOBAL, but only guarantees uniqueness among the most recent visited nodes, with a configurable count.
-              @td = @td.uniqueness(org.neo4j.kernel.Uniqueness::NODE_RECENT)
+              @td = @td.uniqueness(Java::OrgNeo4jKernel::Uniqueness::NODE_RECENT)
             when :none then
               # No restriction (the user will have to manage it).
-              @td = @td.uniqueness(org.neo4j.kernel.Uniqueness::NONE)
+              @td = @td.uniqueness(Java::OrgNeo4jKernel::Uniqueness::NONE)
             when :rel_global then
               # A relationship cannot be traversed more than once, whereas nodes can.
-              @td = @td.uniqueness(org.neo4j.kernel.Uniqueness::RELATIONSHIP_GLOBAL)
+              @td = @td.uniqueness(Java::OrgNeo4jKernel::Uniqueness::RELATIONSHIP_GLOBAL)
             when :rel_path then
               # No restriction (the user will have to manage it).
-              @td = @td.uniqueness(org.neo4j.kernel.Uniqueness::RELATIONSHIP_PATH)
+              @td = @td.uniqueness(Java::OrgNeo4jKernel::Uniqueness::RELATIONSHIP_PATH)
             when :rel_recent then
               # Same as for NODE_RECENT, but for relationships.
-              @td = @td.uniqueness(org.neo4j.kernel.Uniqueness::RELATIONSHIP_RECENT)
+              @td = @td.uniqueness(Java::OrgNeo4jKernel::Uniqueness::RELATIONSHIP_RECENT)
             else
               raise "Got option for unique '#{u}' allowed: :node_global, :node_path, :node_recent, :none, :rel_global, :rel_path, :rel_recent"
           end
@@ -141,9 +122,9 @@ module Neo4j
 
         def new(other_node)
           case @dir
-            when org.neo4j.graphdb.Direction::OUTGOING
+            when Java::OrgNeo4jGraphdb::Direction::OUTGOING
               @from.create_relationship_to(other_node, @type)
-            when org.neo4j.graphdb.Direction::INCOMING
+            when Java::OrgNeo4jGraphdb::Direction::INCOMING
               other_node.create_relationship_to(@from, @type)
             else
               raise "Only allowed to create outgoing or incoming relationships (not #@dir)"
@@ -273,10 +254,10 @@ module Neo4j
             if @filter_predicate
               @filter_predicate.include_start_node
             else
-              @td = @td.filter(org.neo4j.kernel.Traversal.return_all_but_start_node)
+              @td = @td.filter(Java::OrgNeo4jKernel::Traversal.return_all_but_start_node)
             end
           end
-          @td = @td.prune(org.neo4j.kernel.Traversal.pruneAfterDepth(@depth)) unless @depth == :all
+          @td = @td.prune(Java::OrgNeo4jKernel::Traversal.pruneAfterDepth(@depth)) unless @depth == :all
           if @traversal_result == :rels
             @td.traverse(@from._java_node).relationships
           elsif @traversal_result == :paths
@@ -289,5 +270,4 @@ module Neo4j
       end
     end
   end
-
 end

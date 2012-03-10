@@ -9,7 +9,7 @@ module Neo4j
       # or if it failed to delete the node (it maybe was already deleted).
       #
       # If this method raise an exception you may also get an exception when the transaction finish.
-      # This method is  defined in the  org.neo4j.kernel.impl.core.NodeProxy which is return by Neo4j::Node.new
+      # This method is  defined in the  Java::OrgNeo4jKernel::impl.core.NodeProxy which is return by Neo4j::Node.new
       #
       # @return nil or raise an exception
       def del
@@ -19,7 +19,7 @@ module Neo4j
       end
 
       # This method can be used to access the none wrapped neo4j node/relationship java object.
-      # Notice that this method is defined in the  org.neo4j.kernel.impl.core.NodeProxy or RelationshipProxy which is return by Neo4j::Node.new
+      # Notice that this method is defined in the  Java::OrgNeo4jKernel::impl.core.NodeProxy or RelationshipProxy which is return by Neo4j::Node.new
       # @return the java node/relationship object representing this object unless it is already the java object.
       def _java_node
         self

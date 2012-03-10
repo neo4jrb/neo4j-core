@@ -162,10 +162,10 @@ module Neo4j
       def start_ha_graph_db
         Neo4j.logger.info "starting Neo4j in HA mode, machine id: #{Neo4j.config['ha.server_id']} at #{Neo4j.config['ha.server']} db #{@storage_path}"
         # Modify the public base classes for the HA Node and Relationships
-        # (instead of private org.neo4j.kernel.HighlyAvailableGraphDatabase::LookupNode)
+        # (instead of private Java::OrgNeo4jKernel::HighlyAvailableGraphDatabase::LookupNode)
         Neo4j::Node.extend_java_class(Java::OrgNeo4jToolingWrap::WrappedNode)
         Neo4j::Relationship.extend_java_class(Java::OrgNeo4jToolingWrap::WrappedRelationship)
-        @graph = org.neo4j.kernel.HighlyAvailableGraphDatabase.new(@storage_path, Neo4j.config.to_java_map)
+        @graph = Java::OrgNeo4jKernel::HighlyAvailableGraphDatabase.new(@storage_path, Neo4j.config.to_java_map)
         @graph.register_transaction_event_handler(@event_handler)
         @lucene = @graph.index
         @event_handler.neo4j_started(self)

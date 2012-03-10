@@ -3,7 +3,7 @@ module Neo4j
     module Relationship
       module ClassMethods
 
-        # Returns a org.neo4j.graphdb.Relationship java object which include the Neo4j::Relationship mixins.
+        # Returns a Java::OrgNeo4jGraphdb::Relationship java object which include the Neo4j::Relationship mixins.
         # Will trigger a event that the relationship was created.
         #
         # @param [String, Symbol] type of relationship
@@ -48,7 +48,7 @@ module Neo4j
           rel = db.graph.get_relationship_by_id(rel_id.to_i)
           # TODO
           rel
-        rescue org.neo4j.graphdb.NotFoundException
+        rescue Java::OrgNeo4jGraphdb::NotFoundException
           nil
         end
 
