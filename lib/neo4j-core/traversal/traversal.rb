@@ -60,11 +60,7 @@ module Neo4j
       # @param [String, Symbol] type the relationship type
       # @return (see #expand)
       def outgoing(type)
-        if type
-          Traverser.new(self).outgoing(type)
-        else
-          raise "Not implemented getting all types of outgoing relationship. Specify a relationship type"
-        end
+        Traverser.new(self, :outgoing, type)
       end
 
 
@@ -75,11 +71,7 @@ module Neo4j
       # @see http://github.com/andreasronge/neo4j/wiki/traverser
       # @return (see #expand)
       def incoming(type)
-        if type
-          Traverser.new(self).incoming(type)
-        else
-          raise "Not implemented getting all types of incoming relationship. Specify a relationship type"
-        end
+        Traverser.new(self, :incoming, type)
       end
 
       # Returns both incoming and outgoing nodes of given types(s)
@@ -89,11 +81,7 @@ module Neo4j
       # @see #outgoing
       # @return (see #expand)
       def both(type=nil)
-        if type
-          Traverser.new(self).both(type)
-        else
-          Traverser.new(self) # default is both
-        end
+        Traverser.new(self, :both, type)
       end
 
 
