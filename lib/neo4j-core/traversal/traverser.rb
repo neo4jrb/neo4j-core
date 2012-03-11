@@ -72,10 +72,8 @@ module Neo4j
         end
 
         # Sets the rules for how positions can be revisited during a traversal as stated in Uniqueness.
-        # Default is <tt>:node_global</tt>
-        # @param[:node_global, :node_path, :node_recent, :none, :rel_global, :rel_path, :rel_recent] u the uniqueness option
+        # @param [:node_global, :node_path, :node_recent, :none, :rel_global, :rel_path, :rel_recent] u the uniqueness option
         # @return self
-        # @see http://docs.neo4j.org/chunked/stable/tutorial-traversal-java-api.html#_uniqueness
         def unique(u = :node_global)
           case u
             when :node_global then

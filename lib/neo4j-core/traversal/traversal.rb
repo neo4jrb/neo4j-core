@@ -9,7 +9,7 @@ module Neo4j
     # Contains methods that are mixin for Neo4j::Node
     # The builder pattern is used to construct traversals (all methods returns Neo4j::Traversal::Traverser)
     # @see http://github.com/andreasronge/neo4j/wiki/traverser
-    #
+    # @see http://docs.neo4j.org/chunked/stable/tutorial-traversal-java-api.html
     module Traversal
       include ToJava
 
@@ -17,12 +17,12 @@ module Neo4j
       # You can use this method for example to only traverse nodes based on properties on the relationships
       #
       # @example traverse all relationships with a property of age > 5
-      #
       #   some_node.expand { |n| n._rels.find_all { |r| r[:age] > 5 } }.depth(:all).to_a
       #
-      # @return self
-      # @see http://github.com/andreasronge/neo4j/wiki/traverser
-      #
+      # @yield [node] Used to find out which relationship should be included in the traversal
+      # @yieldparam [Neo4j::Node] node the current node from which we can decide which relationship should be traversed
+      # @yieldreturn [Enumerable<Neo4j::Relationship>] which relationships should be traversed
+      # @return [Neo4j::Core::Traversal::Traverser] a traverser object which can be used to further describe the traversal
       def expand(&expander)
         Traverser.new(self).expander(&expander)
       end
@@ -37,7 +37,7 @@ module Neo4j
       #   me.outgoing(:friends).raw.each {|friend| puts friend[:name]}
       #
       # @example Find all my friends and their friends (nodes of depth 1 of type <tt>friends</tt>)
-      #   # me.outgoing(:friends).depth(2).each {|friend| puts friend[:name]}
+      #   me.outgoing(:friends).depth(2).each {|friend| puts friend[:name]}
       #
       # @example Find all my friends and include my self in the result
       #   me.outgoing(:friends).depth(4).include_start_node.each {...}
@@ -58,7 +58,7 @@ module Neo4j
       #
       # @see http://github.com/andreasronge/neo4j/wiki/traverser
       # @param [String, Symbol] type the relationship type
-      # @return self Neo4j::NodeTraverser which can be used to further specify which nodes should be included
+      # @return (see #expand)
       def outgoing(type)
         if type
           Traverser.new(self).outgoing(type)
@@ -73,6 +73,7 @@ module Neo4j
       # @param [String, Symbol] type the relationship type
       # @see #outgoing
       # @see http://github.com/andreasronge/neo4j/wiki/traverser
+      # @return (see #expand)
       def incoming(type)
         if type
           Traverser.new(self).incoming(type)
@@ -86,6 +87,7 @@ module Neo4j
       # If a type is not given then it will return all types of relationships.
       #
       # @see #outgoing
+      # @return (see #expand)
       def both(type=nil)
         if type
           Traverser.new(self).both(type)
@@ -112,6 +114,7 @@ module Neo4j
       # * the path parameter - http://api.neo4j.org/1.4/org/neo4j/graphdb/Path.html
       # * the #unique method - if paths should be visit more the once, etc...
       #
+      # @return (see #expand)
       def eval_paths(&eval_block)
         Traverser.new(self).eval_paths(&eval_block)
       end
@@ -124,11 +127,13 @@ module Neo4j
       # * <tt>:node_recent</tt>  This is like :node_global, but only guarantees uniqueness among the most recent visited nodes, with a configurable count.
       # * <tt>:none</tt>  No restriction (the user will have to manage it).
       # * <tt>:rel_global</tt>  A relationship cannot be traversed more than once, whereas nodes can.
-      # * <tt>:rel_path</tt> :: No restriction (the user will have to manage it).
+      # * <tt>:rel_path</tt>  No restriction (the user will have to manage it).
       # * <tt>:rel_recent</tt>  Same as for :node_recent, but for relationships.
       #
-      # See example in #eval_paths
-      # See http://api.neo4j.org/1.4/org/neo4j/kernel/Uniqueness.html and http://neo4j.rubyforge.org/guides/traverser.html
+      # @param (see Neo4j::Core::Traversal::Traverser#unique)
+      # @see example in #eval_paths
+      # @see http://docs.neo4j.org/chunked/stable/tutorial-traversal-java-api.html#_uniqueness
+      # @return (see #expand)
       def unique(u)
         Traverser.new(self).unique(u)
       end
