@@ -16,7 +16,7 @@ module Neo4j
         end
 
         def indexers_for(props)
-          Enumerable::Enumerator.new(self, :each_indexer, props)
+          Enumerator.new(self, :each_indexer, props)
         end
 
         def each_indexer(props)

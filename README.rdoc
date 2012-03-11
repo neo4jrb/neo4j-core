@@ -2,7 +2,7 @@
 
 This gem only contains the JRuby mapping of the Neo4j graph database.
 The neo4j.rb gem will be split up into two gems, neo4j-core and neo4j.
-This gem will be included by neo4j 2.0.0 gem (if successful).
+This gem will be included by neo4j 2.0.0 gem.
 
 Changes from the neo4j.rb
 * Use of YARD instead of RDoc
@@ -22,6 +22,3 @@ The Neo4j modules are public and the Neo4j::Core(::*) are private modules
 
 {Neo4j} The Database
 
-== Not Impemented Yet
-
-Neo4j::Node#outgoing, #incoming, #both methods

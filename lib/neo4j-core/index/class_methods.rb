@@ -93,7 +93,7 @@ module Neo4j
           def delegate(method_name)
             class_eval(<<-EOM, __FILE__, __LINE__)
               def #{method_name}(*args, &block)
-                @_indexer.send(:#{method_name}, *args, &block)
+                _indexer.send(:#{method_name}, *args, &block)
               end
             EOM
           end

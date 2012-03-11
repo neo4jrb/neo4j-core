@@ -25,8 +25,11 @@ describe Neo4j::Core::Index::ClassMethods do
   [:index, :find, :index?, :has_index_type?, :rm_index_type, :rm_index_config, :add_index, :rm_index, :index_type].each do |meth|
     describe meth.to_s do
       it "forwards to the Neo4j::Core::Index::Indexer method #{meth}" do
-        subject.should respond_to(meth)
-        Neo4j::Core::Index::Indexer.instance_methods.should include(meth.to_s)
+        mock_indexer = mock("Indexer")
+        mock_indexer.should_receive(meth)#.with(any_args)
+        subject.stub(:_indexer) { mock_indexer}
+        subject.send(meth)
+        #Neo4j::Core::Index::Indexer.instance_methods.should include(meth.to_s)
       end
     end
   end
