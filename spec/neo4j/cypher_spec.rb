@@ -18,7 +18,7 @@ def describe_cypher(cypher_result, query=nil, &query_dsl)
 
   describe "Cypher.new '#{query}'" do
     subject do
-      Neo4j::Cypher.new query
+      Neo4j::Cypher.new &query_dsl
     end
 
     its(:to_s) {should == cypher_result}

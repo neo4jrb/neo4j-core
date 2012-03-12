@@ -1,20 +1,37 @@
 module Neo4j
   class Cypher
-    class Start
-      attr_reader :var_name, :expressions
+    class Expression
+      attr_reader :expressions
+      attr_accessor :separator
+
+      def initialize(expressions)
+        @expressions = expressions
+        @expressions << self
+        @separator = ","
+      end
+
+    end
+
+    class Start < Expression
+      attr_reader :var_name
 
       def initialize(var_name, expressions)
         @var_name = "#{var_name}#{expressions.size}"
-        @expressions = expressions
-        @expressions << self
+        super(expressions)
       end
 
+      # This operator means related to, without regard to type or direction.
+      # @param [Array, Symbol, #var_name] other either a node (Symbol, #var_name) or a relationship (Array)
+      # @return [MatchRelLeft, MatchNode]
       def <=>(other)
-        other.is_a?(Array) ? MatchRelLeft.new(self, other, expressions, :both) : Match.new(self, other, expressions, :both)
+        other.is_a?(Array) ? MatchRelLeft.new(self, other, expressions, :both) : MatchNode.new(self, other, expressions, :both)
       end
 
+      # Outgoing relationship
+      # @param [Array, Symbol, #var_name] other either a node (Symbol, #var_name) or a relationship (Array)
+      # @return [MatchRelLeft, MatchNode]
       def >>(other)
-        other.is_a?(Array) ? MatchRelLeft.new(self, other, expressions, :outgoing) : Match.new(self, other, expressions, :outgoing)
+        other.is_a?(Array) ? MatchRelLeft.new(self, other, expressions, :outgoing) : MatchNode.new(self, other, expressions, :outgoing)
       end
 
       def prefix
@@ -79,11 +96,10 @@ module Neo4j
 
     end
 
-    class Return
+    class Return < Expression
       def initialize(name_or_ref, expressions)
+        super(expressions)
         @name_or_ref = name_or_ref
-        @expressions = expressions
-        @expressions << self
       end
 
       def prefix
@@ -96,27 +112,33 @@ module Neo4j
     end
 
 
-    class MatchRelLeft
+    class Match < Expression
       attr_reader :left, :right, :dir, :expressions
 
       def initialize(left, right, expressions, dir)
-        @left = left
-        @right = right.first
-        @expressions = expressions
+        super(expressions)
         @dir = dir
-        @expressions << self
+        @left = left
+        @right = right
       end
 
       def prefix
         " MATCH"
       end
 
-      def >>(other)
-        MatchRelRight.new(other, expressions, dir)
+      def var_name_for(v)
+        v.respond_to?(:var_name) ? v.var_name : v.to_s
       end
 
-      def var_name_for(v) # TODO DRY
-        v.respond_to?(:var_name) ? v.var_name : v.to_s
+    end
+
+    class MatchRelLeft < Match
+      def initialize(left, right, expressions, dir)
+        super(left, right.first, expressions, dir)
+      end
+
+      def >>(other)
+        MatchRelRight.new(self, other, expressions, dir)
       end
 
       def to_s
@@ -124,12 +146,12 @@ module Neo4j
       end
     end
 
-    class MatchRelRight
-      attr_reader :right, :dir_op
+    class MatchRelRight < Match
+      attr_reader :dir_op
 
-      def initialize(right, expressions, dir)
-        @right = right
-        @expressions = expressions
+      def initialize(left, right, expressions, dir)
+        super(left, right, expressions, dir)
+        self.separator = ""
         @dir_op = case dir
                     when :outgoing then
                       "->"
@@ -138,15 +160,6 @@ module Neo4j
                     when :both then
                       "-"
                   end
-        @expressions << self
-      end
-
-      def prefix
-        " MATCH"
-      end
-
-      def var_name_for(v) # TODO DRY
-        v.respond_to?(:var_name) ? v.var_name : v.to_s
       end
 
       def to_s
@@ -154,13 +167,11 @@ module Neo4j
       end
     end
 
-    class Match
-      attr_reader :left, :right, :dir_op
+    class MatchNode < Match
+      attr_reader :dir_op
 
       def initialize(left, right, expressions, dir)
-        @left = left
-        @right = right
-        @expressions = expressions
+        super(left, right, expressions, dir)
         @dir_op = case dir
                     when :outgoing then
                       "-->"
@@ -169,18 +180,12 @@ module Neo4j
                     when :both then
                       "--"
                   end
-        @expressions << self
-      end
-
-      def prefix
-        " MATCH"
       end
 
       def to_s
         "(#{left.var_name})#{dir_op}(#{right})"
       end
     end
-
 
     def initialize(query = nil, &dsl_block)
       @expressions = []
@@ -195,40 +200,62 @@ module Neo4j
     end
 
 
+    # Does nothing, just for making the DSL less cryptic
+    # @return self
     def match(*)
       self
     end
 
+    # Does nothing, just for making the DSL less cryptic
+    # @return self
     def start(*)
       self
     end
 
+    # Specifies a start node by performing a lucene query.
+    # @param [Class] index_class a class responsible for an index
+    # @param [String] q the lucene query
+    # @param [Symbol] index_type the type of index
+    # @return [NodeQuery]
     def query(index_class, q, index_type = :exact)
       NodeQuery.new(index_class, q, index_type, @expressions)
     end
 
+    # Specifies a start node by performing a lucene query.
+    # @param [Class] index_class a class responsible for an index
+    # @param [String, Symbol] key the key we ask for
+    # @param [String, Symbol] value the value of the key we ask for
+    # @return [NodeLookup]
     def lookup(index_class, key, value)
       NodeLookup.new(index_class, key, value, @expressions)
     end
 
+    # @param [Fixnum] nodes the id of the nodes we want to start from
+    # @return [StartNode]
     def node(*nodes)
       StartNode.new(nodes, @expressions)
     end
 
+    # @return [StartRel]
     def rel(*rels)
       StartRel.new(rels, @expressions)
     end
 
+    # Specifies a return statement.
+    # Notice that this is not needed, since the last value of the DSL block will be converted into one or more
+    # return statements.
+    # @param [Symbol, #var_name] returns a list of variables we want to return
+    # @return [Return]
     def ret(*returns)
       returns.each { |ret| Return.new(ret, @expressions) }
       @expressions.last
     end
 
+    # Converts the DSL query to a cypher String which can be executed by cypher query engine.
     def to_s
       curr_prefix = nil
       @expressions.map do |expr|
-        separator = expr.kind_of?(MatchRelRight) ? "" : ","  # TODO ugly
-        expr_to_s = expr.prefix != curr_prefix ? "#{expr.prefix} #{expr.to_s}" : "#{separator}#{expr.to_s}"
+        expr_to_s = expr.prefix != curr_prefix ? "#{expr.prefix} #{expr.to_s}" : "#{expr.separator}#{expr.to_s}"
         curr_prefix = expr.prefix
         expr_to_s
       end.join
