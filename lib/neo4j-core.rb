@@ -56,5 +56,6 @@ require 'neo4j-core/traversal/rel_expander'
 require 'neo4j-core/traversal/traversal'
 require 'neo4j-core/traversal/traverser'
 
+require 'neo4j/cypher'
 require 'neo4j/node'
 require 'neo4j/relationship'

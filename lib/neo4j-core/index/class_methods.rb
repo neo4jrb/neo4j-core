@@ -7,7 +7,7 @@ module Neo4j
         attr_reader :_indexer
 
 
-        # TODO fix YARD docs update using DSL
+        # TODO YARD
         # Sets which indexer should be used for the given node class.
         # You can share an indexer between several different classes.
         #
@@ -20,7 +20,7 @@ module Neo4j
         #      node_indexer do
         #        index_names :exact => 'myindex_exact', :fulltext => 'myindex_fulltext'
         #        trigger_on :ntype => 'foo', :name => ['bar', 'foobar']
-        #        # TODO multitenancy support
+        #
         #        prefix_index_name do
         #          return "" unless Neo4j.running?
         #          return "" unless @indexer_for.respond_to?(:ref_node_for_class)
@@ -31,7 +31,6 @@ module Neo4j
         #         end
         #
         #
-        #        TODO ...
         #        numeric do
         #           type = decl_props && decl_props[field.to_sym] && decl_props[field.to_sym][:type]
         #           type && !type.is_a?(String)
@@ -109,6 +108,7 @@ module Neo4j
         delegate :add_index
         delegate :rm_index
         delegate :index_type
+        delegate :index_name_for_type
       end
 
 
