@@ -25,10 +25,16 @@ The Neo4j module is public and the Neo4j::Core(::*) are private modules.
 
 == Example of Cypher DSL
 
-(See RSpecs)
+See RSpecs:
 
+  Neo4j::Cypher.new do
+    start n = node(3)
+    match n <=> :x
+    ret :x
+  end.to_s.should == "START n0=node(3) MATCH (n0)--(x) RETURN x"
 
 ==== START n0=node(3) MATCH (n0)--(x) RETURN x
+
   start n = node(3); match n <=> :x; ret :x
 
 ==== START n0=node(3) MATCH (n0)--(x) RETURN x
