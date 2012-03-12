@@ -31,7 +31,7 @@ module Neo4j
       # @param [Array, Symbol, #var_name] other either a node (Symbol, #var_name) or a relationship (Array)
       # @return [MatchRelLeft, MatchNode]
       def >>(other)
-        other.is_a?(Array) ? MatchRelLeft.new(self, other, expressions, :outgoing) : MatchNode.new(self, other, expressions, :outgoing)
+        !other.is_a?(Symbol) ? MatchRelLeft.new(self, other, expressions, :outgoing) : MatchNode.new(self, other, expressions, :outgoing)
       end
 
       def prefix
@@ -127,14 +127,16 @@ module Neo4j
       end
 
       def var_name_for(v)
-        v.respond_to?(:var_name) ? v.var_name : v.to_s
+        return v.var_name if v.respond_to?(:var_name)
+        return ":#{v}" if v.is_a?(String)
+        v.to_s
       end
 
     end
 
     class MatchRelLeft < Match
       def initialize(left, right, expressions, dir)
-        super(left, right.first, expressions, dir)
+        super(left, right.respond_to?(:first) ? right.first: right, expressions, dir)
       end
 
       def >>(other)

@@ -80,3 +80,13 @@ The Neo4j module is public and the Neo4j::Core(::*) are private modules.
 ==== START n0=node(3) MATCH (n0)-[r]->(x) RETURN r
 
   node(3) >> [:r] >> :x; :r
+
+=== START n0=node(3) MATCH (n0)-[:blocks]->(x) RETURN x"
+
+  node(3) >> 'blocks' >> :x; :x"
+
+or same:
+
+  start n = node(3)
+  match n >> ['blocks'] >> :x
+  ret :x
