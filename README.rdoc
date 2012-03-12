@@ -23,7 +23,14 @@ The Neo4j module is public and the Neo4j::Core(::*) are private modules.
 
 {Neo4j} The Database
 
+{Neo4j::Cypher} Cypher Query Generator
+
 == Example of Cypher DSL
+
+Convensions:
+* Symbols represents not bound variables.
+* Strings represents constants, like relationship types.
+* Variables names (n0, n1, ...) are by default generated (which can be overridden)
 
 See RSpecs:
 
@@ -33,11 +40,16 @@ See RSpecs:
     ret :x
   end.to_s.should == "START n0=node(3) MATCH (n0)--(x) RETURN x"
 
-==== START n0=node(3) MATCH (n0)--(x) RETURN x
-
-  start n = node(3); match n <=> :x; ret :x
+By using Ruby local variables (n in the example above) we can get help from the editor (e.g. RubyMine) and syntax checks for free.
 
 ==== START n0=node(3) MATCH (n0)--(x) RETURN x
+
+  Neo4j::Cypher.new do
+    start n = node(3); match n <=> :x; ret :x
+  end
+
+==== START n0=node(3) MATCH (n0)--(x) RETURN x
+
   n = node(3); match n <=> :x; :x
 
 ==== START n0=node(3) MATCH (n0)--(x) RETURN x
@@ -87,7 +99,7 @@ See RSpecs:
 
   node(3) >> [:r] >> :x; :r
 
-=== START n0=node(3) MATCH (n0)-[:blocks]->(x) RETURN x"
+==== START n0=node(3) MATCH (n0)-[:blocks]->(x) RETURN x"
 
   node(3) >> 'blocks' >> :x; :x"
 
