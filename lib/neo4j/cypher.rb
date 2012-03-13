@@ -20,18 +20,30 @@ module Neo4j
         super(expressions)
       end
 
+      def as(v)
+        @var_name = v
+        self
+      end
+
       # This operator means related to, without regard to type or direction.
       # @param [Array, Symbol, #var_name] other either a node (Symbol, #var_name) or a relationship (Array)
       # @return [MatchRelLeft, MatchNode]
       def <=>(other)
-        other.is_a?(Array) ? MatchRelLeft.new(self, other, expressions, :both) : MatchNode.new(self, other, expressions, :both)
+        MatchNode.new(self, other, expressions, :both)
+      end
+
+      # This operator means related to, without regard to type or direction.
+      # @param [Array, Symbol, #var_name] other either a node (Symbol, #var_name) or a relationship (Array)
+      # @return [MatchRelLeft, MatchNode]
+      def >(other)
+        MatchRelLeft.new(self, other, expressions, :outgoing)
       end
 
       # Outgoing relationship
       # @param [Array, Symbol, #var_name] other either a node (Symbol, #var_name) or a relationship (Array)
       # @return [MatchRelLeft, MatchNode]
       def >>(other)
-        !other.is_a?(Symbol) ? MatchRelLeft.new(self, other, expressions, :outgoing) : MatchNode.new(self, other, expressions, :outgoing)
+        MatchNode.new(self, other, expressions, :outgoing)
       end
 
       def prefix
@@ -113,7 +125,7 @@ module Neo4j
 
 
     class Match < Expression
-      attr_reader :left, :right, :dir, :expressions
+      attr_reader :dir, :expressions
 
       def initialize(left, right, expressions, dir)
         super(expressions)
@@ -126,25 +138,30 @@ module Neo4j
         " MATCH"
       end
 
-      def var_name_for(v)
-        return v.var_name if v.respond_to?(:var_name)
-        return ":#{v}" if v.is_a?(String)
-        v.to_s
+      def left_var_name
+        @left.respond_to?(:var_name) ? @left.var_name : @left.to_s
       end
 
+      def right_var_name
+        @right.respond_to?(:var_name) ? @right.var_name : @right.to_s
+      end
+
+      def right_expr
+        @right.respond_to?(:expr) ? @right.expr : right_var_name
+      end
     end
 
     class MatchRelLeft < Match
       def initialize(left, right, expressions, dir)
-        super(left, right.respond_to?(:first) ? right.first: right, expressions, dir)
+        super(left, right, expressions, dir)
       end
 
-      def >>(other)
+      def >(other)
         MatchRelRight.new(self, other, expressions, dir)
       end
 
       def to_s
-        "(#{var_name_for(left)})-[#{var_name_for(right)}]"
+        "(#{left_var_name})-[#{right_expr}]"
       end
     end
 
@@ -165,7 +182,7 @@ module Neo4j
       end
 
       def to_s
-        "#{dir_op}(#{var_name_for(right)})"
+        "#{dir_op}(#{right_var_name})"
       end
     end
 
@@ -185,12 +202,53 @@ module Neo4j
       end
 
       def to_s
-        "(#{left.var_name})#{dir_op}(#{right})"
+        "(#{left_var_name})#{dir_op}(#{right_var_name})"
       end
     end
 
+    # Represents an unbound node variable used in match statements
+    class NodeVar
+      attr_reader :var_name
+
+      def initialize(variables)
+        @var_name = "v#{variables.size}"
+        variables << self
+      end
+
+      def to_s
+        var_name
+      end
+
+      def as(v)
+        @var_name = v
+        self
+      end
+    end
+
+
+    class RelVar
+      attr_reader :var_name, :expr
+
+      def initialize(expr, variables)
+        @var_name = "v#{variables.size}"
+        variables << self
+        @expr = expr
+      end
+
+      def to_s
+        var_name
+      end
+
+      def as(v)
+        @var_name = v
+        self
+      end
+    end
+
+
     def initialize(query = nil, &dsl_block)
       @expressions = []
+      @variables = []
       res = if query
               self.instance_eval(query)
             else
@@ -235,12 +293,26 @@ module Neo4j
     # @param [Fixnum] nodes the id of the nodes we want to start from
     # @return [StartNode]
     def node(*nodes)
-      StartNode.new(nodes, @expressions)
+      if nodes.first.is_a?(Symbol)
+        NodeVar.new(@variables).as(nodes.first)
+      elsif !nodes.empty?
+        StartNode.new(nodes, @expressions)
+      else
+        NodeVar.new(@variables)
+      end
     end
 
     # @return [StartRel]
     def rel(*rels)
-      StartRel.new(rels, @expressions)
+      if rels.first.is_a?(Fixnum)
+        StartRel.new(rels, @expressions)
+      elsif rels.first.is_a?(Symbol)
+        RelVar.new("", @variables).as(rels.first)
+      elsif rels.first.is_a?(String)
+        RelVar.new(rels.first, @variables)
+      else
+        raise "Unknown arg #{rels.inspect}"
+      end
     end
 
     # Specifies a return statement.

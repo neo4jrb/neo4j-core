@@ -62,6 +62,8 @@ FileUtils.rm_rf Neo4j::Config[:storage_path]
 RSpec.configure do |c|
   c.filter_run_excluding :slow => ENV['TRAVIS'] != 'true'
 
+  c.include(CustomNeo4jMatchers)
+
   c.after(:each, :type => :integration) do
     finish_tx
   end
