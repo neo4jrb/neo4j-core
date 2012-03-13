@@ -230,9 +230,10 @@ module Neo4j
       attr_reader :var_name, :expr
 
       def initialize(expr, variables)
-        @var_name = "v#{variables.size}"
         variables << self
         @expr = expr
+        guess = expr ? /([[:alpha:]]*)/.match(expr)[1] : ""
+        @var_name = guess.empty? ? "v#{variables.size}" : guess
       end
 
       def to_s

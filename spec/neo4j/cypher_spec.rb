@@ -81,6 +81,33 @@ describe "DSL { r = rel('r:friends').as(:r); node(3) > r > :x; r }" do
   it { lambda { r = rel('r:friends').as(:r); node(3) > r > :x; r }.should be_cypher("START n0=node(3) MATCH (n0)-[r:friends]->(x) RETURN r") }
 end
 
+describe "DSL { r = rel('r:friends'); node(3) > r > :x; r }" do
+  it { lambda { r = rel('r:friends'); node(3) > r > :x; r }.should be_cypher("START n0=node(3) MATCH (n0)-[r:friends]->(x) RETURN r") }
+end
+
+describe "DSL { r = rel('r?:friends'); node(3) > r > :x; r }" do
+  it { lambda { r = rel('r?:friends'); node(3) > r > :x; r }.should be_cypher("START n0=node(3) MATCH (n0)-[r?:friends]->(x) RETURN r") }
+end
+
+describe "DSL { node(3) > rel('?') > :x; :x }" do
+  it { lambda { node(3) > rel('?') > :x; :x }.should be_cypher("START n0=node(3) MATCH (n0)-[?]->(x) RETURN x") }
+end
+
+describe "DSL { node(3) > rel('r?') > :x; :x }" do
+  it { lambda { node(3) > rel('r?') > :x; :x }.should be_cypher("START n0=node(3) MATCH (n0)-[r?]->(x) RETURN x") }
+end
+
+describe "DSL { r=rel('?'); node(3) > r > :x; r }" do
+  it do
+    pending "this should raise an error since it's an illegal cypher query"
+    lambda { r=rel('?'); node(3) > r > :x; r }.should be_cypher("START n0=node(3) MATCH (n0)-[r?]->(x) RETURN x")
+  end
+end
+
+#describe "DSL { r = rel('r:friends').as(:r); node(3) > r > :x; r }" do
+#  it { lambda { r = rel('r:friends'); node(3) > r > :x; r }.should be_cypher("START n0=node(3) MATCH (n0)-[r:friends]->(x) RETURN r") }
+#end
+
 
 #  node(3) > rel(:r) > :x; :r
 #  node(3) >> rel(:r).type(:x) >> :x; :r
