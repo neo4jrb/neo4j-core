@@ -15,7 +15,7 @@ module Neo4j
     class Property
 
       def initialize(var, prop_name)
-        @var = var
+        @var = var.respond_to?(:var_name) ? var.var_name : var
         @prop_name = prop_name
       end
 
@@ -308,70 +308,70 @@ module Neo4j
     end
 
 
-class ExprOp
+    class ExprOp
 
-     attr_reader :left, :right, :op, :neg
+      attr_reader :left, :right, :op, :neg
 
-     def initialize(left, right, op)
-       @op = op
-       @left = quote(left)
-       if regexp?(right)
-         @op = "=~"
-         @right = to_regexp(right)
-       else
-         @right = quote(right)
-       end
-       @neg = ""
-     end
-
-     def quote(val)
-       if val.respond_to?(:var_name)
-         val.var_name
-       else
-        val.is_a?(String) ? %Q["#{val}"] : val
+      def initialize(left, right, op)
+        @op = op
+        @left = quote(left)
+        if regexp?(right)
+          @op = "=~"
+          @right = to_regexp(right)
+        else
+          @right = quote(right)
         end
-     end
+        @neg = ""
+      end
 
-     def regexp?(right)
-       @op == "=~" || right.is_a?(Regexp)
-     end
+      def quote(val)
+        if val.respond_to?(:var_name)
+          val.var_name
+        else
+          val.is_a?(String) ? %Q["#{val}"] : val
+        end
+      end
 
-     def to_regexp(val)
-       %Q[/#{val.respond_to?(:source) ? val.source : val.to_s}/]
-     end
+      def regexp?(right)
+        @op == "=~" || right.is_a?(Regexp)
+      end
 
-     def &(other)
-       ExprOp.new(self, other, "and")
-     end
+      def to_regexp(val)
+        %Q[/#{val.respond_to?(:source) ? val.source : val.to_s}/]
+      end
 
-     def |(other)
-       ExprOp.new(self, other, "or")
-     end
+      def &(other)
+        ExprOp.new(self, other, "and")
+      end
 
-     def -@
-       @neg = "not"
-       self
-     end
+      def |(other)
+        ExprOp.new(self, other, "or")
+      end
 
-     def not
-       @neg = "not"
-       self
-     end
+      def -@
+        @neg = "not"
+        self
+      end
 
-     # Only in 1.9
-     if RUBY_VERSION > "1.9.0"
-       eval %{
+      def not
+        @neg = "not"
+        self
+      end
+
+      # Only in 1.9
+      if RUBY_VERSION > "1.9.0"
+        eval %{
        def !
          @neg = "not"
          self
        end
        }
-     end
+      end
 
-     def to_s
-       "#{neg}(#{left} #{op} #{right})"
-     end
-   end
+      def to_s
+        "#{neg}(#{left} #{op} #{right})"
+      end
+    end
 
     class Where
       def initialize(expressions, where_statement = nil)

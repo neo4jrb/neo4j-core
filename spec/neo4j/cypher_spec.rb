@@ -117,57 +117,33 @@ describe "DSL   { r=rel('?'); node(3) > r > :x; r }" do
 end
 
 describe %{n=node(3,1).as(:n); where(%q[n.age < 30 and n.name = "Tobias") or not(n.name = "Tobias"')]} do
-  it { Proc.new {n=node(3,1).as(:n); where(%q[(n.age < 30 and n.name = "Tobias") or not(n.name = "Tobias")]); ret n}.should be_cypher(%q[START n=node(3,1) WHERE (n.age < 30 and n.name = "Tobias") or not(n.name = "Tobias") RETURN n])}
-#  it { Proc.new {n=node(3,1).as(:n); n[:age] < 30 && n[:name] == 'Tobias'; ret n}.should be_cypher(%q[START n=node(3, 1) WHERE (n.age < 30 and n.name = "Tobias") or not(n.name = "Tobias") RETURN n])}
-
+  it { Proc.new { n=node(3, 1).as(:n); where(%q[(n.age < 30 and n.name = "Tobias") or not(n.name = "Tobias")]); ret n }.should be_cypher(%q[START n=node(3,1) WHERE (n.age < 30 and n.name = "Tobias") or not(n.name = "Tobias") RETURN n]) }
 end
 
 describe %{n=node(3,1).as(:n); where n[:age] < 30; ret n} do
-  it { pending "it almost works"; Proc.new {n=node(3,1).as(:n); where n[:age] < 30; ret n}.should be_cypher(%q[START n=node(3, 1) WHERE (n.age < 30) RETURN n])}
+  it { Proc.new { n=node(3, 1).as(:n); where n[:age] < 30; ret n }.should be_cypher(%q[START n=node(3,1) WHERE (n.age < 30) RETURN n]) }
 end
 
-#describe "DSL   { r = rel('r:friends').as(:r); node(3) > r > :x; r }" do
-#  it { Proc.new { r = rel('r:friends'); node(3) > r > :x; r }.should be_cypher("START n0=node(3) MATCH (n0)-[r:friends]->(x) RETURN r") }
-#end
+describe %{n=node(3,1).as(:n); where((n[:age] < 30) & ((n[:name] == 'foo') | (n[:size] > n[:age]))); ret n} do
+  it { Proc.new { n=node(3, 1).as(:n); where((n[:age] < 30) & ((n[:name] == 'foo') | (n[:size] > n[:age]))); ret n }.should be_cypher(%q[START n=node(3,1) WHERE ((n.age < 30) and ((n.name = "foo") or (n.size > n.age))) RETURN n]) }
+end
+
+describe %{ n=node(3).as(:n); where((n[:desc] =~ /.\d+/) ); ret n} do
+  it { Proc.new { n=node(3).as(:n); where(n[:desc] =~ /.\d+/); ret n }.should be_cypher(%q[START n=node(3) WHERE (n.desc =~ /.\d+/) RETURN n]) }
+end
+
+describe %{ n=node(3).as(:n); where((n[:desc] =~ ".d+") ); ret n} do
+  it { Proc.new { n=node(3).as(:n); where(n[:desc] =~ ".d+"); ret n }.should be_cypher(%q[START n=node(3) WHERE (n.desc =~ /.d+/) RETURN n]) }
+end
+
+describe %{ n=node(3).as(:n); where((n[:desc] == /.\d+/) ); ret n} do
+  it { Proc.new { n=node(3).as(:n); where(n[:desc] == /.\d+/); ret n }.should be_cypher(%q[START n=node(3) WHERE (n.desc =~ /.\d+/) RETURN n]) }
+end
 
 
-#  node(3) > rel(:r) > :x; :r
-#  node(3) >> rel(:r).type(:x) >> :x; :r
-#  node(3) >> rel.type(:x) >> :x; :r
-#  node(3) >> rel.type(:x) >> :x; :r
-#  node(3) >> '[r]' >> :x; :r
-#  node(3) >> '[k:r]' >> :x; :r
-#
-#  node(3) >> rel.as(:r) >> :x; :r
-#  node(3) >> rel(:x).as(:r) >> :x; :r
-#
-#  rel.as(:r)
-#  #MATCH p = a-[?*]->b
-#  node(3) >> rel
-#  # MATCH p = a-[?]->b
-#  # me-->friend-[?:parent_of]->children
-#  #MATCH a-[r?:LOVES]->()
-#  r = rel("r?:LOVES")
-#  node(3) >> r >> node; r
-#
-#  # START a=node(2)
-#  #MATCH a-[?]->x
-#  # RETURN x, x.name
-#  a=node(2); x=node; a >> rel >> x; ret x, x[:name]
-#  a=node(2); a >> rel >> node.as(:x); ret :x, 'x.name'
-#  a=node(2).as(:a)
-#end
-#
-#describe "START n0=node(3) MATCH (n0)-[:blocks]->(x) RETURN x", "start n = node(3); match n >> ['blocks'] >> :x; ret :x" do
-#  node(3).as(:n) > rel(':blocks') > node.as(:x); :x
-#  node(3) > :blocks > :x; :x
-#  node(3) > 'r?:blocks' > :x; :x
-#
-#  r = rel('r?:blocks').as(:r); node(3) > r > :x; r
-#
-#
-#end
-#
-#describe "START n0=node(3) MATCH (n0)-[:blocks]->(x) RETURN x", "node(3) >> 'blocks' >> :x; :x" do
-#  node(3) > 'blocks' > :x; :x
-#end
+if RUBY_VERSION > "1.9.0"
+  describe %{n=node(3).as(:n); where(!(n[:desc] =~ ".\d+")); ret n} do
+    it { Proc.new { n=node(3).as(:n); where(!(n[:desc] =~ ".\d+")); ret n }.should be_cypher(%q[START n=node(3) WHERE not(n.desc =~ /.d+/) RETURN n]) }
+  end
+end
+
