@@ -12,12 +12,45 @@ module Neo4j
 
     end
 
+    class Property
+
+      def initialize(var, prop_name)
+        @var = var
+        @prop_name = prop_name
+      end
+
+      def var_name
+        "#{@var.to_s}.#{@prop_name}"
+      end
+
+      def <(other)
+        ExprOp.new(self, other, '<')
+      end
+
+      def =~(other)
+        ExprOp.new(self, other, '=~')
+      end
+
+      def >(other)
+        ExprOp.new(self, other, '>')
+      end
+
+      def ==(other)
+        ExprOp.new(self, other, "=")
+      end
+
+    end
+
     class Start < Expression
       attr_reader :var_name
 
       def initialize(var_name, expressions)
         @var_name = "#{var_name}#{expressions.size}"
         super(expressions)
+      end
+
+      def [](prop_name)
+        Property.new(self, prop_name)
       end
 
       def as(v)
@@ -224,6 +257,10 @@ module Neo4j
         variables << self
       end
 
+      def [](prop_name)
+        Property.new(self, prop_name)
+      end
+
       # @return [String] a cypher string for this node variable
       def to_s
         var_name
@@ -251,6 +288,10 @@ module Neo4j
         @var_name = guess.empty? ? "v#{variables.size}" : guess
       end
 
+      def [](prop_name)
+        Property.new(self, prop_name)
+      end
+
       # @return [String] a cypher string for this relationship variable
       def to_s
         var_name
@@ -266,6 +307,86 @@ module Neo4j
       end
     end
 
+
+class ExprOp
+
+     attr_reader :left, :right, :op, :neg
+
+     def initialize(left, right, op)
+       @op = op
+       @left = quote(left)
+       if regexp?(right)
+         @op = "=~"
+         @right = to_regexp(right)
+       else
+         @right = quote(right)
+       end
+       @neg = ""
+     end
+
+     def quote(val)
+       if val.respond_to?(:var_name)
+         val.var_name
+       else
+        val.is_a?(String) ? %Q["#{val}"] : val
+        end
+     end
+
+     def regexp?(right)
+       @op == "=~" || right.is_a?(Regexp)
+     end
+
+     def to_regexp(val)
+       %Q[/#{val.respond_to?(:source) ? val.source : val.to_s}/]
+     end
+
+     def &(other)
+       ExprOp.new(self, other, "and")
+     end
+
+     def |(other)
+       ExprOp.new(self, other, "or")
+     end
+
+     def -@
+       @neg = "not"
+       self
+     end
+
+     def not
+       @neg = "not"
+       self
+     end
+
+     # Only in 1.9
+     if RUBY_VERSION > "1.9.0"
+       eval %{
+       def !
+         @neg = "not"
+         self
+       end
+       }
+     end
+
+     def to_s
+       "#{neg}(#{left} #{op} #{right})"
+     end
+   end
+
+    class Where
+      def initialize(expressions, where_statement = nil)
+        @where_statement = where_statement
+        expressions << self
+      end
+
+      def prefix
+        " WHERE"
+      end
+
+      def to_s
+        @where_statement.to_s
+      end
+    end
 
     # Creates a Cypher DSL query.
     # To create a new cypher query you must initialize it either an String or a Block.
@@ -306,6 +427,11 @@ module Neo4j
     # @return self
     def start(*)
       self
+    end
+
+    def where(w=nil)
+      Where.new(@expressions, w)
+#      self
     end
 
     # Specifies a start node by performing a lucene query.

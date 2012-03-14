@@ -6,20 +6,32 @@ module CustomNeo4jMatchers
     end
 
     def matches?(actual)
-      @result = Neo4j::Cypher.new(&actual).to_s
-      @result == @expected
+      @actual = Neo4j::Cypher.new(&actual).to_s
+      @actual == @expected
+    end
+
+    def expected
+      %Q[#@expected\n]
+    end
+
+    def actual
+      %Q[#@actual\n]
     end
 
     def failure_message_for_should
-      %Q[expected #{@result.inspect} to be "#{@expected}"]
+      %Q[expected #{@actual} to be "#{@expected}"]
     end
 
     def failure_message_for_should_not
-      %Q[expected #{@result} not to be "#{@expected}"]
+      %Q[expected #{@actual} not to be "#{@expected}"]
     end
 
     def description
       "be equal \"#{@expected}\""
+    end
+
+    def diffable?
+      true
     end
   end
 
