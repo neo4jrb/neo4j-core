@@ -108,6 +108,7 @@ module Neo4j
 
     end
 
+    # The return statement in the cypher query
     class Return < Expression
       def initialize(name_or_ref, expressions)
         super(expressions)
@@ -156,10 +157,13 @@ module Neo4j
         super(left, right, expressions, dir)
       end
 
+      # @param [Symbol,NodeVar,String] other part of the match cypher statement.
+      # @return [MatchRelRight] the right part of an relationship cypher query.
       def >(other)
         MatchRelRight.new(self, other, expressions, dir)
       end
 
+      # @return [String] a cypher string for this match.
       def to_s
         "(#{left_var_name})-[#{right_expr}]"
       end
@@ -168,6 +172,8 @@ module Neo4j
     class MatchRelRight < Match
       attr_reader :dir_op
 
+      # @param left the left part of the query
+      # @param [Symbol,NodeVar,String] right part of the match cypher statement.
       def initialize(left, right, expressions, dir)
         super(left, right, expressions, dir)
         self.separator = ""
@@ -181,6 +187,7 @@ module Neo4j
                   end
       end
 
+      # @return [String] a cypher string for this match.
       def to_s
         "#{dir_op}(#{right_var_name})"
       end
@@ -201,6 +208,7 @@ module Neo4j
                   end
       end
 
+      # @return [String] a cypher string for this match.
       def to_s
         "(#{left_var_name})#{dir_op}(#{right_var_name})"
       end
@@ -208,6 +216,7 @@ module Neo4j
 
     # Represents an unbound node variable used in match statements
     class NodeVar
+      # @return the name of the variable
       attr_reader :var_name
 
       def initialize(variables)
@@ -215,10 +224,15 @@ module Neo4j
         variables << self
       end
 
+      # @return [String] a cypher string for this node variable
       def to_s
         var_name
       end
 
+      # If this method is not used then it will automatically generate a variable name (#var_name)
+      # @param [Symbol] v the name of this variable
+      # @return self
+      # @see #var_name
       def as(v)
         @var_name = v
         self
@@ -226,6 +240,7 @@ module Neo4j
     end
 
 
+    # represent an unbound relationship variable used in match,where,return statement
     class RelVar
       attr_reader :var_name, :expr
 
@@ -236,10 +251,15 @@ module Neo4j
         @var_name = guess.empty? ? "v#{variables.size}" : guess
       end
 
+      # @return [String] a cypher string for this relationship variable
       def to_s
         var_name
       end
 
+      # If this method is not used then it will automatically generate a variable name (#var_name)
+      # @param [Symbol] v the name of this variable
+      # @return self
+      # @see #var_name
       def as(v)
         @var_name = v
         self
@@ -247,6 +267,21 @@ module Neo4j
     end
 
 
+    # Creates a Cypher DSL query.
+    # To create a new cypher query you must initialize it either an String or a Block.
+    #
+    # @example <tt>START n0=node(3) MATCH (n0)--(x) RETURN x</tt>`same as
+    #   Cypher.new { start n = node(3); match n <=> :x; ret :x }.to_s
+    #
+    # @example <tt>START n0=node(3) MATCH (n0)-[r]->(x) RETURN r</tt> same as
+    #   node(3) > :r > :x; :r
+    #
+    # @example <tt>START n0=node(3) MATCH (n0)-->(x) RETURN x</tt> same as
+    #   node(3) >> :x; :x
+    #
+    # @param [String] query the query expressed as an string instead of an block/yield.
+    # @yield the block which will be evaluated in the context of this object in order to create an Cypher Query string
+    # @yieldreturn [Return, Object] If the return is not an instance of Return it will be converted it to a Return object (if possible).
     def initialize(query = nil, &dsl_block)
       @expressions = []
       @variables = []
@@ -261,13 +296,13 @@ module Neo4j
     end
 
 
-    # Does nothing, just for making the DSL less cryptic
+    # Does nothing, just for making the DSL easier to read (maybe).
     # @return self
     def match(*)
       self
     end
 
-    # Does nothing, just for making the DSL less cryptic
+    # Does nothing, just for making the DSL easier to read (maybe)
     # @return self
     def start(*)
       self
@@ -291,8 +326,14 @@ module Neo4j
       NodeLookup.new(index_class, key, value, @expressions)
     end
 
-    # @param [Fixnum] nodes the id of the nodes we want to start from
-    # @return [StartNode]
+    # Creates a node variable.
+    # It will create different variables depending on the type of the first element in the nodes argument.
+    # * Fixnum - it will be be used as neo_id  for start node(s) (StartNode)
+    # * Symbol - it will create an unbound node variable with the same name as the symbol (NodeVar#as)
+    # * empty array - it will create an unbound node variable (NodeVar)
+    #
+    # @param [Fixnum,Symbol,String] nodes the id of the nodes we want to start from
+    # @return [StartNode, NodeVar]
     def node(*nodes)
       if nodes.first.is_a?(Symbol)
         NodeVar.new(@variables).as(nodes.first)
@@ -303,7 +344,8 @@ module Neo4j
       end
     end
 
-    # @return [StartRel]
+    # Similar to #node
+    # @return [StartRel, RelVar]
     def rel(*rels)
       if rels.first.is_a?(Fixnum)
         StartRel.new(rels, @expressions)

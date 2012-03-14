@@ -5,12 +5,9 @@ module CustomNeo4jMatchers
       @expected = expected
     end
 
-    def eval_dsl(target)
-      @result ||= Neo4j::Cypher.new(&target).to_s
-    end
-
-    def matches?(target)
-      eval_dsl(target) == @expected
+    def matches?(actual)
+      @result = Neo4j::Cypher.new(&actual).to_s
+      @result == @expected
     end
 
     def failure_message_for_should
