@@ -120,12 +120,12 @@ describe %{n=node(3,1).as(:n); where(%q[n.age < 30 and n.name = "Tobias") or not
   it { Proc.new { n=node(3, 1).as(:n); where(%q[(n.age < 30 and n.name = "Tobias") or not(n.name = "Tobias")]); ret n }.should be_cypher(%q[START n=node(3,1) WHERE (n.age < 30 and n.name = "Tobias") or not(n.name = "Tobias") RETURN n]) }
 end
 
-describe %{n=node(3,1).as(:n); where n[:age] < 30; ret n} do
-  it { Proc.new { n=node(3, 1).as(:n); where n[:age] < 30; ret n }.should be_cypher(%q[START n=node(3,1) WHERE (n.age < 30) RETURN n]) }
+describe %{n=node(3,1); where n[:age] < 30; ret n} do
+  it { Proc.new { n=node(3, 1); where n[:age] < 30; ret n }.should be_cypher(%q[START n0=node(3,1) WHERE (n0.age < 30) RETURN n0]) }
 end
 
-describe %{n=node(3,1).as(:n); where((n[:age] < 30) & ((n[:name] == 'foo') | (n[:size] > n[:age]))); ret n} do
-  it { Proc.new { n=node(3, 1).as(:n); where((n[:age] < 30) & ((n[:name] == 'foo') | (n[:size] > n[:age]))); ret n }.should be_cypher(%q[START n=node(3,1) WHERE ((n.age < 30) and ((n.name = "foo") or (n.size > n.age))) RETURN n]) }
+describe %{n=node(3, 1); where((n[:age] < 30) & ((n[:name] == 'foo') | (n[:size] > n[:age]))); ret n} do
+  it { Proc.new { n=node(3, 1); where((n[:age] < 30) & ((n[:name] == 'foo') | (n[:size] > n[:age]))); ret n }.should be_cypher(%q[START n0=node(3,1) WHERE ((n0.age < 30) and ((n0.name = "foo") or (n0.size > n0.age))) RETURN n0]) }
 end
 
 describe %{ n=node(3).as(:n); where((n[:desc] =~ /.\d+/) ); ret n} do
@@ -140,8 +140,16 @@ describe %{ n=node(3).as(:n); where((n[:desc] == /.\d+/) ); ret n} do
   it { Proc.new { n=node(3).as(:n); where(n[:desc] == /.\d+/); ret n }.should be_cypher(%q[START n=node(3) WHERE (n.desc =~ /.\d+/) RETURN n]) }
 end
 
+describe %{n=node(3,4); n[:desc] == "hej"; n} do
+  it { Proc.new { n=node(3,4); n[:desc] == "hej"; n }.should be_cypher(%q[START n0=node(3,4) WHERE (n0.desc = "hej") RETURN n0]) }
+end
+
+describe %{node(3,4) <=> :x; node(:x)[:desc] =~ /hej/; :x} do
+  it { Proc.new { node(3,4) <=> :x; node(:x)[:desc] =~ /hej/; :x }.should be_cypher(%q[START n0=node(3,4) MATCH (n0)--(x) WHERE (x.desc =~ /hej/) RETURN x]) }
+end
 
 if RUBY_VERSION > "1.9.0"
+  # the ! operator is only available in Ruby 1.9.x
   describe %{n=node(3).as(:n); where(!(n[:desc] =~ ".\d+")); ret n} do
     it { Proc.new { n=node(3).as(:n); where(!(n[:desc] =~ ".\d+")); ret n }.should be_cypher(%q[START n=node(3) WHERE not(n.desc =~ /.d+/) RETURN n]) }
   end

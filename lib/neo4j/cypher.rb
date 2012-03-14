@@ -13,9 +13,10 @@ module Neo4j
     end
 
     class Property
-
-      def initialize(var, prop_name)
+      attr_reader :expressions
+      def initialize(expressions, var, prop_name)
         @var = var.respond_to?(:var_name) ? var.var_name : var
+        @expressions = expressions
         @prop_name = prop_name
       end
 
@@ -27,12 +28,20 @@ module Neo4j
         ExprOp.new(self, other, '<')
       end
 
+      def <=(other)
+        ExprOp.new(self, other, '<=')
+      end
+
       def =~(other)
         ExprOp.new(self, other, '=~')
       end
 
       def >(other)
         ExprOp.new(self, other, '>')
+      end
+
+      def >=(other)
+        ExprOp.new(self, other, '>=')
       end
 
       def ==(other)
@@ -50,7 +59,7 @@ module Neo4j
       end
 
       def [](prop_name)
-        Property.new(self, prop_name)
+        Property.new(expressions, self, prop_name)
       end
 
       def as(v)
@@ -252,13 +261,14 @@ module Neo4j
       # @return the name of the variable
       attr_reader :var_name
 
-      def initialize(variables)
+      def initialize(expressions, variables)
         @var_name = "v#{variables.size}"
         variables << self
+        @expressions = expressions
       end
 
       def [](prop_name)
-        Property.new(self, prop_name)
+        Property.new(@expressions, self, prop_name)
       end
 
       # @return [String] a cypher string for this node variable
@@ -281,15 +291,16 @@ module Neo4j
     class RelVar
       attr_reader :var_name, :expr
 
-      def initialize(expr, variables)
+      def initialize(expressions, variables, expr)
         variables << self
         @expr = expr
+        @expressions = expressions
         guess = expr ? /([[:alpha:]]*)/.match(expr)[1] : ""
         @var_name = guess.empty? ? "v#{variables.size}" : guess
       end
 
       def [](prop_name)
-        Property.new(self, prop_name)
+        Property.new(@expressions, self, prop_name)
       end
 
       # @return [String] a cypher string for this relationship variable
@@ -310,10 +321,14 @@ module Neo4j
 
     class ExprOp
 
-      attr_reader :left, :right, :op, :neg
+      attr_reader :left, :right, :op, :neg, :expressions
 
       def initialize(left, right, op)
         @op = op
+        @expressions = left.expressions
+        @expressions.delete(left)
+        @expressions.delete(right)
+        @expressions << self
         @left = quote(left)
         if regexp?(right)
           @op = "=~"
@@ -322,6 +337,14 @@ module Neo4j
           @right = quote(right)
         end
         @neg = ""
+      end
+
+      def prefix
+        " WHERE"
+      end
+
+      def separator
+        " "
       end
 
       def quote(val)
@@ -373,10 +396,10 @@ module Neo4j
       end
     end
 
-    class Where
+    class Where < Expression
       def initialize(expressions, where_statement = nil)
+        super(expressions)
         @where_statement = where_statement
-        expressions << self
       end
 
       def prefix
@@ -430,8 +453,8 @@ module Neo4j
     end
 
     def where(w=nil)
-      Where.new(@expressions, w)
-#      self
+      Where.new(@expressions, w) if w.is_a?(String)
+      self
     end
 
     # Specifies a start node by performing a lucene query.
@@ -462,11 +485,11 @@ module Neo4j
     # @return [StartNode, NodeVar]
     def node(*nodes)
       if nodes.first.is_a?(Symbol)
-        NodeVar.new(@variables).as(nodes.first)
+        NodeVar.new(@expressions, @variables).as(nodes.first)
       elsif !nodes.empty?
         StartNode.new(nodes, @expressions)
       else
-        NodeVar.new(@variables)
+        NodeVar.new(@expressions, @variables)
       end
     end
 
@@ -476,9 +499,9 @@ module Neo4j
       if rels.first.is_a?(Fixnum)
         StartRel.new(rels, @expressions)
       elsif rels.first.is_a?(Symbol)
-        RelVar.new("", @variables).as(rels.first)
+        RelVar.new(@expressions, @variables,"").as(rels.first)
       elsif rels.first.is_a?(String)
-        RelVar.new(rels.first, @variables)
+        RelVar.new(@expressions, @variables, rels.first)
       else
         raise "Unknown arg #{rels.inspect}"
       end
