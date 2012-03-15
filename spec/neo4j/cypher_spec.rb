@@ -157,6 +157,18 @@ describe "Neo4j::Cypher" do
     it { Proc.new { n=node(3, 1); where n[:age] < 30; ret n }.should be_cypher(%q[START n0=node(3,1) WHERE (n0.age < 30) RETURN n0]) }
   end
 
+  describe %{n=node(3, 1); where (n[:name] == 'foo').not; ret n} do
+    it { Proc.new { n=node(3, 1); where (n[:name] == 'foo').not; ret n }.should be_cypher(%q[START n0=node(3,1) WHERE not(n0.name = "foo") RETURN n0]) }
+  end
+
+  describe %{r=rel(3,1); where r[:since] < 2; r} do
+    it { Proc.new { r=rel(3, 1); where r[:since] < 2; r }.should be_cypher(%q[START r0=relationship(3,1) WHERE (r0.since < 2) RETURN r0]) }
+  end
+
+  describe %{r=rel('r?'); n=node(2); n > r > :x; r[:since] < 2; r} do
+    it { Proc.new { r=rel('r?'); n=node(2); n > r > :x; r[:since] < 2; r }.should be_cypher(%q[START n0=node(2) MATCH (n0)-[r?]->(x) WHERE (r.since < 2) RETURN r]) }
+  end
+
   describe %{n=node(3, 1); where((n[:age] < 30) & ((n[:name] == 'foo') | (n[:size] > n[:age]))); ret n} do
     it { Proc.new { n=node(3, 1); where((n[:age] < 30) & ((n[:name] == 'foo') | (n[:size] > n[:age]))); ret n }.should be_cypher(%q[START n0=node(3,1) WHERE ((n0.age < 30) and ((n0.name = "foo") or (n0.size > n0.age))) RETURN n0]) }
   end
@@ -221,6 +233,23 @@ describe "Neo4j::Cypher" do
     it { Proc.new { a=node(3); a > ':knows' > :b > ':knows' > :c; a -':blocks' - :d -':knows' -:c; [a, :b, :c, :d] }.should be_cypher(%{START n0=node(3) MATCH (n0)-[:knows]->(b)-[:knows]->(c),(n0)-[:blocks]-(d)-[:knows]-(c) RETURN n0,b,c,d}) }
   end
 
+  describe %{n=node(3); n > (r=rel('r')) > node; r.rel_type =~ /K.*/; r} do
+    it { Proc.new { n=node(3); n > (r=rel('r')) > node; r.rel_type =~ /K.*/; r }.should be_cypher(%{START n0=node(3) MATCH (n0)-[r]->(v1) WHERE (type(r) =~ /K.*/) RETURN r}) }
+  end
+
+  describe %{n=node(3, 1); n.property?(:belt); n} do
+    it { Proc.new { n=node(3, 1); n.property?(:belt); n }.should be_cypher(%{START n0=node(3,1) WHERE (has(n0.belt)) RETURN n0}) }
+  end
+
+  describe %{n=node(3,1); n[:belt?] == "white";n} do
+    it { Proc.new { n=node(3, 1); n[:belt?] == "white"; n }.should be_cypher(%{START n0=node(3,1) WHERE (n0.belt? = "white") RETURN n0}) }
+  end
+
+  describe %{a=node(1).as(:a);b=node(3,2); r=rel('r?'); a < r < b; r.exist? ; b} do
+    it { Proc.new { a=node(1).as(:a);b=node(3,2); r=rel('r?'); a < r < b; r.exist? ; b }.should be_cypher(%{START a=node(1),n1=node(3,2) MATCH (a)<-[r?]-(n1) WHERE ((r is null)) RETURN n1}) }
+  end
+
+
   # Is this good ?
   #describe "DSL   { (node(3) << node(:c)) - ':friends' - :d; :d }" do
   #  it { Proc.new { (node(3).rel(:outgoing, :foo, :x)) }}
@@ -237,6 +266,15 @@ describe "Neo4j::Cypher" do
     describe %{n=node(3).as(:n); where(!(n[:desc] =~ ".\d+")); ret n} do
       it { Proc.new { n=node(3).as(:n); where(!(n[:desc] =~ ".\d+")); ret n }.should be_cypher(%q[START n=node(3) WHERE not(n.desc =~ /.d+/) RETURN n]) }
     end
+
+    describe %{n=node(3).as(:n); where((n[:desc] != "hej")); ret n} do
+      it { Proc.new { n=node(3).as(:n); where((n[:desc] != "hej")); ret n }.should be_cypher(%q[START n=node(3) WHERE (n.desc != "hej") RETURN n]) }
+    end
+
+    describe %{a=node(1).as(:a);b=node(3,2); r=rel('r?'); a < r < b; !r.exist? ; b} do
+      it { Proc.new { a=node(1).as(:a);b=node(3,2); r=rel('r?'); a < r < b; !r.exist? ; b }.should be_cypher(%{START a=node(1),n1=node(3,2) MATCH (a)<-[r?]-(n1) WHERE not((r is null)) RETURN n1}) }
+    end
+
   end
 
 end

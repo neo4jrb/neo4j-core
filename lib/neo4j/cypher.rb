@@ -1,18 +1,18 @@
 module Neo4j
   class Cypher
     class Expression
-      attr_reader :expressions, :expr_type
+      attr_reader :expressions, :clause
       attr_accessor :separator
 
-      def initialize(expressions, expr_type)
-        @expr_type = expr_type
+      def initialize(expressions, clause)
+        @clause = clause
         @expressions = expressions
-        insert_last(expr_type)
+        insert_last(clause)
         @separator = ","
       end
 
-      def insert_last(expr_type)
-        i = @expressions.reverse.index { |e| e.expr_type == expr_type }
+      def insert_last(clause)
+        i = @expressions.reverse.index { |e| e.clause == clause }
         if i.nil?
           @expressions << self
         else
@@ -26,21 +26,23 @@ module Neo4j
       end
 
       def prefix
-        prefixes[expr_type]
+        prefixes[clause]
       end
     end
 
     class Property
-      attr_reader :expressions
+      attr_reader :expressions, :var_name
 
       def initialize(expressions, var, prop_name)
         @var = var.respond_to?(:var_name) ? var.var_name : var
         @expressions = expressions
         @prop_name = prop_name
+        @var_name = @prop_name ? "#{@var.to_s}.#{@prop_name}" : @var.to_s
       end
 
-      def var_name
-        "#{@var.to_s}.#{@prop_name}"
+      def to_function!(var = @var.to_s)
+        @var_name = "#{@prop_name}(#{var})"
+        self
       end
 
       def <(other)
@@ -63,20 +65,24 @@ module Neo4j
         ExprOp.new(self, other, '>=')
       end
 
+      # Only in 1.9
+      if RUBY_VERSION > "1.9.0"
+        eval %{
+      def !=(other)
+        ExprOp.new(self, other, "!=")
+      end  }
+      end
+
       def ==(other)
         ExprOp.new(self, other, "=")
       end
 
+      def binary_operator(op, post_fix = "")
+        ExprOp.new(self, nil, op, post_fix)
+      end
     end
 
-    class Start < Expression
-      attr_reader :var_name
-
-      def initialize(var_name, expressions)
-        @var_name = "#{var_name}#{expressions.size}"
-        super(expressions, :start)
-      end
-
+    module Variable
       def [](prop_name)
         Property.new(expressions, self, prop_name)
       end
@@ -86,6 +92,18 @@ module Neo4j
         self
       end
 
+      def property?(p)
+        p = Property.new(expressions, self, p)
+        p.binary_operator("has")
+      end
+
+      def exist?
+        p = Property.new(expressions, self, p)
+        p.binary_operator("", " is null")
+      end
+    end
+
+    module Matchable
       # This operator means related to, without regard to type or direction.
       # @param [Symbol, #var_name] other either a node (Symbol, #var_name)
       # @return [MatchRelLeft, MatchNode]
@@ -126,6 +144,17 @@ module Neo4j
       # @return [MatchRelLeft, MatchNode]
       def <<(other)
         MatchNode.new(self, other, expressions, :incoming)
+      end
+    end
+
+    class Start < Expression
+      attr_reader :var_name
+      include Variable
+      include Matchable
+
+      def initialize(var_name, expressions)
+        @var_name = "#{var_name}#{expressions.size}"
+        super(expressions, :start)
       end
 
     end
@@ -378,8 +407,13 @@ module Neo4j
 
     # Represents an unbound node variable used in match statements
     class NodeVar
+      include Variable
+      include Matchable
+
+
       # @return the name of the variable
       attr_reader :var_name
+      attr_reader :expressions
 
       def initialize(expressions, variables)
         @var_name = "v#{variables.size}"
@@ -387,29 +421,19 @@ module Neo4j
         @expressions = expressions
       end
 
-      def [](prop_name)
-        Property.new(@expressions, self, prop_name)
-      end
-
       # @return [String] a cypher string for this node variable
       def to_s
         var_name
       end
 
-      # If this method is not used then it will automatically generate a variable name (#var_name)
-      # @param [Symbol] v the name of this variable
-      # @return self
-      # @see #var_name
-      def as(v)
-        @var_name = v
-        self
-      end
     end
 
 
     # represent an unbound relationship variable used in match,where,return statement
     class RelVar
-      attr_reader :var_name, :expr
+      include Variable
+
+      attr_reader :var_name, :expr, :expressions
 
       def initialize(expressions, variables, expr)
         variables << self
@@ -419,8 +443,8 @@ module Neo4j
         @var_name = guess.empty? ? "v#{variables.size}" : guess
       end
 
-      def [](prop_name)
-        Property.new(@expressions, self, prop_name)
+      def rel_type
+        Property.new(@expressions, self, 'type').to_function!
       end
 
       # @return [String] a cypher string for this relationship variable
@@ -428,24 +452,17 @@ module Neo4j
         var_name
       end
 
-      # If this method is not used then it will automatically generate a variable name (#var_name)
-      # @param [Symbol] v the name of this variable
-      # @return self
-      # @see #var_name
-      def as(v)
-        @var_name = v
-        self
-      end
     end
 
 
     class ExprOp < Expression
 
-      attr_reader :left, :right, :op, :neg
+      attr_reader :left, :right, :op, :neg, :post_fix
 
-      def initialize(left, right, op)
+      def initialize(left, right, op, post_fix = "")
         super(left.expressions, :where)
         @op = op
+        @post_fix = post_fix
         self.expressions.delete(left)
         self.expressions.delete(right)
         @left = quote(left)
@@ -453,7 +470,7 @@ module Neo4j
           @op = "=~"
           @right = to_regexp(right)
         else
-          @right = quote(right)
+          @right = right && quote(right)
         end
         @neg = ""
       end
@@ -507,7 +524,12 @@ module Neo4j
       end
 
       def to_s
-        "#{neg}(#{left} #{op} #{right})"
+        if @right
+          "#{neg}(#{left} #{op} #{right})"
+        else
+          # binary operator
+          "#{neg}(#{op}(#{left}#{post_fix}))"
+        end
       end
     end
 
@@ -650,10 +672,10 @@ module Neo4j
 
     # Converts the DSL query to a cypher String which can be executed by cypher query engine.
     def to_s
-      expr_type = nil
+      clause = nil
       @expressions.map do |expr|
-        expr_to_s = expr.expr_type != expr_type ? "#{expr.prefix} #{expr.to_s}" : "#{expr.separator}#{expr.to_s}"
-        expr_type = expr.expr_type
+        expr_to_s = expr.clause != clause ? "#{expr.prefix} #{expr.to_s}" : "#{expr.separator}#{expr.to_s}"
+        clause = expr.clause
         expr_to_s
       end.join
     end
