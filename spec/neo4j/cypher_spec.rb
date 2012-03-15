@@ -78,8 +78,32 @@ describe "Neo4j::Cypher" do
     it { Proc.new { node(3) >> :x; :x }.should be_cypher("START n0=node(3) MATCH (n0)-->(x) RETURN x") }
   end
 
+  describe "DSL   { node(3) >> node(:c) >> :d; :c }" do
+    it { Proc.new { node(3) >> node(:c) >> :d; :c }.should be_cypher(%{START n0=node(3) MATCH (n0)-->(c)-->(d) RETURN c}) }
+  end
+
+  describe "DSL   { node(3) << :x; :x }" do
+    it { Proc.new { node(3) << :x; :x }.should be_cypher("START n0=node(3) MATCH (n0)<--(x) RETURN x") }
+  end
+
+  describe "DSL   { node(3) << node(:c) << :d; :c }" do
+    it { Proc.new { node(3) << node(:c) << :d; :c }.should be_cypher(%{START n0=node(3) MATCH (n0)<--(c)<--(d) RETURN c}) }
+  end
+
   describe "DSL   { node(3) > :r > :x; :r }" do
     it { Proc.new { node(3) > :r > :x; :r }.should be_cypher("START n0=node(3) MATCH (n0)-[r]->(x) RETURN r") }
+  end
+
+  describe "DSL   { node(3) << node(:c) < ':friends' < :d; :d }" do
+    it { Proc.new { node(3) << node(:c) < ':friends' < :d; :d }.should be_cypher(%{START n0=node(3) MATCH (n0)<--(c)<-[:friends]-(d) RETURN d}) }
+  end
+
+  describe "DSL   { (node(3) << node(:c)) - ':friends' - :d; :d }" do
+    it { Proc.new { (node(3) << node(:c)) - ':friends' - :d; :d }.should be_cypher(%{START n0=node(3) MATCH (n0)<--(c)-[:friends]-(d) RETURN d}) }
+  end
+
+  describe "DSL   { node(3) << node(:c) > ':friends' > :d; :d }" do
+    it { Proc.new { node(3) << node(:c) > ':friends' > :d; :d }.should be_cypher(%{START n0=node(3) MATCH (n0)<--(c)-[:friends]->(d) RETURN d}) }
   end
 
   describe "DSL   { node(3) > 'r:friends' > :x; :r }" do
@@ -108,6 +132,10 @@ describe "Neo4j::Cypher" do
 
   describe "DSL   { node(3) > rel('r?') > 'bla'; :x }" do
     it { Proc.new { node(3) > rel('r?') > 'bla'; :x }.should be_cypher("START n0=node(3) MATCH (n0)-[r?]->(bla) RETURN x") }
+  end
+
+  describe "DSL   { node(3) > ':r' > 'bla'; :x }" do
+    it { Proc.new { node(3) > ':r' > 'bla'; :x }.should be_cypher("START n0=node(3) MATCH (n0)-[:r]->(bla) RETURN x") }
   end
 
   describe "DSL   { r=rel('?'); node(3) > r > :x; r }" do
@@ -149,13 +177,45 @@ describe "Neo4j::Cypher" do
     it { Proc.new { node(3, 4) <=> :x; node(:x)[:desc] =~ /hej/; :x }.should be_cypher(%q[START n0=node(3,4) MATCH (n0)--(x) WHERE (x.desc =~ /hej/) RETURN x]) }
   end
 
-  describe       %{ a, x=node(1), node(2); p = shortest_path { a > '?*' > x }; p } do
+  describe %{ a, x=node(1), node(2); p = shortest_path { a > '?*' > x }; p } do
     it { Proc.new { a, x=node(1), node(2); p = shortest_path { a > '?*' > x }; p }.should be_cypher(%{START n0=node(1),n1=node(2) MATCH m3 = shortestPath((n0)-[?*]->(n1)) RETURN m3}) }
   end
 
   describe %{shortest_path{node(1) > '?*' > node(2)}} do
-    it { Proc.new { shortest_path{node(1) > '?*' > node(2)} }.should be_cypher(%{START n0=node(1),n2=node(2) MATCH m2 = shortestPath((n0)-[?*]->(n2)) RETURN m2}) }
+    it { Proc.new { shortest_path { node(1) > '?*' > node(2) } }.should be_cypher(%{START n0=node(1),n2=node(2) MATCH m3 = shortestPath((n0)-[?*]->(n2)) RETURN m2}) }
   end
+
+  describe %{shortest_path { node(1) > '?*' > :x > ':friend' > node(2)}} do
+    it { Proc.new { shortest_path { node(1) > '?*' > :x > ':friend' > node(2)} }.should be_cypher(%{START n0=node(1),n2=node(2) MATCH m3 = shortestPath((n0)-[?*]->(x)-[:friend]->(n2)) RETURN m2}) }
+  end
+
+  describe "a=node(3); a > ':knows' > node(:b) > ':knows' > :c; :c" do
+    it { Proc.new { a=node(3); a > ':knows' > node(:b) > ':knows' > :c; :c }.should be_cypher(%{START n0=node(3) MATCH (n0)-[:knows]->(b)-[:knows]->(c) RETURN c}) }
+  end
+
+  describe "a=node(3); a < ':knows' < :c; :c" do
+    it { Proc.new { a=node(3); a < ':knows' < :c; :c }.should be_cypher(%{START n0=node(3) MATCH (n0)<-[:knows]-(c) RETURN c}) }
+  end
+
+  describe "a=node(3); a < ':knows' < node(:c) < :friends < :d; :friends" do
+    it { Proc.new { a=node(3); a < ':knows' < node(:c) < :friends < :d; :friends }.should be_cypher(%{START n0=node(3) MATCH (n0)<-[:knows]-(c)<-[friends]-(d) RETURN friends}) }
+  end
+
+  describe "a=node(3); a < ':knows' < node(:c) > :friends > :d; :friends" do
+    it { Proc.new { a=node(3); a < ':knows' < node(:c) > :friends > :d; :friends }.should be_cypher(%{START n0=node(3) MATCH (n0)<-[:knows]-(c)-[friends]->(d) RETURN friends}) }
+  end
+
+  describe "node(3) - ':knows' - :c; :c" do
+    it { Proc.new { node(3) - ':knows' - :c; :c }.should be_cypher(%{START n0=node(3) MATCH (n0)-[:knows]-(c) RETURN c}) }
+  end
+
+  # Is this good ?
+    #describe "DSL   { (node(3) << node(:c)) - ':friends' - :d; :d }" do
+  #  it { Proc.new { (node(3).rel(:outgoing, :foo, :x)) }}
+  #  it { Proc.new { (node(3).rel?(:outgoing, :foo, :x)) }}
+  #  it { Proc.new { (node(3).node(:outgoing, :foo, :x)) }}
+  #end
+
 
   #
   ##                          (a)-[:KNOWS]->(b)-[:KNOWS]->(c), (a)-[:BLOCKS]-(d)-[:KNOWS]-(c)

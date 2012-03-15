@@ -103,7 +103,7 @@ module Neo4j
       # This operator means any direction related to
       # @param (see #>)
       # @return [MatchRelLeft, MatchNode]
-      def -@(other)
+      def -(other)
         MatchRelLeft.new(self, other, expressions, :both)
       end
 
@@ -114,12 +114,20 @@ module Neo4j
         MatchRelLeft.new(self, other, expressions, :incoming)
       end
 
-      # Outgoing relationship
-      # @param [Array, Symbol, #var_name] other either a node (Symbol, #var_name) or a relationship (Array)
+      # Outgoing relationship to other node
+      # @param [Symbol, #var_name] other either a node (Symbol, #var_name)
       # @return [MatchRelLeft, MatchNode]
       def >>(other)
         MatchNode.new(self, other, expressions, :outgoing)
       end
+
+      # Incoming relationship to other node
+      # @param [Symbol, #var_name] other either a node (Symbol, #var_name)
+      # @return [MatchRelLeft, MatchNode]
+      def <<(other)
+        MatchNode.new(self, other, expressions, :incoming)
+      end
+
     end
 
     class StartNode < Start
@@ -193,13 +201,14 @@ module Neo4j
 
 
     class Match < Expression
-      attr_reader :dir, :expressions, :left, :right, :var_name
+      attr_reader :dir, :expressions, :left, :right, :var_name, :dir_op
       attr_accessor :algorithm, :next, :prev
 
-      def initialize(left, right, expressions, dir)
+      def initialize(left, right, expressions, dir, dir_op)
         super(expressions, :match)
         @var_name = "m#{expressions.size}"
         @dir = dir
+        @dir_op = dir_op
         @prev = left if left.is_a?(Match)
         @left = left
         @right = right
@@ -211,14 +220,6 @@ module Neo4j
           c = c.prev
         end
         c
-      end
-
-      def match_start?
-        self == find_match_start
-      end
-
-      def match_end?
-        self.next.nil?
       end
 
       def left_var_name
@@ -234,49 +235,80 @@ module Neo4j
       end
 
       def to_s
-        if (find_match_start.algorithm && match_end?)
-          "#{expr})" # end of algorithm )
-        elsif algorithm
-          "#{var_name} = #{algorithm}(#{expr}" # start of algorithm
-        else
-          expr
-        end
+        curr = find_match_start
+        result = algorithm ? "#{var_name} = #{algorithm}(" : ""
+        begin
+          result << curr.expr
+        end while (curr = curr.next)
+        result << ")" if algorithm
+        result
       end
     end
 
     class MatchRelLeft < Match
       def initialize(left, right, expressions, dir)
-        super(left, right, expressions, dir)
+        super(left, right, expressions, dir, dir == :incoming ? '<-' : '-')
       end
 
       # @param [Symbol,NodeVar,String] other part of the match cypher statement.
       # @return [MatchRelRight] the right part of an relationship cypher query.
       def >(other)
-        self.next = MatchRelRight.new(self, other, expressions, dir)
+        expressions.delete(self)
+        self.next = MatchRelRight.new(self, other, expressions, :outgoing)
+      end
+
+      # @see #>
+      # @return (see #>)
+      def <(other)
+        expressions.delete(self)
+        self.next = MatchRelRight.new(self, other, expressions, :incoming)
+      end
+
+      # @see #>
+      # @return (see #>)
+      def -(other)
+        expressions.delete(self)
+        self.next = MatchRelRight.new(self, other, expressions, :both)
       end
 
       # @return [String] a cypher string for this match.
       def expr
-        "(#{left_var_name})-[#{right_expr}]"
+        if prev
+          # we have chained more then one relationships in a match expression
+          "#{dir_op}[#{right_expr}]"
+        else
+          # the right is an relationship and could be an expressions, e.g "r?"
+          "(#{left_var_name})#{dir_op}[#{right_expr}]"
+        end
       end
     end
 
     class MatchRelRight < Match
-      attr_reader :dir_op
-
       # @param left the left part of the query
       # @param [Symbol,NodeVar,String] right part of the match cypher statement.
       def initialize(left, right, expressions, dir)
-        super(left, right, expressions, dir)
-        self.separator = ""
-        @dir_op = case dir
-                    when :outgoing then
-                      "->"
-                    when :incoming then
-                      "<-"
-                    when :both then
-                      "-"
-                  end
+        super(left, right, expressions, dir, dir == :outgoing ? '->' : '-')
+      end
+
+      # @param [Symbol,NodeVar,String] other part of the match cypher statement.
+      # @return [MatchRelLeft] the right part of an relationship cypher query.
+      def >(other)
+        expressions.delete(self)
+        self.next = MatchRelLeft.new(self, other, expressions, :outgoing)
+      end
+
+      # @see #>
+      # @return (see #>)
+      def <(other)
+        expressions.delete(self)
+        self.next = MatchRelLeft.new(self, other, expressions, :incoming)
+      end
+
+      # @see #>
+      # @return (see #>)
+      def -(other)
+        expressions.delete(self)
+        self.next = MatchRelLeft.new(self, other, expressions, :both)
       end
 
       # @return [String] a cypher string for this match.
@@ -289,21 +321,59 @@ module Neo4j
       attr_reader :dir_op
 
       def initialize(left, right, expressions, dir)
-        super(left, right, expressions, dir)
-        @dir_op = case dir
-                    when :outgoing then
-                      "-->"
-                    when :incoming then
-                      "<--"
-                    when :both then
-                      "--"
-                  end
+        dir_op = case dir
+                   when :outgoing then
+                     "-->"
+                   when :incoming then
+                     "<--"
+                   when :both then
+                     "--"
+                 end
+        super(left, right, expressions, dir, dir_op)
       end
 
       # @return [String] a cypher string for this match.
       def expr
-        "(#{left_var_name})#{dir_op}(#{right_var_name})"
+        if prev
+          # we have chained more then one relationships in a match expression
+          "#{dir_op}(#{right_expr})"
+        else
+          # the right is an relationship and could be an expressions, e.g "r?"
+          "(#{left_var_name})#{dir_op}(#{right_expr})"
+        end
       end
+
+      def <<(other)
+        expressions.delete(self)
+        self.next = MatchNode.new(self, other, expressions, :incoming)
+      end
+
+      def >>(other)
+        expressions.delete(self)
+        self.next = MatchNode.new(self, other, expressions, :outgoing)
+      end
+
+      # @param [Symbol,NodeVar,String] other part of the match cypher statement.
+      # @return [MatchRelRight] the right part of an relationship cypher query.
+      def >(other)
+        expressions.delete(self)
+        self.next = MatchRelLeft.new(self, other, expressions, :outgoing)
+      end
+
+      # @see #>
+      # @return (see #>)
+      def <(other)
+        expressions.delete(self)
+        self.next = MatchRelLeft.new(self, other, expressions, :incoming)
+      end
+
+      # @see #>
+      # @return (see #>)
+      def -(other)
+        expressions.delete(self)
+        self.next = MatchRelLeft.new(self, other, expressions, :both)
+      end
+
     end
 
     # Represents an unbound node variable used in match statements
@@ -574,9 +644,8 @@ module Neo4j
 
     def shortest_path(&block)
       match = instance_eval(&block)
-      start = match.find_match_start
-      start.algorithm = 'shortestPath'
-      start
+      match.algorithm = 'shortestPath'
+      match.find_match_start
     end
 
     # Converts the DSL query to a cypher String which can be executed by cypher query engine.
