@@ -138,6 +138,10 @@ describe "Neo4j::Cypher" do
     it { Proc.new { node(3) > ':r' > 'bla'; :x }.should be_cypher("START n0=node(3) MATCH (n0)-[:r]->(bla) RETURN x") }
   end
 
+  describe "DSL   { node(3) > :r > node; node }" do
+    it { Proc.new { node(3) > :r > node; :r }.should be_cypher("START n0=node(3) MATCH (n0)-[r]->(v0) RETURN r") }
+  end
+
   describe "DSL   { r=rel('?'); node(3) > r > :x; r }" do
     it do
       pending "this should raise an error since it's an illegal cypher query"
@@ -186,7 +190,7 @@ describe "Neo4j::Cypher" do
   end
 
   describe %{shortest_path { node(1) > '?*' > :x > ':friend' > node(2)}} do
-    it { Proc.new { shortest_path { node(1) > '?*' > :x > ':friend' > node(2)} }.should be_cypher(%{START n0=node(1),n2=node(2) MATCH m3 = shortestPath((n0)-[?*]->(x)-[:friend]->(n2)) RETURN m2}) }
+    it { Proc.new { shortest_path { node(1) > '?*' > :x > ':friend' > node(2) } }.should be_cypher(%{START n0=node(1),n2=node(2) MATCH m3 = shortestPath((n0)-[?*]->(x)-[:friend]->(n2)) RETURN m2}) }
   end
 
   describe "a=node(3); a > ':knows' > node(:b) > ':knows' > :c; :c" do
@@ -209,8 +213,16 @@ describe "Neo4j::Cypher" do
     it { Proc.new { node(3) - ':knows' - :c; :c }.should be_cypher(%{START n0=node(3) MATCH (n0)-[:knows]-(c) RETURN c}) }
   end
 
+  describe %{a = node(3); a - ':knows' - :c - ":friends" - :d; :c} do
+    it { Proc.new { a = node(3); a - ':knows' - :c - ":friends" - :d; :c }.should be_cypher(%{START n0=node(3) MATCH (n0)-[:knows]-(c)-[:friends]-(d) RETURN c}) }
+  end
+
+  describe %{a=node(3); a > ':knows' > :b > ':knows' > :c; a -':blocks' - :d -':knows' -:c; [a, :b, :c, :d] } do
+    it { Proc.new { a=node(3); a > ':knows' > :b > ':knows' > :c; a -':blocks' - :d -':knows' -:c; [a, :b, :c, :d] }.should be_cypher(%{START n0=node(3) MATCH (n0)-[:knows]->(b)-[:knows]->(c),(n0)-[:blocks]-(d)-[:knows]-(c) RETURN n0,b,c,d}) }
+  end
+
   # Is this good ?
-    #describe "DSL   { (node(3) << node(:c)) - ':friends' - :d; :d }" do
+  #describe "DSL   { (node(3) << node(:c)) - ':friends' - :d; :d }" do
   #  it { Proc.new { (node(3).rel(:outgoing, :foo, :x)) }}
   #  it { Proc.new { (node(3).rel?(:outgoing, :foo, :x)) }}
   #  it { Proc.new { (node(3).node(:outgoing, :foo, :x)) }}
