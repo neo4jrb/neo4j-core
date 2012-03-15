@@ -1,19 +1,38 @@
 module Neo4j
   class Cypher
     class Expression
-      attr_reader :expressions
+      attr_reader :expressions, :expr_type
       attr_accessor :separator
 
-      def initialize(expressions)
+      def initialize(expressions, expr_type)
+        @expr_type = expr_type
         @expressions = expressions
-        @expressions << self
+        insert_last(expr_type)
         @separator = ","
       end
 
+      def insert_last(expr_type)
+        i = @expressions.reverse.index { |e| e.expr_type == expr_type }
+        if i.nil?
+          @expressions << self
+        else
+          pos = @expressions.size - i
+          @expressions.insert(pos, self)
+        end
+      end
+
+      def prefixes
+        {:start => "START", :where => " WHERE", :match => " MATCH", :return => " RETURN"}
+      end
+
+      def prefix
+        prefixes[expr_type]
+      end
     end
 
     class Property
       attr_reader :expressions
+
       def initialize(expressions, var, prop_name)
         @var = var.respond_to?(:var_name) ? var.var_name : var
         @expressions = expressions
@@ -55,7 +74,7 @@ module Neo4j
 
       def initialize(var_name, expressions)
         @var_name = "#{var_name}#{expressions.size}"
-        super(expressions)
+        super(expressions, :start)
       end
 
       def [](prop_name)
@@ -68,17 +87,31 @@ module Neo4j
       end
 
       # This operator means related to, without regard to type or direction.
-      # @param [Array, Symbol, #var_name] other either a node (Symbol, #var_name) or a relationship (Array)
+      # @param [Symbol, #var_name] other either a node (Symbol, #var_name)
       # @return [MatchRelLeft, MatchNode]
       def <=>(other)
         MatchNode.new(self, other, expressions, :both)
       end
 
-      # This operator means related to, without regard to type or direction.
-      # @param [Array, Symbol, #var_name] other either a node (Symbol, #var_name) or a relationship (Array)
+      # This operator means outgoing related to
+      # @param [Symbol, #var_name, String] other the relationship
       # @return [MatchRelLeft, MatchNode]
       def >(other)
         MatchRelLeft.new(self, other, expressions, :outgoing)
+      end
+
+      # This operator means any direction related to
+      # @param (see #>)
+      # @return [MatchRelLeft, MatchNode]
+      def -@(other)
+        MatchRelLeft.new(self, other, expressions, :both)
+      end
+
+      # This operator means incoming related to
+      # @param (see #>)
+      # @return [MatchRelLeft, MatchNode]
+      def <(other)
+        MatchRelLeft.new(self, other, expressions, :incoming)
       end
 
       # Outgoing relationship
@@ -86,10 +119,6 @@ module Neo4j
       # @return [MatchRelLeft, MatchNode]
       def >>(other)
         MatchNode.new(self, other, expressions, :outgoing)
-      end
-
-      def prefix
-        "START"
       end
     end
 
@@ -153,12 +182,8 @@ module Neo4j
     # The return statement in the cypher query
     class Return < Expression
       def initialize(name_or_ref, expressions)
-        super(expressions)
+        super(expressions, :return)
         @name_or_ref = name_or_ref
-      end
-
-      def prefix
-        " RETURN"
       end
 
       def to_s
@@ -168,17 +193,32 @@ module Neo4j
 
 
     class Match < Expression
-      attr_reader :dir, :expressions
+      attr_reader :dir, :expressions, :left, :right, :var_name
+      attr_accessor :algorithm, :next, :prev
 
       def initialize(left, right, expressions, dir)
-        super(expressions)
+        super(expressions, :match)
+        @var_name = "m#{expressions.size}"
         @dir = dir
+        @prev = left if left.is_a?(Match)
         @left = left
         @right = right
       end
 
-      def prefix
-        " MATCH"
+      def find_match_start
+        c = self
+        while (c.prev) do
+          c = c.prev
+        end
+        c
+      end
+
+      def match_start?
+        self == find_match_start
+      end
+
+      def match_end?
+        self.next.nil?
       end
 
       def left_var_name
@@ -192,6 +232,16 @@ module Neo4j
       def right_expr
         @right.respond_to?(:expr) ? @right.expr : right_var_name
       end
+
+      def to_s
+        if (find_match_start.algorithm && match_end?)
+          "#{expr})" # end of algorithm )
+        elsif algorithm
+          "#{var_name} = #{algorithm}(#{expr}" # start of algorithm
+        else
+          expr
+        end
+      end
     end
 
     class MatchRelLeft < Match
@@ -202,11 +252,11 @@ module Neo4j
       # @param [Symbol,NodeVar,String] other part of the match cypher statement.
       # @return [MatchRelRight] the right part of an relationship cypher query.
       def >(other)
-        MatchRelRight.new(self, other, expressions, dir)
+        self.next = MatchRelRight.new(self, other, expressions, dir)
       end
 
       # @return [String] a cypher string for this match.
-      def to_s
+      def expr
         "(#{left_var_name})-[#{right_expr}]"
       end
     end
@@ -230,7 +280,7 @@ module Neo4j
       end
 
       # @return [String] a cypher string for this match.
-      def to_s
+      def expr
         "#{dir_op}(#{right_var_name})"
       end
     end
@@ -251,7 +301,7 @@ module Neo4j
       end
 
       # @return [String] a cypher string for this match.
-      def to_s
+      def expr
         "(#{left_var_name})#{dir_op}(#{right_var_name})"
       end
     end
@@ -319,16 +369,15 @@ module Neo4j
     end
 
 
-    class ExprOp
+    class ExprOp < Expression
 
-      attr_reader :left, :right, :op, :neg, :expressions
+      attr_reader :left, :right, :op, :neg
 
       def initialize(left, right, op)
+        super(left.expressions, :where)
         @op = op
-        @expressions = left.expressions
-        @expressions.delete(left)
-        @expressions.delete(right)
-        @expressions << self
+        self.expressions.delete(left)
+        self.expressions.delete(right)
         @left = quote(left)
         if regexp?(right)
           @op = "=~"
@@ -337,10 +386,6 @@ module Neo4j
           @right = quote(right)
         end
         @neg = ""
-      end
-
-      def prefix
-        " WHERE"
       end
 
       def separator
@@ -398,12 +443,8 @@ module Neo4j
 
     class Where < Expression
       def initialize(expressions, where_statement = nil)
-        super(expressions)
+        super(expressions, :where)
         @where_statement = where_statement
-      end
-
-      def prefix
-        " WHERE"
       end
 
       def to_s
@@ -411,6 +452,20 @@ module Neo4j
       end
     end
 
+    #class Algorithm < Expression
+    #  def initialize(expressions, name)
+    #    super(expressions)
+    #  end
+    #
+    #  def prefix
+    #    " WHERE"
+    #  end
+    #
+    #  def to_s
+    #    @where_statement.to_s
+    #  end
+    #
+    #end
     # Creates a Cypher DSL query.
     # To create a new cypher query you must initialize it either an String or a Block.
     #
@@ -499,7 +554,7 @@ module Neo4j
       if rels.first.is_a?(Fixnum)
         StartRel.new(rels, @expressions)
       elsif rels.first.is_a?(Symbol)
-        RelVar.new(@expressions, @variables,"").as(rels.first)
+        RelVar.new(@expressions, @variables, "").as(rels.first)
       elsif rels.first.is_a?(String)
         RelVar.new(@expressions, @variables, rels.first)
       else
@@ -517,12 +572,19 @@ module Neo4j
       @expressions.last
     end
 
+    def shortest_path(&block)
+      match = instance_eval(&block)
+      start = match.find_match_start
+      start.algorithm = 'shortestPath'
+      start
+    end
+
     # Converts the DSL query to a cypher String which can be executed by cypher query engine.
     def to_s
-      curr_prefix = nil
+      expr_type = nil
       @expressions.map do |expr|
-        expr_to_s = expr.prefix != curr_prefix ? "#{expr.prefix} #{expr.to_s}" : "#{expr.separator}#{expr.to_s}"
-        curr_prefix = expr.prefix
+        expr_to_s = expr.expr_type != expr_type ? "#{expr.prefix} #{expr.to_s}" : "#{expr.separator}#{expr.to_s}"
+        expr_type = expr.expr_type
         expr_to_s
       end.join
     end
