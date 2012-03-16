@@ -246,14 +246,18 @@ describe "Neo4j::Cypher" do
   end
 
   describe %{a=node(1).as(:a);b=node(3,2); r=rel('r?'); a < r < b; r.exist? ; b} do
-    it { Proc.new { a=node(1).as(:a);b=node(3,2); r=rel('r?'); a < r < b; r.exist? ; b }.should be_cypher(%{START a=node(1),n1=node(3,2) MATCH (a)<-[r?]-(n1) WHERE (r is null) RETURN n1}) }
+    it { Proc.new { a=node(1).as(:a); b=node(3, 2); r=rel('r?'); a < r < b; r.exist?; b }.should be_cypher(%{START a=node(1),n1=node(3,2) MATCH (a)<-[r?]-(n1) WHERE (r is null) RETURN n1}) }
   end
-
 
   describe %{names = ["Peter", "Tobias"]; a=node(3,1,2).as(:a); a[:name].in?(names); ret a} do
-    it { Proc.new { names = ["Peter", "Tobias"]; a=node(3,1,2).as(:a); a[:name].in?(names); ret a }.should be_cypher(%{START a=node(3,1,2) WHERE (a.name IN ["Peter","Tobias"]) RETURN a}) }
+    it { Proc.new { names = ["Peter", "Tobias"]; a=node(3, 1, 2).as(:a); a[:name].in?(names); ret a }.should be_cypher(%{START a=node(3,1,2) WHERE (a.name IN ["Peter","Tobias"]) RETURN a}) }
   end
 
+  #describe %{aaaaa} do
+  #  it { Proc.new { a = node(3); x=a >> :b; x }.should be_cypher(%{START a = node(3) MATCH x = (a) --> (b) RETURN x}) }
+  #end
+
+  # %{START a=node(3) MATCH p1=a-[:KNOWS*0..1]->b, p2=b-[:BLOCKS*0..1]->c RETURN a,b,c, length(p1), length(p2)}
   # Is this good ?
   #describe "DSL   { (node(3) << node(:c)) - ':friends' - :d; :d }" do
   #  it { Proc.new { (node(3).rel(:outgoing, :foo, :x)) }}
@@ -272,11 +276,11 @@ describe "Neo4j::Cypher" do
     end
 
     describe %{n=node(3).as(:n); where((n[:desc] != "hej")); ret n} do
-      it { Proc.new { n=node(3).as(:n); where((n[:desc] != "hej")); ret n }.should be_cypher(%q[START n=node(3) WHERE (n.desc != "hej") RETURN n]) }
+      it { Proc.new { n=node(3).as(:n); where((n[:desc] != "hej")); ret n }.should be_cypher(%q[START n=node(3) WHERE n.desc != "hej" RETURN n]) }
     end
 
     describe %{a=node(1).as(:a);b=node(3,2); r=rel('r?'); a < r < b; !r.exist? ; b} do
-      it { Proc.new { a=node(1).as(:a);b=node(3,2); r=rel('r?'); a < r < b; !r.exist? ; b }.should be_cypher(%{START a=node(1),n1=node(3,2) MATCH (a)<-[r?]-(n1) WHERE not((r is null)) RETURN n1}) }
+      it { Proc.new { a=node(1).as(:a); b=node(3, 2); r=rel('r?'); a < r < b; !r.exist?; b }.should be_cypher(%{START a=node(1),n1=node(3,2) MATCH (a)<-[r?]-(n1) WHERE not((r is null)) RETURN n1}) }
     end
 
   end
