@@ -1,8 +1,8 @@
 module Neo4j
   class Cypher
     class Expression
-      attr_reader :expressions, :clause
-      attr_accessor :separator
+      attr_reader :expressions
+      attr_accessor :separator, :clause
 
       def initialize(expressions, clause)
         @clause = clause
@@ -28,6 +28,11 @@ module Neo4j
       def prefix
         prefixes[clause]
       end
+
+      def valid?
+        true
+      end
+
     end
 
     class Property
@@ -65,11 +70,11 @@ module Neo4j
         ExprOp.new(self, other, '>=')
       end
 
-      # Only in 1.9
+      ## Only in 1.9
       if RUBY_VERSION > "1.9.0"
         eval %{
       def !=(other)
-        ExprOp.new(self, other, "!=")
+        other.is_a?(String) ?  ExprOp.new(self, other, "!=") : super
       end  }
       end
 
@@ -82,11 +87,21 @@ module Neo4j
       end
 
       def in?(values)
-        binary_operator("", " IN [#{values.map{|x| %Q["#{x}"]}.join(',')}]")
+        binary_operator("", " IN [#{values.map { |x| %Q["#{x}"] }.join(',')}]")
+      end
+
+      %w[count sum avg min max collect].each do |meth_name|
+        define_method(meth_name) do
+          function(meth_name.to_s)
+        end
+      end
+
+      def function(func_name_pre, func_name_post = "")
+        ExprOp.new(self, nil, func_name_pre, func_name_post)
       end
 
       def binary_operator(op, post_fix = "")
-        ExprOp.new(self, nil, op, post_fix)
+        ExprOp.new(self, nil, op, post_fix).binary!
       end
     end
 
@@ -580,6 +595,17 @@ module Neo4j
         right.is_a?(ExprOp) ? "(#{right})" : right
       end
 
+      def binary!
+        @binary = true
+        self
+      end
+
+      def valid?
+#        puts "valid? @binary=#{@binary} (#@left #@op #@right) in clause #{clause} ret #{@binary ? !!@left : !!@left && !!@right}"
+# it is only valid in a where clause if it's either binary or it has right and left values
+        @binary ? @left : @left && @right
+      end
+
       def to_s
         if @right
           neg ? "#{neg}(#{left_to_s} #{op} #{right_to_s})" : "#{left_to_s} #{op} #{right_to_s}"
@@ -717,7 +743,7 @@ module Neo4j
     # @param [Symbol, #var_name] returns a list of variables we want to return
     # @return [Return]
     def ret(*returns)
-      @expressions -= @expressions.find_all{|r| r.is_a?(Return) && returns.include?(r)}
+      @expressions -= @expressions.find_all { |r| r.is_a?(Return) && returns.include?(r) }
       returns.each { |ret| Return.new(ret, @expressions) }
       @expressions.last
     end
@@ -728,14 +754,17 @@ module Neo4j
       match.find_match_start
     end
 
-    def count
-      Return.new("count(*)", @expressions)
+    # @param [Symbol,nil] variable the entity we want to count or wildcard (*)
+    # @return [Return] a counter return clause
+    def count(variable='*')
+      Return.new("count(#{variable.to_s})", @expressions)
     end
 
     # Converts the DSL query to a cypher String which can be executed by cypher query engine.
     def to_s
       clause = nil
       @expressions.map do |expr|
+        next unless expr.valid?
         expr_to_s = expr.clause != clause ? "#{expr.prefix} #{expr.to_s}" : "#{expr.separator}#{expr.to_s}"
         clause = expr.clause
         expr_to_s

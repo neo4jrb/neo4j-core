@@ -285,12 +285,40 @@ describe "Neo4j::Cypher" do
     it { Proc.new { (n = node(2))>>:x; [n, count] }.should be_cypher(%{START n0=node(2) MATCH (n0)-->(x) RETURN n0,count(*)}) }
   end
 
-  describe %{(n = node(2))>>:x; count} do
+  describe %{DSL    (n = node(2))>>:x; count} do
     it { Proc.new { (n = node(2))>>:x; count }.should be_cypher(%{START n0=node(2) MATCH (n0)-->(x) RETURN count(*)}) }
   end
 
-  describe %{r=rel('r'); node(2)>r>node; ret r.rel_type, count} do
+  describe %{DSL    r=rel('r'); node(2)>r>node; ret r.rel_type, count} do
     it { Proc.new { r=rel('r'); node(2)>r>node; ret r.rel_type, count }.should be_cypher(%{START n0=node(2) MATCH (n0)-[r]->(v1) RETURN type(r),count(*)}) }
+  end
+
+  describe %{DSL    node(2)>>:x; count(:x)} do
+    it { Proc.new { node(2)>>:x; count(:x) }.should be_cypher(%{START n0=node(2) MATCH (n0)-->(x) RETURN count(x)}) }
+  end
+
+  describe %{DSL    n=node(2, 3, 4, 1); n[:property?].count} do
+    it { Proc.new { n=node(2, 3, 4, 1); n[:property?].count }.should be_cypher(%{START n0=node(2,3,4,1) RETURN count(n0.property?)}) }
+  end
+
+  describe %{DSL    n=node(2, 3, 4); n[:property].sum} do
+    it { Proc.new { n=node(2, 3, 4); n[:property].sum }.should be_cypher(%{START n0=node(2,3,4) RETURN sum(n0.property)}) }
+  end
+
+  describe %{DSL    n=node(2, 3, 4); n[:property].avg} do
+    it { Proc.new { n=node(2, 3, 4); n[:property].avg }.should be_cypher(%{START n0=node(2,3,4) RETURN avg(n0.property)}) }
+  end
+
+  describe %{DSL    n=node(2, 3, 4); n[:property].max} do
+    it { Proc.new { n=node(2, 3, 4); n[:property].max }.should be_cypher(%{START n0=node(2,3,4) RETURN max(n0.property)}) }
+  end
+
+  describe %{DSL    n=node(2, 3, 4); n[:property].min} do
+    it { Proc.new { n=node(2, 3, 4); n[:property].min }.should be_cypher(%{START n0=node(2,3,4) RETURN min(n0.property)}) }
+  end
+
+  describe %{DSL    n=node(2, 3, 4); n[:property].collect} do
+    it { Proc.new { n=node(2, 3, 4); n[:property].collect }.should be_cypher(%{START n0=node(2,3,4) RETURN collect(n0.property)}) }
   end
 
 
