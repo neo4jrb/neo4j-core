@@ -225,17 +225,24 @@ module Neo4j
       def initialize(name_or_ref, expressions)
         super(expressions, :return)
         @name_or_ref = name_or_ref
+        @name_or_ref.referenced! if @name_or_ref.respond_to?(:referenced!)
+        @var_name = @name_or_ref.is_a?(Symbol) ? @name_or_ref.to_s : @name_or_ref.var_name
+      end
+
+      def return_method
+        @name_or_ref.respond_to?(:return_method) && @name_or_ref.return_method
       end
 
       def to_s
-        @name_or_ref.is_a?(Symbol) ? @name_or_ref.to_s : @name_or_ref.var_name
+        return_method ? "#{return_method}(#@var_name)" : @var_name
       end
     end
 
 
     class Match < Expression
       attr_reader :dir, :expressions, :left, :right, :var_name, :dir_op
-      attr_accessor :algorithm, :next, :prev
+      attr_accessor :algorithm, :next, :prev, :return_method
+      include Variable
 
       def initialize(left, right, expressions, dir, dir_op)
         super(expressions, :match)
@@ -267,9 +274,18 @@ module Neo4j
         @right.respond_to?(:expr) ? @right.expr : right_var_name
       end
 
+      def referenced!
+        @referenced = true
+      end
+
+      def referenced?
+        !!@referenced
+      end
+
       def to_s
         curr = find_match_start
-        result = algorithm ? "#{var_name} = #{algorithm}(" : ""
+        result = (referenced? || curr.referenced?) ? "#{var_name} = " : ""
+        result << (algorithm ? "#{algorithm}(" : "")
         begin
           result << curr.expr
         end while (curr = curr.next)
@@ -680,6 +696,11 @@ module Neo4j
       match = instance_eval(&block)
       match.algorithm = 'shortestPath'
       match.find_match_start
+    end
+
+    def length(match)
+      match.return_method = 'length'
+      match
     end
 
     # Converts the DSL query to a cypher String which can be executed by cypher query engine.

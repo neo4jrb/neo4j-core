@@ -253,11 +253,19 @@ describe "Neo4j::Cypher" do
     it { Proc.new { names = ["Peter", "Tobias"]; a=node(3, 1, 2).as(:a); a[:name].in?(names); ret a }.should be_cypher(%{START a=node(3,1,2) WHERE (a.name IN ["Peter","Tobias"]) RETURN a}) }
   end
 
-  #describe %{aaaaa} do
-  #  it { Proc.new { a = node(3); x=a >> :b; x }.should be_cypher(%{START a = node(3) MATCH x = (a) --> (b) RETURN x}) }
-  #end
+  describe %{node(3) >> :b} do
+    it { Proc.new { node(3) >> :b }.should be_cypher(%{START n0=node(3) MATCH m2 = (n0)-->(b) RETURN m2}) }
+  end
 
-  # %{START a=node(3) MATCH p1=a-[:KNOWS*0..1]->b, p2=b-[:BLOCKS*0..1]->c RETURN a,b,c, length(p1), length(p2)}
+  describe %{p = node(3) >> :b; [:b, length(p)]} do
+    it { Proc.new { p = node(3) >> :b; [:b, length(p)] }.should be_cypher(%{START n0=node(3) MATCH m2 = (n0)-->(b) RETURN b,length(m2)}) }
+  end
+
+  describe %{node(3) >> :b} do
+    it { Proc.new { p1 = (node(3).as(:a) > ":knows*0..1" > :b).as(:p1); p2=node(:b) > ':blocks*0..1' > :c; [:a,:b,:c, length(p1), length(p2)] }.should be_cypher(%{START a=node(3) MATCH p1 = (a)-[:knows*0..1]->(b),m3 = (b)-[:blocks*0..1]->(c) RETURN a,b,c,length(p1),length(m3)}) }
+  end
+
+
   # Is this good ?
   #describe "DSL   { (node(3) << node(:c)) - ':friends' - :d; :d }" do
   #  it { Proc.new { (node(3).rel(:outgoing, :foo, :x)) }}
