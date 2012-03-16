@@ -1,5 +1,7 @@
 module Neo4j
   class Cypher
+    attr_reader :expressions
+
     class Expression
       attr_reader :expressions
       attr_accessor :separator, :clause
@@ -635,6 +637,23 @@ module Neo4j
       end
     end
 
+    class Predicate < Expression
+      attr_accessor :op, :filter
+      def initialize(op, filter, expressions, variables)
+        @op = op
+        @filter = filter
+        node = NodeVar.new([], []).as(:x)  # TODO hard coded parameter name,
+        context = Cypher.new(node,&filter[:block])
+        context.expressions.each{|e| e.clause = nil}
+        @filter_value = context.to_s[1..-1] # skip separator ,
+        super(expressions, :where)
+      end
+
+      def to_s
+        "#{op}(x in #{filter[:type]}(#{filter[:path_var]}) WHERE #{@filter_value})"
+      end
+    end
+
     #class Algorithm < Expression
     #  def initialize(expressions, name)
     #    super(expressions)
@@ -664,19 +683,29 @@ module Neo4j
     # @param [String] query the query expressed as an string instead of an block/yield.
     # @yield the block which will be evaluated in the context of this object in order to create an Cypher Query string
     # @yieldreturn [Return, Object] If the return is not an instance of Return it will be converted it to a Return object (if possible).
-    def initialize(query = nil, &dsl_block)
+    def initialize(*args, &dsl_block)
       @expressions = []
       @variables = []
-      res = if query
-              self.instance_eval(query)
-            else
-              self.instance_eval(&dsl_block)
-            end
+      res = self.instance_exec(*args,&dsl_block)
       unless res.kind_of?(Return)
         res.respond_to?(:to_a) ? ret(*res) : ret(res)
       end
     end
 
+
+    def all(pred)
+      Predicate.new(:all, pred, @expressions, @variables)
+    end
+
+    def nodes(path_var, &block)
+      {:type => :nodes, :path_var => path_var.var_name, :block => block}
+    end
+
+    def relationships(path, &block)
+      {:type => :nodes, :path => path, :block => block}
+    end
+
+    alias_method :rels, :relationships
 
     # Does nothing, just for making the DSL easier to read (maybe).
     # @return self

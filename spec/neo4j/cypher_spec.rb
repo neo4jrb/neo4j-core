@@ -326,6 +326,11 @@ describe "Neo4j::Cypher" do
   end
 
 
+  describe "a = node(3); b=node(1); match p = a > '*1..3' > b; where all nodes(p) { |x| x[:age] > 30 }; ret p" do
+    it { Proc.new { a = node(3); b=node(1); match p = a > '*1..3' > b; where all nodes(p) { |x| x[:age] > 30 }; ret p }.should be_cypher(%{START n0=node(3),n1=node(1) MATCH m3 = (n0)-[*1..3]->(n1) WHERE all(x in nodes(m3) WHERE x.age > 30) RETURN m3}) }
+  end
+
+
   if RUBY_VERSION > "1.9.0"
     # the ! operator is only available in Ruby 1.9.x
     describe %{n=node(3).as(:n); where(!(n[:desc] =~ ".\d+")); ret n} do
