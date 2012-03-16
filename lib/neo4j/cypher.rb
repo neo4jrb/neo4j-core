@@ -74,7 +74,11 @@ module Neo4j
       end
 
       def ==(other)
-        ExprOp.new(self, other, "=")
+        if other.is_a?(String) || other.is_a?(Regexp)
+          ExprOp.new(self, other, "=")
+        else
+          super
+        end
       end
 
       def in?(values)
@@ -237,7 +241,7 @@ module Neo4j
         super(expressions, :return)
         @name_or_ref = name_or_ref
         @name_or_ref.referenced! if @name_or_ref.respond_to?(:referenced!)
-        @var_name = @name_or_ref.is_a?(Symbol) ? @name_or_ref.to_s : @name_or_ref.var_name
+        @var_name = @name_or_ref.respond_to?(:var_name) ? @name_or_ref.var_name : @name_or_ref.to_s
       end
 
       def return_method
@@ -713,6 +717,7 @@ module Neo4j
     # @param [Symbol, #var_name] returns a list of variables we want to return
     # @return [Return]
     def ret(*returns)
+      @expressions -= @expressions.find_all{|r| r.is_a?(Return) && returns.include?(r)}
       returns.each { |ret| Return.new(ret, @expressions) }
       @expressions.last
     end
@@ -721,6 +726,10 @@ module Neo4j
       match = instance_eval(&block)
       match.algorithm = 'shortestPath'
       match.find_match_start
+    end
+
+    def count
+      Return.new("count(*)", @expressions)
     end
 
     # Converts the DSL query to a cypher String which can be executed by cypher query engine.

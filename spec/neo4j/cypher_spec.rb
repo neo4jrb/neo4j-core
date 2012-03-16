@@ -266,34 +266,34 @@ describe "Neo4j::Cypher" do
   end
 
   describe %{p1 = (node(3).as(:a) > ":knows*0..1" > :b).as(:p1); p2=node(:b) > ':blocks*0..1' > :c; [:a,:b,:c, p1.length, p2.length]} do
-    it { Proc.new { p1 = (node(3).as(:a) > ":knows*0..1" > :b).as(:p1); p2=node(:b) > ':blocks*0..1' > :c; [:a,:b,:c, p1.length, p2.length] }.should be_cypher(%{START a=node(3) MATCH p1 = (a)-[:knows*0..1]->(b),m3 = (b)-[:blocks*0..1]->(c) RETURN a,b,c,length(p1),length(m3)}) }
+    it { Proc.new { p1 = (node(3).as(:a) > ":knows*0..1" > :b).as(:p1); p2=node(:b) > ':blocks*0..1' > :c; [:a, :b, :c, p1.length, p2.length] }.should be_cypher(%{START a=node(3) MATCH p1 = (a)-[:knows*0..1]->(b),m3 = (b)-[:blocks*0..1]->(c) RETURN a,b,c,length(p1),length(m3)}) }
   end
 
   describe %{n=node(1,2).as(:n); n[:age?]} do
-    it { Proc.new {n=node(1,2).as(:n); n[:age?]}.should be_cypher(%{START n=node(1,2) RETURN n.age?})}
+    it { Proc.new { n=node(1, 2).as(:n); n[:age?] }.should be_cypher(%{START n=node(1,2) RETURN n.age?}) }
   end
 
   describe %{n=node(1); n>>:b; n.distinct} do
-    it { Proc.new {n=node(1); n>>:b; n.distinct}.should be_cypher(%{START n0=node(1) MATCH (n0)-->(b) RETURN distinct n0})}
-#    it { Proc.new {n=node(1); n>>(b=node(:b)); n.distinct}.should be_cypher(%{START n0=node(1) MATCH (n0)-->(b) RETURN distinct n0, distinct b0})}
-
+    it { Proc.new { n=node(1); n>>:b; n.distinct }.should be_cypher(%{START n0=node(1) MATCH (n0)-->(b) RETURN distinct n0}) }
   end
 
   describe %{node(1)>>(b=node(:b)); b.distinct} do
-    it { Proc.new {node(1)>>(b=node(:b)); b.distinct}.should be_cypher(%{START n0=node(1) MATCH (n0)-->(b) RETURN distinct b})}
+    it { Proc.new { node(1)>>(b=node(:b)); b.distinct }.should be_cypher(%{START n0=node(1) MATCH (n0)-->(b) RETURN distinct b}) }
   end
 
-  # Is this good ?
-  #describe "DSL   { (node(3) << node(:c)) - ':friends' - :d; :d }" do
-  #  it { Proc.new { (node(3).rel(:outgoing, :foo, :x)) }}
-  #  it { Proc.new { (node(3).rel?(:outgoing, :foo, :x)) }}
-  #  it { Proc.new { (node(3).node(:outgoing, :foo, :x)) }}
-  #end
+  describe %{(n = node(2))>>:x; [n,count]} do
+    it { Proc.new { (n = node(2))>>:x; [n, count] }.should be_cypher(%{START n0=node(2) MATCH (n0)-->(x) RETURN n0,count(*)}) }
+  end
+
+  describe %{(n = node(2))>>:x; count} do
+    it { Proc.new { (n = node(2))>>:x; count }.should be_cypher(%{START n0=node(2) MATCH (n0)-->(x) RETURN count(*)}) }
+  end
+
+  describe %{r=rel('r'); node(2)>r>node; ret r.rel_type, count} do
+    it { Proc.new { r=rel('r'); node(2)>r>node; ret r.rel_type, count }.should be_cypher(%{START n0=node(2) MATCH (n0)-[r]->(v1) RETURN type(r),count(*)}) }
+  end
 
 
-  #
-  ##                          (a)-[:KNOWS]->(b)-[:KNOWS]->(c), (a)-[:BLOCKS]-(d)-[:KNOWS]-(c)
-  #it { Proc.new{ a = node(1); a > :knows > :c > :knows > :c; a > :blocks > :d > :knows > :c } }
   if RUBY_VERSION > "1.9.0"
     # the ! operator is only available in Ruby 1.9.x
     describe %{n=node(3).as(:n); where(!(n[:desc] =~ ".\d+")); ret n} do
