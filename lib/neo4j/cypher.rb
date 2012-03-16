@@ -87,6 +87,8 @@ module Neo4j
     end
 
     module Variable
+      attr_accessor :return_method
+
       def [](prop_name)
         Property.new(expressions, self, prop_name)
       end
@@ -95,6 +97,12 @@ module Neo4j
         @var_name = v
         self
       end
+
+      def distinct
+        self.return_method = {:name => 'distinct', :bracket => false}
+        self
+      end
+
 
       def property?(p)
         p = Property.new(expressions, self, p)
@@ -155,6 +163,7 @@ module Neo4j
       attr_reader :var_name
       include Variable
       include Matchable
+
 
       def initialize(var_name, expressions)
         @var_name = "#{var_name}#{expressions.size}"
@@ -222,6 +231,8 @@ module Neo4j
 
     # The return statement in the cypher query
     class Return < Expression
+      attr_reader :var_name
+
       def initialize(name_or_ref, expressions)
         super(expressions, :return)
         @name_or_ref = name_or_ref
@@ -233,15 +244,23 @@ module Neo4j
         @name_or_ref.respond_to?(:return_method) && @name_or_ref.return_method
       end
 
+      def as_return_method
+        if return_method[:bracket]
+          "#{return_method[:name]}(#@var_name)"
+        else
+          "#{return_method[:name]} #@var_name"
+        end
+      end
+
       def to_s
-        return_method ? "#{return_method}(#@var_name)" : @var_name
+        return_method ? as_return_method : var_name
       end
     end
 
 
     class Match < Expression
       attr_reader :dir, :expressions, :left, :right, :var_name, :dir_op
-      attr_accessor :algorithm, :next, :prev, :return_method
+      attr_accessor :algorithm, :next, :prev
       include Variable
 
       def initialize(left, right, expressions, dir, dir_op)
@@ -252,6 +271,12 @@ module Neo4j
         @prev = left if left.is_a?(Match)
         @left = left
         @right = right
+      end
+
+
+      def length
+        self.return_method = {:name => 'length', :bracket => true}
+        self
       end
 
       def find_match_start
@@ -696,11 +721,6 @@ module Neo4j
       match = instance_eval(&block)
       match.algorithm = 'shortestPath'
       match.find_match_start
-    end
-
-    def length(match)
-      match.return_method = 'length'
-      match
     end
 
     # Converts the DSL query to a cypher String which can be executed by cypher query engine.

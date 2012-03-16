@@ -257,14 +257,31 @@ describe "Neo4j::Cypher" do
     it { Proc.new { node(3) >> :b }.should be_cypher(%{START n0=node(3) MATCH m2 = (n0)-->(b) RETURN m2}) }
   end
 
-  describe %{p = node(3) >> :b; [:b, length(p)]} do
-    it { Proc.new { p = node(3) >> :b; [:b, length(p)] }.should be_cypher(%{START n0=node(3) MATCH m2 = (n0)-->(b) RETURN b,length(m2)}) }
+  describe %{p = node(3) >> :b; [:b, p.length]} do
+    it { Proc.new { p = node(3) >> :b; [:b, p.length] }.should be_cypher(%{START n0=node(3) MATCH m2 = (n0)-->(b) RETURN b,length(m2)}) }
   end
 
-  describe %{node(3) >> :b} do
-    it { Proc.new { p1 = (node(3).as(:a) > ":knows*0..1" > :b).as(:p1); p2=node(:b) > ':blocks*0..1' > :c; [:a,:b,:c, length(p1), length(p2)] }.should be_cypher(%{START a=node(3) MATCH p1 = (a)-[:knows*0..1]->(b),m3 = (b)-[:blocks*0..1]->(c) RETURN a,b,c,length(p1),length(m3)}) }
+  describe %{p = node(3) >> :b; [:b, p.length]} do
+    it { Proc.new { p = node(3) >> :b; [:b, p.length] }.should be_cypher(%{START n0=node(3) MATCH m2 = (n0)-->(b) RETURN b,length(m2)}) }
   end
 
+  describe %{p1 = (node(3).as(:a) > ":knows*0..1" > :b).as(:p1); p2=node(:b) > ':blocks*0..1' > :c; [:a,:b,:c, p1.length, p2.length]} do
+    it { Proc.new { p1 = (node(3).as(:a) > ":knows*0..1" > :b).as(:p1); p2=node(:b) > ':blocks*0..1' > :c; [:a,:b,:c, p1.length, p2.length] }.should be_cypher(%{START a=node(3) MATCH p1 = (a)-[:knows*0..1]->(b),m3 = (b)-[:blocks*0..1]->(c) RETURN a,b,c,length(p1),length(m3)}) }
+  end
+
+  describe %{n=node(1,2).as(:n); n[:age?]} do
+    it { Proc.new {n=node(1,2).as(:n); n[:age?]}.should be_cypher(%{START n=node(1,2) RETURN n.age?})}
+  end
+
+  describe %{n=node(1); n>>:b; n.distinct} do
+    it { Proc.new {n=node(1); n>>:b; n.distinct}.should be_cypher(%{START n0=node(1) MATCH (n0)-->(b) RETURN distinct n0})}
+#    it { Proc.new {n=node(1); n>>(b=node(:b)); n.distinct}.should be_cypher(%{START n0=node(1) MATCH (n0)-->(b) RETURN distinct n0, distinct b0})}
+
+  end
+
+  describe %{node(1)>>(b=node(:b)); b.distinct} do
+    it { Proc.new {node(1)>>(b=node(:b)); b.distinct}.should be_cypher(%{START n0=node(1) MATCH (n0)-->(b) RETURN distinct b})}
+  end
 
   # Is this good ?
   #describe "DSL   { (node(3) << node(:c)) - ':friends' - :d; :d }" do
