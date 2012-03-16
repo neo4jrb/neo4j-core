@@ -321,6 +321,10 @@ describe "Neo4j::Cypher" do
     it { Proc.new { n=node(2, 3, 4); n[:property].collect }.should be_cypher(%{START n0=node(2,3,4) RETURN collect(n0.property)}) }
   end
 
+  describe %{DSL    n=node(2); n>>:b; n[:eyes].distinct.count} do
+    it { Proc.new { n=node(2); n>>:b; n[:eyes].distinct.count }.should be_cypher(%{START n0=node(2) MATCH (n0)-->(b) RETURN count(distinct n0.eyes)}) }
+  end
+
 
   if RUBY_VERSION > "1.9.0"
     # the ! operator is only available in Ruby 1.9.x
@@ -333,7 +337,7 @@ describe "Neo4j::Cypher" do
     end
 
     describe %{a=node(1).as(:a);b=node(3,2); r=rel('r?'); a < r < b; !r.exist? ; b} do
-      it { Proc.new { a=node(1).as(:a); b=node(3, 2); r=rel('r?'); a < r < b; !r.exist?; b }.should be_cypher(%{START a=node(1),n1=node(3,2) MATCH (a)<-[r?]-(n1) WHERE not((r is null)) RETURN n1}) }
+      it { Proc.new { a=node(1).as(:a); b=node(3, 2); r=rel('r?'); a < r < b; !r.exist?; b }.should be_cypher(%{START a=node(1),n1=node(3,2) MATCH (a)<-[r?]-(n1) WHERE not(r is null) RETURN n1}) }
     end
 
   end

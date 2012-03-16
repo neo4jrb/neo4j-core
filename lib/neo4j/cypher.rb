@@ -90,6 +90,11 @@ module Neo4j
         binary_operator("", " IN [#{values.map { |x| %Q["#{x}"] }.join(',')}]")
       end
 
+      def distinct
+        @var_name = "distinct #{@var_name}"
+        self
+      end
+
       %w[count sum avg min max collect].each do |meth_name|
         define_method(meth_name) do
           function(meth_name.to_s)
@@ -108,6 +113,11 @@ module Neo4j
     module Variable
       attr_accessor :return_method
 
+      def distinct
+        self.return_method = {:name => 'distinct', :bracket => false}
+        self
+      end
+
       def [](prop_name)
         Property.new(expressions, self, prop_name)
       end
@@ -116,12 +126,6 @@ module Neo4j
         @var_name = v
         self
       end
-
-      def distinct
-        self.return_method = {:name => 'distinct', :bracket => false}
-        self
-      end
-
 
       def property?(p)
         p = Property.new(expressions, self, p)
@@ -559,6 +563,10 @@ module Neo4j
         %Q[/#{val.respond_to?(:source) ? val.source : val.to_s}/]
       end
 
+      def count
+        ExprOp.new(self, nil, 'count')
+      end
+
       def &(other)
         ExprOp.new(self, other, "and")
       end
@@ -611,7 +619,7 @@ module Neo4j
           neg ? "#{neg}(#{left_to_s} #{op} #{right_to_s})" : "#{left_to_s} #{op} #{right_to_s}"
         else
           # binary operator
-          neg ? "#{neg}(#{op}(#{left_to_s}#{post_fix}))" : "#{op}(#{left_to_s}#{post_fix})"
+          neg ? "#{neg}#{op}(#{left_to_s}#{post_fix})" : "#{op}(#{left_to_s}#{post_fix})"
         end
       end
     end
