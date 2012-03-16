@@ -77,6 +77,10 @@ module Neo4j
         ExprOp.new(self, other, "=")
       end
 
+      def in?(values)
+        binary_operator("", " IN [#{values.map{|x| %Q["#{x}"]}.join(',')}]")
+      end
+
       def binary_operator(op, post_fix = "")
         ExprOp.new(self, nil, op, post_fix)
       end
@@ -472,7 +476,7 @@ module Neo4j
         else
           @right = right && quote(right)
         end
-        @neg = ""
+        @neg = nil
       end
 
       def separator
@@ -523,12 +527,20 @@ module Neo4j
        }
       end
 
+      def left_to_s
+        left.is_a?(ExprOp) ? "(#{left})" : left
+      end
+
+      def right_to_s
+        right.is_a?(ExprOp) ? "(#{right})" : right
+      end
+
       def to_s
         if @right
-          "#{neg}(#{left} #{op} #{right})"
+          neg ? "#{neg}(#{left_to_s} #{op} #{right_to_s})" : "#{left_to_s} #{op} #{right_to_s}"
         else
           # binary operator
-          "#{neg}(#{op}(#{left}#{post_fix}))"
+          neg ? "#{neg}(#{op}(#{left_to_s}#{post_fix}))" : "#{op}(#{left_to_s}#{post_fix})"
         end
       end
     end
