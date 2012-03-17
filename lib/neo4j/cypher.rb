@@ -37,21 +37,7 @@ module Neo4j
 
     end
 
-    class Property
-      attr_reader :expressions, :var_name
-
-      def initialize(expressions, var, prop_name)
-        @var = var.respond_to?(:var_name) ? var.var_name : var
-        @expressions = expressions
-        @prop_name = prop_name
-        @var_name = @prop_name ? "#{@var.to_s}.#{@prop_name}" : @var.to_s
-      end
-
-      def to_function!(var = @var.to_s)
-        @var_name = "#{@prop_name}(#{var})"
-        self
-      end
-
+    module Comparable
       def <(other)
         ExprOp.new(self, other, '<')
       end
@@ -87,6 +73,28 @@ module Neo4j
           super
         end
       end
+    end
+
+    class Property
+      attr_reader :expressions, :var_name
+      include Comparable
+
+      def initialize(expressions, var, prop_name)
+        @var = var.respond_to?(:var_name) ? var.var_name : var
+        @expressions = expressions
+        @prop_name = prop_name
+        @var_name = @prop_name ? "#{@var.to_s}.#{@prop_name}" : @var.to_s
+      end
+
+      def to_function!(var = @var.to_s)
+        @var_name = "#{@prop_name}(#{var})"
+        self
+      end
+
+      def any?(&block)
+        Predicate.new(@expressions, :op => 'any', :clause => :where, :input => self, :entity_type => @var_name, :path_var => nil, :block => block )
+      end
+
 
       def in?(values)
         binary_operator("", " IN [#{values.map { |x| %Q["#{x}"] }.join(',')}]")
@@ -188,7 +196,6 @@ module Neo4j
       attr_reader :var_name
       include Variable
       include Matchable
-
 
       def initialize(var_name, expressions)
         @var_name = "#{var_name}#{expressions.size}"
@@ -488,7 +495,6 @@ module Neo4j
       include Variable
       include Matchable
 
-
       # @return the name of the variable
       attr_reader :var_name
       attr_reader :expressions
@@ -649,11 +655,11 @@ module Neo4j
       attr_accessor :params
       def initialize(expressions, params)
         @params = params
-        node = NodeVar.new([], []).as(:x)  # TODO hard coded parameter name,
-        context = Cypher.new(node,&params[:block])
+        yield_param = params[:input].kind_of?(Property) ? Property.new([], :x, nil) : NodeVar.new([], []).as(:x)
+        context = Cypher.new(yield_param,&params[:block])
         context.expressions.each{|e| e.clause = nil}
         if params[:clause] == :return
-          params[:match].referenced!
+          params[:input].referenced!
           @where_or_colon = ':'
         else
           @where_or_colon = 'WHERE'
@@ -663,24 +669,25 @@ module Neo4j
       end
 
       def to_s
-        "#{params[:op]}(x in #{params[:entity_type]}(#{params[:path_var]}) #@where_or_colon #{@filter_value})"
+        args = params[:path_var] ? "(#{params[:path_var]})" : ""
+        "#{params[:op]}(x in #{params[:entity_type]}#{args} #@where_or_colon #{@filter_value})"
       end
     end
 
-    class Entities
 
-      def initialize(expressions, entity_type, match)
+    class Entities
+      def initialize(expressions, entity_type, input)
         @entity_type = entity_type
-        @match = match
+        @input = input
         @expressions = expressions
       end
 
       def all?(&block)
-        Predicate.new(@expressions, :op=> 'all', :clause => :where, :match => @match, :entity_type => @entity_type, :path_var => @match.var_name, :block => block )
+        Predicate.new(@expressions, :op=> 'all', :clause => :where, :input => @input, :entity_type => @entity_type, :path_var => @input.var_name, :block => block )
       end
 
       def extract(&block)
-        Predicate.new(@expressions, :op => 'extract', :clause => :return, :match => @match, :entity_type => @entity_type, :path_var => @match.var_name, :block => block )
+        Predicate.new(@expressions, :op => 'extract', :clause => :return, :input => @input, :entity_type => @entity_type, :path_var => @input.var_name, :block => block )
       end
     end
 
