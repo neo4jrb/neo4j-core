@@ -326,8 +326,12 @@ describe "Neo4j::Cypher" do
   end
 
 
-  describe "a = node(3); b=node(1); match p = a > '*1..3' > b; where all nodes(p) { |x| x[:age] > 30 }; ret p" do
-    it { Proc.new { a = node(3); b=node(1); match p = a > '*1..3' > b; where all nodes(p) { |x| x[:age] > 30 }; ret p }.should be_cypher(%{START n0=node(3),n1=node(1) MATCH m3 = (n0)-[*1..3]->(n1) WHERE all(x in nodes(m3) WHERE x.age > 30) RETURN m3}) }
+  describe "        a = node(3); b=node(1); match p = a > '*1..3' > b; where all nodes(p) { |x| x[:age] > 30 }; ret p" do
+    it { Proc.new { a = node(3); b=node(1); match p = a > '*1..3' > b; where p.nodes.all? { |x| x[:age] > 30 }; ret p }.should be_cypher(%{START n0=node(3),n1=node(1) MATCH m3 = (n0)-[*1..3]->(n1) WHERE all(x in nodes(m3) WHERE x.age > 30) RETURN m3}) }
+  end
+
+  describe %{       a=node(3); b=node(4); c=node(1); p=a>>b>>c; p.nodes.extract { |x| x[:age] }} do
+    it { Proc.new { a=node(3); b=node(4); c=node(1); p=a>>b>>c; p.nodes.extract { |x| x[:age] } }.should be_cypher(%{START n0=node(3),n1=node(4),n2=node(1) MATCH m4 = (n0)-->(n1)-->(n2) RETURN extract(x in nodes(m4) : x.age)}) }
   end
 
 

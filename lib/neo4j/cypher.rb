@@ -105,7 +105,7 @@ module Neo4j
 
       def function(func_name_pre, func_name_post = "")
         ExprOp.new(self, nil, func_name_pre, func_name_post)
-      end
+    end
 
       def binary_operator(op, post_fix = "")
         ExprOp.new(self, nil, op, post_fix).binary!
@@ -298,6 +298,14 @@ module Neo4j
         @right = right
       end
 
+
+      def nodes
+        Entities.new(@expressions, "nodes", self)
+      end
+
+      def rels
+        Entities.new(@expressions, "relationships", self)
+      end
 
       def length
         self.return_method = {:name => 'length', :bracket => true}
@@ -638,36 +646,44 @@ module Neo4j
     end
 
     class Predicate < Expression
-      attr_accessor :op, :filter
-      def initialize(op, filter, expressions, variables)
-        @op = op
-        @filter = filter
+      attr_accessor :params
+      def initialize(expressions, params)
+        @params = params
         node = NodeVar.new([], []).as(:x)  # TODO hard coded parameter name,
-        context = Cypher.new(node,&filter[:block])
+        context = Cypher.new(node,&params[:block])
         context.expressions.each{|e| e.clause = nil}
+        if params[:clause] == :return
+          params[:match].referenced!
+          @where_or_colon = ':'
+        else
+          @where_or_colon = 'WHERE'
+        end
         @filter_value = context.to_s[1..-1] # skip separator ,
-        super(expressions, :where)
+        super(expressions, params[:clause])
       end
 
       def to_s
-        "#{op}(x in #{filter[:type]}(#{filter[:path_var]}) WHERE #{@filter_value})"
+        "#{params[:op]}(x in #{params[:entity_type]}(#{params[:path_var]}) #@where_or_colon #{@filter_value})"
       end
     end
 
-    #class Algorithm < Expression
-    #  def initialize(expressions, name)
-    #    super(expressions)
-    #  end
-    #
-    #  def prefix
-    #    " WHERE"
-    #  end
-    #
-    #  def to_s
-    #    @where_statement.to_s
-    #  end
-    #
-    #end
+    class Entities
+
+      def initialize(expressions, entity_type, match)
+        @entity_type = entity_type
+        @match = match
+        @expressions = expressions
+      end
+
+      def all?(&block)
+        Predicate.new(@expressions, :op=> 'all', :clause => :where, :match => @match, :entity_type => @entity_type, :path_var => @match.var_name, :block => block )
+      end
+
+      def extract(&block)
+        Predicate.new(@expressions, :op => 'extract', :clause => :return, :match => @match, :entity_type => @entity_type, :path_var => @match.var_name, :block => block )
+      end
+    end
+
     # Creates a Cypher DSL query.
     # To create a new cypher query you must initialize it either an String or a Block.
     #
@@ -691,21 +707,6 @@ module Neo4j
         res.respond_to?(:to_a) ? ret(*res) : ret(res)
       end
     end
-
-
-    def all(pred)
-      Predicate.new(:all, pred, @expressions, @variables)
-    end
-
-    def nodes(path_var, &block)
-      {:type => :nodes, :path_var => path_var.var_name, :block => block}
-    end
-
-    def relationships(path, &block)
-      {:type => :nodes, :path => path, :block => block}
-    end
-
-    alias_method :rels, :relationships
 
     # Does nothing, just for making the DSL easier to read (maybe).
     # @return self
@@ -780,7 +781,7 @@ module Neo4j
     # @param [Symbol, #var_name] returns a list of variables we want to return
     # @return [Return]
     def ret(*returns)
-      @expressions -= @expressions.find_all { |r| r.is_a?(Return) && returns.include?(r) }
+      @expressions -= @expressions.find_all { |r| r.clause == :return && returns.include?(r) }
       returns.each { |ret| Return.new(ret, @expressions) }
       @expressions.last
     end
