@@ -67,7 +67,7 @@ module Neo4j
       end
 
       def ==(other)
-        if other.is_a?(String) || other.is_a?(Regexp)
+        if other.is_a?(Fixnum) || other.is_a?(String) || other.is_a?(Regexp)
           ExprOp.new(self, other, "=")
         else
           super
@@ -75,9 +75,31 @@ module Neo4j
       end
     end
 
+    module PredicateMethods
+      def all?(&block)
+        self.respond_to?(:iterable)
+        Predicate.new(expressions, :op=> 'all', :clause => :where, :input => input, :iterable => iterable, :predicate_block => block )
+      end
+
+      def extract(&block)
+        Predicate.new(expressions, :op => 'extract', :clause => :return, :input => input, :iterable => iterable, :predicate_block => block )
+      end
+
+      def any?(&block)
+        Predicate.new(@expressions, :op => 'any', :clause => :where, :input => input, :iterable => iterable, :predicate_block => block )
+      end
+
+      def none?(&block)
+        Predicate.new(@expressions, :op => 'none', :clause => :where, :input => input, :iterable => iterable, :predicate_block => block )
+      end
+
+    end
+
+
     class Property
       attr_reader :expressions, :var_name
       include Comparable
+      include PredicateMethods
 
       def initialize(expressions, var, prop_name)
         @var = var.respond_to?(:var_name) ? var.var_name : var
@@ -91,10 +113,16 @@ module Neo4j
         self
       end
 
-      def any?(&block)
-        Predicate.new(@expressions, :op => 'any', :clause => :where, :input => self, :entity_type => @var_name, :path_var => nil, :block => block )
+
+      # required by the Predicate Methods Module
+      # @see PredicateMethods
+      def iterable
+        var_name
       end
 
+      def input
+        self
+      end
 
       def in?(values)
         binary_operator("", " IN [#{values.map { |x| %Q["#{x}"] }.join(',')}]")
@@ -655,40 +683,47 @@ module Neo4j
       attr_accessor :params
       def initialize(expressions, params)
         @params = params
-        yield_param = params[:input].kind_of?(Property) ? Property.new([], :x, nil) : NodeVar.new([], []).as(:x)
-        context = Cypher.new(yield_param,&params[:block])
-        context.expressions.each{|e| e.clause = nil}
-        if params[:clause] == :return
-          params[:input].referenced!
-          @where_or_colon = ':'
-        else
-          @where_or_colon = 'WHERE'
-        end
-        @filter_value = context.to_s[1..-1] # skip separator ,
+        @identifier = :x
+        params[:input].referenced! if params[:input].respond_to?(:referenced!)
         super(expressions, params[:clause])
       end
 
+      def identifier(i)
+        @identifier = i
+        self
+      end
+
       def to_s
-        args = params[:path_var] ? "(#{params[:path_var]})" : ""
-        "#{params[:op]}(x in #{params[:entity_type]}#{args} #@where_or_colon #{@filter_value})"
+        input = params[:input]
+        if input.kind_of?(Property)
+          yield_param = Property.new([], @identifier, nil)
+          args = ""
+        else
+          yield_param = NodeVar.new([], []).as(@identifier.to_sym)
+          args = "(#{input.var_name})"
+        end
+        context = Cypher.new(yield_param,&params[:predicate_block])
+        context.expressions.each{|e| e.clause = nil}
+        if params[:clause] == :return
+          where_or_colon = ':'
+        else
+          where_or_colon = 'WHERE'
+        end
+        predicate_value = context.to_s[1..-1] # skip separator ,
+        "#{params[:op]}(#@identifier in #{params[:iterable]}#{args} #{where_or_colon} #{predicate_value})"
       end
     end
 
-
     class Entities
-      def initialize(expressions, entity_type, input)
-        @entity_type = entity_type
+      include PredicateMethods
+      attr_reader :input, :expressions, :iterable
+
+      def initialize(expressions, iterable, input)
+        @iterable = iterable
         @input = input
         @expressions = expressions
       end
 
-      def all?(&block)
-        Predicate.new(@expressions, :op=> 'all', :clause => :where, :input => @input, :entity_type => @entity_type, :path_var => @input.var_name, :block => block )
-      end
-
-      def extract(&block)
-        Predicate.new(@expressions, :op => 'extract', :clause => :return, :input => @input, :entity_type => @entity_type, :path_var => @input.var_name, :block => block )
-      end
     end
 
     # Creates a Cypher DSL query.
