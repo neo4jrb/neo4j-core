@@ -335,7 +335,15 @@ describe "Neo4j::Cypher" do
   end
 
   describe "        p=node(3)>'*1..3'>:b; p.nodes.none? { |x| x[:age] == 25 };p" do
-    it { Proc.new { p=node(3)>'*1..3'>:b; p.nodes.none? { |x| x[:age] == 25 };p }.should be_cypher(%{START n0=node(3) MATCH m2 = (n0)-[*1..3]->(b) WHERE none(x in nodes(m2) WHERE x.age = 25) RETURN m2}) }
+    it { Proc.new { p=node(3)>'*1..3'>:b; p.nodes.none? { |x| x[:age] == 25 }; p }.should be_cypher(%{START n0=node(3) MATCH m2 = (n0)-[*1..3]->(b) WHERE none(x in nodes(m2) WHERE x.age = 25) RETURN m2}) }
+  end
+
+  describe %{       p = node(3)>>:b; p.nodes.single? { |x| x[:eyes] == 'blue' }; p } do
+    it { Proc.new { p = node(3)>>:b; p.nodes.single? { |x| x[:eyes] == 'blue' }; p }.should be_cypher(%{START n0=node(3) MATCH m2 = (n0)-->(b) WHERE single(x in nodes(m2) WHERE x.eyes = "blue") RETURN m2}) }
+  end
+
+  describe %{       p = node(3)>>:b; p.rels.single? { |x| x[:eyes] == 'blue' }; p } do
+    it { Proc.new { p = node(3)>>:b; p.rels.single? { |x| x[:eyes] == 'blue' }; p }.should be_cypher(%{START n0=node(3) MATCH m2 = (n0)-->(b) WHERE single(x in relationships(m2) WHERE x.eyes = "blue") RETURN m2}) }
   end
 
   describe %{       a=node(3); b=node(4); c=node(1); p=a>>b>>c; p.nodes.extract { |x| x[:age] }} do

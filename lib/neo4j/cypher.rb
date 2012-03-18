@@ -93,6 +93,10 @@ module Neo4j
         Predicate.new(@expressions, :op => 'none', :clause => :where, :input => input, :iterable => iterable, :predicate_block => block )
       end
 
+      def single?(&block)
+        Predicate.new(@expressions, :op => 'single', :clause => :where, :input => input, :iterable => iterable, :predicate_block => block )
+      end
+
     end
 
 
