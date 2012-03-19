@@ -78,23 +78,27 @@ module Neo4j
     module PredicateMethods
       def all?(&block)
         self.respond_to?(:iterable)
-        Predicate.new(expressions, :op=> 'all', :clause => :where, :input => input, :iterable => iterable, :predicate_block => block )
+        Predicate.new(expressions, :op => 'all', :clause => :where, :input => input, :iterable => iterable, :predicate_block => block)
       end
 
       def extract(&block)
-        Predicate.new(expressions, :op => 'extract', :clause => :return, :input => input, :iterable => iterable, :predicate_block => block )
+        Predicate.new(expressions, :op => 'extract', :clause => :return, :input => input, :iterable => iterable, :predicate_block => block)
+      end
+
+      def filter(&block)
+        Predicate.new(expressions, :op => 'filter', :clause => :return, :input => input, :iterable => iterable, :predicate_block => block)
       end
 
       def any?(&block)
-        Predicate.new(@expressions, :op => 'any', :clause => :where, :input => input, :iterable => iterable, :predicate_block => block )
+        Predicate.new(@expressions, :op => 'any', :clause => :where, :input => input, :iterable => iterable, :predicate_block => block)
       end
 
       def none?(&block)
-        Predicate.new(@expressions, :op => 'none', :clause => :where, :input => input, :iterable => iterable, :predicate_block => block )
+        Predicate.new(@expressions, :op => 'none', :clause => :where, :input => input, :iterable => iterable, :predicate_block => block)
       end
 
       def single?(&block)
-        Predicate.new(@expressions, :op => 'single', :clause => :where, :input => input, :iterable => iterable, :predicate_block => block )
+        Predicate.new(@expressions, :op => 'single', :clause => :where, :input => input, :iterable => iterable, :predicate_block => block)
       end
 
     end
@@ -137,6 +141,12 @@ module Neo4j
         self
       end
 
+      def length
+        @prop_name = "length"
+        to_function!
+        self
+      end
+
       %w[count sum avg min max collect head last].each do |meth_name|
         define_method(meth_name) do
           function(meth_name.to_s)
@@ -145,7 +155,7 @@ module Neo4j
 
       def function(func_name_pre, func_name_post = "")
         ExprOp.new(self, nil, func_name_pre, func_name_post)
-    end
+      end
 
       def binary_operator(op, post_fix = "")
         ExprOp.new(self, nil, op, post_fix).binary!
@@ -689,6 +699,7 @@ module Neo4j
 
     class Predicate < Expression
       attr_accessor :params
+
       def initialize(expressions, params)
         @params = params
         @identifier = :x
@@ -710,8 +721,8 @@ module Neo4j
           yield_param = NodeVar.new([], []).as(@identifier.to_sym)
           args = "(#{input.var_name})"
         end
-        context = Cypher.new(yield_param,&params[:predicate_block])
-        context.expressions.each{|e| e.clause = nil}
+        context = Cypher.new(yield_param, &params[:predicate_block])
+        context.expressions.each { |e| e.clause = nil }
         if params[:clause] == :return
           where_or_colon = ':'
         else
@@ -752,7 +763,7 @@ module Neo4j
     def initialize(*args, &dsl_block)
       @expressions = []
       @variables = []
-      res = self.instance_exec(*args,&dsl_block)
+      res = self.instance_exec(*args, &dsl_block)
       unless res.kind_of?(Return)
         res.respond_to?(:to_a) ? ret(*res) : ret(res)
       end
@@ -849,17 +860,17 @@ module Neo4j
     end
 
     def coalesce(*args)
-      s = args.map{|x| x.var_name}.join(", ")
+      s = args.map { |x| x.var_name }.join(", ")
       Return.new("coalesce(#{s})", @expressions)
     end
 
     def nodes(*args)
-      s = args.map{|x| x.referenced!; x.var_name}.join(", ")
+      s = args.map { |x| x.referenced!; x.var_name }.join(", ")
       Return.new("nodes(#{s})", @expressions)
     end
 
     def rels(*args)
-      s = args.map{|x| x.referenced!; x.var_name}.join(", ")
+      s = args.map { |x| x.referenced!; x.var_name }.join(", ")
       Return.new("relationships(#{s})", @expressions)
     end
 

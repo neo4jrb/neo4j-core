@@ -366,6 +366,14 @@ describe "Neo4j::Cypher" do
     it { Proc.new { a=node(3); b=node(4); c=node(1); p=a>>b>>c; p.nodes.extract { |x| x[:age] } }.should be_cypher(%{START n0=node(3),n1=node(4),n2=node(1) MATCH m4 = (n0)-->(n1)-->(n2) RETURN extract(x in nodes(m4) : x.age)}) }
   end
 
+  describe %{       a=node(2); ret a[:array], a[:array].filter{|x| x.length == 3}} do
+    it { Proc.new { a=node(2); ret a[:array], a[:array].filter{|x| x.length == 3} }.should be_cypher(%{START n0=node(2) RETURN n0.array,filter(x in n0.array : length(x) = 3)}) }
+  end
+
+  describe %{       a=node(2); ret a[:array], a[:array].filter{|x| x == "hej"}} do
+    it { Proc.new { a=node(2); ret a[:array], a[:array].filter{|x| x == "hej"} }.should be_cypher(%{START n0=node(2) RETURN n0.array,filter(x in n0.array : x = "hej")}) }
+  end
+
   describe %{       a=node(3); coalesce(a[:hair_colour?], a[:eyes?]) } do
     it { Proc.new { a=node(3); coalesce(a[:hair_colour?], a[:eyes?]) }.should be_cypher(%{START n0=node(3) RETURN coalesce(n0.hair_colour?, n0.eyes?)}) }
   end
