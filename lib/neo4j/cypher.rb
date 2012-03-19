@@ -24,7 +24,7 @@ module Neo4j
       end
 
       def prefixes
-        {:start => "START", :where => " WHERE", :match => " MATCH", :return => " RETURN", :order_by => " ORDER BY"}
+        {:start => "START", :where => " WHERE", :match => " MATCH", :return => " RETURN", :order_by => " ORDER BY", :skip => " SKIP", :limit => " LIMIT"}
       end
 
       def prefix
@@ -347,11 +347,12 @@ module Neo4j
     class Return < Expression
       attr_reader :var_name
 
-      def initialize(name_or_ref, expressions)
+      def initialize(name_or_ref, expressions, opts = {})
         super(expressions, :return)
         @name_or_ref = name_or_ref
         @name_or_ref.referenced! if @name_or_ref.respond_to?(:referenced!)
         @var_name = @name_or_ref.respond_to?(:var_name) ? @name_or_ref.var_name : @name_or_ref.to_s
+        opts.each_pair{|k,v| self.send(k, v)}
       end
 
       def return_method
@@ -370,7 +371,6 @@ module Neo4j
       # @param [Property] props the properties which should be sorted
       # @return self
       def asc(*props)
-
         @order_by ||= OrderBy.new(expressions)
         @order_by.asc(props)
         self
@@ -385,8 +385,46 @@ module Neo4j
         self
       end
 
+      # Creates a <tt>SKIP</tt> cypher clause
+      # @param [Fixnum] val the number of entries to skip
+      # @return self
+      def skip(val)
+        Skip.new(expressions, val)
+        self
+      end
+
+      # Creates a <tt>LIMIT</tt> cypher clause
+      # @param [Fixnum] val the number of entries to limit
+      # @return self
+      def limit(val)
+        Limit.new(expressions, val)
+        self
+      end
+
       def to_s
         return_method ? as_return_method : var_name.to_s
+      end
+    end
+
+    class Skip < Expression
+      def initialize(expressions, value)
+        super(expressions, :skip)
+        @value = value
+      end
+
+      def to_s
+        @value
+      end
+    end
+
+    class Limit < Expression
+      def initialize(expressions, value)
+        super(expressions, :limit)
+        @value = value
+      end
+
+      def to_s
+        @value
       end
     end
 
@@ -919,8 +957,9 @@ module Neo4j
     # @param [Symbol, #var_name] returns a list of variables we want to return
     # @return [Return]
     def ret(*returns)
+      options = returns.last.is_a?(Hash) ? returns.pop : {}
       @expressions -= @expressions.find_all { |r| r.clause == :return && returns.include?(r) }
-      returns.each { |ret| Return.new(ret, @expressions) }
+      returns.each { |ret| Return.new(ret, @expressions, options) unless ret.respond_to?(:clause) && [:order_by, :skip, :limit].include?(ret.clause)}
       @expressions.last
     end
 

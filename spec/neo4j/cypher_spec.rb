@@ -438,6 +438,17 @@ describe "Neo4j::Cypher" do
     it { Proc.new { n=node(3,1,2); p=node(5,6); ret(n).desc(n[:name]).asc(p[:age]) }.should be_cypher(%{START n0=node(3,1,2),n1=node(5,6) RETURN n0 ORDER BY n1.age,n0.name DESC}) }
   end
 
+  describe %{       a=node(3,4,5,1,2); ret(a).asc(a[:name]).skip(3)} do
+    it { Proc.new { a=node(3,4,5,1,2); ret(a).asc(a[:name]).skip(3) }.should be_cypher(%{START n0=node(3,4,5,1,2) RETURN n0 ORDER BY n0.name SKIP 3}) }
+  end
+
+  describe %{       a=node(3,4,5,1,2); ret(a).asc(a[:name]).skip(1).limit(2} do
+    it { Proc.new { a=node(3,4,5,1,2); ret(a).asc(a[:name]).skip(1).limit(2) }.should be_cypher(%{START n0=node(3,4,5,1,2) RETURN n0 ORDER BY n0.name SKIP 1 LIMIT 2}) }
+  end
+
+  describe %{       a=node(3,4,5,1,2); ret a, :asc => a[:name], :skip => 1, :limit => 2} do
+    it { Proc.new { a=node(3,4,5,1,2); ret a, :asc => a[:name], :skip => 1, :limit => 2}.should be_cypher(%{START n0=node(3,4,5,1,2) RETURN n0 ORDER BY n0.name SKIP 1 LIMIT 2}) }
+  end
 
   describe %{       a=node(3); c = node(2); p = a >> :b >> c; nodes(p) } do
     it { Proc.new { a=node(3); c = node(2); p = a >> :b >> c; nodes(p) }.should be_cypher(%{START n0=node(3),n1=node(2) MATCH m3 = (n0)-->(b)-->(n1) RETURN nodes(m3)}) }
