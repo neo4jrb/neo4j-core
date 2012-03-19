@@ -86,23 +86,37 @@ module Neo4j
     # Returns an enumerable of hash values.
     #
     # @example Using the Cypher DSL
-    #  q = Neo4j.query{ node(3) <=> node(:x); :x}
-    #  q.first['n'] #=> the @node
-    #  q.columns.first => 'n'
+    #  q = Neo4j.query{ match node(3) <=> node(:x); ret :x}
+    #  q.first[:n] #=> the @node
+    #  q.columns.first => :n
     #
-    # @example
-    #  q = Neo4j.query("START n=node({node}) RETURN n", 'node' => @node.neo_id)
-    #  q.first['n'] #=> the @node
-    #  q.columns.first => 'n'
+    # @example Using the Cypher DSL and one parameter (n=Neo4j.ref_node)
+    #  q = Neo4j.query(Neo4j.ref_node){|n| n <=> node(:x); :x}
+    #  q.first[:n] #=> the @node
+    #  q.columns.first => :n
+    #
+    # @example With an string
+    #  q = Neo4j._query("START n=node(42) RETURN n")
+    #  q.first(:n) #=> the @node
+    #  q.columns.first => :n
     #
     # @see Cypher
     # @see {http://docs.neo4j.org/chunked/milestone/cypher-query-lang.html The Cypher Query Language Documentation}
     # @note Returns a read-once only forward iterable.
-    # @return [Enumerable] a forward read once only Enumerable, containing hash values.
-    def query(query=nil, params = {}, &query_dsl)
+    # @param params parameter for the query_dsl block
+    # @return [Neo4j::Core::Cypher::ResultWrapper] a forward read once only Enumerable, containing hash values.
+    def query(*params, &query_dsl)
+      q = Cypher.new(*params, &query_dsl).to_s
+      _query(q)
+    end
+
+    # Performs a cypher query with given string
+    # @param [String] q the cypher query as a String
+    # @return (see #query)
+    def _query(q)
       engine = Java::OrgNeo4jCypherJavacompat::ExecutionEngine.new(db)
-      q = query || Cypher.new(params, &query_dsl).to_s
-      engine.execute(q, params)
+      result = engine.execute(q)
+      Neo4j::Core::Cypher::ResultWrapper.new(result)
     end
 
 
@@ -171,7 +185,7 @@ module Neo4j
 
     # Usually, a client attaches relationships to this node that leads into various parts of the node space.
     # ®return the reference node, which is a "starting point" in the node space.
-    # @note In case the ref_node has been assigned via the threadlocal_ref_node method, 
+    # @note In case the ref_node has been assigned via the threadlocal_ref_node method,
     #       then that node will be returned instead.
     # @see the design guide at http://wiki.neo4j.org/content/Design_Guide
     def ref_node(this_db = self.started_db)

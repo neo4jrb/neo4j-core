@@ -10,71 +10,62 @@ describe "Neo4j#query (cypher)", :type => :integration do
     finish_tx
   end
 
-  describe "returning one node" do
+  describe "returning one node: node(0).as(:n)" do
     before(:all) do
-      @query_result = Neo4j.query("START n=node(0) RETURN n")
+      @query_result = Neo4j.query{node(0).as(:n)}
     end
 
     it "has one column" do
       @query_result.columns.size.should == 1
-      @query_result.columns.first.should == 'n'
+      @query_result.columns.first.should == :n
     end
 
     it "its first value is hash" do
       r = @query_result.to_a # can only loop once
       r.size.should == 1
-      r.first.should include('n')
-      r.first['n'].class.should == Neo4j::Node
-      r.first['n'].neo_id.should == 0
+      r.first.should include(:n)
+      r.first[:n].class.should == Neo4j::Node
+      r.first[:n].neo_id.should == 0
     end
   end
 
-  describe "returning one relationship" do
+  describe "returning one relationship: {|r| rel(r).as(:n)}" do
     before(:all) do
-      @query_result = Neo4j.query("START n=relationship({rel}) RETURN n", 'rel' => @r.neo_id)
+      @query_result = Neo4j.query(@r){|r| rel(r).as(:n)}
     end
 
     it "has one column" do
       @query_result.columns.size.should == 1
-      @query_result.columns.first.should == 'n'
+      @query_result.columns.first.should == :n
     end
 
     it "its first value is hash" do
       r = @query_result.to_a
       r.size.should == 1
-      r.first.should include('n')
-      r.first['n'].class.should == Neo4j::Relationship
-      r.first['n'].neo_id.should == @r.neo_id
+      r.first.should include(:n)
+      r.first[:n].class.should == Neo4j::Relationship
+      r.first[:n].neo_id.should == @r.neo_id
     end
   end
 
   describe "returning several nodes" do
     before(:all) do
-      @query_result = Neo4j.query("START n=node(#{@a.neo_id}, #{@b.neo_id}) RETURN n")
+      @query_result = Neo4j.query(@a, @b){|a,b| node(a,b).as(:n)}
     end
 
     it "has one column" do
       @query_result.columns.size.should == 1
-      @query_result.columns.first.should == 'n'
+      @query_result.columns.first.should == :n
     end
 
     it "its first value is hash" do
       r = @query_result.to_a # can only loop once
       r.size.should == 2
-      r.first.should include('n')
-      r[0]['n'].neo_id.should == @a.neo_id
-      r[1]['n'].neo_id.should == @b.neo_id
+      r.first.should include(:n)
+      r[0][:n].neo_id.should == @a.neo_id
+      r[1][:n].neo_id.should == @b.neo_id
     end
   end
-
-  describe "a query with parameters" do
-    it "should work" do
-      @query_result = Neo4j.query('START n=node({a}) RETURN n', {'a' => @a.neo_id})
-      @query_result.to_a.size.should == 1
-    end
-
-  end
-
 
   describe "a query with a lucene index" do
 
@@ -104,7 +95,7 @@ describe "Neo4j#query (cypher)", :type => :integration do
       @query_result = Neo4j.query { lookup(FooBarIndex, "name", "bar").as(:n) }
       r = @query_result.to_a # can only loop once
       r.size.should == 1
-      r.first['n'].wrapper.should == @bar
+      r.first[:n].wrapper.should == @bar
     end
   end
 end

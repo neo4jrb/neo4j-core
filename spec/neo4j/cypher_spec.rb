@@ -15,9 +15,16 @@ end
 
 
 describe "Neo4j::Cypher" do
+  let(:an_entity) do
+    Struct.new(:neo_id).new(42)
+  end
 
   describe "DSL   { node(3) }" do
     it { Proc.new { node(3) }.should be_cypher("START n0=node(3) RETURN n0") }
+  end
+
+  describe "DSL   { node(Neo4j::Node.new) }" do
+    it { a = an_entity; Proc.new { node(a) }.should be_cypher("START n0=node(42) RETURN n0") }
   end
 
   describe "DSL   { node(3,4) }" do
@@ -26,6 +33,10 @@ describe "Neo4j::Cypher" do
 
   describe "DSL   { rel(3) }" do
     it { Proc.new { rel(3) }.should be_cypher("START r0=relationship(3) RETURN r0") }
+  end
+
+  describe "DSL   { rel(3, Neo4j::Relationship) }" do
+    it { a = an_entity; Proc.new { rel(3, a) }.should be_cypher("START r0=relationship(3,42) RETURN r0") }
   end
 
   describe "DSL   { start n = node(3); match n <=> :x; ret :x }" do
@@ -156,13 +167,6 @@ describe "Neo4j::Cypher" do
 
   describe "DSL   { node(3) > :r > node; node }" do
     it { Proc.new { node(3) > :r > node; :r }.should be_cypher("START n0=node(3) MATCH (n0)-[r]->(v0) RETURN r") }
-  end
-
-  describe "DSL   { r=rel('?'); node(3) > r > :x; r }" do
-    it do
-      pending "this should raise an error since it's an illegal cypher query"
-      Proc.new { r=rel('?'); node(3) > r > :x; r }.should be_cypher("START n0=node(3) MATCH (n0)-[r?]->(x) RETURN x")
-    end
   end
 
   describe %{n=node(3,1).as(:n); where(%q[n.age < 30 and n.name = "Tobias") or not(n.name = "Tobias"')]} do
