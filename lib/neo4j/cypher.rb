@@ -853,6 +853,16 @@ module Neo4j
       Return.new("coalesce(#{s})", @expressions)
     end
 
+    def nodes(*args)
+      s = args.map{|x| x.referenced!; x.var_name}.join(", ")
+      Return.new("nodes(#{s})", @expressions)
+    end
+
+    def rels(*args)
+      s = args.map{|x| x.referenced!; x.var_name}.join(", ")
+      Return.new("relationships(#{s})", @expressions)
+    end
+
     # Converts the DSL query to a cypher String which can be executed by cypher query engine.
     def to_s
       clause = nil

@@ -371,13 +371,21 @@ describe "Neo4j::Cypher" do
   end
 
   describe %{       a=node(2); ret a[:array], a[:array].head } do
-    it { Proc.new { a=node(2); ret a[:array], a[:array].head}.should be_cypher(%{START n0=node(2) RETURN n0.array,head(n0.array)}) }
+    it { Proc.new { a=node(2); ret a[:array], a[:array].head }.should be_cypher(%{START n0=node(2) RETURN n0.array,head(n0.array)}) }
   end
 
   describe %{       a=node(2); ret a[:array], a[:array].last } do
-    it { Proc.new { a=node(2); ret a[:array], a[:array].last}.should be_cypher(%{START n0=node(2) RETURN n0.array,last(n0.array)}) }
+    it { Proc.new { a=node(2); ret a[:array], a[:array].last }.should be_cypher(%{START n0=node(2) RETURN n0.array,last(n0.array)}) }
   end
 
+  describe %{       a=node(3); c = node(2); p = a >> :b >> c; nodes(p) } do
+    it { Proc.new { a=node(3); c = node(2); p = a >> :b >> c; nodes(p) }.should be_cypher(%{START n0=node(3),n1=node(2) MATCH m3 = (n0)-->(b)-->(n1) RETURN nodes(m3)}) }
+  end
+
+
+  describe %{       a=node(3); c = node(2); p = a >> :b >> c; rels(p) } do
+    it { Proc.new { a=node(3); c = node(2); p = a >> :b >> c; rels(p) }.should be_cypher(%{START n0=node(3),n1=node(2) MATCH m3 = (n0)-->(b)-->(n1) RETURN relationships(m3)}) }
+  end
 
   if RUBY_VERSION > "1.9.0"
     # the ! operator is only available in Ruby 1.9.x
