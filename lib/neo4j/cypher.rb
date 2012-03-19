@@ -37,6 +37,16 @@ module Neo4j
 
     end
 
+    module MathOperator
+      def -(other)
+        ExprOp.new(self, other, '-')
+      end
+
+      def +(other)
+        ExprOp.new(self, other, '+')
+      end
+    end
+
     module Comparable
       def <(other)
         ExprOp.new(self, other, '<')
@@ -107,6 +117,8 @@ module Neo4j
     class Property
       attr_reader :expressions, :var_name
       include Comparable
+      include MathOperator
+
       include PredicateMethods
 
       def initialize(expressions, var, prop_name)
@@ -147,7 +159,7 @@ module Neo4j
         self
       end
 
-      %w[count sum avg min max collect head last].each do |meth_name|
+      %w[count sum avg min max collect head last tail].each do |meth_name|
         define_method(meth_name) do
           function(meth_name.to_s)
         end
@@ -863,6 +875,12 @@ module Neo4j
       s = args.map { |x| x.var_name }.join(", ")
       Return.new("coalesce(#{s})", @expressions)
     end
+
+    def abs(expr)
+      @expressions.delete expr
+      Return.new("abs(#{expr.to_s})", @expressions)
+    end
+
 
     def nodes(*args)
       s = args.map { |x| x.referenced!; x.var_name }.join(", ")
