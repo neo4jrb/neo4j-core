@@ -21,7 +21,7 @@ describe "Neo4j::Cypher" do
   end
 
   describe "DSL   { node(3,4) }" do
-    it { Proc.new { node(3,4) }.should be_cypher("START n0=node(3,4) RETURN n0") }
+    it { Proc.new { node(3, 4) }.should be_cypher("START n0=node(3,4) RETURN n0") }
   end
 
   describe "DSL   { rel(3) }" do
@@ -364,6 +364,18 @@ describe "Neo4j::Cypher" do
 
   describe %{       a=node(3); b=node(4); c=node(1); p=a>>b>>c; p.nodes.extract { |x| x[:age] }} do
     it { Proc.new { a=node(3); b=node(4); c=node(1); p=a>>b>>c; p.nodes.extract { |x| x[:age] } }.should be_cypher(%{START n0=node(3),n1=node(4),n2=node(1) MATCH m4 = (n0)-->(n1)-->(n2) RETURN extract(x in nodes(m4) : x.age)}) }
+  end
+
+  describe %{       a=node(3); coalesce(a[:hair_colour?], a[:eyes?]) } do
+    it { Proc.new { a=node(3); coalesce(a[:hair_colour?], a[:eyes?]) }.should be_cypher(%{START n0=node(3) RETURN coalesce(n0.hair_colour?, n0.eyes?)}) }
+  end
+
+  describe %{       a=node(2); ret a[:array], a[:array].head } do
+    it { Proc.new { a=node(2); ret a[:array], a[:array].head}.should be_cypher(%{START n0=node(2) RETURN n0.array,head(n0.array)}) }
+  end
+
+  describe %{       a=node(2); ret a[:array], a[:array].last } do
+    it { Proc.new { a=node(2); ret a[:array], a[:array].last}.should be_cypher(%{START n0=node(2) RETURN n0.array,last(n0.array)}) }
   end
 
 

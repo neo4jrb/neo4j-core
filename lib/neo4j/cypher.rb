@@ -137,7 +137,7 @@ module Neo4j
         self
       end
 
-      %w[count sum avg min max collect].each do |meth_name|
+      %w[count sum avg min max collect head last].each do |meth_name|
         define_method(meth_name) do
           function(meth_name.to_s)
         end
@@ -846,6 +846,11 @@ module Neo4j
     # @return [Return] a counter return clause
     def count(variable='*')
       Return.new("count(#{variable.to_s})", @expressions)
+    end
+
+    def coalesce(*args)
+      s = args.map{|x| x.var_name}.join(", ")
+      Return.new("coalesce(#{s})", @expressions)
     end
 
     # Converts the DSL query to a cypher String which can be executed by cypher query engine.
