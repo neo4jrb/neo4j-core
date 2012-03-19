@@ -169,6 +169,10 @@ module Neo4j
         self
       end
 
+      def neo_id
+        Property.new(@expressions, self, 'ID').to_function!
+      end
+
       def property?(p)
         p = Property.new(expressions, self, p)
         p.binary_operator("has")
