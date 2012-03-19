@@ -390,14 +390,47 @@ describe "Neo4j::Cypher" do
     it { Proc.new { a=node(2); ret a[:array], a[:array].tail }.should be_cypher(%{START n0=node(2) RETURN n0.array,tail(n0.array)}) }
   end
 
-  describe %{       a=node(3); b = node(2); ret a[:age], b[:age], abs(a[:age] - b[:age]) } do
-    it { Proc.new { a=node(3); b = node(2); ret a[:age], b[:age], abs(a[:age] - b[:age]) }.should be_cypher(%{START n0=node(3),n1=node(2) RETURN n0.age,n1.age,abs(n0.age - n1.age)}) }
+  describe %{       a=node(3); b = node(2); ret a[:age], b[:age], (a[:age] - b[:age]).abs } do
+    it { Proc.new { a=node(3); b = node(2); ret a[:age], b[:age], (a[:age] - b[:age]).abs }.should be_cypher(%{START n0=node(3),n1=node(2) RETURN n0.age,n1.age,abs(n0.age - n1.age)}) }
   end
+
+  describe %{       a=node(3); (a[:x] - a[:y]).abs==3; a } do
+    it { Proc.new { a=node(3); (a[:x] - a[:y]).abs==3; a }.should be_cypher(%{START n0=node(3) WHERE abs(n0.x - n0.y) = 3 RETURN n0}) }
+  end
+
+  describe %{       a=node(3); a[:x].abs==3; a; a } do
+    it { Proc.new { a=node(3); a[:x].abs==3; a }.should be_cypher(%{START n0=node(3) WHERE abs(n0.x) = 3 RETURN n0}) }
+  end
+
+  describe %{       a=node(3); abs(-3)} do
+    it { Proc.new { a=node(3); abs(-3) }.should be_cypher(%{START n0=node(3) RETURN abs(-3)}) }
+  end
+
+  describe %{       a=node(3); round(3.14)} do
+    it { Proc.new { a=node(3); round(3.14) }.should be_cypher(%{START n0=node(3) RETURN round(3.14)}) }
+  end
+
+  describe %{       a=node(3); sqrt(256)} do
+    it { Proc.new { a=node(3); sqrt(256) }.should be_cypher(%{START n0=node(3) RETURN sqrt(256)}) }
+  end
+
+  describe %{       a=node(3); sign(256)} do
+    it { Proc.new { a=node(3); sign(256) }.should be_cypher(%{START n0=node(3) RETURN sign(256)}) }
+  end
+
+  #describe %{       a=node(3); b = node(2); ret a[:age], b[:age], sqrt(a[:age] - b[:age]) } do
+  #  it { Proc.new { a=node(1); a[:value].sqrt }.should be_cypher(%{START a=node(1) RETURN sqrt(256)}) }
+  #end
+
+  #
+  #describe %{        } do
+  #  it { Proc.new { a=node(1); a.val.round == 3; a }.should be_cypher(%{START n0=node(1) WHERE round(n0.val)=3 RETURN n}) }
+  #end
 
   #describe %{      ROUNT  } do
   #  it { Proc.new { a=node(1); ret rounda[:age], b[:age], abs(a[:age] - b[:age]) }.should be_cypher(%{START a=node(1) RETURN round(3.141592)}) }
   #end
-  #%{START n=node(1) WHERE round(n.val)=3 RETURN 3}
+
 
   describe %{       a=node(3); c = node(2); p = a >> :b >> c; nodes(p) } do
     it { Proc.new { a=node(3); c = node(2); p = a >> :b >> c; nodes(p) }.should be_cypher(%{START n0=node(3),n1=node(2) MATCH m3 = (n0)-->(b)-->(n1) RETURN nodes(m3)}) }

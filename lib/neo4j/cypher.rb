@@ -37,6 +37,30 @@ module Neo4j
 
     end
 
+    module MathFunctions
+      def abs(value=nil)
+        _add_math_func(:abs, value)
+      end
+
+      def sqrt(value=nil)
+        _add_math_func(:sqrt, value)
+      end
+
+      def round(value=nil)
+        _add_math_func(:round, value)
+      end
+
+      def sign(value=nil)
+        _add_math_func(:sign, value)
+      end
+
+      def _add_math_func(name, value=nil)
+        value ||= self.respond_to?(:var_name) ? self.var_name : to_s
+        expressions.delete(self)
+        Property.new(expressions, nil, name).to_function!(value)
+      end
+    end
+
     module MathOperator
       def -(other)
         ExprOp.new(self, other, '-')
@@ -118,7 +142,7 @@ module Neo4j
       attr_reader :expressions, :var_name
       include Comparable
       include MathOperator
-
+      include MathFunctions
       include PredicateMethods
 
       def initialize(expressions, var, prop_name)
@@ -596,11 +620,9 @@ module Neo4j
 
     end
 
-
     class ExprOp < Expression
-
       attr_reader :left, :right, :op, :neg, :post_fix
-
+      include MathFunctions
       def initialize(left, right, op, post_fix = "")
         super(left.expressions, :where)
         @op = op
@@ -876,12 +898,6 @@ module Neo4j
       Return.new("coalesce(#{s})", @expressions)
     end
 
-    def abs(expr)
-      @expressions.delete expr
-      Return.new("abs(#{expr.to_s})", @expressions)
-    end
-
-
     def nodes(*args)
       s = args.map { |x| x.referenced!; x.var_name }.join(", ")
       Return.new("nodes(#{s})", @expressions)
@@ -902,5 +918,7 @@ module Neo4j
         expr_to_s
       end.join
     end
+
+    include MathFunctions
   end
 end
