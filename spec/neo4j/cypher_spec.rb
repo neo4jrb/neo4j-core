@@ -41,6 +41,9 @@ describe "Neo4j::Cypher" do
     it { Proc.new { x = node; n = node(3); match n <=> x; ret x[:name] }.should be_cypher("START n0=node(3) MATCH (n0)--(v0) RETURN v0.name") }
   end
 
+  describe "DSL   { x = node(1); x[:name].as('SomethingTotallyDifferent') }" do
+    it { Proc.new { x = node(1); x[:name].as('SomethingTotallyDifferent') }.should be_cypher(%{START n0=node(1) RETURN n0.name AS SomethingTotallyDifferent}) }
+  end
 
   describe "DSL   { n = node(3).as(:n); n <=> node.as(:x); :x }" do
     it { Proc.new { n = node(3).as(:n); n <=> node.as(:x); :x }.should be_cypher("START n=node(3) MATCH (n)--(x) RETURN x") }
@@ -396,6 +399,10 @@ describe "Neo4j::Cypher" do
 
   describe %{       a=node(3); b = node(2); ret a[:age], b[:age], (a[:age] - b[:age]).abs } do
     it { Proc.new { a=node(3); b = node(2); ret a[:age], b[:age], (a[:age] - b[:age]).abs }.should be_cypher(%{START n0=node(3),n1=node(2) RETURN n0.age,n1.age,abs(n0.age - n1.age)}) }
+  end
+
+  describe %{       a=node(3); b = node(2); ret (a[:age] - b[:age]).abs.as("newname") } do
+    it { Proc.new { a=node(3); b = node(2); ret (a[:age] - b[:age]).abs.as("newname") }.should be_cypher(%{START n0=node(3),n1=node(2) RETURN abs(n0.age - n1.age) AS newname}) }
   end
 
   describe %{       a=node(3); (a[:x] - a[:y]).abs==3; a } do

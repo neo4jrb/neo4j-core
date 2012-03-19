@@ -157,6 +157,9 @@ module Neo4j
         self
       end
 
+      def as(new_name)
+        @var_name = "#{@var_name} AS #{new_name}"
+      end
 
       # required by the Predicate Methods Module
       # @see PredicateMethods

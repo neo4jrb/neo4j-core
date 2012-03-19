@@ -85,17 +85,23 @@ module Neo4j
     # Check the neo4j 
     # Returns an enumerable of hash values.
     #
-    # @example
+    # @example Using the Cypher DSL
+    #  q = Neo4j.query{ node(3) <=> node(:x); :x}
+    #  q.first['n'] #=> the @node
+    #  q.columns.first => 'n'
     #
+    # @example
     #  q = Neo4j.query("START n=node({node}) RETURN n", 'node' => @node.neo_id)
     #  q.first['n'] #=> the @node
     #  q.columns.first => 'n'
     #
+    # @see Cypher
     # @see {http://docs.neo4j.org/chunked/milestone/cypher-query-lang.html The Cypher Query Language Documentation}
     # @note Returns a read-once only forward iterable.
     # @return [Enumerable] a forward read once only Enumerable, containing hash values.
-    def query(query, params = {})
-      engine = org.neo4j.cypher.javacompat.ExecutionEngine.new(db)
+    def query(query, params = {}, &query_dsl)
+      engine = Java::OrgNeo4jCypherJavacompat::ExecutionEngine.new(db)
+      q = query || Cypher.new(params, &query_dsl).to_s
       engine.execute(query, params)
     end
 
