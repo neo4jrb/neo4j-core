@@ -24,7 +24,7 @@ module Neo4j
       end
 
       def prefixes
-        {:start => "START", :where => " WHERE", :match => " MATCH", :return => " RETURN"}
+        {:start => "START", :where => " WHERE", :match => " MATCH", :return => " RETURN", :order_by => " ORDER BY"}
       end
 
       def prefix
@@ -366,8 +366,50 @@ module Neo4j
         end
       end
 
+      # Specifies an <tt>ORDER BY</tt> cypher query
+      # @param [Property] props the properties which should be sorted
+      # @return self
+      def asc(*props)
+
+        @order_by ||= OrderBy.new(expressions)
+        @order_by.asc(props)
+        self
+      end
+
+      # Specifies an <tt>ORDER BY</tt> cypher query
+      # @param [Property] props the properties which should be sorted
+      # @return self
+      def desc(*props)
+        @order_by ||= OrderBy.new(expressions)
+        @order_by.desc(props)
+        self
+      end
+
       def to_s
-        return_method ? as_return_method : var_name
+        return_method ? as_return_method : var_name.to_s
+      end
+    end
+
+    class OrderBy < Expression
+      def initialize(expressions)
+        super(expressions, :order_by)
+      end
+
+      def asc(props)
+        @asc ||= []
+        @asc += props
+      end
+
+      def desc(props)
+        @desc ||= []
+        @desc += props
+      end
+
+      def to_s
+        s = []
+        s << @asc.map { |p| p.var_name }.join(",") if @asc
+        s << @desc.map { |p| p.var_name.to_s + " DESC" }.join(",") if @desc
+        s.join(',')
       end
     end
 
@@ -623,6 +665,7 @@ module Neo4j
     class ExprOp < Expression
       attr_reader :left, :right, :op, :neg, :post_fix
       include MathFunctions
+
       def initialize(left, right, op, post_fix = "")
         super(left.expressions, :where)
         @op = op
