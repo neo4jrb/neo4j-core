@@ -25,7 +25,7 @@ It comes included with the Apache Lucene document database.
   s.files = Dir.glob("{bin,lib,config}/**/*") + %w(README.rdoc Gemfile neo4j-core.gemspec)
   s.has_rdoc = true
   s.extra_rdoc_files = %w( README.rdoc )
-  s.rdoc_options = ["--quiet", "--title", "Neo4j.rb", "--line-numbers", "--main", "README.rdoc", "--inline-source"]
+  s.rdoc_options = ["--quiet", "--title", "Neo4j::Core", "--line-numbers", "--main", "README.rdoc", "--inline-source"]
 
   s.add_dependency("neo4j-community", "1.7.0.alpha.1")
 end
