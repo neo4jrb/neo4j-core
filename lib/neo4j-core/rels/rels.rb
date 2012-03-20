@@ -76,7 +76,9 @@ module Neo4j
       #
       # @see Neo4j::Core::Node#wrapper #wrapper - The method used wrap to the node in a Ruby object if the node was found
       # @see Neo4j::Relationship#rel_type
+      # @raise an exception if the first parameter is not <tt>:both</tt>, <tt>;outgoing</tt> or <tt>:incoming</tt>
       def rels(dir=:both, *types)
+        raise "Illegal argument, first argument must be :both, :incoming or :outgoing, got #{dir.inspect}" unless [:incoming, :outgoing, :both].include?(dir)
         Neo4j::Core::Rels::Traverser.new(self, types, dir)
       end
 

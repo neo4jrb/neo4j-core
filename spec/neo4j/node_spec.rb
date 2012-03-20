@@ -203,20 +203,32 @@ describe Neo4j::Node, :type => :mock_db do
   describe "rels(:thing)" do
     subject { MockNode.new }
 
-    it "returns a Neo4j::Core::Rels::Traverser object traversing :both direction :thing types" do
-      subject.rels(:thing).should be_kind_of(Neo4j::Core::Rels::Traverser)
-      subject.rels.dir.should == :both
-      subject.rels.types.should == [:thing]
+    it "should raise an exception" do
+      lambda{subject.rels(:thing)}.should raise_error
     end
   end
 
-  describe "rels()" do
+  describe "rels(:thing, :outgoing)" do
     subject { MockNode.new }
 
-    it "returns a Neo4j::Core::Rels::Traverser object travesing :both directions" do
-      subject.rels.should be_kind_of(Neo4j::Core::Rels::Traverser)
-      subject.rels.dir.should == :both
+    it "should raise an exception" do
+      lambda{subject.rels(:thing, :outgoing)}.should raise_error
     end
+  end
+
+  describe "rels(:outgoing, :thing, :pling)" do
+    subject { MockNode.new.rels(:outgoing, :thing, :pling) }
+    it { should be_kind_of(Neo4j::Core::Rels::Traverser) }
+    its(:dir) { should == :outgoing}
+    its(:types) { should == [:thing, :pling]}
+  end
+
+  describe "rels()" do
+    subject { MockNode.new.rels }
+
+    it { should be_kind_of(Neo4j::Core::Rels::Traverser) }
+    its(:dir) { should == :both}
+    its(:types) { should == []}
   end
 
   describe "nodes" do
