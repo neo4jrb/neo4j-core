@@ -4,11 +4,13 @@ end
 Neo4j::Relationship.extend_java_class(MockRelationship)
 
 class MockRelationship
+  attr_reader :rel_type
+
   def initialize(type=:friends, start_node=MockNode.new, end_node=MockNode.new)
     @@id_counter ||= 0
     @@id_counter += 1
     @id = @@id_counter
-    @type = type
+    @rel_type = type
     @start_node = start_node
     @end_node = end_node
   end
@@ -32,5 +34,11 @@ class MockRelationship
   def kind_of?(other)
     other == Java::OrgNeo4jGraphdb::Relationship || super
   end
+
+  alias_method :getEndNode, :_end_node
+  alias_method :getStartNode, :_start_node
+  alias_method :getType, :rel_type
+
 end
 
+Neo4j::Relationship.extend_java_class(MockRelationship)
