@@ -76,7 +76,7 @@ module Neo4j
       #
       # @see Neo4j::Core::Node#wrapper #wrapper - The method used wrap to the node in a Ruby object if the node was found
       # @see Neo4j::Relationship#rel_type
-      def rels(dir, *types)
+      def rels(dir=:both, *types)
         Neo4j::Core::Rels::Traverser.new(self, types, dir)
       end
 

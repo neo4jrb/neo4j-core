@@ -200,11 +200,22 @@ describe Neo4j::Node, :type => :mock_db do
 
   end
 
-  describe "rels" do
+  describe "rels(:thing)" do
     subject { MockNode.new }
 
-    it "returns a Neo4j::Core::Rels::Traverser object" do
+    it "returns a Neo4j::Core::Rels::Traverser object traversing :both direction :thing types" do
       subject.rels(:thing).should be_kind_of(Neo4j::Core::Rels::Traverser)
+      subject.rels.dir.should == :both
+      subject.rels.types.should == [:thing]
+    end
+  end
+
+  describe "rels()" do
+    subject { MockNode.new }
+
+    it "returns a Neo4j::Core::Rels::Traverser object travesing :both directions" do
+      subject.rels.should be_kind_of(Neo4j::Core::Rels::Traverser)
+      subject.rels.dir.should == :both
     end
   end
 

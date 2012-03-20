@@ -22,7 +22,6 @@ describe Neo4j::Core::Rels::Traverser do
     end
 
     its(:count) { should == 2 }
-    its(:size) { should == 2 }
     its(:to_a) { should == [rel_1, rel_2] }
 
     describe "del" do
@@ -39,7 +38,6 @@ describe Neo4j::Core::Rels::Traverser do
       end
 
       its(:count) { should == 1 }
-      its(:size) { should == 1 }
       its(:to_a) { should == [rel_2] }
 
       context "when specifying #outgoing instead of :both" do
@@ -48,7 +46,6 @@ describe Neo4j::Core::Rels::Traverser do
         end
 
         its(:count) { should == 1 }
-        its(:size) { should == 1 }
         its(:to_a) { should == [rel_2] }
       end
 
@@ -58,7 +55,6 @@ describe Neo4j::Core::Rels::Traverser do
         end
 
         its(:count) { should == 0 }
-        its(:size) { should == 0 }
         its(:to_a) { should == [] }
       end
 
@@ -74,7 +70,6 @@ describe Neo4j::Core::Rels::Traverser do
     end
 
     its(:count) { should == 0 }
-    its(:size) { should == 0 }
     its(:to_a) { should == [] }
   end
 
