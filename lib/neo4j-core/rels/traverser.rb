@@ -43,20 +43,6 @@ module Neo4j
           @node._rels(@dir, *@types)
         end
 
-        # @return [Fixnum] the size of all matched relationship, also check if it #to_other node
-        # @see #to_other
-        def size
-          c = 0
-          iter = iterator
-          while (iter.has_next())
-            rel = iter.next
-            next unless match_to_other?(rel)
-            c += 1
-          end
-          c
-        end
-
-
         # @return [true,false] true if it match the specified other node
         # @see #to_other
         def match_to_other?(rel)

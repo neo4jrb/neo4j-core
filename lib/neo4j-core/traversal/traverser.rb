@@ -228,12 +228,6 @@ module Neo4j
           self
         end
 
-        #def size
-        #  s = 0
-        #  iterator.each { |_| s += 1 }
-        #  s
-        #end
-
         # @param [Fixnum] index the n'th node that will be return from the traversal
         def [](index)
           each_with_index { |node, i| break node if index == i }
