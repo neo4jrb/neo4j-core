@@ -7,7 +7,7 @@ module Neo4j
         end
 
         def delete_all_indexes
-          @indexers.values.each { |i| i.rm_index_type }
+          @indexers.each { |i| i.rm_index_type }
         end
 
         def register(indexer)

@@ -6,7 +6,6 @@ require 'tmpdir'
 require 'its'
 require 'logger'
 
-$LOAD_PATH.unshift File.join(File.dirname(__FILE__), "..", "lib")
 require 'neo4j-core'
 
 

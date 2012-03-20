@@ -37,6 +37,11 @@ module Neo4j
     include Neo4j::Core::Equal
     include Neo4j::Core::Relationship
 
+    # (see Neo4j::Core::Relationship::ClassMethods#new)
+    def initialize(rel_type, start_node, end_node, props={})
+    end
+
+
     class << self
       def extend_java_class(java_clazz) #:nodoc:
         java_clazz.class_eval do
