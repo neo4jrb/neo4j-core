@@ -47,7 +47,7 @@ require 'neo4j-core/node/class_methods'
 
 require 'neo4j/transaction'
 
-require 'neo4j-core/type_converters/type_converters'
+require 'neo4j/type_converters/type_converters'
 
 require 'neo4j-core/traversal/evaluator'
 require 'neo4j-core/traversal/filter_predicate'
