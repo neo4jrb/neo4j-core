@@ -5,15 +5,23 @@ module Neo4j
       # Responsible for holding the configuration for one index
       # Is used in a DSL to configure the index.
       class IndexConfig
-        attr_reader :_trigger_on, :_index_names, :entity_type
+        attr_reader :_trigger_on, :_index_names, :entity_type, :_index_type, :_numeric_types, :_decl_type
 
         # @param [:rel, :node] entity_type the type of index
         def initialize(entity_type)
           @entity_type = entity_type
-          @index_type = {}
-          @numeric_types = []
+          @_index_type = {}
+          @_numeric_types = []
           @_trigger_on = {}
-          @decl_type = {}
+          @_decl_type = {}
+        end
+
+        def inherit_from(clazz)
+          c = clazz._indexer.config
+          raise "Can't inherit from different index type #{@entity_type} != #{c.entity_type}" if @entity_type != c.entity_type
+          @_index_type.merge!(c._index_type)
+          @_numeric_types += c._numeric_types
+          @_decl_type.merge!(c._decl_type)
         end
 
         # Specifies which property and values the index should be triggered on.
@@ -27,7 +35,7 @@ module Neo4j
         # Used in the Index DSL.
         # @see Neo4j::Core::Index::ClassMethods#node_indexer
         def decl_type(prop_and_type_hash)
-          merge_and_to_string(@decl_type, prop_and_type_hash)
+          merge_and_to_string(@_decl_type, prop_and_type_hash)
         end
 
         # Specifies an index with configuration
@@ -38,15 +46,15 @@ module Neo4j
           conf = args.last.kind_of?(Hash) ? args.pop : {}
 
           args.uniq.each do |field|
-            @index_type[field.to_s] = conf[:type] || :exact
-            @numeric_types << field.to_s if conf[:numeric] == true
+            @_index_type[field.to_s] = conf[:type] || :exact
+            @_numeric_types << field.to_s if conf[:numeric] == true
           end
         end
 
         # @return [Class] the specified type of the property or String
         # @see #decl_type
         def decl_type_on(prop)
-          @decl_type[prop] || String
+          @_decl_type[prop] || String
         end
 
         # @return [true, false] if the props can/should trigger an index operation
@@ -74,29 +82,28 @@ module Neo4j
 
 
         def rm_index_config
-          @index_type = {}
-          @numeric_types = []
+          @_index_type = {}
+          @_numeric_types = []
         end
 
         def index_type(field)
-          @index_type[field.to_s]
+          @_index_type[field.to_s]
         end
 
         def has_index_type?(type)
-          @index_type.values.include?(type)
+          @_index_type.values.include?(type)
         end
 
         def fields
-          @index_type.keys
+          @_index_type.keys
         end
 
         def index?(field)
-          @index_type.include?(field.to_s)
+          @_index_type.include?(field.to_s)
         end
 
         def numeric?(field)
-          return true if @numeric_types.include?(field)
-          # TODO callback to numeric dsl for Neo4j::NodeMixin decl_props check
+          return true if @_numeric_types.include?(field)
         end
 
         private
@@ -104,7 +111,7 @@ module Neo4j
         def merge_and_to_string(existing_hash, new_hash)
           new_hash.each_pair do |k, v|
             existing_hash[k.to_s] ||= Set.new
-            existing_hash[k.to_s].merge(v.is_a?(Array)? v : [v])
+            existing_hash[k.to_s].merge(v.is_a?(Array) ? v : [v])
           end
         end
       end
