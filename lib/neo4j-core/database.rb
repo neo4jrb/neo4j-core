@@ -53,10 +53,10 @@ module Neo4j
             start_readonly_graph_db
           elsif Neo4j::Config['ha.db']
             start_ha_graph_db
-            Neo4j.migrate!
+            Neo4j.migrate! if Neo4j.respond_to?(:migrate!)
           else
             start_local_graph_db
-            Neo4j.migrate!
+            Neo4j.migrate! if Neo4j.respond_to?(:migrate!)
           end
         rescue
           @running = false

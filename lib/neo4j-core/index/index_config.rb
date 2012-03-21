@@ -7,6 +7,7 @@ module Neo4j
       class IndexConfig
         attr_reader :_trigger_on, :_index_names, :entity_type
 
+        # @param [:rel, :node] entity_type the type of index
         def initialize(entity_type)
           @entity_type = entity_type
           @index_type = {}

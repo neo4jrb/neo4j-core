@@ -60,7 +60,6 @@ module Neo4j
         # @see Neo4j::Core::Index::IndexConfig for possible configuration values in the +config_dsl+ block
         # @yield evaluated in the a Neo4j::Core::Index::IndexConfig object to configure it.
         def node_indexer(&config_dsl)
-          # TODO reuse an existing index config
           config = IndexConfig.new(:node)
           config.instance_eval(&config_dsl)
           indexer(config)
@@ -70,9 +69,11 @@ module Neo4j
         # Same as #node_indexer except that it indexes relationships instead of nodes.
         #
         # @see #node_indexer
-        # @return [Neo4j::Core::Index::Indexer] The indexer that should be used to index the given class
-        def rel_indexer(clazz)
-          indexer(clazz, :rel)
+        # @return (see #node_indexer)
+        def rel_indexer(&config_dsl)
+          config = IndexConfig.new(:rel)
+          config.instance_eval(&config_dsl)
+          indexer(config)
         end
 
 

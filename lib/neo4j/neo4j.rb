@@ -5,9 +5,16 @@
 # The Neo4j modules is used to interact with an Neo4j Database instance.
 # You can for example start and stop an instance and list all the nodes that exist in the database.
 #
-# === Starting and Stopping Neo4j
+# @example
+#   require 'neo4j'
+#   Neo4j::Transaction.run { Neo4j.ref_node.outgoing(:friends) << Neo4j::Node.new(:name => 'andreas')}
+#   Neo4j.ref_node.node(:outgoing, :friends)[:name] #=> 'andreas'
+#   Neo4j.query(Neo4j.ref_node){|ref| ref > ':friends' > :x; :x}
+#
+# ==== Notice - Starting and Stopping Neo4j
 # You don't normally need to start the Neo4j database since it will be automatically started when needed.
 # Before the database is started you should configure where the database is stored, see {Neo4j::Config]}.
+#
 #
 module Neo4j
 
@@ -64,11 +71,6 @@ module Neo4j
       db
     end
 
-    # Runs all user defined migrations.
-    def migrate!
-
-    end
-
     # @return [String, nil] the current storage path of a running neo4j database. If the database is not running it returns nil.
     def storage_path
       return nil unless db.running?
@@ -101,7 +103,7 @@ module Neo4j
     #  q.columns.first => :n
     #
     # @see Cypher
-    # @see {http://docs.neo4j.org/chunked/milestone/cypher-query-lang.html The Cypher Query Language Documentation}
+    # @see http://docs.neo4j.org/chunked/milestone/cypher-query-lang.html The Cypher Query Language Documentation
     # @note Returns a read-once only forward iterable.
     # @param params parameter for the query_dsl block
     # @return [Neo4j::Core::Cypher::ResultWrapper] a forward read once only Enumerable, containing hash values.
