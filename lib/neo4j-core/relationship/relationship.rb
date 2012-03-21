@@ -70,12 +70,6 @@ module Neo4j
         Neo4j::Relationship.exist?(self)
       end
 
-      # Loads the wrapper using the #wrapper class method if it exists, otherwise return self.
-      def wrapper
-        self.class.respond_to?(:wrapper) ? self.class.wrapper(node) : self
-      end
-
-
       # Returns the relationship name
       #
       # @example

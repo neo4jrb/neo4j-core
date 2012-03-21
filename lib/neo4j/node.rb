@@ -11,12 +11,14 @@ module Neo4j
   #
   class Node
     extend Neo4j::Core::Node::ClassMethods
+    extend Neo4j::Core::Wrapper::ClassMethods
 
     include Neo4j::Core::Property
     include Neo4j::Core::Rels
     include Neo4j::Core::Traversal
     include Neo4j::Core::Equal
     include Neo4j::Core::Node
+    include Neo4j::Core::Wrapper
 
     class << self
 
@@ -29,6 +31,7 @@ module Neo4j
           include Neo4j::Core::Traversal
           include Neo4j::Core::Equal
           include Neo4j::Core::Node
+          include Neo4j::Core::Wrapper
         end
       end
     end

@@ -40,6 +40,6 @@ describe Neo4j::Core::Node::ClassMethods, :type => :mock_db do
       graph_db.should_receive(:create_node).and_return(new_node)
       my_class.new({:foo => 42}, other_db).should == new_node
     end
-
   end
+
 end

@@ -39,6 +39,9 @@ require 'neo4j-core/index/lucene_query'
 
 require 'neo4j-core/equal/equal'
 
+require 'neo4j-core/wrapper/class_methods'
+require 'neo4j-core/wrapper/wrapper'
+
 require 'neo4j-core/relationship/relationship'
 require 'neo4j-core/relationship/class_methods'
 

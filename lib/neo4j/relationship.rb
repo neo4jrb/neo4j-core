@@ -33,9 +33,12 @@ module Neo4j
   #
   class Relationship
     extend Neo4j::Core::Relationship::ClassMethods
+    extend Neo4j::Core::Wrapper::ClassMethods
+
     include Neo4j::Core::Property
     include Neo4j::Core::Equal
     include Neo4j::Core::Relationship
+    include Neo4j::Core::Wrapper
 
     # (see Neo4j::Core::Relationship::ClassMethods#new)
     def initialize(rel_type, start_node, end_node, props={})
@@ -48,6 +51,7 @@ module Neo4j
           include Neo4j::Core::Property
           include Neo4j::Core::Equal
           include Neo4j::Core::Relationship
+          include Neo4j::Core::Wrapper
         end
       end
 
