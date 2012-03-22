@@ -4,20 +4,12 @@ This gem only contains the JRuby mapping of the Neo4j graph database.
 The neo4j.rb gem will be split up into two gems, neo4j-core and neo4j.
 This gem will be included by neo4j 2.0.0 gem.
 
-Changes from the neo4j.rb
-* Use of YARD instead of RDoc
-* Some tidy up of the API and code (e.g. Neo4j::Node#rels methods)
-* Change of Ruby module structure.
-* More RSpecs and more use of mocking combined with real testing of the Java layer
-* Make sure that we retrieve relationships and nodes lazy if possible.
-* Cypher Query DSL
-
 This gem contains two modules: Neo4j and Neo4j::Core
 The Neo4j module is public and the Neo4j::Core(::*) are private modules.
 
 == Documentation
 
-* {YARD}[http://doc.info/github/andreasronge/neo4j-core/file/README.rdoc]
+* {YARD}[http://rdoc.info/github/andreasronge/neo4j-core/file/README.rdoc]
 
 == The public API
 
@@ -59,7 +51,7 @@ Exampel:
 Example:
   Neo4j.query { node(3) }
 
-Example with parameters
+Example with parameters:
   Neo4j.query(Neo4j.ref_node} do |ref|
      ref <=> :x
      :x
@@ -196,4 +188,15 @@ For more examples, see the RSpecs
 == Creates Your Own Wrapper
 
 Todo, see {Neo4j::Core::Wrapper}
+
+
+== Changes
+
+Changes from the neo4j.rb
+* Use of YARD instead of RDoc
+* Some tidy up of the API and code (e.g. Neo4j::Node#rels methods)
+* Change of Ruby module structure.
+* More RSpecs and more use of mocking combined with real testing of the Java layer
+* Make sure that we retrieve relationships and nodes lazy if possible.
+* Cypher Query DSL
 
