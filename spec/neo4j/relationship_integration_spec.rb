@@ -79,6 +79,13 @@ describe Neo4j::Relationship, :type => :integration do
       rel.property?(:name).should be_false
       rel[:name].should be_nil
     end
+
+    it "can be found using the start_node and end_node #rels method" do
+      start_node = subject.start_node
+      start_node.rels.should include(subject)
+      end_node = subject.end_node
+      end_node.rels(:incoming, :friends).should include(subject)
+    end
   end
 
   describe "#del" do

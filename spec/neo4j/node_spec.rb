@@ -30,7 +30,7 @@ describe Neo4j::Node, :type => :mock_db do
   describe "#del" do
     it "should call the delete java method" do
       new_node = MockNode.new
-      new_node.should_receive(:get_relationships).and_return([])
+      new_node.should_receive(:get_relationships).and_return(RelsIterator.new([]))
       new_node.should_receive(:delete)
       new_node.del.should be_nil
     end
@@ -39,7 +39,7 @@ describe Neo4j::Node, :type => :mock_db do
       new_node = MockNode.new
       rel = double("Relationship")
       rel.should_receive(:del).once
-      new_node.should_receive(:get_relationships).and_return([rel])
+      new_node.should_receive(:get_relationships).and_return(RelsIterator.new([rel]))
       new_node.should_receive(:delete)
       new_node.del.should be_nil
     end
@@ -184,17 +184,17 @@ describe Neo4j::Node, :type => :mock_db do
     subject { MockNode.new }
 
     it "accept no arguments which return both direction all types" do
-      subject.should_receive(:get_relationships).with(:both).and_return("stuff")
+      subject.should_receive(:get_relationships).with(:both).and_return(RelsIterator.new("stuff"))
       subject._rels.should == "stuff"
     end
 
     it "accept one direction argument which return only relationship of that direction but of any type" do
-      subject.should_receive(:get_relationships).with(:incoming).and_return("stuff")
+      subject.should_receive(:get_relationships).with(:incoming).and_return(RelsIterator.new("stuff"))
       subject._rels(:incoming).should == "stuff"
     end
 
     it "accept one direction argument and several rel types which return only relationships of that direction and types" do
-      subject.should_receive(:get_relationships).with(:incoming, [:foo, :bar]).and_return("stuff")
+      subject.should_receive(:get_relationships).with(:incoming, [:foo, :bar]).and_return(RelsIterator.new("stuff"))
       subject._rels(:incoming, :foo, :bar).should == "stuff"
     end
 

@@ -116,11 +116,11 @@ module Neo4j
       # @return [Enumerable] of Neo4j::Relationship objects
       def _rels(dir=:both, *types)
         if types.size > 1
-          get_relationships(ToJava.dir_to_java(dir), ToJava.types_to_java(types))
+          get_relationships(ToJava.dir_to_java(dir), ToJava.types_to_java(types)).iterator
         elsif types.size == 1
-          get_relationships(ToJava.type_to_java(types[0]), ToJava.dir_to_java(dir))
+          get_relationships(ToJava.type_to_java(types[0]), ToJava.dir_to_java(dir)).iterator
         else
-          get_relationships(ToJava.dir_to_java(dir))
+          get_relationships(ToJava.dir_to_java(dir)).iterator
         end
       end
 

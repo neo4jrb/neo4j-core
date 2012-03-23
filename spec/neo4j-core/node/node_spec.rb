@@ -20,7 +20,7 @@ describe Neo4j::Core::Node, :type => :mock_db do
 
   describe "#del" do
     it "deletes then node" do
-      node.should_receive(:get_relationships).with(Neo4j::Core::ToJava.dir_to_java(:both)).and_return([])
+      node.should_receive(:get_relationships).with(Neo4j::Core::ToJava.dir_to_java(:both)).and_return(RelsIterator.new([]))
       node.should_receive(:delete)
       subject.del
     end
@@ -30,7 +30,7 @@ describe Neo4j::Core::Node, :type => :mock_db do
       rel1 = MockRelationship.new
       rel2 = MockRelationship.new
 
-      node.should_receive(:get_relationships).with(Neo4j::Core::ToJava.dir_to_java(:both)).and_return([rel1, rel2])
+      node.should_receive(:get_relationships).with(Neo4j::Core::ToJava.dir_to_java(:both)).and_return(RelsIterator.new([rel1, rel2]))
       rel1.should_receive(:delete)
       rel2.should_receive(:delete)
       node.should_receive(:delete)
