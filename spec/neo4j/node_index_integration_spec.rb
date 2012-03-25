@@ -29,6 +29,7 @@ describe "Neo4j::Node#index", :type => :integration do
     MyIndex.index(:name) # default :exact
     MyIndex.index(:things)
     MyIndex.index(:age, :numeric => true) # default :exact
+    MyIndex.index(:wheels) #, :numeric => true) # default :exact
     MyIndex.index(:description, :type => :fulltext)
   end
 
@@ -149,14 +150,30 @@ describe "Neo4j::Node#index", :type => :integration do
 
   end
 
-  describe "find" do
+  describe "find(Hash)" do
+    it "can find" do
+      pending
+      new_tx
+      thing1 = MyIndex.new_node :name => 'thing', :wheels => 2
+      thing2 = MyIndex.new_node :name => 'thing', :wheels => 4
+      thing3 = MyIndex.new_node :name => 'bla', :wheels => 8
+      finish_tx
+
+      MyIndex.find("name: bla").first.should == thing3
+      MyIndex.find(:name => "bla").first.should == thing3
+      MyIndex.find("wheels: 4").first.should == thing2
+      MyIndex.find(:wheels => 4).first.should == thing2
+
+#      MyIndex.find(:name => 'thing', :wheels => 4).first.should == thing2
+    end
+  end
+
+  describe "find(String)" do
     it "can find several nodes with the same index" do
       new_tx
-
       thing1 = MyIndex.new_node :name => 'thing'
       thing2 = MyIndex.new_node :name => 'thing'
       thing3 = MyIndex.new_node :name => 'thing'
-
       finish_tx
 
       MyIndex.find("name: thing", :wrapped => true).should include(thing1)

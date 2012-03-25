@@ -51,10 +51,10 @@ module Neo4j
           end
         end
 
-        # @return [Class] the specified type of the property or String
+        # @return [Class,nil] the specified type of the property or nil
         # @see #decl_type
         def decl_type_on(prop)
-          @_decl_type[prop] || String
+          @_decl_type[prop]
         end
 
         # @return [true, false] if the props can/should trigger an index operation

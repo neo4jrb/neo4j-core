@@ -187,8 +187,8 @@ module Neo4j
 
         def build_composite_query(left_query, right_query, operator) #:nodoc:
           composite_query = Java::OrgApacheLuceneSearch::BooleanQuery.new
-          version = Java::OrgApacheLuceneUtil::Version::LUCENE_35
-          analyzer = org.apache.lucene.analysis.standard::StandardAnalyzer.new(version)
+          version = Java::OrgApacheLuceneUtil::Version::LUCENE_30
+          analyzer = Java::OrgApacheLuceneAnalysisStandard::StandardAnalyzer.new(version)
           parser = Java::org.apache.lucene.queryParser.QueryParser.new(version,'name', analyzer )
 
           left_query = parser.parse(left_query) if left_query.is_a?(String)
@@ -220,18 +220,18 @@ module Neo4j
           and_query = Java::OrgApacheLuceneSearch::BooleanQuery.new
 
           query.each_pair do |key, value|
-            type = @index_config && @index_config[key.to_sym] && @index_config[key.to_sym][:type]
-            if !type.nil? && type != String
+            type = @index_config.decl_type_on(key.to_sym)
+            if type != String
               if Range === value
-                and_query.add(range_query(key, value.first, value.last, true, !value.exclude_end?), Java::OrgApacheLuceneIndex::BooleanClause::Occur::MUST)
+                and_query.add(range_query(key, value.first, value.last, true, !value.exclude_end?), Java::OrgApacheLuceneSearch::BooleanClause::Occur::MUST)
               else
-                and_query.add(range_query(key, value, value, true, true), Java::OrgApacheLuceneIndex::BooleanClause::Occur::MUST)
+                and_query.add(range_query(key, value, value, true, true), Java::OrgApacheLuceneSearch::BooleanClause::Occur::MUST)
               end
             else
               conv_value = type ? TypeConverters.convert(value) : value.to_s
               term = Java::OrgApacheLuceneIndex::Term.new(key.to_s, conv_value)
-              term_query = Java::OrgApacheLuceneIndex::TermQuery.new(term)
-              and_query.add(term_query, Java::OrgApacheLuceneIndex::BooleanClause::Occur::MUST)
+              term_query = Java::OrgApacheLuceneSearch::TermQuery.new(term)
+              and_query.add(term_query, Java::OrgApacheLuceneSearch::BooleanClause::Occur::MUST)
             end
           end
           and_query
