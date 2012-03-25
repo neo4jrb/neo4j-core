@@ -38,6 +38,14 @@ def embedded_db
   end
 end
 
+def shutdown_embedded_db
+  if @@db
+    @@db.shutdown
+    FileUtils.rm_rf EMBEDDED_DB_PATH
+    @@db = nil
+  end
+end
+
 def new_java_tx(db)
   finish_tx if @tx
   @tx = db.begin_tx
@@ -62,6 +70,10 @@ RSpec.configure do |c|
   c.filter_run_excluding :slow => ENV['TRAVIS'] != 'true'
 
   c.include(CustomNeo4jMatchers)
+
+  c.after(:all, :type => :java_integration) do
+    shutdown_embedded_db
+  end
 
   c.after(:each, :type => :integration) do
     finish_tx
