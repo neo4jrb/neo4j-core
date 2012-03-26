@@ -39,6 +39,15 @@ def embedded_db
   end
 end
 
+def shutdown_embedded_db
+  if defined? @@db && @@db
+    finish_tx
+    @@db.shutdown
+    FileUtils.rm_rf EMBEDDED_DB_PATH
+    @@db = nil
+  end
+end
+
 def new_java_tx(db)
   finish_tx if @tx
   @tx = db.begin_tx

@@ -2,6 +2,10 @@ require 'spec_helper'
 
 describe Java::OrgNeo4jKernel::EmbeddedGraphDatabase, "lucene", :type => :java_integration do
 
+  after(:all) do
+    shutdown_embedded_db
+  end
+
   describe "node index" do
     subject do
       embedded_db.index.for_nodes("MyIndex")

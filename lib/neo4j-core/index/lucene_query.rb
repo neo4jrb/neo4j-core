@@ -149,7 +149,7 @@ module Neo4j
         # @param [Symbol] fields it should sort
         def desc(*fields)
           @order ||= []
-          @order += fields.map{|f| [f, :desc]}
+          @order += fields.map { |f| [f, :desc] }
           self
         end
 
@@ -157,11 +157,18 @@ module Neo4j
         # @param [Symbol] fields it should sort
         def asc(*fields)
           @order ||= []
-          @order += fields.map{|f| [f, :asc]}
+          @order += fields.map { |f| [f, :asc] }
           self
         end
 
         protected
+
+        def parse_query(query)
+          version = Java::OrgApacheLuceneUtil::Version::LUCENE_30
+          analyzer = Java::OrgApacheLuceneAnalysisStandard::StandardAnalyzer.new(version)
+          parser = Java::org.apache.lucene.queryParser.QueryParser.new(version, 'name', analyzer)
+          parser.parse(query)
+        end
 
         def build_and_query(query)
           build_composite_query(@left_and_query.build_query, query, Java::OrgApacheLuceneSearch::BooleanClause::Occur::MUST)
@@ -180,14 +187,9 @@ module Neo4j
         end
 
         def build_composite_query(left_query, right_query, operator) #:nodoc:
+          left_query = parse_query(left_query) if left_query.is_a?(String)
+          right_query = parse_query(right_query) if right_query.is_a?(String)
           composite_query = Java::OrgApacheLuceneSearch::BooleanQuery.new
-          version = Java::OrgApacheLuceneUtil::Version::LUCENE_30
-          analyzer = Java::OrgApacheLuceneAnalysisStandard::StandardAnalyzer.new(version)
-          parser = Java::org.apache.lucene.queryParser.QueryParser.new(version,'name', analyzer )
-
-          left_query = parser.parse(left_query) if left_query.is_a?(String)
-          right_query = parser.parse(right_query) if right_query.is_a?(String)
-
           composite_query.add(left_query, operator)
           composite_query.add(right_query, operator)
           composite_query

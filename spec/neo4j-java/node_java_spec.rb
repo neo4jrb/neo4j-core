@@ -12,7 +12,7 @@ describe Java::OrgNeo4jGraphdb::Node, :type => :java_integration do
     end
 
     after(:all) do
-      finish_tx
+      shutdown_embedded_db
     end
 
     describe "#get_property" do

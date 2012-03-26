@@ -55,7 +55,6 @@ describe Neo4j::Core::Index::Indexer, :type => :mock_db do
           subject.has_index_type?(:exact).should be_true
           subject.has_index_type?(:fulltext).should be_false
           subject.trigger_on?('name' => 'bar').should be_true
-          # TODO more clever trigger on ?
           node_config.numeric?('my_index').should be_false
         end
 

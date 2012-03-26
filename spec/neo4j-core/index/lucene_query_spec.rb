@@ -28,6 +28,80 @@ describe Neo4j::Core::Index::LuceneQuery do
   end
 
 
+  describe "build_and_query" do
+    subject do
+      Neo4j::Core::Index::LuceneQuery.new(index, index_config, "age: 42")
+    end
+
+    describe "a String AND Query" do
+      it "creates two required TermQueries" do
+        s = subject.and("name: foo")
+        result = s.send(:build_query)
+        result.should be_a(Java::OrgApacheLuceneSearch::BooleanQuery)
+        result.clauses.size.should == 2
+        result.clauses[0].should be_a(Java::OrgApacheLuceneSearch::BooleanClause)
+        result.clauses[1].should be_a(Java::OrgApacheLuceneSearch::BooleanClause)
+
+        result.clauses[0].should be_required
+        result.clauses[1].should be_required
+
+        result.clauses[0].query.should be_a(Java::OrgApacheLuceneSearch::TermQuery)
+        result.clauses[1].query.should be_a(Java::OrgApacheLuceneSearch::TermQuery)
+        result.clauses[0].query.term.text.should == '42'
+        result.clauses[0].query.term.field.should == 'age'
+        result.clauses[1].query.term.text.should == 'foo'
+        result.clauses[1].query.term.field.should == 'name'
+      end
+    end
+
+    describe "a String/Range AND Query" do
+      it "creates two required TermQueries" do
+        index_config.index([:salary, {:field_type => Fixnum }])
+        s = subject.and(:salary => (100..200))
+        result = s.send(:build_query)
+        result.should be_a(Java::OrgApacheLuceneSearch::BooleanQuery)
+        result.clauses.size.should == 2
+        result.clauses[0].should be_a(Java::OrgApacheLuceneSearch::BooleanClause)
+        result.clauses[1].should be_a(Java::OrgApacheLuceneSearch::BooleanClause)
+
+        result.clauses[0].should be_required
+        result.clauses[1].should be_required
+
+        result.clauses[0].query.should be_a(Java::OrgApacheLuceneSearch::TermQuery)
+        result.clauses[1].query.should be_a(Java::OrgApacheLuceneSearch::BooleanQuery)
+        result.clauses[0].query.term.text.should == '42'
+        result.clauses[0].query.term.field.should == 'age'
+
+        numeric_range_query = result.clauses[1].query.clauses[0]
+        numeric_range_query.query.should be_a(Java::OrgApacheLuceneSearch::NumericRangeQuery)
+        numeric_range_query.query.max.should == 200
+        numeric_range_query.query.min.should == 100
+      end
+    end
+
+    describe "a String OR Query" do
+      it "creates two not required TermQueries" do
+        s = subject.or("name: foo")
+        result = s.send(:build_query)
+        result.should be_a(Java::OrgApacheLuceneSearch::BooleanQuery)
+        result.clauses.size.should == 2
+        result.clauses[0].should be_a(Java::OrgApacheLuceneSearch::BooleanClause)
+        result.clauses[1].should be_a(Java::OrgApacheLuceneSearch::BooleanClause)
+
+        result.clauses[0].should_not be_required
+        result.clauses[1].should_not be_required
+
+        result.clauses[0].query.should be_a(Java::OrgApacheLuceneSearch::TermQuery)
+        result.clauses[1].query.should be_a(Java::OrgApacheLuceneSearch::TermQuery)
+        result.clauses[0].query.term.text.should == '42'
+        result.clauses[0].query.term.field.should == 'age'
+        result.clauses[1].query.term.text.should == 'foo'
+        result.clauses[1].query.term.field.should == 'name'
+      end
+    end
+
+  end
+
   describe "build_sort_query" do
 
     describe "asc string" do

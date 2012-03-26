@@ -2,6 +2,9 @@ require 'spec_helper'
 
 describe Java::OrgNeo4jKernel::EmbeddedGraphDatabase, :type => :java_integration do
 
+  after(:all) do
+    shutdown_embedded_db
+  end
 
   context "A running db" do
     context "without transaction" do
