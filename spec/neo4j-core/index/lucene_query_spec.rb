@@ -268,8 +268,8 @@ describe Neo4j::Core::Index::LuceneQuery do
 
           query = query_for_boolean_clause(result)
           query.should be_a(Java::OrgApacheLuceneSearch::NumericRangeQuery)
-          query.max.should be_close(3.14, 0.001)
-          query.min.should be_close(3.14, 0.001)
+          query.max.should be_within(3.14).of(0.001)
+          query.min.should be_within(3.14).of(0.001)
         end
       end
 
@@ -280,8 +280,8 @@ describe Neo4j::Core::Index::LuceneQuery do
 
           query = query_for_boolean_clause(result)
           query.should be_a(Java::OrgApacheLuceneSearch::NumericRangeQuery)
-          query.min.should be_close(4.14, 0.001)
-          query.max.should be_close(5.12, 0.001)
+          query.min.should be_within(4.14).of(0.001)
+          query.max.should be_within(5.12).of(0.001)
         end
       end
     end
