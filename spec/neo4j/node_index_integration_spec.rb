@@ -29,7 +29,7 @@ describe "Neo4j::Node#index", :type => :integration do
     MyIndex.index(:name) # default :exact
     MyIndex.index(:things)
     MyIndex.index(:age, :field_type => Fixnum) # default :exact
-    MyIndex.index(:wheels, :field_type => Fixnum) #, :numeric => true) # default :exact
+    MyIndex.index(:wheels, :field_type => Fixnum)
     MyIndex.index(:description, :type => :fulltext)
   end
 
@@ -40,6 +40,50 @@ describe "Neo4j::Node#index", :type => :integration do
     finish_tx
   end
 
+
+  describe "index on array" do
+    it "is possible to index arrays" do
+      new_tx
+      node = MyIndex.new_node :things => %w[aaa bbb ccc ddd efg qwe]
+      finish_tx
+      MyIndex.find('things: aaa').first.should == node
+      MyIndex.find('things: bbb').first.should == node
+      MyIndex.find('things: qwe').first.should == node
+    end
+
+    it "is updated when one item changes" do
+      new_tx
+      node = MyIndex.new_node :things => %w[aaa bbb ccc ddd efg qwe]
+      finish_tx
+      MyIndex.find('things: aaa').first.should == node
+      MyIndex.find('things: bbb').first.should == node
+      MyIndex.find('things: qwe').first.should == node
+      new_tx
+      node[:things] = %w[bbb ewq qwe]
+      finish_tx
+      MyIndex.find('things: aaa').should be_empty
+      MyIndex.find('things: ewq').first.should == node
+      MyIndex.find('things: qwe').first.should == node
+    end
+
+    it "index is deleted when node deleted" do
+      new_tx
+      node = MyIndex.new_node :things => %w[aaa bbb ccc ddd efg qwe]
+      new_tx
+      node.del
+      finish_tx
+      MyIndex.find('things: aaa').should be_empty
+    end
+
+    it "support array of Fixnum" do
+      new_tx
+      node = MyIndex.new_node(:age => [8,92,2])
+      finish_tx
+      MyIndex.find(:age => 8).first.should == node
+      MyIndex.find(:age => 9).should be_empty
+      MyIndex.find(:age => 2).first.should == node
+    end
+  end
 
   describe "sorting" do
     it "#asc(:field) sorts the given field as strings in ascending order " do

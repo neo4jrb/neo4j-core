@@ -17,55 +17,21 @@ module Neo4j
 
 
         def to_s
-          "Indexer @#{object_id} index on: [#{@config.fields.map{|f| @config.numeric?(f)? "#{f} (numeric)" : f}.join(', ')}]"
+          "Indexer @#{object_id} index on: [#{@config.fields.map { |f| @config.numeric?(f) ? "#{f} (numeric)" : f }.join(', ')}]"
         end
 
         # Add an index on a field so that it will be automatically updated by neo4j transactional events.
+        # Notice that if you want to numerical range queries then you should specify a field_type of either Fixnum or Float.
+        # The index type will by default be <tt>:exact</tt>.
+        # Index on property arrays are supported.
         #
-        # The index method takes an optional configuration hash which allows you to:
-        #
-        # @example Add an index on an a property
-        #
-        #   class Person
-        #     include Neo4j::NodeMixin
-        #     index :name
-        #   end
-        #
-        # When the property name is changed/deleted or the node created it will keep the lucene index in sync.
-        # You can then perform a lucene query like this: Person.find('name: andreas')
-        #
-        # @example Add index on other nodes.
-        #
-        #   class Person
-        #     include Neo4j::NodeMixin
-        #     has_n(:friends).to(Contact)
-        #     has_n(:known_by).from(:friends)
-        #     index :user_id, :via => :known_by
-        #   end
-        #
-        # Notice that you *must* specify an incoming relationship with the via key, as shown above.
-        # In the example above an index <tt>user_id</tt> will be added to all Person nodes which has a <tt>friends</tt> relationship
-        # that person with that user_id. This allows you to do lucene queries on your friends properties.
-        #
-        # @example Set the type value to index
-        #
-        #   class Person
-        #     include Neo4j::NodeMixin
-        #     property :height, :weight, :type => Float
-        #     index :height, :weight
-        #   end
-        #
-        # By default all values will be indexed as Strings.
-        # If you want for example to do a numerical range query you must tell Neo4j.rb to index it as a numeric value.
-        # You do that with the key <tt>type</tt> on the property.
-        #
-        # Supported values for <tt>:type</tt> is <tt>String</tt>, <tt>Float</tt>, <tt>Date</tt>, <tt>DateTime</tt> and <tt>Fixnum</tt>
-        #
-        # === For more information
+        # @example
+        #    MyIndex.index(:age, :field_type => Fixnum) # default :exact
+        #    MyIndex.index(:wheels, :field_type => Fixnum)
+        #    MyIndex.index(:description, :type => :fulltext)
         #
         # @see Neo4j::Core::Index::LuceneQuery
         # @see #find
-        #
         def index(*args)
           @config.index(args)
         end
@@ -96,11 +62,18 @@ module Neo4j
         # @see #index
         def add_index(entity, field, value)
           return false unless index?(field)
-          conv_value = indexed_value_for(field, value)
+          if (java_array?(value))
+            conv_value = value.map{|x| indexed_value_for(field, x)}.to_java(Java::OrgNeo4jIndexLucene::ValueContext)
+          else
+            conv_value = indexed_value_for(field, value)
+          end
           index = index_for_field(field.to_s)
           index.add(entity, field, conv_value)
         end
 
+        def java_array?(value)
+          value.respond_to?(:java_class) && value.java_class.to_s[0..0] == '['
+        end
 
         # Removes an index on the given entity
         # This is normally not needed since you can instead declare an index which will automatically keep
@@ -108,6 +81,7 @@ module Neo4j
         # @see #index
         def rm_index(entity, field, value)
           return false unless index?(field)
+          #return value.each {|x| rm_index(entity, field, x)} if value.respond_to?(:each)
           index_for_field(field).remove(entity, field, value)
         end
 
