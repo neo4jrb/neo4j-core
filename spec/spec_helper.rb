@@ -24,7 +24,8 @@ Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each { |f| require f }
 # Config
 Neo4j::Config[:logger_level] = Logger::ERROR
 Neo4j::Config[:debug_java] = true
-EMBEDDED_DB_PATH = File.join(Dir.tmpdir, "neo4j-core-rspec-db2")
+EMBEDDED_DB_PATH = File.join(Dir.tmpdir, "neo4j-core-java")
+FileUtils.rm_rf EMBEDDED_DB_PATH
 
 def embedded_db
   @@db ||= begin
@@ -35,14 +36,6 @@ def embedded_db
       FileUtils.rm_rf EMBEDDED_DB_PATH
     end
     db
-  end
-end
-
-def shutdown_embedded_db
-  if @@db
-    @@db.shutdown
-    FileUtils.rm_rf EMBEDDED_DB_PATH
-    @@db = nil
   end
 end
 
@@ -71,9 +64,11 @@ RSpec.configure do |c|
 
   c.include(CustomNeo4jMatchers)
 
-  c.after(:all, :type => :java_integration) do
-    shutdown_embedded_db
-  end
+  #c.before(:all, :type => :java_integration) do
+  #  finish_tx
+  #  Neo4j.shutdown
+  #  FileUtils.rm_rf Neo4j::Config[:storage_path]
+  #end
 
   c.after(:each, :type => :integration) do
     finish_tx

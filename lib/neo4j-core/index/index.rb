@@ -16,8 +16,7 @@ module Neo4j
       # @see Neo4j::Core::Index::ClassMethods#add_index
       #
       def add_index(field, value=self[field])
-        converted_value = Neo4j::TypeConverters.convert(value, field, self.class)
-        self.class.add_index(wrapped_entity, field.to_s, converted_value)
+        self.class.add_index(wrapped_entity, field.to_s, value)
       end
 
       # Removes an index on the given property.

@@ -5,23 +5,21 @@ module Neo4j
       # Responsible for holding the configuration for one index
       # Is used in a DSL to configure the index.
       class IndexConfig
-        attr_reader :_trigger_on, :_index_names, :entity_type, :_index_type, :_numeric_types, :_decl_type
+        attr_reader :_trigger_on, :_index_names, :entity_type, :_index_type, :_field_types
 
         # @param [:rel, :node] entity_type the type of index
         def initialize(entity_type)
           @entity_type = entity_type
           @_index_type = {}
-          @_numeric_types = []
+          @_field_types = {}
           @_trigger_on = {}
-          @_decl_type = {}
         end
 
         def inherit_from(clazz)
           c = clazz._indexer.config
           raise "Can't inherit from different index type #{@entity_type} != #{c.entity_type}" if @entity_type != c.entity_type
           @_index_type.merge!(c._index_type)
-          @_numeric_types += c._numeric_types
-          @_decl_type.merge!(c._decl_type)
+          @_field_types.merge!(c._field_types)
         end
 
         # Specifies which property and values the index should be triggered on.
@@ -31,11 +29,8 @@ module Neo4j
           merge_and_to_string(@_trigger_on, hash)
         end
 
-        # Specifies the types of the properties being indexed so that the proper sort order can be applied.
-        # Used in the Index DSL.
-        # @see Neo4j::Core::Index::ClassMethods#node_indexer
-        def decl_type(prop_and_type_hash)
-          merge_and_to_string(@_decl_type, prop_and_type_hash)
+        def field_type(key)
+          @_field_types[key.to_s]
         end
 
         # Specifies an index with configuration
@@ -47,14 +42,14 @@ module Neo4j
 
           args.uniq.each do |field|
             @_index_type[field.to_s] = conf[:type] || :exact
-            @_numeric_types << field.to_s if conf[:numeric] == true
+            @_field_types[field.to_s] = conf[:field_type] || String
           end
         end
 
         # @return [Class,nil] the specified type of the property or nil
         # @see #decl_type
         def decl_type_on(prop)
-          @_decl_type[prop]
+          @_field_types[prop]
         end
 
         # @return [true, false] if the props can/should trigger an index operation
@@ -83,7 +78,7 @@ module Neo4j
 
         def rm_index_config
           @_index_type = {}
-          @_numeric_types = []
+          @_field_types = {}
         end
 
         def index_type(field)
@@ -103,7 +98,8 @@ module Neo4j
         end
 
         def numeric?(field)
-          return true if @_numeric_types.include?(field)
+          raise "No index on #{field.inspect}, has fields: #{@field_types.inspect}" unless @_field_types[field]
+          @_field_types[field] != String
         end
 
         private

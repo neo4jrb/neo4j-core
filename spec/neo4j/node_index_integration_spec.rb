@@ -28,8 +28,8 @@ describe "Neo4j::Node#index", :type => :integration do
   before(:each) do
     MyIndex.index(:name) # default :exact
     MyIndex.index(:things)
-    MyIndex.index(:age, :numeric => true) # default :exact
-    MyIndex.index(:wheels) #, :numeric => true) # default :exact
+    MyIndex.index(:age, :field_type => Fixnum) # default :exact
+    MyIndex.index(:wheels, :field_type => Fixnum) #, :numeric => true) # default :exact
     MyIndex.index(:description, :type => :fulltext)
   end
 

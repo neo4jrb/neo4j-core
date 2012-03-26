@@ -28,7 +28,7 @@ describe "Neo4j::Relationship#index", :type => :integration do
   before(:each) do
     MyRelIndex.index(:name) # default :exact
     MyRelIndex.index(:things)
-    MyRelIndex.index(:age, :numeric => true) # default :exact
+    MyRelIndex.index(:age, :field_type => Fixnum) # default :exact
     MyRelIndex.index(:description, :type => :fulltext)
   end
 

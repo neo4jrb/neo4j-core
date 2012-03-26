@@ -60,7 +60,7 @@ describe Neo4j::Core::Index::Indexer, :type => :mock_db do
         end
 
         it "can create a numeric index" do
-          subject.index(:my_index, :numeric => true)
+          subject.index(:my_index, :field_type => Fixnum)
           subject.index?(:my_index).should be_true
           subject.has_index_type?(:exact).should be_true
           subject.has_index_type?(:fulltext).should be_false

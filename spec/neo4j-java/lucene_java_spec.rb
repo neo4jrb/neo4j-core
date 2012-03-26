@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Java::OrgNeo4jKernel::EmbeddedGraphDatabase, :type => :java_integration do
+describe Java::OrgNeo4jKernel::EmbeddedGraphDatabase, "lucene", :type => :java_integration do
 
   describe "node index" do
     subject do
@@ -34,7 +34,7 @@ describe Java::OrgNeo4jKernel::EmbeddedGraphDatabase, :type => :java_integration
 
     before(:all) do
       new_java_tx(embedded_db)
-      @node ||= embedded_db.create_node
+      @node = embedded_db.create_node
       subject.add(node, "age", Java::OrgNeo4jIndexLucene::ValueContext.numeric(123.to_java(:long)))
       subject.add(node, "name", "andreas")
     end
