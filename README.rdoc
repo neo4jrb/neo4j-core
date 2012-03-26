@@ -1,7 +1,7 @@
 == Neo4j-core {<img src="https://secure.travis-ci.org/andreasronge/neo4j-core.png" />}[http://travis-ci.org/andreasronge/neo4j-core]
 
 This gem only contains the JRuby mapping of the Neo4j graph database.
-The neo4j.rb gem will be split up into three gems, neo4j-core, {neo4j-wrapper}[http://github.com/andreasronge/neo4j-wapper] and {neo4j}[http://github.com/andreasronge/neo4j].
+The neo4j.rb gem will be split up into three gems, neo4j-core, {neo4j-wrapper}[http://github.com/andreasronge/neo4j-wrapper] and {neo4j}[http://github.com/andreasronge/neo4j].
 This gem will be included by neo4j 2.0.0 gem.
 
 This gem contains two modules: Neo4j and Neo4j::Core

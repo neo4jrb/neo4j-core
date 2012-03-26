@@ -175,10 +175,10 @@ describe Neo4j::Core::Index::Indexer, :type => :mock_db do
 
 
         it "find(:name => 'kalle', :sort => {:name => :desc}) returns a LuceneQuery object with sorting" do
-          result = subject.find(:name => 'kalle', :sort => {:name => :desc})
+          result = subject.find(:name => 'kalle', :sort => [[:name, :desc]])
           result.should be_kind_of(Neo4j::Core::Index::LuceneQuery)
           result.query.should == {:name => 'kalle'}
-          result.order.should == {:name => true}
+          result.order.should == [[:name, :desc]]
         end
 
         it "find(:conditions => {:name => 'kalle'}) also works" do

@@ -39,11 +39,7 @@ module Neo4j
           @query = query
           @index_config = index_config
           @params = params
-
-          if params.include?(:sort)
-            @order = {}
-            params[:sort].each_pair { |k, v| @order[k] = (v == :desc) }
-          end
+          @order = params[:sort] if params.include?(:sort)
         end
 
         # Implements the Ruby +Enumerable+ interface
@@ -152,14 +148,16 @@ module Neo4j
         # Sort descending the given fields.
         # @param [Symbol] fields it should sort
         def desc(*fields)
-          @order = fields.inject(@order || {}) { |memo, field| memo[field] = true; memo }
+          @order ||= []
+          @order += fields.map{|f| [f, :desc]}
           self
         end
 
         # Sort ascending the given fields.
         # @param [Symbol] fields it should sort
         def asc(*fields)
-          @order = fields.inject(@order || {}) { |memo, field| memo[field] = false; memo }
+          @order ||= []
+          @order += fields.map{|f| [f, :asc]}
           self
         end
 
@@ -196,7 +194,8 @@ module Neo4j
         end
 
         def build_sort_query(query) #:nodoc:
-          java_sort_fields = @order.keys.inject([]) do |memo, field|
+          java_sort_fields = @order.inject([]) do |memo, val|
+            field = val[0]
             field_type = @index_config.field_type(field)
             type = case
                      when Float == field_type
@@ -206,7 +205,7 @@ module Neo4j
                      else
                        Java::OrgApacheLuceneSearch::SortField::STRING
                    end
-            memo << Java::OrgApacheLuceneSearch::SortField.new(field.to_s, type, @order[field])
+            memo << Java::OrgApacheLuceneSearch::SortField.new(field.to_s, type, val[1] == :desc)
           end
           sort = Java::OrgApacheLuceneSearch::Sort.new(*java_sort_fields)
           Java::OrgNeo4jIndexLucene::QueryContext.new(query).sort(sort)
