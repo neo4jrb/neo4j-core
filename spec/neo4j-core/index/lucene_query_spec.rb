@@ -28,6 +28,28 @@ describe Neo4j::Core::Index::LuceneQuery do
   end
 
 
+  describe "build_not_query" do
+    subject do
+      Neo4j::Core::Index::LuceneQuery.new(index, index_config, "age: 42")
+    end
+
+    it "creates a prohibited TermQuery" do
+      s = subject.not("name: foo")
+      result = s.send(:build_query)
+      result.clauses.size.should == 2
+      result.clauses[0].should be_a(Java::OrgApacheLuceneSearch::BooleanClause)
+      result.clauses[1].should be_a(Java::OrgApacheLuceneSearch::BooleanClause)
+      result.clauses[0].should be_prohibited
+      result.clauses[1].should be_required
+      result.clauses[0].query.should be_a(Java::OrgApacheLuceneSearch::TermQuery)
+      result.clauses[1].query.should be_a(Java::OrgApacheLuceneSearch::TermQuery)
+      result.clauses[0].query.term.text.should == 'foo'
+      result.clauses[0].query.term.field.should == 'name'
+      result.clauses[1].query.term.text.should == '42'
+      result.clauses[1].query.term.field.should == 'age'
+    end
+  end
+
   describe "build_and_query" do
     subject do
       Neo4j::Core::Index::LuceneQuery.new(index, index_config, "age: 42")
@@ -56,7 +78,7 @@ describe Neo4j::Core::Index::LuceneQuery do
 
     describe "a String/Range AND Query" do
       it "creates two required TermQueries" do
-        index_config.index([:salary, {:field_type => Fixnum }])
+        index_config.index([:salary, {:field_type => Fixnum}])
         s = subject.and(:salary => (100..200))
         result = s.send(:build_query)
         result.should be_a(Java::OrgApacheLuceneSearch::BooleanQuery)

@@ -151,23 +151,54 @@ describe "Neo4j::Node#index", :type => :integration do
   end
 
   describe "find(Hash)" do
-    it "can find" do
-      pending
+    before(:each) do
       new_tx
-      thing1 = MyIndex.new_node :name => 'thing', :wheels => 2
-      thing2 = MyIndex.new_node :name => 'thing', :wheels => 4
-      thing3 = MyIndex.new_node :name => 'bla', :wheels => 8
+      @thing1 = MyIndex.new_node :name => 'thing', :wheels => 2
+      @thing2 = MyIndex.new_node :name => 'thing', :wheels => 4
+      @thing3 = MyIndex.new_node :name => 'bla', :wheels => 8
       finish_tx
+    end
+    let(:thing1) { @thing1 }
+    let(:thing2) { @thing2 }
+    let(:thing3) { @thing3 }
 
+    it "can find using a hash AND values" do
       MyIndex.find("name: bla").first.should == thing3
       MyIndex.find(:name => "bla").first.should == thing3
-      MyIndex.find("wheels: 4").first.should == thing2
       MyIndex.find(:wheels => 4).first.should == thing2
-
-#      MyIndex.find(:name => 'thing', :wheels => 4).first.should == thing2
+      MyIndex.find(:name => 'thing', :wheels => 4).first.should == thing2
+      MyIndex.find(:name => 'thing', :wheels => 5).should be_empty
+      MyIndex.find(:name => 'thing1', :wheels => 4).should be_empty
     end
-  end
 
+    describe "compound AND queries" do
+
+      it "can combine OR queries" do
+        MyIndex.find(:name => 'asd').or(:wheels => 8).first.should == thing3
+        MyIndex.find(:name => 'bla').or(:wheels => 7).first.should == thing3
+      end
+
+      it "can combine AND queries" do
+        MyIndex.find(:name => 'asd').and(:wheels => 8).should be_empty
+        MyIndex.find(:name => 'bla').and(:wheels => 7).should be_empty
+        MyIndex.find(:name => 'bla').and(:wheels => 8).first.should == thing3
+      end
+
+      it "can combine AND range queries" do
+        MyIndex.find(:name => 'thing').and(:wheels => (9..15)).should be_empty
+        MyIndex.find(:name => 'thing').and(:wheels => (0..9)).size.should == 2
+        MyIndex.find(:name => 'thing').and(:wheels => (0..9)).should include(thing1, thing2)
+      end
+
+      it "can combine NOT queries" do
+        MyIndex.find(:name => 'asd').not(:wheels => 8).should be_empty
+        MyIndex.find(:name => 'bla').not(:wheels => 7).first.should == thing3
+        MyIndex.find(:name => 'bla').not(:wheels => 8).should be_empty
+      end
+
+    end
+
+  end
   describe "find(String)" do
     it "can find several nodes with the same index" do
       new_tx

@@ -180,6 +180,9 @@ module Neo4j
 
         def build_not_query(query)
           right_query = @right_not_query.build_query
+          query = parse_query(query) if query.is_a?(String)
+          right_query = parse_query(right_query) if right_query.is_a?(String)
+
           composite_query = Java::OrgApacheLuceneSearch::BooleanQuery.new
           composite_query.add(query, Java::OrgApacheLuceneSearch::BooleanClause::Occur::MUST_NOT)
           composite_query.add(right_query, Java::OrgApacheLuceneSearch::BooleanClause::Occur::MUST)
