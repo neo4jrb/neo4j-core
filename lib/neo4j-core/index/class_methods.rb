@@ -41,7 +41,7 @@ module Neo4j
         # @return [Neo4j::Core::Index::Indexer] The indexer that should be used to index the given class
         # @see Neo4j::Core::Index::IndexConfig for possible configuration values in the +config_dsl+ block
         # @yield evaluated in the a Neo4j::Core::Index::IndexConfig object to configure it.
-        def node_indexer(config = IndexConfig.new(:node), &config_dsl)
+        def node_indexer(config = _config || IndexConfig.new(:node), &config_dsl)
           config.instance_eval(&config_dsl)
           indexer(config)
         end
@@ -51,11 +51,14 @@ module Neo4j
         #
         # @param (see #node_indexer)
         # @return (see #node_indexer)
-        def rel_indexer(config = IndexConfig.new(:rel), &config_dsl)
+        def rel_indexer(config = _config || IndexConfig.new(:rel), &config_dsl)
           config.instance_eval(&config_dsl)
           indexer(config)
         end
 
+        def _config
+          @_indexer && @_indexer.config
+        end
 
         def indexer(index_config)
           @_indexer ||= IndexerRegistry.instance.register(Indexer.new(index_config))

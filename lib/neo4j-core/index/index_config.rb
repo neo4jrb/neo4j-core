@@ -15,6 +15,10 @@ module Neo4j
           @_trigger_on = {}
         end
 
+        def to_s
+          "IndexConfig [#@entity_type, _index_type: #{@_index_type.inspect}, _field_types: #{@_field_types.inspect}, _trigger_on: #{@_trigger_on.inspect}]"
+        end
+
         def inherit_from(clazz)
           c = clazz._indexer.config
           raise "Can't inherit from different index type #{@entity_type} != #{c.entity_type}" if @entity_type != c.entity_type
