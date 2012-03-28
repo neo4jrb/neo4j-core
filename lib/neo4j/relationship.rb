@@ -39,6 +39,8 @@ module Neo4j
     include Neo4j::Core::Equal
     include Neo4j::Core::Relationship
     include Neo4j::Core::Wrapper
+    include Neo4j::Core::Property::Java # for documentation purpose only
+
 
     # (see Neo4j::Core::Relationship::ClassMethods#new)
     def initialize(rel_type, start_node, end_node, props={})

@@ -19,6 +19,7 @@ require 'neo4j-core/database'
 require 'neo4j-core/to_java'
 
 require 'neo4j-core/property/property'
+require 'neo4j-core/property/java'
 
 require 'neo4j-core/rels/rels'
 require 'neo4j-core/rels/traverser'

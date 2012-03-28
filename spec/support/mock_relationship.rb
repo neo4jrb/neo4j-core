@@ -5,6 +5,7 @@ Neo4j::Relationship.extend_java_class(MockRelationship)
 
 class MockRelationship
   attr_reader :rel_type
+  include Neo4j::Core::Property::Java
 
   def initialize(type=:friends, start_node=MockNode.new, end_node=MockNode.new)
     @@id_counter ||= 0

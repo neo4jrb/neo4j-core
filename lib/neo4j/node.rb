@@ -19,6 +19,7 @@ module Neo4j
     include Neo4j::Core::Equal
     include Neo4j::Core::Node
     include Neo4j::Core::Wrapper
+    include Neo4j::Core::Property::Java # for documentation purpose only
 
     class << self
 

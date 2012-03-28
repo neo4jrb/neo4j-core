@@ -22,6 +22,12 @@ describe Java::OrgNeo4jGraphdb::Node, :type => :java_integration do
 
     end
 
+    describe Neo4j::Core::Property::Java do
+      Neo4j::Core::Property::Java.instance_methods.each do |meth|
+        it { existing_node.should respond_to(meth)}
+      end
+    end
+
     describe "#set_property" do
 
       {'name' => 'andreas', 'age' => 42, 'size' => 3.14, 'enabled' => true, "disabled" => false}.each_pair do |key, value|

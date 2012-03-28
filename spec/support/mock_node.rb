@@ -1,4 +1,6 @@
 class MockNode
+  include Neo4j::Core::Property::Java
+
   def initialize
     @@id_counter ||= 0
     @@id_counter += 1
@@ -10,7 +12,7 @@ class MockNode
   end
 
   def kind_of?(other)
-    other == Java::OrgNeo4jGraphdb::Node || super
+    other == ::Java::OrgNeo4jGraphdb::Node || super
   end
 end
 
