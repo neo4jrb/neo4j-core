@@ -3,16 +3,19 @@ module Neo4j
     module Relationship
 
       # Same as Java::OrgNeo4jGraphdb::Relationship#getEndNode
+      # @see http://api.neo4j.org/1.6.1/org/neo4j/graphdb/Relationship.html#getEndNode()
       def _end_node
         get_end_node
       end
 
       # Same as Java::OrgNeo4jGraphdb::Relationship#getStartNode
+      # @see http://api.neo4j.org/1.6.1/org/neo4j/graphdb/Relationship.html#getStartNode()
       def _start_node
         get_start_node
       end
 
       # Same as Java::OrgNeo4jGraphdb::Relationship#getOtherNode
+      # @see http://api.neo4j.org/1.6.1/org/neo4j/graphdb/Relationship.html#getOtherNode()
       def _other_node(node)
         get_other_node(node)
       end
@@ -49,6 +52,7 @@ module Neo4j
       #
       # @param [Neo4j::Node] node the node that we don't want to return
       # @return [Neo4j::Node] the other node wrapper
+      # @see #_other_node
       def other_node(node)
         _other_node(node._java_node).wrapper
       end
