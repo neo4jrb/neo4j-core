@@ -94,23 +94,33 @@ module Neo4j
         # (by Rack).
         #
         # @example with a block
-        #
         #   Person.find('name: kalle') {|query| puts "#{[*query].join(', )"}
         #
-        # @example
-        #
+        # @example using an exact lucene index
         #   query = Person.find('name: kalle')
         #   puts "First item #{query.first}"
         #   query.close
         #
-        # @return [Neo4j::Core::Index::LuceneQuery] a query object
+        # @example using an fulltext lucene index
+        #   query = Person.find('name: kalle', :type => :fulltext)
+        #   puts "First item #{query.first}"
+        #   query.close
+        #
+        # @example Sorting, descending by one property
+        #    Person.find({:name => 'kalle'}, :sort => {:name => :desc})
+        #
+        # @example Using the lucene java object
+        #   # using the Neo4j query method directly
+        #   # see, http://api.neo4j.org/1.6.1/org/neo4j/graphdb/index/ReadableIndex.html#query(java.lang.Object)
+        #   MyIndex.find('description: "hej"', :type => :fulltext, :wrapped => false).get_single
+        #
+        # @param [String, Hash] query the lucene query
+        # @param [Hash] params lucene configuration parameters
+        # @return [Neo4j::Core::Index::LuceneQuery] a query object which uses the builder pattern for creating compound and sort queries.
+        # @note You must specify the index type <tt>:fulltext<tt>) if the property is index using that index (default is <tt>:exact</tt>)
         def find(query, params = {})
           index = index_for_type(params[:type] || :exact)
-          if query.is_a?(Hash) && (query.include?(:conditions) || query.include?(:sort))
-            params.merge! query.reject { |k, _| k == :conditions }
-            query.delete(:sort)
-            query = query.delete(:conditions) if query.include?(:conditions)
-          end
+          query.delete(:sort) if query.is_a?(Hash) && query.include?(:sort)
           query = (params[:wrapped].nil? || params[:wrapped]) ? LuceneQuery.new(index, @config, query, params) : index.query(query)
 
           if block_given?
