@@ -79,7 +79,6 @@ module Neo4j
           @_index_names = hash
         end
 
-
         def rm_index_config
           @_index_type = {}
           @_field_types = {}

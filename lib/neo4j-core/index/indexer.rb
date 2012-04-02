@@ -94,7 +94,7 @@ module Neo4j
         # (by Rack).
         #
         # @example with a block
-        #   Person.find('name: kalle') {|query| puts "#{[*query].join(', )"}
+        #   Person.find('name: kalle') {|query| puts "First item #{query.first}"}
         #
         # @example using an exact lucene index
         #   query = Person.find('name: kalle')
@@ -108,6 +108,14 @@ module Neo4j
         #
         # @example Sorting, descending by one property
         #    Person.find({:name => 'kalle'}, :sort => {:name => :desc})
+        #
+        # @example Sorting using the builder pattern
+        #    Person.find(:name => 'kalle').asc(:name)
+        #
+        # @example Compound queries and Range queries
+        #    Person.find('name: pelle').and(:age).between(2, 5)
+        #    Person.find(:name => 'kalle', :age => (2..5))
+        #    Person.find("name: 'asd'").and(:wheels => 8)
         #
         # @example Using the lucene java object
         #   # using the Neo4j query method directly

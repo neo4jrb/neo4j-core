@@ -223,6 +223,7 @@ describe "Neo4j::Node#index", :type => :integration do
       end
 
       it "can combine AND queries" do
+        MyIndex.find("name: 'asd'").and(:wheels => 8).should be_empty
         MyIndex.find(:name => 'asd').and(:wheels => 8).should be_empty
         MyIndex.find(:name => 'bla').and(:wheels => 7).should be_empty
         MyIndex.find(:name => 'bla').and(:wheels => 8).first.should == thing3
@@ -408,6 +409,7 @@ describe "Neo4j::Node#index", :type => :integration do
 
       # then
       MyIndex.find('description: "hej"', :type => :fulltext, :wrapped => false).get_single.should == new_node.wrapped_entity
+      MyIndex.find({:description => "hej"}, :type => :fulltext).first.should == new_node.wrapped_entity
     end
 
     it "does not remove old index when calling add_index twice" do
