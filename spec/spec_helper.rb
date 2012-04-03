@@ -69,15 +69,8 @@ Neo4j::Config[:storage_path] = File.join(Dir.tmpdir, "neo4j_core_integration_rsp
 FileUtils.rm_rf Neo4j::Config[:storage_path]
 
 RSpec.configure do |c|
-  c.filter_run_excluding :slow => ENV['TRAVIS'] != 'true'
 
   c.include(CustomNeo4jMatchers)
-
-  #c.before(:all, :type => :java_integration) do
-  #  finish_tx
-  #  Neo4j.shutdown
-  #  FileUtils.rm_rf Neo4j::Config[:storage_path]
-  #end
 
   c.after(:each, :type => :integration) do
     finish_tx
@@ -95,4 +88,5 @@ RSpec.configure do |c|
     Neo4j.shutdown
     Neo4j::Core::Database.default_embedded_db = nil
   end
+
 end

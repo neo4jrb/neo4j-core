@@ -61,6 +61,7 @@ require 'neo4j-core/traversal/traverser'
 require 'neo4j-core/cypher/cypher'
 require 'neo4j-core/cypher/result_wrapper'
 
+require 'neo4j/algo'
 require 'neo4j/cypher'
 require 'neo4j/node'
 require 'neo4j/relationship'

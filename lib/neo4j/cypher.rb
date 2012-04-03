@@ -116,7 +116,7 @@ module Neo4j
 
     def shortest_paths(&block)
       match = instance_eval(&block)
-      match.algorithm = 'shortestPaths'
+      match.algorithm = 'allShortestPaths'
       match.find_match_start
     end
 
