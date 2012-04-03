@@ -16,7 +16,7 @@ RSpec.configure do |c|
   else
     # If no edition profided, we need to exclude spacs tagged with :edition
     c.exclusion_filter = {
-      :edition => lambda {|ed| ed.present? }
+      :edition => lambda {|ed| [:enterprise, :advanced].include?(ed) }
     }
   end
 end
