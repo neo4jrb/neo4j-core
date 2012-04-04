@@ -21,6 +21,8 @@ The Neo4j module is public and the Neo4j::Core(::*) are internal modules.
 
 {Neo4j::Cypher} Cypher Query Generator, see RSpec spec/neo4j/cypher_spec
 
+{Neo4j::Algo} Included algorithms, like shortest path
+
 == Custom Index
 
 You can create your own indexer.

@@ -18,6 +18,8 @@ describe Neo4j::Node, :type => :integration do
       n = Neo4j::Node.load(id)
       n.neo_id.should == id
     end
+    its("props.size") { should == 1 }
+    its(:props) { should include('_neo_id') }
   end
 
   describe "#del" do

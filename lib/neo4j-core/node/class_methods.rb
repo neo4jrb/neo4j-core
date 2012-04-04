@@ -61,11 +61,11 @@ module Neo4j
         end
 
         # Loads a node or wrapped node given a native java node or an id.
-        # If there is a Ruby wrapper for the node then it will create a Ruby object that will
-        # wrap the java node (see Neo4j::NodeMixin).
-        # To implement a wrapper you must implement a wrapper class method in the Neo4j::Node or Neo4j::Relationship.
+        # If there is a Ruby wrapper for the node then it will create and return a Ruby object that will
+        # wrap the java node.
         #
-        # @return [Object, nil] If the node does not exist it will return nil otherwise the loaded node or wrapped node.
+        # @param [nil, #to_i] node_id the neo4j node id
+        # @return [Object, Neo4j::Node, nil] If the node does not exist it will return nil otherwise the loaded node or wrapped node.
         def load(node_id, db = Neo4j.started_db)
           node = _load(node_id, db)
           node && node.wrapper

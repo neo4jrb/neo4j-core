@@ -5,9 +5,7 @@ module Neo4j
       # @return [Hash] all properties plus the id of the node with the key <tt>_neo_id</tt>
       def props
         ret = {"_neo_id" => neo_id}
-        iter = get_property_keys.iterator
-        while (iter.hasNext) do
-          key = iter.next
+        property_keys.each do |key|
           ret[key] = get_property(key)
         end
         ret
