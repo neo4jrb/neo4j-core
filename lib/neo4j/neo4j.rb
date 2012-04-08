@@ -221,15 +221,16 @@ module Neo4j
     # Neo4j.management(org.neo4j.management.HighAvailability).isMaster
     #
     # @param jmx_clazz the JMX class http://api.neo4j.org/current/org/neo4j/management/package-summary.html
-    # @param this_db default currently runnig instance or a newly started neo4j db instance
+    # @param this_db default currently running instance or a newly started neo4j db instance
     # @see for the jmx_clazz p
-    def management(jmx_clazz = org.neo4j.jmx.Primitives, this_db = self.started_db)
+    # @node this
+    def management(jmx_clazz = Java::OrgNeo4jJmx::Primitives, this_db = self.started_db)
       this_db.management(jmx_clazz)
     end
 
     # @return [Enumerable] all nodes in the database
     def all_nodes(this_db = self.started_db)
-      Enumerable::Enumerator.new(this_db, :each_node)
+      Enumerator.new(this_db, :each_node)
     end
 
     # @return [Enumerable] all nodes in the database but not wrapped in ruby classes.

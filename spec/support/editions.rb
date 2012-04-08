@@ -12,9 +12,10 @@ RSpec.configure do |c|
 
   if edition
     require "neo4j-#{edition}"
-    c.filter = { :edition => edition }
+    puts "RUN #{edition}"
+    c.filter = { :edition => edition.to_sym }
   else
-    # If no edition profided, we need to exclude spacs tagged with :edition
+    # If no edition provided, we need to exclude specs tagged with :edition
     c.exclusion_filter = {
       :edition => lambda {|ed| [:enterprise, :advanced].include?(ed) }
     }

@@ -88,7 +88,7 @@ module Neo4j
     # You only need to implement the methods that you need.
     #
     class EventHandler
-      include org.neo4j.graphdb.event.TransactionEventHandler
+      include Java::OrgNeo4jGraphdbEvent::TransactionEventHandler
 
       def initialize
         @listeners = []
