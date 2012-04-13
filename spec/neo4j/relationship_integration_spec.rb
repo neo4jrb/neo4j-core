@@ -24,7 +24,7 @@ describe Neo4j::Relationship, :type => :integration do
 
     its(:neo_id) { should be_a(Fixnum) }
     its(:class) { should == Neo4j::Relationship }
-    its(:rel_type) { should == "friends" }
+    its(:rel_type) { should == :friends }
     its(:exist?) { should be_true }
     its(:wrapper) { should == subject }
     its(:_java_rel) { should == subject }

@@ -79,10 +79,10 @@ module Neo4j
       # @example
       #   a = Neo4j::Node.new
       #   a.outgoing(:friends) << Neo4j::Node.new
-      #   a.rels.first.rel_type # => 'friends'
-      # @return [String] the type of the relationship
+      #   a.rels.first.rel_type # => :friends
+      # @return [Symbol] the type of the relationship
       def rel_type
-        getType().name()
+        getType().name().to_sym
       end
 
       def class
