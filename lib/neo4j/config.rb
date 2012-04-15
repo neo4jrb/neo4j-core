@@ -123,15 +123,12 @@ module Neo4j
         map
       end
 
-      private
-
       # @return The a new configuration using default values as a hash.
       def setup()
         @configuration = {}
         @configuration.merge!(defaults)
         @configuration
       end
-
 
     end
   end
