@@ -170,6 +170,18 @@ module Neo4j
           MatchNode.new(self, other, expressions, :outgoing)
         end
 
+        def outgoing(rel_type)
+          node = NodeVar.new(@expressions, @variables)
+          MatchRelLeft.new(self, ":#{rel_type}", expressions, :outgoing) > node
+          node
+        end
+
+        def incoming(rel_type)
+          node = NodeVar.new(@expressions, @variables)
+          MatchRelLeft.new(self, ":#{rel_type}", expressions, :incoming) < node
+          node
+        end
+
         # Incoming relationship to other node
         # @param [Symbol, #var_name] other either a node (Symbol, #var_name)
         # @return [MatchRelLeft, MatchNode]
@@ -665,6 +677,7 @@ module Neo4j
         def initialize(expressions, variables)
           @var_name = "v#{variables.size}"
           variables << self
+          @variables = variables
           @expressions = expressions
         end
 

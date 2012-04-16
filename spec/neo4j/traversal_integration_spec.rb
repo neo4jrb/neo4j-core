@@ -141,12 +141,15 @@ describe Neo4j::Node, :type => :integration do
   end
 
   describe "#both(:friends) << other_node " do
-    it "should raise an exception" do
+    it "should create both incoming and outgoing relationships" do
       a = Neo4j::Node.new
       other_node = Neo4j::Node.new
 
       # when
-      expect { a.both(:friends) << other_node }.to raise_error
+      a.both(:friends) << other_node
+      a.incoming(:friends).should include(other_node)
+      a.outgoing(:friends).should include(other_node)
+      a.rels(:both, :friends).count.should == 2
     end
   end
 

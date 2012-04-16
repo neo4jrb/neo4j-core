@@ -17,13 +17,55 @@ module Neo4j
           if type.nil?
             raise "Traversing all relationship in direction #{dir.inspect} not supported, only :both supported" unless dir == :both
             @td = Java::OrgNeo4jKernelImplTraversal::TraversalDescriptionImpl.new.breadth_first()
+          elsif (dir == :both)
+            both(type)
+          elsif (dir == :incoming)
+            incoming(type)
+          elsif (dir == :outgoing)
+            outgoing(type)
           else
-            @type = type_to_java(type)
-            @dir = dir_to_java(dir)
-            @td = Java::OrgNeo4jKernelImplTraversal::TraversalDescriptionImpl.new.breadth_first().relationships(@type, @dir)
+            raise "Illegal direction #{dir.inspect}, expected :outgoing, :incoming or :both"
           end
         end
 
+
+        class CypherQuery
+          include Enumerable
+          attr_accessor :query, :return_variable
+
+          def initialize(start_id, dir, types, &block)
+            this = self
+
+            rel_type = ":#{types.first}"
+
+            @query = Neo4j::Cypher.new do
+              default_ret = node(:default_ret)
+              n = node(start_id)
+              n > rel_type > default_ret
+              # where statement
+              ret_maybe = block && self.instance_exec(default_ret, &block)
+              #              puts "ret_maybe=#{ret_maybe}/#{ret_maybe.class} respond? "
+              ret = ret_maybe.respond_to?(:var_name) ? ret_maybe : default_ret
+              this.return_variable = ret.var_name.to_sym
+              ret
+            end.to_s
+            puts "QUERY = '#{query}'"
+          end
+
+          def each
+            Neo4j._query(query).each do |r|
+              yield r[return_variable]
+            end
+          end
+        end
+
+        def query(&block)
+          # only one direction is supported
+          rel_types = [@outgoing_rel_types, @incoming_rel_types, @both_rel_types].find_all { |x| !x.nil? }
+          raise "Only one direction is allowed, outgoing:#{@outgoing_rel_types}, incoming:#{@incoming_rel_types}, @both:#{@both_rel_types}" if rel_types.count != 1
+          start_id = @from.neo_id
+          CypherQuery.new(start_id, :outgoing, rel_types.first, &block)
+        end
 
         # Sets traversing depth first.
         #
@@ -112,11 +154,19 @@ module Neo4j
         end
 
         def to_s
-          "NodeTraverser [from: #{@from.neo_id} depth: #{@depth} type: #{@type} dir:#{@dir}"
+          "NodeTraverser [from: #{@from.neo_id} depth: #{@depth}"
         end
 
 
         # Creates a new relationship between given node and self
+        # It can create more then one relationship
+        #
+        # @example One outgoing relationships
+        #   node.outgoing(:foo) << other_node
+        #
+        # @example Two outgoing relationships
+        #   node.outgoing(:foo).outgoing(:bar) << other_node
+        #
         # @param [Neo4j::Node] other_node the node to which we want to create a relationship
         # @return (see #new)
         def <<(other_node)
@@ -130,25 +180,49 @@ module Neo4j
         end
 
         # Creates a new relationship between self and given node.
+        # It can create more then one relationship
+        # This method is used by the <tt><<</tt> operator.
+        #
+        # @example create one relationship
+        #   node.outgoing(:bar).new(other_node, rel_props)
+        #
+        # @example two relationships
+        #   node.outgoing(:bar).outgoing(:foo).new(other_node, rel_props)
+        #
+        # @example both incoming and outgoing - two relationships
+        #   node.both(:bar).new(other_node, rel_props)
+        #
+        # @see #<<
         # @param [Hash] props properties of new relationship
         # @return [Neo4j::Relationship] the created relationship
         def new(other_node, props = {})
-          case @dir
-            when Java::OrgNeo4jGraphdb::Direction::OUTGOING
-              @from.create_relationship_to(other_node, @type).update(props)
-            when Java::OrgNeo4jGraphdb::Direction::INCOMING
-              other_node.create_relationship_to(@from, @type).update(props)
-            else
-              raise "Only allowed to create outgoing or incoming relationships (not #@dir)"
-          end
+          @outgoing_rel_types && @outgoing_rel_types.each {|type| _new_out(other_node, type, props)}
+          @incoming_rel_types && @incoming_rel_types.each {|type| _new_in(other_node, type, props)}
+          @both_rel_types && @both_rel_types.each {|type| _new_both(other_node, type, props)}
+        end
+
+        # @private
+        def _new_out(other_node, type, props)
+          @from.create_relationship_to(other_node, type_to_java(type)).update(props)
+        end
+
+        # @private
+        def _new_in(other_node, type, props)
+          other_node.create_relationship_to(@from, type_to_java(type)).update(props)
+        end
+
+        # @private
+        def _new_both(other_node, type, props)
+          _new_out(other_node, type, props)
+          _new_in(other_node, type, props)
         end
 
         # @param (see Neo4j::Core::Traversal#both)
         # @see Neo4j::Core::Traversal#both
         def both(type)
-          @type = type_to_java(type) if type
-          @dir = dir_to_java(:both)
-          @td = @td.relationships(type_to_java(type), @dir)
+          @both_rel_types ||= []
+          @both_rel_types << type
+          _add_rel(:both, type)
           self
         end
 
@@ -165,9 +239,9 @@ module Neo4j
         # @return self
         # @see Neo4j::Core::Traversal#outgoing
         def outgoing(type)
-          @type = type_to_java(type) if type
-          @dir = dir_to_java(:outgoing)
-          @td = @td.relationships(type_to_java(type), @dir)
+          @outgoing_rel_types ||= []
+          @outgoing_rel_types << type
+          _add_rel(:outgoing, type)
           self
         end
 
@@ -176,10 +250,17 @@ module Neo4j
         # @return self
         # @see Neo4j::Core::Traversal#incoming
         def incoming(type)
-          @type = type_to_java(type) if type
-          @dir = dir_to_java(:incoming)
-          @td = @td.relationships(type_to_java(type), @dir)
+          @incoming_rel_types ||= []
+          @incoming_rel_types << type
+          _add_rel(:incoming, type)
           self
+        end
+
+        # @private
+        def _add_rel(dir, type)
+          t = type_to_java(type)
+          d = dir_to_java(dir)
+          @td = @td ? @td.relationships(t, d) : Java::OrgNeo4jKernelImplTraversal::TraversalDescriptionImpl.new.breadth_first().relationships(t, d)
         end
 
         # Cuts of of parts of the traversal.
