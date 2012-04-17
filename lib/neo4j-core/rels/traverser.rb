@@ -29,7 +29,7 @@ module Neo4j
           iter = iterator
           while (iter.has_next())
             rel = iter.next
-            yield rel.wrapper if match_to_other?(rel)
+            yield rel.wrapper if match_between?(rel)
           end
         end
 
@@ -44,27 +44,29 @@ module Neo4j
         end
 
         # @return [true,false] true if it match the specified other node
-        # @see #to_other
-        def match_to_other?(rel)
-          if @to_other.nil?
+        # @see #between
+        def match_between?(rel)
+          if @between.nil?
             true
           elsif @dir == :outgoing
-            rel._end_node == @to_other
+            rel._end_node == @between
           elsif @dir == :incoming
-            rel._start_node == @to_other
+            rel._start_node == @between
           else
-            rel._start_node == @to_other || rel._end_node == @to_other
+            rel._start_node == @between || rel._end_node == @between
           end
         end
 
         # Specifies that we only want relationship to the given node
-        # @param [Neo4j::Node] to_other a node or an object that implements the Neo4j::Core::Equal mixin
+        # @param [Neo4j::Node] between a node or an object that implements the Neo4j::Core::Equal mixin
         # @return self
-        def to_other(to_other)
-          @to_other = to_other
+        def between(between)
+          @between = between
           self
         end
 
+        alias_method :to_other, :between
+        
         # Deletes all the relationships
         def del
           each { |rel| rel.del }
