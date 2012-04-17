@@ -19,10 +19,6 @@ The Neo4j module is public and the Neo4j::Core(::*) are internal modules.
 
 {Neo4j} The Database
 
-{Neo4j::NodeIndex} A simple implementaiton of a lucene index for nodes
-
-{Neo4j::RelationshipIndex} A simple implementaiton of a lucene index for relationships
-
 {Neo4j::Cypher} Cypher Query Generator, see RSpec spec/neo4j/cypher_spec
 
 {Neo4j::Algo} Included algorithms, like shortest path

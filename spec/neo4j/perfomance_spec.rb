@@ -4,12 +4,12 @@
 #  extend Neo4j::Core::Index::ClassMethods
 #  extend Forwardable
 #  include Neo4j::Core::Index
-#  attr_reader :wrapped_entity
+#  attr_reader :java_entity
 #
-#  def_delegators :wrapped_entity, :[], :[]=
+#  def_delegators :java_entity, :[], :[]=
 #
 #  def initialize(props = {})
-#    @wrapped_entity = self.class.new_node(props)
+#    @java_entity = self.class.new_node(props)
 #  end
 #
 #  self.node_indexer do

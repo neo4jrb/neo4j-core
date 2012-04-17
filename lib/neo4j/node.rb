@@ -9,9 +9,26 @@ module Neo4j
   # *org.neo4j.kernel.impl.core.NodeProxy* object. This java object includes the same mixin as this class. The #class method on the java object
   # returns Neo4j::Node in order to make it feel like an ordinary Ruby object.
   #
+  # @example Create a node with one property (see {Neo4j::Core::Node::ClassMethods})
+  #   Neo4j::Node.new(:name => 'andreas')
+  #
+  # @example Create a relationship (see {Neo4j::Core::Traversal})
+  #   Neo4j::Node.new.outgoing(:friends) << Neo4j::Node.new
+  #
+  # @example Finding relationships (see {Neo4j::Core::Rels})
+  #   node.rels(:outgoing, :friends)
+  #
+  # @example Lucene index (see {Neo4j::Core::Index})
+  #   Neo4j::Node.trigger_on(:typex => 'MyTypeX')
+  #   Neo4j::Node.index(:name)
+  #   a = Neo4j::Node.new(:name => 'andreas', :typex => 'MyTypeX')
+  #   # finish_tx
+  #   Neo4j::Node.find(:name => 'andreas').first.should == a
+  #
   class Node
     extend Neo4j::Core::Node::ClassMethods
     extend Neo4j::Core::Wrapper::ClassMethods
+    extend Neo4j::Core::Index::ClassMethods
 
     include Neo4j::Core::Property
     include Neo4j::Core::Rels
@@ -20,6 +37,11 @@ module Neo4j
     include Neo4j::Core::Node
     include Neo4j::Core::Wrapper
     include Neo4j::Core::Property::Java # for documentation purpose only
+    include Neo4j::Core::Index
+
+    node_indexer do
+      index_names :exact => 'default_node_index_exact', :fulltext => 'default_node_index_fulltext'
+    end
 
     class << self
 
@@ -33,6 +55,7 @@ module Neo4j
           include Neo4j::Core::Equal
           include Neo4j::Core::Node
           include Neo4j::Core::Wrapper
+          include Neo4j::Core::Index
         end
       end
     end

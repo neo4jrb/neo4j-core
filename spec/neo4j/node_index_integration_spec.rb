@@ -7,12 +7,12 @@ describe "Neo4j::Node#index", :type => :integration do
     extend Neo4j::Core::Index::ClassMethods
     extend Forwardable
     include Neo4j::Core::Index
-    attr_reader :wrapped_entity
+    attr_reader :java_entity
 
-    def_delegators :wrapped_entity, :[], :[]=
+    def_delegators :java_entity, :[], :[]=
 
     def initialize(props = {})
-      @wrapped_entity = self.class.new_node(props)
+      @java_entity = self.class.new_node(props)
     end
 
     self.node_indexer do
@@ -43,31 +43,51 @@ describe "Neo4j::Node#index", :type => :integration do
 
   describe "Neo4j::NodeIndex" do
     before(:all) do
-      Neo4j::NodeIndex.trigger_on(:typex => 'MyTypeX')
-      Neo4j::NodeIndex.index(:name)
+      Neo4j::Node.trigger_on(:typex => 'MyTypeX')
+      Neo4j::Node.index(:name)
+    end
+
+    after(:all) do
+      Neo4j::Node.rm_index_config
+      Neo4j::Node.rm_index_type
     end
 
     it "will be triggered" do
       new_tx
       a = Neo4j::Node.new(:name => 'andreas', :typex => 'MyTypeX')
-      Neo4j::NodeIndex.find(:name => 'andreas').first.should be_nil
+      Neo4j::Node.find(:name => 'andreas').first.should be_nil
       finish_tx
-      Neo4j::NodeIndex.find(:name => 'andreas').first.should == a
+      Neo4j::Node.find(:name => 'andreas').first.should == a
+    end
+
+    it "can by updated with the add_index method" do
+      new_tx
+      foo = Neo4j::Node.new(:name => 'foo')
+      foo.add_index(:name)
+      Neo4j::Node.find(:name => 'foo').first.should == foo
+    end
+
+    it "can not allow index on none indexed fields" do
+      new_tx
+      surname = Neo4j::Node.new(:surname => 'bar')
+      surname.add_index(:surname)
+      # TODO, either throw an Exception above or allow this
+      lambda{Neo4j::Node.find(:surname => 'bar').first}.should raise_error
     end
   end
 
   describe "Neo4j::RelationshipIndex" do
     before(:all) do
-      Neo4j::RelationshipIndex.trigger_on(:typey => 123)
-      Neo4j::RelationshipIndex.index(:name)
+      Neo4j::Relationship.trigger_on(:typey => 123)
+      Neo4j::Relationship.index(:name)
     end
 
     it "will be triggered" do
       new_tx
       a = Neo4j::Relationship.new(:friends, Neo4j::Node.new, Neo4j::Node.new, :typey => 123, :name => 'kalle')
-      Neo4j::RelationshipIndex.find(:name => 'kalle').first.should be_nil
+      Neo4j::Relationship.find(:name => 'kalle').first.should be_nil
       finish_tx
-      Neo4j::RelationshipIndex.find(:name => 'kalle').first.should == a
+      Neo4j::Relationship.find(:name => 'kalle').first.should == a
     end
   end
 
@@ -317,7 +337,7 @@ describe "Neo4j::Node#index", :type => :integration do
       new_node.add_index(:things, 'bb')
       new_node.add_index(:things, 'cc')
       finish_tx
-      new_node.wrapped_entity
+      new_node.java_entity
     end
 
     it "remove entity index" do
@@ -341,8 +361,8 @@ describe "Neo4j::Node#index", :type => :integration do
       new_node.add_index(:name)
 
       # then
-      MyIndex.find('name: lala').first.should == new_node.wrapped_entity
-      MyIndex.find('name: "Kalle Kula"').first.should_not == new_node.wrapped_entity
+      MyIndex.find('name: lala').first.should == new_node.java_entity
+      MyIndex.find('name: "Kalle Kula"').first.should_not == new_node.java_entity
     end
   end
 
@@ -424,7 +444,7 @@ describe "Neo4j::Node#index", :type => :integration do
       new_node.add_index(:name)
 
       # then
-      MyIndex.find("name: andreas", :wrapped => false).get_single.should == new_node.wrapped_entity
+      MyIndex.find("name: andreas", :wrapped => false).get_single.should == new_node.java_entity
     end
 
 
@@ -438,8 +458,8 @@ describe "Neo4j::Node#index", :type => :integration do
       new_node.add_index(:description)
 
       # then
-      MyIndex.find('description: "hej"', :type => :fulltext, :wrapped => false).get_single.should == new_node.wrapped_entity
-      MyIndex.find({:description => "hej"}, :type => :fulltext).first.should == new_node.wrapped_entity
+      MyIndex.find('description: "hej"', :type => :fulltext, :wrapped => false).get_single.should == new_node.java_entity
+      MyIndex.find({:description => "hej"}, :type => :fulltext).first.should == new_node.java_entity
     end
 
     it "does not remove old index when calling add_index twice" do
@@ -454,8 +474,8 @@ describe "Neo4j::Node#index", :type => :integration do
       new_node.add_index(:name)
 
       # then
-      MyIndex.find('name: lala').first.should == new_node.wrapped_entity
-      MyIndex.find('name: "Kalle Kula"').first.should == new_node.wrapped_entity
+      MyIndex.find('name: lala').first.should == new_node.java_entity
+      MyIndex.find('name: "Kalle Kula"').first.should == new_node.java_entity
     end
 
 

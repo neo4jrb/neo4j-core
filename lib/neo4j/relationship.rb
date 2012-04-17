@@ -29,23 +29,36 @@ module Neo4j
   #
   #   node.outgoing(:friends) << other_node << yet_another_node
   #
+  # @example lucene index
+  #  Neo4j::Relationship.trigger_on(:typey => 123)
+  #  Neo4j::Relationship.index(:name)
+  #  a = Neo4j::Relationship.new(:friends, Neo4j::Node.new, Neo4j::Node.new, :typey => 123, :name => 'kalle')
+  #  # Finish tx
+  #  Neo4j::Relationship.find(:name => 'kalle').first.should be_nil
+  #
   # @see http://api.neo4j.org/current/org/neo4j/graphdb/Relationship.html
   #
   class Relationship
     extend Neo4j::Core::Relationship::ClassMethods
     extend Neo4j::Core::Wrapper::ClassMethods
+    extend Neo4j::Core::Index::ClassMethods
 
     include Neo4j::Core::Property
     include Neo4j::Core::Equal
     include Neo4j::Core::Relationship
     include Neo4j::Core::Wrapper
     include Neo4j::Core::Property::Java # for documentation purpose only
+    include Neo4j::Core::Index
 
 
     # (see Neo4j::Core::Relationship::ClassMethods#new)
     def initialize(rel_type, start_node, end_node, props={})
     end
 
+
+    rel_indexer do
+      index_names :exact => 'default_rel_index_exact', :fulltext => 'default_rel_index_fulltext'
+    end
 
     class << self
       def extend_java_class(java_clazz) #:nodoc:
@@ -54,6 +67,7 @@ module Neo4j
           include Neo4j::Core::Equal
           include Neo4j::Core::Relationship
           include Neo4j::Core::Wrapper
+          include Neo4j::Core::Index
         end
       end
 

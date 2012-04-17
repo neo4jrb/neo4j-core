@@ -53,6 +53,17 @@ module Neo4j
           @_indexer ||= IndexerRegistry.instance.register(Indexer.new(index_config))
         end
 
+        # You can specify which nodes should be triggered.
+        # The index can be triggered by one or more properties having one or more values.
+        # This can also be done using the #node_indexer or #rel_indexer methods.
+        #
+        # @example trigger on property :type being 'MyType1'
+        #   Neo4j::NodeIndex.trigger_on(:type => 'MyType1')
+        #
+        def trigger_on(hash)
+          _config.trigger_on(hash)
+        end
+
 
         class << self
           private

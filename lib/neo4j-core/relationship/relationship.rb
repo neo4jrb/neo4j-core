@@ -60,7 +60,7 @@ module Neo4j
 
       # same as #_java_rel
       # Used so that we have same method for both relationship and nodes
-      def wrapped_entity
+      def java_entity
         self
       end
 

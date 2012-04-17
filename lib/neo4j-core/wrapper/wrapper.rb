@@ -8,6 +8,13 @@ module Neo4j
       def wrapper
         self.class.wrapper(self)
       end
+
+      # This can be implemented by a wrapper to returned the underlying java node or relationship.
+      # You can override this method in your own wrapper class.
+      # @return self
+      def java_entity
+        self
+      end
     end
   end
 end
