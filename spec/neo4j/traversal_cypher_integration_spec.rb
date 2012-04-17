@@ -31,6 +31,12 @@ describe "Neo4j Traversal query method", :type => :integration do
   end
 
 
+  describe "a where clause with a hash query param" do
+    it ".query(:name => 'b') will translate to a WHERE and cypher query" do
+      @a.outgoing(:foo).query(:name => 'b').first.should == @b
+    end
+  end
+
   describe "a match clause in the query block" do
 
     it "allows > match clause" do
@@ -53,5 +59,6 @@ describe "Neo4j Traversal query method", :type => :integration do
       result.count.should == 1
       result.first[:val].should == 2
     end
+
   end
 end

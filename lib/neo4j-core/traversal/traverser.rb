@@ -39,6 +39,10 @@ module Neo4j
           end.to_s
         end
 
+        def to_s
+          @query
+        end
+
         def each
           Neo4j._query(query).each do |r|
             yield r[return_variable]
@@ -73,13 +77,13 @@ module Neo4j
         end
 
 
-        def query(&block)
+        def query(query_hash = nil, &block)
           # only one direction is supported
           rel_types = [@outgoing_rel_types, @incoming_rel_types, @both_rel_types].find_all { |x| !x.nil? }
           raise "Only one direction is allowed, outgoing:#{@outgoing_rel_types}, incoming:#{@incoming_rel_types}, @both:#{@both_rel_types}" if rel_types.count != 1
           start_id = @from.neo_id
           dir = (@outgoing_rel_types && :outgoing) || (@incoming_rel_types && :incoming) || (@both_rel_types && :both)
-          CypherQuery.new(start_id, dir, rel_types.first, &block)
+          CypherQuery.new(start_id, dir, rel_types.first, query_hash, &block)
         end
 
         # Sets traversing depth first.
