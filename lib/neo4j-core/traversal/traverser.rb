@@ -2,6 +2,50 @@ module Neo4j
   module Core
     module Traversal
 
+      class CypherQuery
+        include Enumerable
+        attr_accessor :query, :return_variable
+
+        def initialize(start_id, dir, types, query_hash=nil, &block)
+          this = self
+
+          rel_type = ":#{types.map{|x| "`#{x}`"}.join('|')}"
+
+          @query = Neo4j::Cypher.new do
+            default_ret = node(:default_ret)
+            n = node(start_id)
+            case dir
+              when :outgoing then
+                n > rel_type > default_ret
+              when :incoming then
+                n < rel_type < default_ret
+              when :both then
+                n - rel_type - default_ret
+            end
+
+            # where statement
+            ret_maybe = block && self.instance_exec(default_ret, &block)
+            ret = ret_maybe.respond_to?(:var_name) ? ret_maybe : default_ret
+            if query_hash
+              expr = []
+              query_hash.each{|pair|  expr << (ret[pair[0]] == pair[1])}.to_a
+              expr.each_with_index do |obj, i|
+                Neo4j::Core::Cypher::ExprOp.new(obj, expr[i+1], "and") if i < expr.size - 1
+              end
+            end
+
+            this.return_variable = ret.var_name.to_sym
+            ret
+          end.to_s
+        end
+
+        def each
+          Neo4j._query(query).each do |r|
+            yield r[return_variable]
+          end
+        end
+      end
+
       # By using this class you can both specify traversals and create new relationships.
       # This object is return from the Neo4j::Core::Traversal methods.
       # @see Neo4j::Core::Traversal#outgoing
@@ -29,42 +73,13 @@ module Neo4j
         end
 
 
-        class CypherQuery
-          include Enumerable
-          attr_accessor :query, :return_variable
-
-          def initialize(start_id, dir, types, &block)
-            this = self
-
-            rel_type = ":#{types.first}"
-
-            @query = Neo4j::Cypher.new do
-              default_ret = node(:default_ret)
-              n = node(start_id)
-              n > rel_type > default_ret
-              # where statement
-              ret_maybe = block && self.instance_exec(default_ret, &block)
-              #              puts "ret_maybe=#{ret_maybe}/#{ret_maybe.class} respond? "
-              ret = ret_maybe.respond_to?(:var_name) ? ret_maybe : default_ret
-              this.return_variable = ret.var_name.to_sym
-              ret
-            end.to_s
-            puts "QUERY = '#{query}'"
-          end
-
-          def each
-            Neo4j._query(query).each do |r|
-              yield r[return_variable]
-            end
-          end
-        end
-
         def query(&block)
           # only one direction is supported
           rel_types = [@outgoing_rel_types, @incoming_rel_types, @both_rel_types].find_all { |x| !x.nil? }
           raise "Only one direction is allowed, outgoing:#{@outgoing_rel_types}, incoming:#{@incoming_rel_types}, @both:#{@both_rel_types}" if rel_types.count != 1
           start_id = @from.neo_id
-          CypherQuery.new(start_id, :outgoing, rel_types.first, &block)
+          dir = (@outgoing_rel_types && :outgoing) || (@incoming_rel_types && :incoming) || (@both_rel_types && :both)
+          CypherQuery.new(start_id, dir, rel_types.first, &block)
         end
 
         # Sets traversing depth first.
@@ -196,9 +211,9 @@ module Neo4j
         # @param [Hash] props properties of new relationship
         # @return [Neo4j::Relationship] the created relationship
         def new(other_node, props = {})
-          @outgoing_rel_types && @outgoing_rel_types.each {|type| _new_out(other_node, type, props)}
-          @incoming_rel_types && @incoming_rel_types.each {|type| _new_in(other_node, type, props)}
-          @both_rel_types && @both_rel_types.each {|type| _new_both(other_node, type, props)}
+          @outgoing_rel_types && @outgoing_rel_types.each { |type| _new_out(other_node, type, props) }
+          @incoming_rel_types && @incoming_rel_types.each { |type| _new_in(other_node, type, props) }
+          @both_rel_types && @both_rel_types.each { |type| _new_both(other_node, type, props) }
         end
 
         # @private
@@ -370,6 +385,7 @@ module Neo4j
           end
 
         end
+
       end
     end
   end

@@ -172,13 +172,19 @@ module Neo4j
 
         def outgoing(rel_type)
           node = NodeVar.new(@expressions, @variables)
-          MatchRelLeft.new(self, ":#{rel_type}", expressions, :outgoing) > node
+          MatchRelLeft.new(self, ":`#{rel_type}`", expressions, :outgoing) > node
           node
         end
 
         def incoming(rel_type)
           node = NodeVar.new(@expressions, @variables)
-          MatchRelLeft.new(self, ":#{rel_type}", expressions, :incoming) < node
+          MatchRelLeft.new(self, ":`#{rel_type}`", expressions, :incoming) < node
+          node
+        end
+
+        def both(rel_type)
+          node = NodeVar.new(@expressions, @variables)
+          MatchRelLeft.new(self, ":`#{rel_type}`", expressions, :both) < node
           node
         end
 

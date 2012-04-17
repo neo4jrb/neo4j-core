@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "Neo4j Cypher Traversal", :type => :integration do
+describe "Neo4j Traversal query method", :type => :integration do
   before(:all) do
     new_tx
     @a = Neo4j::Node.new(:name => 'a', :val => 1)
@@ -25,29 +25,33 @@ describe "Neo4j Cypher Traversal", :type => :integration do
 
   describe "b.outgoing(:foo).outgoing(:bar).query" do
     it "returns all outgoing nodes of rel type foo and bar" do
-      pending "TODO"
       @b.outgoing(:foo).outgoing(:bar).query.to_a.size.should == 3
       @b.outgoing(:foo).outgoing(:bar).query.should include(@c, @d, @e)
     end
   end
 
-  it "Some Tests" do
-    @a.outgoing(:foo).to_a.should include(@b,@c)
-    #result = a.outgoing(:foo).query{|x| x[:val] == 2}.to_a#.should include(b,c)
-    #result.size.should == 1
-    #result.should include(b)
-    #
-    #result = a.outgoing(:foo).query{|x| b=node(:b); x > ':bar' > b; b}
-    result = @a.outgoing(:foo).query{|x| b=node(:b); x > ':bar' > b; b}
-    result.each do |x|
-      puts "X=#{x.props.inspect}"
+
+  describe "a match clause in the query block" do
+
+    it "allows > match clause" do
+      result = @a.outgoing(:foo).query { |x| b=node(:b); x > ':bar' > b; b }
+      result.count.should == 3
     end
 
-    result = @a.outgoing(:foo).query{|x| f = x.outgoing(:bar); f2 = f.incoming(:bar); where f[:val] < 123123; f.distinct}
-    result.each do |x|
-      puts "X=#{x.props.inspect}"
+    it "allows a outgoing/incoming clause in the query block" do
+      result = @a.outgoing(:foo).query { |x| f = x.outgoing(:bar); f2 = f.incoming(:bar); f.distinct }
+      result.count.should == 1
     end
 
+    it "allows a both clause in the query block" do
+      result = @a.outgoing(:foo).query { |x| f = x.both(:bar); f.distinct }
+      result.count.should == 2
+    end
+
+    it "allows a where clause in the query block" do
+      result = @a.outgoing(:foo).query { |x| x[:val] == 2 }.to_a
+      result.count.should == 1
+      result.first[:val].should == 2
+    end
   end
-
 end
