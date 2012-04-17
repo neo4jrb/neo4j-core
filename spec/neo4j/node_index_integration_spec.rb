@@ -41,6 +41,36 @@ describe "Neo4j::Node#index", :type => :integration do
   end
 
 
+  describe "Neo4j::NodeIndex" do
+    before(:all) do
+      Neo4j::NodeIndex.trigger_on(:typex => 'MyTypeX')
+      Neo4j::NodeIndex.index(:name)
+    end
+
+    it "will be triggered" do
+      new_tx
+      a = Neo4j::Node.new(:name => 'andreas', :typex => 'MyTypeX')
+      Neo4j::NodeIndex.find(:name => 'andreas').first.should be_nil
+      finish_tx
+      Neo4j::NodeIndex.find(:name => 'andreas').first.should == a
+    end
+  end
+
+  describe "Neo4j::RelationshipIndex" do
+    before(:all) do
+      Neo4j::RelationshipIndex.trigger_on(:typey => 123)
+      Neo4j::RelationshipIndex.index(:name)
+    end
+
+    it "will be triggered" do
+      new_tx
+      a = Neo4j::Relationship.new(:friends, Neo4j::Node.new, Neo4j::Node.new, :typey => 123, :name => 'kalle')
+      Neo4j::RelationshipIndex.find(:name => 'kalle').first.should be_nil
+      finish_tx
+      Neo4j::RelationshipIndex.find(:name => 'kalle').first.should == a
+    end
+  end
+
   describe "index on array" do
     it "is possible to index arrays" do
       new_tx

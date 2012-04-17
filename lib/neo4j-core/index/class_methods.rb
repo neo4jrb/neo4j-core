@@ -21,18 +21,7 @@ module Neo4j
         #        trigger_on :ntype => 'foo', :name => ['bar', 'foobar']
         #
         #        prefix_index_name do
-        #          return "" unless Neo4j.running?
-        #          return "" unless @indexer_for.respond_to?(:ref_node_for_class)
-        #          ref_node = @indexer_for.ref_node_for_class.wrapper
-        #          prefix = ref_node.send(:_index_prefix) if ref_node.respond_to?(:_index_prefix)
-        #          prefix ||= ref_node[:name] # To maintain backward compatiblity
-        #          prefix.blank? ? "" : prefix + "_"
-        #         end
-        #
-        #
-        #        numeric do
-        #           type = decl_props && decl_props[field.to_sym] && decl_props[field.to_sym][:type]
-        #           type && !type.is_a?(String)
+        #          "Foo"  # this is used for example in multitenancy to let each domain have there own index files
         #        end
         #      end
         #   end
