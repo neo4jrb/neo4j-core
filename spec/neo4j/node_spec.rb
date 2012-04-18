@@ -216,6 +216,16 @@ describe Neo4j::Node, :type => :mock_db do
     end
   end
 
+  describe "rels(:incoming, :thing)" do
+    subject { MockNode.new }
+
+    it "should call the _rels method" do
+      x = MockNode.new
+      subject.should_receive(:_rels).with(:incoming, :thing).and_return([x])
+      subject.rels(:incoming, :thing).to_a.should == [x]
+    end
+  end
+
   describe "rels(:outgoing, :thing, :pling)" do
     subject { MockNode.new.rels(:outgoing, :thing, :pling) }
     it { should be_kind_of(Neo4j::Core::Rels::Traverser) }

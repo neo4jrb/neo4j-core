@@ -113,6 +113,26 @@ describe Neo4j::Core::Rels::Traverser do
 
   end
 
+  context "when initialized with one rel type and incominging direction" do
+    subject { Neo4j::Core::Rels::Traverser.new(a_node, [:friends], :incoming) }
+
+    it "can initialize it properly" do
+      subject.node.should == a_node
+      subject.dir.should == :incoming
+      subject.types.should == [:friends]
+    end
+
+    its(:to_s) { should be_kind_of(String) }
+
+    describe "iterator" do
+      it "calls the Neo4j::Node.rels with 0 args" do
+        a_node.should_receive(:_rels).with(:incoming, :friends).and_return('iterator')
+        subject.iterator.should == 'iterator'
+      end
+    end
+
+  end
+
   context "when initialized with zero rel types" do
     subject { Neo4j::Core::Rels::Traverser.new(a_node, []) }
 

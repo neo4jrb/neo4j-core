@@ -26,9 +26,7 @@ module Neo4j
 
         # Implements the Ruby Enumerable mixin
         def each
-          iter = iterator
-          while (iter.has_next())
-            rel = iter.next
+          iterator.each do |rel|
             yield rel.wrapper if match_between?(rel)
           end
         end

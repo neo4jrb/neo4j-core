@@ -86,6 +86,20 @@ describe Neo4j::Relationship, :type => :integration do
       end_node = subject.end_node
       end_node.rels(:incoming, :friends).should include(subject)
     end
+
+    it "can be found using the rel method on the start and end node" do
+      start_node = subject.start_node
+      end_node = subject.end_node
+
+      start_node.rel(:outgoing, :friends).should == subject
+      start_node.rel(:outgoing, :friends).end_node.should == end_node
+
+      end_node.rel(:incoming, :friends).should == subject
+      end_node.rel(:incoming, :friends).start_node.should == start_node
+
+      start_node.rels(:outgoing, :friends).to_a.should == [subject]
+      end_node.rels(:incoming, :friends).to_a.should == [subject]
+    end
   end
 
   describe "#del" do
