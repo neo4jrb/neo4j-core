@@ -1,12 +1,21 @@
 module Neo4j
   module Core
     module Cypher
-      # Wraps the Cypher query result
-      # Loads the wrapper if possible and use symbol as keys.
+      # Wraps the Cypher query result.
+      # Loads the node and relationships wrapper if possible and use symbol as column keys.
+      # @notice The result is a once forward read only Enumerable, work if you need to read the result twice - use #to_a
+      #
+      # @example
+      #   result = Neo4j.query(@a, @b){|a,b| node(a,b).as(:n)}
+      #   r = @query_result.to_a # can only loop once
+      #   r.size.should == 2
+      #   r.first.should include(:n)
+      #   r[0][:n].neo_id.should == @a.neo_id
+      #   r[1][:n].neo_id.should == @b.neo_id
       class ResultWrapper
         include Enumerable
 
-        # @return the original result from the Neo4j Cypher Engine
+        # @return the original result from the Neo4j Cypher Engine, once forward read only !
         attr_reader :source
 
         def initialize(source)
@@ -23,7 +32,7 @@ module Neo4j
           @source.each { |row| yield map(row) }
         end
 
-        # Maps each row
+        # Maps each row so that we can use symbols for column names.
         # @private
         def map(row)
           out = {} # move to a real hash!
