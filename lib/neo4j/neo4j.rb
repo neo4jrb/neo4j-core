@@ -71,9 +71,10 @@ module Neo4j
       db
     end
 
-    # @return [String, nil] the current storage path of a running neo4j database. If the database is not running it returns nil.
+    # If the database is not running it returns Neo4j::Config.storage_path otherwise it asks the database
+    # @return [String] the current storage path of the database
     def storage_path
-      return nil unless db.running?
+      return Neo4j::Config.storage_path unless db.running?
       db.storage_path
     end
 

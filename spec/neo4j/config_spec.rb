@@ -44,6 +44,22 @@ describe Neo4j::Config do
     end
   end
 
+  describe "Using string and Symbols as keys" do
+    it "does not matter" do
+      Neo4j::Config[:blabla] = 'foo_bar'
+      Neo4j::Config["blabla"].should == 'foo_bar'
+
+      Neo4j::Config["blabla2"] = 'foo_bar2'
+      Neo4j::Config[:blabla2].should == 'foo_bar2'
+
+      Neo4j::Config.setup.merge!(:kalle => 'foo', 'sune' => 'bar')
+      Neo4j::Config[:kalle].should == 'foo'
+      Neo4j::Config["kalle"].should == 'foo'
+      Neo4j::Config[:sune].should == 'bar'
+      Neo4j::Config["sune"].should == 'bar'
+    end
+  end
+
   describe "#to_java_map" do
     it "returns a java map" do
       Neo4j::Config.to_java_map.java_class.to_s.should == "java.util.HashMap"

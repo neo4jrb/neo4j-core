@@ -37,7 +37,7 @@ module Neo4j
       # @return [Hash] the default file loaded by yaml
       def defaults
         require 'yaml'
-        @defaults ||= YAML.load_file(default_file)
+        @defaults ||= Neo4j::Core::HashWithIndifferentAccess.new(YAML.load_file(default_file))
       end
 
       # @return [String] the expanded path of the Config[:storage_path] property
@@ -56,7 +56,7 @@ module Neo4j
       # @yield config
       # @yieldparam [Neo4j::Config] config - this configuration class
       def use
-        @configuration ||= {}
+        @configuration ||= Neo4j::Core::HashWithIndifferentAccess.new
         yield @configuration
         nil
       end
@@ -125,7 +125,7 @@ module Neo4j
 
       # @return The a new configuration using default values as a hash.
       def setup()
-        @configuration = {}
+        @configuration = Neo4j::Core::HashWithIndifferentAccess.new
         @configuration.merge!(defaults)
         @configuration
       end
