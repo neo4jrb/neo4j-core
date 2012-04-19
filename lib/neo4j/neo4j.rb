@@ -97,6 +97,10 @@ module Neo4j
     #  q.first[:n] #=> the @node
     #  q.columns.first => :n
     #
+    # @example Using an array of nodes
+    #  # same as - two_nodes=node(Neo4j.ref_node.neo_id, node_b.neo_id), b = node(b.neo_id)
+    #  q = Neo4j.query([Neo4j.ref_node, node_b], node_c){|two_nodes, b| two_nodes <=> b; b}
+    #
     # @example With an string
     #  q = Neo4j._query("START n=node(42) RETURN n")
     #  q.first(:n) #=> the @node

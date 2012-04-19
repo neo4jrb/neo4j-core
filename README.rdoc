@@ -10,6 +10,7 @@ The Neo4j module is public and the Neo4j::Core(::*) are internal modules.
 == Documentation
 
 * {YARD}[http://rdoc.info/github/andreasronge/neo4j-core/file/README.rdoc]
+* {Neo4j.rb Wiki}[https://github.com/andreasronge/neo4j/wiki/]
 
 == The public API
 

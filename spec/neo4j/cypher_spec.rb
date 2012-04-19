@@ -378,11 +378,11 @@ describe "Neo4j::Cypher" do
   end
 
   describe %{       a=node(2); ret a[:array], a[:array].filter{|x| x.length == 3}} do
-    it { Proc.new { a=node(2); ret a[:array], a[:array].filter{|x| x.length == 3} }.should be_cypher(%{START n0=node(2) RETURN n0.array,filter(x in n0.array : length(x) = 3)}) }
+    it { Proc.new { a=node(2); ret a[:array], a[:array].filter { |x| x.length == 3 } }.should be_cypher(%{START n0=node(2) RETURN n0.array,filter(x in n0.array : length(x) = 3)}) }
   end
 
   describe %{       a=node(2); ret a[:array], a[:array].filter{|x| x == "hej"}} do
-    it { Proc.new { a=node(2); ret a[:array], a[:array].filter{|x| x == "hej"} }.should be_cypher(%{START n0=node(2) RETURN n0.array,filter(x in n0.array : x = "hej")}) }
+    it { Proc.new { a=node(2); ret a[:array], a[:array].filter { |x| x == "hej" } }.should be_cypher(%{START n0=node(2) RETURN n0.array,filter(x in n0.array : x = "hej")}) }
   end
 
   describe %{       a=node(3); coalesce(a[:hair_colour?], a[:eyes?]) } do
@@ -434,31 +434,31 @@ describe "Neo4j::Cypher" do
   end
 
   describe %{       n=node(3,1,2); ret(n).asc(n[:name]} do
-    it { Proc.new { n=node(3,1,2); ret(n).asc(n[:name]) }.should be_cypher(%{START n0=node(3,1,2) RETURN n0 ORDER BY n0.name}) }
+    it { Proc.new { n=node(3, 1, 2); ret(n).asc(n[:name]) }.should be_cypher(%{START n0=node(3,1,2) RETURN n0 ORDER BY n0.name}) }
   end
 
   describe %{       n=node(3,1,2); ret(n, n[:name]).asc(n[:name], n[:age])} do
-    it { Proc.new { n=node(3,1,2); ret(n, n[:name]).asc(n[:name], n[:age]) }.should be_cypher(%{START n0=node(3,1,2) RETURN n0,n0.name ORDER BY n0.name,n0.age}) }
+    it { Proc.new { n=node(3, 1, 2); ret(n, n[:name]).asc(n[:name], n[:age]) }.should be_cypher(%{START n0=node(3,1,2) RETURN n0,n0.name ORDER BY n0.name, n0.age}) }
   end
 
   describe %{       n=node(3,1,2); ret(n).desc(n[:name]} do
-    it { Proc.new { n=node(3,1,2); ret(n).desc(n[:name]) }.should be_cypher(%{START n0=node(3,1,2) RETURN n0 ORDER BY n0.name DESC}) }
+    it { Proc.new { n=node(3, 1, 2); ret(n).desc(n[:name]) }.should be_cypher(%{START n0=node(3,1,2) RETURN n0 ORDER BY n0.name DESC}) }
   end
 
-  describe %{       n=node(3,1,2); p=node(5,6); ret(n).desc(n[:name]).asc(p[:age])} do
-    it { Proc.new { n=node(3,1,2); p=node(5,6); ret(n).desc(n[:name]).asc(p[:age]) }.should be_cypher(%{START n0=node(3,1,2),n1=node(5,6) RETURN n0 ORDER BY n1.age,n0.name DESC}) }
+  describe %{       n=node(3,1,2); p=node(5,6); ret(n).asc(p[:age]).desc(n[:name]) } do
+    it { Proc.new { n=node(3, 1, 2); p=node(5, 6); ret(n).asc(p[:age]).desc(n[:name]) }.should be_cypher(%{START n0=node(3,1,2),n1=node(5,6) RETURN n0 ORDER BY n1.age, n0.name DESC}) }
   end
 
   describe %{       a=node(3,4,5,1,2); ret(a).asc(a[:name]).skip(3)} do
-    it { Proc.new { a=node(3,4,5,1,2); ret(a).asc(a[:name]).skip(3) }.should be_cypher(%{START n0=node(3,4,5,1,2) RETURN n0 ORDER BY n0.name SKIP 3}) }
+    it { Proc.new { a=node(3, 4, 5, 1, 2); ret(a).asc(a[:name]).skip(3) }.should be_cypher(%{START n0=node(3,4,5,1,2) RETURN n0 ORDER BY n0.name SKIP 3}) }
   end
 
   describe %{       a=node(3,4,5,1,2); ret(a).asc(a[:name]).skip(1).limit(2} do
-    it { Proc.new { a=node(3,4,5,1,2); ret(a).asc(a[:name]).skip(1).limit(2) }.should be_cypher(%{START n0=node(3,4,5,1,2) RETURN n0 ORDER BY n0.name SKIP 1 LIMIT 2}) }
+    it { Proc.new { a=node(3, 4, 5, 1, 2); ret(a).asc(a[:name]).skip(1).limit(2) }.should be_cypher(%{START n0=node(3,4,5,1,2) RETURN n0 ORDER BY n0.name SKIP 1 LIMIT 2}) }
   end
 
   describe %{       a=node(3,4,5,1,2); ret a, :asc => a[:name], :skip => 1, :limit => 2} do
-    it { Proc.new { a=node(3,4,5,1,2); ret a, :asc => a[:name], :skip => 1, :limit => 2}.should be_cypher(%{START n0=node(3,4,5,1,2) RETURN n0 ORDER BY n0.name SKIP 1 LIMIT 2}) }
+    it { Proc.new { a=node(3, 4, 5, 1, 2); ret a, :asc => a[:name], :skip => 1, :limit => 2 }.should be_cypher(%{START n0=node(3,4,5,1,2) RETURN n0 ORDER BY n0.name SKIP 1 LIMIT 2}) }
   end
 
   describe %{       a=node(3); c = node(2); p = a >> :b >> c; nodes(p) } do
@@ -470,20 +470,47 @@ describe "Neo4j::Cypher" do
     it { Proc.new { a=node(3); c = node(2); p = a >> :b >> c; rels(p) }.should be_cypher(%{START n0=node(3),n1=node(2) MATCH m3 = (n0)-->(b)-->(n1) RETURN relationships(m3)}) }
   end
 
-  if RUBY_VERSION > "1.9.0"
-    # the ! operator is only available in Ruby 1.9.x
-    describe %{n=node(3).as(:n); where(!(n[:desc] =~ ".\d+")); ret n} do
-      it { Proc.new { n=node(3).as(:n); where(!(n[:desc] =~ ".\d+")); ret n }.should be_cypher(%q[START n=node(3) WHERE not(n.desc =~ /.d+/) RETURN n]) }
+  describe "5.2. Basic Friend finding based on social neighborhood " do
+    it do
+      Proc.new do
+        joe=node(3)
+        friends_of_friends = node(:friends_of_friends)
+        joe > ':knows' > node(:friend) > ':knows' > friends_of_friends
+        r = rel('r?:knows').as(:r)
+        joe > r > friends_of_friends
+        r.exist?
+        ret(friends_of_friends[:name], count).desc(count).asc(friends_of_friends[:name])
+      end.should be_cypher(%{START n0=node(3) MATCH (n0)-[:knows]->(friend)-[:knows]->(friends_of_friends),(n0)-[r?:knows]->(friends_of_friends) WHERE (r is null) RETURN friends_of_friends.name,count(*),count(*) ORDER BY count(*) DESC, friends_of_friends.name})
     end
 
-    describe %{n=node(3).as(:n); where((n[:desc] != "hej")); ret n} do
-      it { Proc.new { n=node(3).as(:n); where((n[:desc] != "hej")); ret n }.should be_cypher(%q[START n=node(3) WHERE n.desc != "hej" RETURN n]) }
-    end
-
-    describe %{a=node(1).as(:a);b=node(3,2); r=rel('r?'); a < r < b; !r.exist? ; b} do
-      it { Proc.new { a=node(1).as(:a); b=node(3, 2); r=rel('r?'); a < r < b; !r.exist?; b }.should be_cypher(%{START a=node(1),n1=node(3,2) MATCH (a)<-[r?]-(n1) WHERE not(r is null) RETURN n1}) }
+    it "also works with outgoing method instead of < operator" do
+      Proc.new do
+        joe=node(3)
+        friends_of_friends = joe.outgoing(:knows).outgoing(:knows)
+        r = rel('r?:knows').as(:r)
+        joe > r > friends_of_friends
+        r.exist?
+        ret(friends_of_friends[:name], count).desc(count).asc(friends_of_friends[:name])
+      end.should be_cypher(%{START n0=node(3) MATCH (n0)-[:`knows`]->(v0),(v0)-[:`knows`]->(v1),(n0)-[r?:knows]->(v1) WHERE (r is null) RETURN v1.name,count(*),count(*) ORDER BY count(*) DESC, v1.name})
     end
 
   end
 
-end
+
+    if RUBY_VERSION > "1.9.0"
+      # the ! operator is only available in Ruby 1.9.x
+      describe %{n=node(3).as(:n); where(!(n[:desc] =~ ".\d+")); ret n} do
+        it { Proc.new { n=node(3).as(:n); where(!(n[:desc] =~ ".\d+")); ret n }.should be_cypher(%q[START n=node(3) WHERE not(n.desc =~ /.d+/) RETURN n]) }
+      end
+
+      describe %{n=node(3).as(:n); where((n[:desc] != "hej")); ret n} do
+        it { Proc.new { n=node(3).as(:n); where((n[:desc] != "hej")); ret n }.should be_cypher(%q[START n=node(3) WHERE n.desc != "hej" RETURN n]) }
+      end
+
+      describe %{a=node(1).as(:a);b=node(3,2); r=rel('r?'); a < r < b; !r.exist? ; b} do
+        it { Proc.new { a=node(1).as(:a); b=node(3, 2); r=rel('r?'); a < r < b; !r.exist?; b }.should be_cypher(%{START a=node(1),n1=node(3,2) MATCH (a)<-[r?]-(n1) WHERE not(r is null) RETURN n1}) }
+      end
+
+    end
+
+  end

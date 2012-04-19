@@ -23,7 +23,21 @@ module Neo4j
     def initialize(*args, &dsl_block)
       @expressions = []
       @variables = []
-      res = self.instance_exec(*args, &dsl_block)
+      to_dsl_args = args.map do |a|
+        case
+          when a.is_a?(Array) && a.first.respond_to?(:_java_node)
+            StartNode.new(a, @expressions)
+          when a.is_a?(Array) && a.first.respond_to?(:_java_rel)
+            StartRel.new(a, @expressions)
+          when a.respond_to?(:_java_node)
+            StartNode.new([a], @expressions)
+          when a.respond_to?(:_java_rel)
+            StartRel.new([a], @expressions)
+          else
+            a
+        end
+      end
+      res = self.instance_exec(*to_dsl_args, &dsl_block)
       unless res.kind_of?(Return)
         res.respond_to?(:to_a) ? ret(*res) : ret(res)
       end

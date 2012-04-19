@@ -31,7 +31,7 @@ describe "Neo4j#query (cypher)", :type => :integration do
 
   describe "returning one relationship: {|r| rel(r).as(:n)}" do
     before(:all) do
-      @query_result = Neo4j.query(@r){|r| rel(r).as(:n)}
+      @query_result = Neo4j.query(@r){|r| r.as(:n)}
     end
 
     it "has one column" do
@@ -50,7 +50,7 @@ describe "Neo4j#query (cypher)", :type => :integration do
 
   describe "returning several nodes" do
     before(:all) do
-      @query_result = Neo4j.query(@a, @b){|a,b| node(a,b).as(:n)}
+      @query_result = Neo4j.query([@a, @b]){|n| n.as(:n)}
     end
 
     it "has one column" do

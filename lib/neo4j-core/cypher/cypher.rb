@@ -311,6 +311,7 @@ module Neo4j
 
         def initialize(nodes, expressions)
           super("n", expressions)
+
           @nodes = nodes.map { |n| n.respond_to?(:neo_id) ? n.neo_id : n }
         end
 
@@ -451,23 +452,25 @@ module Neo4j
       class OrderBy < Expression
         def initialize(expressions)
           super(expressions, :order_by)
+          @orders = []
         end
 
         def asc(props)
-          @asc ||= []
-          @asc += props
+          @orders << [:asc, props]
         end
 
         def desc(props)
-          @desc ||= []
-          @desc += props
+          @orders << [:desc, props]
         end
 
         def to_s
-          s = []
-          s << @asc.map { |p| p.var_name }.join(",") if @asc
-          s << @desc.map { |p| p.var_name.to_s + " DESC" }.join(",") if @desc
-          s.join(',')
+          @orders.map do |pair|
+            if pair[0] == :asc
+              pair[1].map(&:var_name).join(', ')
+            else
+              pair[1].map(&:var_name).join(', ') + " DESC"
+            end
+          end.join(', ')
         end
       end
 
@@ -681,6 +684,7 @@ module Neo4j
         attr_reader :expressions
 
         def initialize(expressions, variables)
+          variables ||= []
           @var_name = "v#{variables.size}"
           variables << self
           @variables = variables
