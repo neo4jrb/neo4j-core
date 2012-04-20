@@ -497,20 +497,51 @@ describe "Neo4j::Cypher" do
   end
 
 
-    if RUBY_VERSION > "1.9.0"
-      # the ! operator is only available in Ruby 1.9.x
-      describe %{n=node(3).as(:n); where(!(n[:desc] =~ ".\d+")); ret n} do
-        it { Proc.new { n=node(3).as(:n); where(!(n[:desc] =~ ".\d+")); ret n }.should be_cypher(%q[START n=node(3) WHERE not(n.desc =~ /.d+/) RETURN n]) }
-      end
+  describe "using model classes and declared relationship" do
+    it "escape relationships name and allows is_a? instead of [:_classname] = klass" do
+        class User
+          include Neo4j::Core::Wrapper
+          def self.rc
+            :"User#rc"
+          end
+        end
 
-      describe %{n=node(3).as(:n); where((n[:desc] != "hej")); ret n} do
-        it { Proc.new { n=node(3).as(:n); where((n[:desc] != "hej")); ret n }.should be_cypher(%q[START n=node(3) WHERE n.desc != "hej" RETURN n]) }
-      end
+        class Place
+          include Neo4j::Core::Wrapper
+          def self.rs
+            :"Place#rs"
+          end
+        end
 
-      describe %{a=node(1).as(:a);b=node(3,2); r=rel('r?'); a < r < b; !r.exist? ; b} do
-        it { Proc.new { a=node(1).as(:a); b=node(3, 2); r=rel('r?'); a < r < b; !r.exist?; b }.should be_cypher(%{START a=node(1),n1=node(3,2) MATCH (a)<-[r?]-(n1) WHERE not(r is null) RETURN n1}) }
-      end
+        class RC
+          include Neo4j::Core::Wrapper
+        end
+      Proc.new do
+        u = node(2)
+        p = node(3)
+        rc = node(:rc)
+        u > rel(User.rc) > rc < rel(Place.rs) < p
+        rc < rel(:active) < node
+        rc.is_a?(RC)
+        rc
+      end.should be_cypher(%{START n0=node(2),n1=node(3) MATCH (n0)-[:`User#rc`]->(rc)<-[:`Place#rs`]-(n1),(rc)<-[:`active`]-(v4) RETURN rc})
+    end
+  end
 
+  if RUBY_VERSION > "1.9.0"
+    # the ! operator is only available in Ruby 1.9.x
+    describe %{n=node(3).as(:n); where(!(n[:desc] =~ ".\d+")); ret n} do
+      it { Proc.new { n=node(3).as(:n); where(!(n[:desc] =~ ".\d+")); ret n }.should be_cypher(%q[START n=node(3) WHERE not(n.desc =~ /.d+/) RETURN n]) }
+    end
+
+    describe %{n=node(3).as(:n); where((n[:desc] != "hej")); ret n} do
+      it { Proc.new { n=node(3).as(:n); where((n[:desc] != "hej")); ret n }.should be_cypher(%q[START n=node(3) WHERE n.desc != "hej" RETURN n]) }
+    end
+
+    describe %{a=node(1).as(:a);b=node(3,2); r=rel('r?'); a < r < b; !r.exist? ; b} do
+      it { Proc.new { a=node(1).as(:a); b=node(3, 2); r=rel('r?'); a < r < b; !r.exist?; b }.should be_cypher(%{START a=node(1),n1=node(3,2) MATCH (a)<-[r?]-(n1) WHERE not(r is null) RETURN n1}) }
     end
 
   end
+
+end

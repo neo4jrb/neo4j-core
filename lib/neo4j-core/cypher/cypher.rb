@@ -132,6 +132,11 @@ module Neo4j
           p = Property.new(expressions, self, p)
           p.binary_operator("", " is null")
         end
+
+        def is_a?(klass)
+          return super if klass.class != Class || !klass.instance_methods.include?("wrapper")
+          super
+        end
       end
 
       module Matchable

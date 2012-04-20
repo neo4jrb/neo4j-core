@@ -102,7 +102,7 @@ module Neo4j
       if rels.first.is_a?(Fixnum) || rels.first.respond_to?(:neo_id)
         StartRel.new(rels, @expressions)
       elsif rels.first.is_a?(Symbol)
-        RelVar.new(@expressions, @variables, "").as(rels.first)
+        RelVar.new(@expressions, @variables, ":`#{rels.first}`").as(rels.first)
       elsif rels.first.is_a?(String)
         RelVar.new(@expressions, @variables, rels.first)
       else
