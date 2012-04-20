@@ -528,7 +528,29 @@ describe "Neo4j::Cypher" do
     end
   end
 
+  # start a=node(5), b=node(7) match a-[:friends]->x where not(x-[:friends]->b) return x
+  describe "a=node(5);b=node(7);x=node; a > ':friends' > x; (x > ':friends' > node > ':work' > b).not; x" do
+    it do
+      Proc.new do
+        a=node(5);b=node(7);x=node; a > ':friends' > x; (x > ':friends' > node > ':work' > b).not; x
+      end.should be_cypher("START n0=node(5),n1=node(7) MATCH (n0)-[:friends]->(v0) WHERE not((v0)-[:friends]->(v1)-[:work]->(n1)) RETURN v0")
+    end
+  end
+
+  # Cypher > 1.7.0 (snapshot)
+  # start begin = node(2), end = node(1) match p = begin -[*]-> end with p foreach(r in relationships(p) : delete r) with p foreach(n in nodes(p) : delete n)
+  # start a=node(0), b=node(5) with a,b create rel a-[:friends]->b
+
   if RUBY_VERSION > "1.9.0"
+
+    describe "a=node(5);b=node(7);x=node; a > ':friends' > x; !(x > ':friends' > node > ':work' > b); x" do
+      it do
+        Proc.new do
+          a=node(5);b=node(7);x=node; a > ':friends' > x; !(x > ':friends' > node > ':work' > b); x
+        end.should be_cypher("START n0=node(5),n1=node(7) MATCH (n0)-[:friends]->(v0) WHERE not((v0)-[:friends]->(v1)-[:work]->(n1)) RETURN v0")
+      end
+    end
+
     # the ! operator is only available in Ruby 1.9.x
     describe %{n=node(3).as(:n); where(!(n[:desc] =~ ".\d+")); ret n} do
       it { Proc.new { n=node(3).as(:n); where(!(n[:desc] =~ ".\d+")); ret n }.should be_cypher(%q[START n=node(3) WHERE not(n.desc =~ /.d+/) RETURN n]) }

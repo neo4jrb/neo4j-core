@@ -618,6 +618,21 @@ module Neo4j
         def expr
           "#{dir_op}(#{right_var_name})"
         end
+
+        def not
+          expressions.delete(self)
+          ExprOp.new(left, nil, "not").binary!
+        end
+
+        if RUBY_VERSION > "1.9.0"
+          eval %{
+             def !
+          expressions.delete(self)
+          ExprOp.new(left, nil, "not").binary!
+             end
+             }
+        end
+
       end
 
       class MatchNode < Match
@@ -753,7 +768,7 @@ module Neo4j
         end
 
         def quote(val)
-          if val.respond_to?(:var_name)
+          if val.respond_to?(:var_name) && !val.kind_of?(Match)
             val.var_name
           else
             val.is_a?(String) ? %Q["#{val}"] : val
