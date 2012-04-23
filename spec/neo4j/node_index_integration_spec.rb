@@ -72,7 +72,7 @@ describe "Neo4j::Node#index", :type => :integration do
       surname = Neo4j::Node.new(:surname => 'bar')
       surname.add_index(:surname)
       # TODO, either throw an Exception above or allow this
-      lambda{Neo4j::Node.find(:surname => 'bar').first}.should raise_error
+      lambda { Neo4j::Node.find(:surname => 'bar').first }.should raise_error
     end
   end
 
@@ -101,6 +101,28 @@ describe "Neo4j::Node#index", :type => :integration do
       MyIndex.find('things: qwe').first.should == node
     end
 
+
+    it "is possible to search by an array of string values" do
+      new_tx
+      MyIndex.index :things
+      node = MyIndex.new_node :things => %w[aaa bbb ccc ddd efg qwe]
+
+      MyIndex.find(:things => 'aaa').first.should_not == node
+      MyIndex.find(:things => ['aaa', 'bbb', 'ccc']).first.should be_nil
+      finish_tx
+      MyIndex.find(:things => 'aaa').first.should == node
+      MyIndex.find(:things => ['aaa', 'bbb', 'ccc']).first.should == node
+    end
+
+    it "is possible to search by an array of fixnum values" do
+      new_tx
+      node = MyIndex.new_node :wheels => 3
+      finish_tx
+      MyIndex.find(:wheels => 3).first.should == node
+      MyIndex.find(:wheels => [1,2,3,4]).first.should == node
+      MyIndex.find(:wheels => [1,2,4]).first.should be_nil
+    end
+
     it "is updated when one item changes" do
       new_tx
       node = MyIndex.new_node :things => %w[aaa bbb ccc ddd efg qwe]
@@ -127,7 +149,7 @@ describe "Neo4j::Node#index", :type => :integration do
 
     it "support array of Fixnum" do
       new_tx
-      node = MyIndex.new_node(:age => [8,92,2])
+      node = MyIndex.new_node(:age => [8, 92, 2])
       finish_tx
       MyIndex.find(:age => 8).first.should == node
       MyIndex.find(:age => 9).should be_empty

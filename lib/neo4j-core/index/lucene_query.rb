@@ -224,13 +224,25 @@ module Neo4j
             if type != String
               if Range === value
                 and_query.add(range_query(key, value.first, value.last, true, !value.exclude_end?), Java::OrgApacheLuceneSearch::BooleanClause::Occur::MUST)
+              elsif value.kind_of?(Enumerable)
+                value.each do |v|
+                  and_query.add(range_query(key, v, v, true, true), Java::OrgApacheLuceneSearch::BooleanClause::Occur::SHOULD)
+                end
               else
                 and_query.add(range_query(key, value, value, true, true), Java::OrgApacheLuceneSearch::BooleanClause::Occur::MUST)
               end
             else
-              term = Java::OrgApacheLuceneIndex::Term.new(key.to_s, value.to_s)
-              term_query = Java::OrgApacheLuceneSearch::TermQuery.new(term)
-              and_query.add(term_query, Java::OrgApacheLuceneSearch::BooleanClause::Occur::MUST)
+              if value.kind_of?(Enumerable)
+                value.each do |v|
+                  term = Java::OrgApacheLuceneIndex::Term.new(key.to_s, v.to_s)
+                  term_query = Java::OrgApacheLuceneSearch::TermQuery.new(term)
+                  and_query.add(term_query, Java::OrgApacheLuceneSearch::BooleanClause::Occur::SHOULD)
+                end
+              else
+                term = Java::OrgApacheLuceneIndex::Term.new(key.to_s, value.to_s)
+                term_query = Java::OrgApacheLuceneSearch::TermQuery.new(term)
+                and_query.add(term_query, Java::OrgApacheLuceneSearch::BooleanClause::Occur::MUST)
+              end
             end
           end
           and_query

@@ -112,6 +112,9 @@ module Neo4j
         # @example Sorting using the builder pattern
         #    Person.find(:name => 'kalle').asc(:name)
         #
+        # @example Searching by a set of values, OR search
+        #    Person.find(:name => ['kalle', 'sune', 'jimmy'])
+        #
         # @example Compound queries and Range queries
         #    Person.find('name: pelle').and(:age).between(2, 5)
         #    Person.find(:name => 'kalle', :age => (2..5))
