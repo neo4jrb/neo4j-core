@@ -37,6 +37,7 @@ require 'neo4j-core/index/indexer_registry'
 require 'neo4j-core/index/index_config'
 require 'neo4j-core/index/indexer'
 require 'neo4j-core/index/lucene_query'
+require 'neo4j-core/index/unique_factory'
 
 require 'neo4j-core/equal/equal'
 

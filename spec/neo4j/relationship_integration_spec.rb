@@ -28,7 +28,7 @@ describe Neo4j::Relationship, :type => :integration do
     its(:exist?) { should be_true }
     its(:wrapper) { should == subject }
     its(:_java_rel) { should == subject }
-    its(:java_entity) { should == subject }
+    its(:_java_entity) { should == subject }
     its(:end_node) { should == node_b }
     its(:start_node) { should == node_a }
     its(:_end_node) { should == node_b }

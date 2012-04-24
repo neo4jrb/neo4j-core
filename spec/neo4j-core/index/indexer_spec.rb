@@ -198,6 +198,13 @@ describe Neo4j::Core::Index::Indexer, :type => :mock_db do
 
       end
 
+      describe "put_if_absent" do
+        it "calls the java API" do
+          entity = mock("Node Entity")
+          node_index_manager.should_receive(:put_if_absent).with(entity, 'name', 'andreas')
+          subject.put_if_absent(entity, :name, 'andreas')
+        end
+      end
     end
   end
 

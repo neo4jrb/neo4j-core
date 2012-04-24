@@ -146,6 +146,23 @@ module Neo4j
           end
         end
 
+        # Add the entity to this index for the given key/value pair if this particular key/value pair doesn't already exist.
+        # This ensures that only one entity will be associated with the key/value pair even if multiple transactions are trying to add it at the same time.
+        # One of those transactions will win and add it while the others will block, waiting for the winning transaction to finish.
+        # If the winning transaction was successful these other transactions will return the associated entity instead of adding it.
+        # If it wasn't successful the waiting transactions will begin a new race to add it.
+        #
+        # @param [Neo4j::Node, Neo4j::Relationship] entity the entity (i.e Node or Relationship) to associate the key/value pair with.
+        # @param [String, Symbol] key the key in the key/value pair to associate with the entity.
+        # @param [String, Fixnum, Float] value the value in the key/value pair to associate with the entity.
+        # @param [Symbol] index_type the type of lucene index
+        # @return [nil, Neo4j:Node, Neo4j::Relationship] the previously indexed entity, or nil if no entity was indexed before (and the specified entity was added to the index).
+        # @see Neo4j::Core::Index::UniqueFactory as an alternative which probably simplify creating unique entities
+        def put_if_absent(entity, key, value, index_type = :exact)
+          index = index_for_type(index_type)
+          index.put_if_absent(entity, key.to_s, value)
+        end
+
         # Delete all index configuration. No more automatic indexing will be performed
         def rm_index_config
           @config.rm_index_config

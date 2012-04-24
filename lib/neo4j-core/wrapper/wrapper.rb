@@ -12,7 +12,7 @@ module Neo4j
       # This can be implemented by a wrapper to returned the underlying java node or relationship.
       # You can override this method in your own wrapper class.
       # @return self
-      def java_entity
+      def _java_entity
         self
       end
     end

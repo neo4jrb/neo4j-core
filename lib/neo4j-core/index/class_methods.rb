@@ -93,6 +93,8 @@ module Neo4j
         delegate :rm_index
         delegate :index_type
         delegate :index_name_for_type
+        delegate :index_for_type
+        delegate :put_if_absent
       end
 
 

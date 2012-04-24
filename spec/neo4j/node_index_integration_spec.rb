@@ -7,12 +7,12 @@ describe "Neo4j::Node#index", :type => :integration do
     extend Neo4j::Core::Index::ClassMethods
     extend Forwardable
     include Neo4j::Core::Index
-    attr_reader :java_entity
+    attr_reader :_java_entity
 
-    def_delegators :java_entity, :[], :[]=
+    def_delegators :_java_entity, :[], :[]=
 
     def initialize(props = {})
-      @java_entity = self.class.new_node(props)
+      @_java_entity = self.class.new_node(props)
     end
 
     self.node_indexer do
@@ -359,7 +359,7 @@ describe "Neo4j::Node#index", :type => :integration do
       new_node.add_index(:things, 'bb')
       new_node.add_index(:things, 'cc')
       finish_tx
-      new_node.java_entity
+      new_node._java_entity
     end
 
     it "remove entity index" do
@@ -383,8 +383,8 @@ describe "Neo4j::Node#index", :type => :integration do
       new_node.add_index(:name)
 
       # then
-      MyIndex.find('name: lala').first.should == new_node.java_entity
-      MyIndex.find('name: "Kalle Kula"').first.should_not == new_node.java_entity
+      MyIndex.find('name: lala').first.should == new_node._java_entity
+      MyIndex.find('name: "Kalle Kula"').first.should_not == new_node._java_entity
     end
   end
 
@@ -466,7 +466,7 @@ describe "Neo4j::Node#index", :type => :integration do
       new_node.add_index(:name)
 
       # then
-      MyIndex.find("name: andreas", :wrapped => false).get_single.should == new_node.java_entity
+      MyIndex.find("name: andreas", :wrapped => false).get_single.should == new_node._java_entity
     end
 
 
@@ -480,8 +480,8 @@ describe "Neo4j::Node#index", :type => :integration do
       new_node.add_index(:description)
 
       # then
-      MyIndex.find('description: "hej"', :type => :fulltext, :wrapped => false).get_single.should == new_node.java_entity
-      MyIndex.find({:description => "hej"}, :type => :fulltext).first.should == new_node.java_entity
+      MyIndex.find('description: "hej"', :type => :fulltext, :wrapped => false).get_single.should == new_node._java_entity
+      MyIndex.find({:description => "hej"}, :type => :fulltext).first.should == new_node._java_entity
     end
 
     it "does not remove old index when calling add_index twice" do
@@ -496,8 +496,8 @@ describe "Neo4j::Node#index", :type => :integration do
       new_node.add_index(:name)
 
       # then
-      MyIndex.find('name: lala').first.should == new_node.java_entity
-      MyIndex.find('name: "Kalle Kula"').first.should == new_node.java_entity
+      MyIndex.find('name: lala').first.should == new_node._java_entity
+      MyIndex.find('name: "Kalle Kula"').first.should == new_node._java_entity
     end
 
 
