@@ -2,6 +2,8 @@ module Neo4j
   module Core
     # Contains methods for traversing relationship object of depth one from one node.
     module Rels
+
+
       # Returns the only node of a given type and direction that is attached to this node, or nil.
       # This is a convenience method that is used in the commonly occuring situation where a node has exactly zero or one relationships of a given type and direction to another node.
       # Typically this invariant is maintained by the rest of the code: if at any time more than one such relationships exist, it is a fatal error that should generate an exception.
@@ -123,6 +125,7 @@ module Neo4j
           get_relationships(ToJava.dir_to_java(dir)).iterator
         end
       end
+
 
       # Check if the given relationship exists
       # Returns true if there are one or more relationships from this node to other nodes
