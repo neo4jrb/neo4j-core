@@ -1,5 +1,14 @@
 module Neo4j
+
+  # Generates a Cypher string from a Ruby DSL.
+  # This class is used by the {Ņeo4j#query} method.
+  # Methods on in this class returns object from the {Neo4j::Core::Cypher} module (e.g. {Neo4j::Cypher#node} can return a #{Neo4j::Core::Cypher::StartNode}).
+  #
+  # @example usage
+  #   Neo4j::Cypher.new { node }
+  #
   class Cypher
+    # @private
     attr_reader :expressions
 
     include Neo4j::Core::Cypher
@@ -20,8 +29,8 @@ module Neo4j
     # @param args the argument for the dsl_block
     # @yield the block which will be evaluated in the context of this object in order to create an Cypher Query string
     # @yieldreturn [Return, Object] If the return is not an instance of Return it will be converted it to a Return object (if possible).
+    # @see Neo4j::Core::Cypher
     def initialize(*args, &dsl_block)
-      @expressions = []
       @variables = []
       to_dsl_args = args.map do |a|
         case

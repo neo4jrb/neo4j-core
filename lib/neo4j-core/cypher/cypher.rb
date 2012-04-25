@@ -1,5 +1,9 @@
 module Neo4j
   module Core
+
+    # This module contains a number of mixins and classes used by the neo4j.rb cypher DSL.
+    # The Cypher DSL is evaluated in the context of {Neo4j::Cypher} which contains a number of methods (e.g. {Neo4j::Cypher#node})
+    # which returns classes from this module.
     module Cypher
 
       module MathFunctions
@@ -19,6 +23,7 @@ module Neo4j
           _add_math_func(:sign, value)
         end
 
+        # @private
         def _add_math_func(name, value=nil)
           value ||= self.respond_to?(:var_name) ? self.var_name : to_s
           expressions.delete(self)
@@ -249,6 +254,7 @@ module Neo4j
       #  n=node(2, 3, 4); n[:name].collect
       #  # same as START n0=node(2,3,4) RETURN collect(n0.property)
       class Property
+        # @private
         attr_reader :expressions, :var_name
         include Comparable
         include MathOperator
@@ -268,6 +274,7 @@ module Neo4j
           self
         end
 
+        # Make it possible to rename a property with a different name (AS)
         def as(new_name)
           @var_name = "#{@var_name} AS #{new_name}"
         end
@@ -306,16 +313,19 @@ module Neo4j
           end
         end
 
+        # @private
         def function(func_name_pre, func_name_post = "")
           ExprOp.new(self, nil, func_name_pre, func_name_post)
         end
 
+        # @private
         def binary_operator(op, post_fix = "")
           ExprOp.new(self, nil, op, post_fix).binary!
         end
       end
 
       class Start < Expression
+        # @private
         attr_reader :var_name
         include Variable
         include Matchable
@@ -327,7 +337,9 @@ module Neo4j
 
       end
 
+      # Can be created from a <tt>node</tt> dsl method.
       class StartNode < Start
+        # @private
         attr_reader :nodes
 
         def initialize(nodes, expressions)
@@ -341,7 +353,10 @@ module Neo4j
         end
       end
 
+
+      # Can be created from a <tt>rel</tt> dsl method.
       class StartRel < Start
+        # @private
         attr_reader :rels
 
         def initialize(rels, expressions)
@@ -397,10 +412,12 @@ module Neo4j
           opts.each_pair { |k, v| self.send(k, v) }
         end
 
+        # @private
         def return_method
           @name_or_ref.respond_to?(:return_method) && @name_or_ref.return_method
         end
 
+        # @private
         def as_return_method
           if return_method[:bracket]
             "#{return_method[:name]}(#@var_name)"
@@ -448,6 +465,7 @@ module Neo4j
         end
       end
 
+      # Can be used to skip result from a return clause
       class Skip < Expression
         def initialize(expressions, value)
           super(expressions, :skip)
@@ -459,6 +477,7 @@ module Neo4j
         end
       end
 
+      # Can be used to limit result from a return clause
       class Limit < Expression
         def initialize(expressions, value)
           super(expressions, :limit)
@@ -495,8 +514,11 @@ module Neo4j
         end
       end
 
+      # Created from a node's match operator like >> or <.
       class Match < Expression
+        # @private
         attr_reader :dir, :expressions, :left, :right, :var_name, :dir_op
+        # @private
         attr_accessor :algorithm, :next, :prev
         include Variable
 
@@ -580,6 +602,8 @@ module Neo4j
         end
       end
 
+      # The left part of a match clause, e.g. node < rel(':friends')
+      # Can return {MatchRelRight} using a match operator method.
       class MatchRelLeft < Match
         def initialize(left, right, expressions, dir)
           super(left, right, expressions, dir, dir == :incoming ? '<-' : '-')
@@ -668,6 +692,8 @@ module Neo4j
 
       end
 
+      # The right part of a match clause (node_b), e.g. node_a > rel(':friends') > node_b
+      #
       class MatchNode < Match
         attr_reader :dir_op
 
