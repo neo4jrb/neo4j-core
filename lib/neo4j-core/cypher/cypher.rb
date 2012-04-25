@@ -119,23 +119,27 @@ module Neo4j
           self
         end
 
+        # generates a <tt>ID</tt> cypher fragment.
         def neo_id
           Property.new(@expressions, self, 'ID').to_function!
         end
 
+        # generates a <tt>has</tt> cypher fragment.
         def property?(p)
           p = Property.new(expressions, self, p)
           p.binary_operator("has")
         end
 
+        # generates a <tt>is null</tt> cypher fragment.
         def exist?
           p = Property.new(expressions, self, p)
           p.binary_operator("", " is null")
         end
 
+        # Can be used instead of [_classname] == klass
         def is_a?(klass)
-          return super if klass.class != Class || !klass.instance_methods.include?("wrapper")
-          super
+          return super if klass.class != Class || !klass.respond_to?(:_load_wrapper)
+          self[:_classname] == klass.to_s
         end
       end
 
@@ -236,6 +240,14 @@ module Neo4j
 
       end
 
+      # A property is returned from a Variable by using the [] operator.
+      #
+      # It has a number of useful method like
+      # <tt>count</tt>, <tt>sum</tt>, <tt>avg</tt>, <tt>min</tt>, <tt>max</tt>, <tt>collect</tt>, <tt>head</tt>, <tt>last</tt>, <tt>tail</tt>,
+      #
+      # @example
+      #  n=node(2, 3, 4); n[:name].collect
+      #  # same as START n0=node(2,3,4) RETURN collect(n0.property)
       class Property
         attr_reader :expressions, :var_name
         include Comparable
@@ -250,6 +262,7 @@ module Neo4j
           @var_name = @prop_name ? "#{@var.to_s}.#{@prop_name}" : @var.to_s
         end
 
+        # @private
         def to_function!(var = @var.to_s)
           @var_name = "#{@prop_name}(#{var})"
           self
@@ -261,6 +274,7 @@ module Neo4j
 
         # required by the Predicate Methods Module
         # @see PredicateMethods
+        # @private
         def iterable
           var_name
         end
@@ -269,10 +283,12 @@ module Neo4j
           self
         end
 
+        # @private
         def in?(values)
           binary_operator("", " IN [#{values.map { |x| %Q["#{x}"] }.join(',')}]")
         end
 
+        # Only return distinct values/nodes/rels/paths
         def distinct
           @var_name = "distinct #{@var_name}"
           self
@@ -495,19 +511,29 @@ module Neo4j
         end
 
 
+        # Generates a <tt>x in nodes(m3)</tt> cypher expression.
+        #
+        # @example
+        #   p.nodes.all? { |x| x[:age] > 30 }
         def nodes
           Entities.new(@expressions, "nodes", self)
         end
 
+        # Generates a <tt>x in relationships(m3)</tt> cypher expression.
+        #
+        # @example
+        #   p.relationships.all? { |x| x[:age] > 30 }
         def rels
           Entities.new(@expressions, "relationships", self)
         end
 
+        # returns the length of the path
         def length
           self.return_method = {:name => 'length', :bracket => true}
           self
         end
 
+        # @private
         def find_match_start
           c = self
           while (c.prev) do
@@ -516,26 +542,32 @@ module Neo4j
           c
         end
 
+        # @private
         def left_var_name
           @left.respond_to?(:var_name) ? @left.var_name : @left.to_s
         end
 
+        # @private
         def right_var_name
           @right.respond_to?(:var_name) ? @right.var_name : @right.to_s
         end
 
+        # @private
         def right_expr
           @right.respond_to?(:expr) ? @right.expr : right_var_name
         end
 
+        # @private
         def referenced!
           @referenced = true
         end
 
+        # @private
         def referenced?
           !!@referenced
         end
 
+        # @private
         def to_s
           curr = find_match_start
           result = (referenced? || curr.referenced?) ? "#{var_name} = " : ""
@@ -619,6 +651,7 @@ module Neo4j
           "#{dir_op}(#{right_var_name})"
         end
 
+        # negate this match
         def not
           expressions.delete(self)
           ExprOp.new(left, nil, "not").binary!

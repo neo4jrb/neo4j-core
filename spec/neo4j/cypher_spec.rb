@@ -69,6 +69,10 @@ describe "Neo4j::Cypher" do
     it { Proc.new { node(3) <=> 'foo'; :foo }.should be_cypher("START n0=node(3) MATCH (n0)--(foo) RETURN foo") }
   end
 
+  describe "DSL   { node(3) - ':knows|friends' - :foo; :foo }" do
+    it { Proc.new { node(3) - ':knows|friends' - :foo; :foo }.should be_cypher("START n0=node(3) MATCH (n0)-[:knows|friends]-(foo) RETURN foo")}
+  end
+
   describe "DSL   { r = rel(0); ret r }" do
     it { Proc.new { r = rel(0); ret r }.should be_cypher("START r0=relationship(0) RETURN r0") }
   end
@@ -187,6 +191,10 @@ describe "Neo4j::Cypher" do
 
   describe %{r=rel('r?'); n=node(2); n > r > :x; r[:since] < 2; r} do
     it { Proc.new { r=rel('r?'); n=node(2); n > r > :x; r[:since] < 2; r }.should be_cypher(%q[START n0=node(2) MATCH (n0)-[r?]->(x) WHERE r.since < 2 RETURN r]) }
+  end
+
+  describe %{r=rel('r:friends|like'); n=node(2); n > r > :x; r[:since] < 2; r} do
+    it { Proc.new { r=rel('r:friends|like'); n=node(2); n > r > :x; r[:since] < 2; r }.should be_cypher(%q[START n0=node(2) MATCH (n0)-[r:friends|like]->(x) WHERE r.since < 2 RETURN r]) }
   end
 
   describe %{n=node(3, 1); where((n[:age] < 30) & ((n[:name] == 'foo') | (n[:size] > n[:age]))); ret n} do
@@ -500,22 +508,27 @@ describe "Neo4j::Cypher" do
   describe "using model classes and declared relationship" do
     it "escape relationships name and allows is_a? instead of [:_classname] = klass" do
         class User
-          include Neo4j::Core::Wrapper
+          def self._load_wrapper; end
+
           def self.rc
             :"User#rc"
           end
         end
 
         class Place
-          include Neo4j::Core::Wrapper
+          def self._load_wrapper; end
+
           def self.rs
             :"Place#rs"
           end
         end
 
         class RC
+          def self._load_wrapper; end
+
           include Neo4j::Core::Wrapper
         end
+
       Proc.new do
         u = node(2)
         p = node(3)
@@ -524,7 +537,7 @@ describe "Neo4j::Cypher" do
         rc < rel(:active) < node
         rc.is_a?(RC)
         rc
-      end.should be_cypher(%{START n0=node(2),n1=node(3) MATCH (n0)-[:`User#rc`]->(rc)<-[:`Place#rs`]-(n1),(rc)<-[:`active`]-(v4) RETURN rc})
+      end.should be_cypher(%{START n0=node(2),n1=node(3) MATCH (n0)-[:`User#rc`]->(rc)<-[:`Place#rs`]-(n1),(rc)<-[:`active`]-(v4) WHERE rc._classname = "RC" RETURN rc})
     end
   end
 
