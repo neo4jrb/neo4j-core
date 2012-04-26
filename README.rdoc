@@ -20,7 +20,7 @@ The Neo4j module is public and the Neo4j::Core(::*) are internal modules.
 
 {Neo4j} The Database
 
-{Neo4j::Cypher} Cypher Query Generator, see RSpec spec/neo4j/cypher_spec
+{Neo4j::Cypher} Cypher Query DSL, see {Neo4j Wiki}[https://github.com/andreasronge/neo4j/wiki/Neo4j%3A%3ACore-Cypher]
 
 {Neo4j::Algo} Included algorithms, like shortest path
 

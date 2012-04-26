@@ -31,6 +31,7 @@ module Neo4j
     # @yieldreturn [Return, Object] If the return is not an instance of Return it will be converted it to a Return object (if possible).
     # @see Neo4j::Core::Cypher
     def initialize(*args, &dsl_block)
+      @expressions = []
       @variables = []
       to_dsl_args = args.map do |a|
         case

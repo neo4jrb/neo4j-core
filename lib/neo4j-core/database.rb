@@ -67,7 +67,8 @@ module Neo4j
       end
 
 
-      def running? #:nodoc:
+      # true if the database has started
+      def running?
         @running
       end
 

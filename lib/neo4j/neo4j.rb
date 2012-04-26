@@ -58,9 +58,10 @@ module Neo4j
     end
 
     # Checks read only mode of the database. Only one process can have write access to the database.
+    # It will always return false if the database is not started yet.
     # @return [true, false] if the database has started up in read only mode
     def read_only?
-      (@db && @db.graph && @db.read_only?)
+      !!(@db && @db.graph && @db.read_only?)
     end
 
     # Returns a started db instance. Starts it's not running.
