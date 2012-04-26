@@ -284,8 +284,6 @@ describe "Neo4j::Node#index", :type => :integration do
       MyIndex.find(:name => "bla").first.should == thing3
       MyIndex.find(:wheels => 4).first.should == thing2
       MyIndex.find(:name => 'thing', :wheels => 4).first.should == thing2
-      MyIndex.find("wheels: 4").first.should == thing2
-      MyIndex.find("name: thing").and("wheels: 4").first.should == thing2
       MyIndex.find(:name => 'thing', :wheels => 5).should be_empty
       MyIndex.find(:name => 'thing1', :wheels => 4).should be_empty
     end
