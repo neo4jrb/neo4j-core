@@ -1,9 +1,9 @@
 module Neo4j
   module Core
 
-    # Implements the Neo4j PruneEvaluator Java interface, only used internally.
-    # @private
     module Traversal
+      # Implements the Neo4j PruneEvaluator Java interface, only used internally.
+      # @private
       class PruneEvaluator
         include Java::OrgNeo4jGraphdbTraversal::PruneEvaluator
 
