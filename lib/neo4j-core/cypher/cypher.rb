@@ -222,13 +222,21 @@ module Neo4j
         end
 
         def insert_last(clause)
-          i = @expressions.reverse.index { |e| e.clause == clause }
+          curr_clause = clause
+          while (i = @expressions.reverse.index { |e| e.clause == curr_clause }).nil? && curr_clause != :start
+            curr_clause = prev_clause(curr_clause)
+          end
+
           if i.nil?
             @expressions << self
           else
             pos = @expressions.size - i
             @expressions.insert(pos, self)
           end
+        end
+
+        def prev_clause(clause)
+          {:limit => :skip, :skip => :order_by, :order_by => :return, :return => :where, :where => :match, :match => :start}[clause]
         end
 
         def prefixes
@@ -255,14 +263,15 @@ module Neo4j
       #  # same as START n0=node(2,3,4) RETURN collect(n0.property)
       class Property
         # @private
-        attr_reader :expressions, :var_name
+        attr_reader :expressions, :var_name, :var_expr
         include Comparable
         include MathOperator
         include MathFunctions
         include PredicateMethods
 
-        def initialize(expressions, var, prop_name)
-          @var = var.respond_to?(:var_name) ? var.var_name : var
+        def initialize(expressions, var_expr, prop_name)
+          @var_expr = var_expr
+          @var = var_expr.respond_to?(:var_name) ? var_expr.var_name : var_expr
           @expressions = expressions
           @prop_name = prop_name
           @var_name = @prop_name ? "#{@var.to_s}.#{@prop_name}" : @var.to_s
@@ -576,7 +585,13 @@ module Neo4j
 
         # @private
         def right_expr
-          @right.respond_to?(:expr) ? @right.expr : right_var_name
+          c = @right
+          r = while (c)
+                break c.var_expr if c.respond_to?(:var_expr)
+                c = c.respond_to?(:left_expr) && c.left_expr
+              end || @right
+
+          r.respond_to?(:expr) ? r.expr : right_var_name
         end
 
         # @private
@@ -797,12 +812,21 @@ module Neo4j
           variables << self
           @expr = expr
           @expressions = expressions
-          guess = expr ? /([[:alpha:]]*)/.match(expr)[1] : ""
-          @var_name = guess.empty? ? "v#{variables.size}" : guess
+          guess = expr ? /([[:alpha:]_]*)/.match(expr)[1] : ""
+          @auto_var_name = "v#{variables.size}"
+          @var_name = guess.empty? ? @auto_var_name : guess
         end
 
         def rel_type
           Property.new(@expressions, self, 'type').to_function!
+        end
+
+        def [](p)
+          if @expr.to_s[0..0] == ':'
+            @var_name = @auto_var_name
+            @expr = "#{@var_name}#{@expr}"
+          end
+          super
         end
 
         # @return [String] a cypher string for this relationship variable
@@ -813,21 +837,24 @@ module Neo4j
       end
 
       class ExprOp < Expression
-        attr_reader :left, :right, :op, :neg, :post_fix
+        attr_reader :left, :right, :op, :neg, :post_fix, :left_expr, :right_expr
         include MathFunctions
 
-        def initialize(left, right, op, post_fix = "")
-          super(left.expressions, :where)
+
+        def initialize(left_expr, right_expr, op, post_fix = "")
+          super(left_expr.expressions, :where)
+          @left_expr = left_expr
+          @right_expr = right_expr
           @op = op
           @post_fix = post_fix
-          self.expressions.delete(left)
-          self.expressions.delete(right)
-          @left = quote(left)
-          if regexp?(right)
+          self.expressions.delete(left_expr)
+          self.expressions.delete(right_expr)
+          @left = quote(left_expr)
+          if regexp?(right_expr)
             @op = "=~"
-            @right = to_regexp(right)
+            @right = to_regexp(right_expr)
           else
-            @right = right && quote(right)
+            @right = right_expr && quote(right_expr)
           end
           @neg = nil
         end
@@ -898,7 +925,6 @@ module Neo4j
         end
 
         def valid?
-          #        puts "valid? @binary=#{@binary} (#@left #@op #@right) in clause #{clause} ret #{@binary ? !!@left : !!@left && !!@right}"
           # it is only valid in a where clause if it's either binary or it has right and left values
           @binary ? @left : @left && @right
         end
