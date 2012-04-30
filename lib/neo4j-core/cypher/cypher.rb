@@ -670,6 +670,16 @@ module Neo4j
           self.next = MatchRelLeft.new(self, other, expressions, :both)
         end
 
+        def <<(other)
+          expressions.delete(self)
+          self.next = MatchNode.new(self, other, expressions, :incoming)
+        end
+
+        def >>(other)
+          expressions.delete(self)
+          self.next = MatchNode.new(self, other, expressions, :outgoing)
+        end
+
         # @return [String] a cypher string for this match.
         def expr
           "#{dir_op}(#{right_var_name})"

@@ -541,12 +541,20 @@ describe "Neo4j::Cypher" do
     end
   end
 
-  # start a=node(5), b=node(7) match a-[:friends]->x where not(x-[:friends]->b) return x
   describe "a=node(5);b=node(7);x=node; a > ':friends' > x; (x > ':friends' > node > ':work' > b).not; x" do
     it do
       Proc.new do
         a=node(5);b=node(7);x=node; a > ':friends' > x; (x > ':friends' > node > ':work' > b).not; x
       end.should be_cypher("START n0=node(5),n1=node(7) MATCH (n0)-[:friends]->(v0) WHERE not((v0)-[:friends]->(v1)-[:work]->(n1)) RETURN v0")
+    end
+  end
+
+
+  describe "(node(5) > :r > :middle) >> node(7)" do
+    it do
+      Proc.new do
+        (node(5) > :r > :middle) >> node(7)
+      end.should be_cypher("START n0=node(5),n2=node(7) MATCH m3 = (n0)-[r]->(middle)-->(n2) RETURN m3")
     end
   end
 
