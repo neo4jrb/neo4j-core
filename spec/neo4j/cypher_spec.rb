@@ -575,6 +575,14 @@ describe "Neo4j::Cypher" do
     end
   end
 
+  describe "node(1) > (rel(:knows)[:since] > 1994) > (node(:other)[:name] == 'foo'); :other"do
+    it do
+      Proc.new do
+        node(1) > (rel(:knows)[:since] > 1994) > (node(:other)[:name] == 'foo'); :other
+      end.should be_cypher(%Q[START n0=node(1) MATCH (n0)-[v1:`knows`]->(other) WHERE v1.since > 1994 and other.name = "foo" RETURN other])
+    end
+  end
+
   # Cypher > 1.7.0 (snapshot)
   # start begin = node(2), end = node(1) match p = begin -[*]-> end with p foreach(r in relationships(p) : delete r) with p foreach(n in nodes(p) : delete n)
   # start a=node(0), b=node(5) with a,b create rel a-[:friends]->b

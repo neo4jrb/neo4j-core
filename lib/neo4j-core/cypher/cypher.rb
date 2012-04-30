@@ -697,7 +697,7 @@ module Neo4j
 
         # @return [String] a cypher string for this match.
         def expr
-          "#{dir_op}(#{right_var_name})"
+          "#{dir_op}(#{right_expr})"
         end
 
         # negate this match
@@ -800,6 +800,11 @@ module Neo4j
           var_name
         end
 
+        # @private
+        def expr
+          to_s
+        end
+
       end
 
       # represent an unbound relationship variable used in match,where,return statement
@@ -860,7 +865,7 @@ module Neo4j
         end
 
         def separator
-          " "
+          " and "
         end
 
         def quote(val)
