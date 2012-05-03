@@ -146,9 +146,30 @@ module Neo4j
           return super if klass.class != Class || !klass.respond_to?(:_load_wrapper)
           self[:_classname] == klass.to_s
         end
+
+        def count
+          #expressions.delete(self)
+          ExprOp.new(self, nil, 'count')
+        end
       end
 
       module Matchable
+
+        def where(&block)
+          x = block.call(self)
+          expressions.delete(x)
+          ExprOp.new(x, nil, "").binary!
+          self
+        end
+
+        def where_not(&block)
+          x = block.call(self)
+          expressions.delete(x)
+          ExprOp.new(x, nil, "not").binary!
+          self
+        end
+
+
         # This operator means related to, without regard to type or direction.
         # @param [Symbol, #var_name] other either a node (Symbol, #var_name)
         # @return [MatchRelLeft, MatchNode]
@@ -440,6 +461,7 @@ module Neo4j
         # @return self
         def asc(*props)
           @order_by ||= OrderBy.new(expressions)
+          expressions.delete(props.first)
           @order_by.asc(props)
           self
         end
@@ -449,6 +471,7 @@ module Neo4j
         # @return self
         def desc(*props)
           @order_by ||= OrderBy.new(expressions)
+          expressions.delete(props.first)
           @order_by.desc(props)
           self
         end

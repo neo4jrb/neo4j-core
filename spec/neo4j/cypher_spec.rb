@@ -488,7 +488,7 @@ describe "Neo4j::Cypher" do
         joe > r > friends_of_friends
         r.exist?
         ret(friends_of_friends[:name], count).desc(count).asc(friends_of_friends[:name])
-      end.should be_cypher(%{START n0=node(3) MATCH (n0)-[:knows]->(friend)-[:knows]->(friends_of_friends),(n0)-[r?:knows]->(friends_of_friends) WHERE (r is null) RETURN friends_of_friends.name,count(*),count(*) ORDER BY count(*) DESC, friends_of_friends.name})
+      end.should be_cypher(%{START n0=node(3) MATCH (n0)-[:knows]->(friend)-[:knows]->(friends_of_friends),(n0)-[r?:knows]->(friends_of_friends) WHERE (r is null) RETURN friends_of_friends.name,count(*) ORDER BY count(*) DESC, friends_of_friends.name})
     end
 
     it "also works with outgoing method instead of < operator" do
@@ -499,7 +499,7 @@ describe "Neo4j::Cypher" do
         joe > r > friends_of_friends
         r.exist?
         ret(friends_of_friends[:name], count).desc(count).asc(friends_of_friends[:name])
-      end.should be_cypher(%{START n0=node(3) MATCH (n0)-[:`knows`]->(v0),(v0)-[:`knows`]->(v1),(n0)-[r?:knows]->(v1) WHERE (r is null) RETURN v1.name,count(*),count(*) ORDER BY count(*) DESC, v1.name})
+      end.should be_cypher(%{START n0=node(3) MATCH (n0)-[:`knows`]->(v0),(v0)-[:`knows`]->(v1),(n0)-[r?:knows]->(v1) WHERE (r is null) RETURN v1.name,count(*) ORDER BY count(*) DESC, v1.name})
     end
 
   end
@@ -548,6 +548,33 @@ describe "Neo4j::Cypher" do
       end.should be_cypher("START n0=node(5),n1=node(7) MATCH (n0)-[:friends]->(v0) WHERE not((v0)-[:friends]->(v1)-[:work]->(n1)) RETURN v0")
     end
   end
+
+  describe "node(1) << node(:person).where{|p| p >> node(7).as(:interest)}; :person" do
+    it do
+      Proc.new do
+        node(1) << node(:person).where{|p| p >> node(7).as(:interest)}; :person
+      end.should be_cypher("START n0=node(1),interest=node(7) MATCH (n0)<--(person) WHERE ((person)-->(interest)) RETURN person")
+    end
+  end
+
+  describe "node(1) << node(:person).where_not{|p| p >> node(7).as(:interest)}; :person" do
+    it do
+      Proc.new do
+        node(1) << node(:person).where_not{|p| p >> node(7).as(:interest)}; :person
+      end.should be_cypher("START n0=node(1),interest=node(7) MATCH (n0)<--(person) WHERE not((person)-->(interest)) RETURN person")
+    end
+  end
+
+
+  describe "5.4. Find people based on similar favorites" do
+    it do
+      Proc.new do
+        node(42).where_not { |m| m - ':friend' - :person } > ':favorite' > :stuff < ':favorite' < :person
+        ret(node(:person)[:name], count(:stuff).desc(count(:stuff)))
+      end.should be_cypher(%Q[START n0=node(42) MATCH (n0)-[:favorite]->(stuff)<-[:favorite]-(person) WHERE not((n0)-[:friend]-(person)) RETURN person.name,count(stuff) ORDER BY count(stuff) DESC])
+    end
+  end
+
 
 
   describe "(node(5) > :r > :middle) >> node(7)" do
