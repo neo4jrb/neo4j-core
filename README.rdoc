@@ -1,9 +1,7 @@
 == Neo4j-core {<img src="https://secure.travis-ci.org/andreasronge/neo4j-core.png" />}[http://travis-ci.org/andreasronge/neo4j-core]
 
-This gem only contains the JRuby mapping of the Neo4j graph database.
-The neo4j.rb gem will be split up into three gems, neo4j-core, {neo4j-wrapper}[http://github.com/andreasronge/neo4j-wrapper] and {neo4j}[http://github.com/andreasronge/neo4j].
-This gem will be included by neo4j 2.0.0 gem.
-
+This gem only contains the JRuby mapping of the Neo4j graph database and does not wrap nodes and relationship in ruby objects.
+The neo4j.rb gem consists of three gems, neo4j-core, {neo4j-wrapper}[http://github.com/andreasronge/neo4j-wrapper] and {neo4j}[http://github.com/andreasronge/neo4j].
 This gem contains two modules: Neo4j and Neo4j::Core
 The Neo4j module is public and the Neo4j::Core(::*) are internal modules.
 
@@ -24,31 +22,6 @@ The Neo4j module is public and the Neo4j::Core(::*) are internal modules.
 
 {Neo4j::Algo} Included algorithms, like shortest path
 
-== Custom Index
-
-You can create your own indexer.
-
-  class MyIndex
-    extend Neo4j::Core::Index::ClassMethods
-    include Neo4j::Core::Index
-
-    node_indexer do
-      index_names :exact => 'myindex_exact', :fulltext => 'myindex_fulltext'
-      trigger_on :myindex => true, :things => ['a', 'b']
-    end
-
-    index :name
-  end
-
-All nodes with the property <tt>myindex == true</tt> or property <tt>things</tt> <tt>'a'</tt> or <tt>'b'</tt>
-will be indexed using this index.
-
-Exampel:
-  n = Neo4j::Node.new(:myindex = true, :name => 'foo')
-  MyIndex.find('name: foo').first #=> n
-
-
-
 == Cypher
 
 Example:
@@ -65,6 +38,8 @@ Notice
 * You can skip the start, match, where and ret (they are just empty methods).
 
 === Cypher Examples
+
+ See {Neo4j Wiki Cypher}[https://github.com/andreasronge/neo4j/wiki/Neo4j::Core-Cypher]
 
 "START n0=node(3) RETURN n0"
   Neo4j.query do
@@ -188,18 +163,11 @@ Notice
 
 For more examples, see the RSpecs
 
-== Creates Your Own Wrapper
 
-Todo, see {Neo4j::Core::Wrapper}
+=== License
+* Neo4j.rb - MIT, see the LICENSE file http://github.com/andreasronge/neo4j-core/tree/master/LICENSE.
+* Lucene -  Apache, see http://lucene.apache.org/java/docs/features.html
+* \Neo4j - Dual free software/commercial license, see http://neo4j.org/
 
-
-== Changes
-
-Changes from the neo4j.rb
-* Use of YARD instead of RDoc
-* Some tidy up of the API and code (e.g. Neo4j::Node#rels methods)
-* Change of Ruby module structure.
-* More RSpecs and more use of mocking combined with real testing of the Java layer
-* Make sure that we retrieve relationships and nodes lazy if possible.
-* Cypher Query DSL
-
+Notice there are different license for the neo4j-community, neo4j-advanced and neo4j-enterprise jar gems.
+Only the neo4j-community gem is by default required.
