@@ -195,7 +195,6 @@ module Neo4j
     # ®return the reference node, which is a "starting point" in the node space.
     # @note In case the ref_node has been assigned via the threadlocal_ref_node method,
     #       then that node will be returned instead.
-    # @see the design guide at http://wiki.neo4j.org/content/Design_Guide
     def ref_node(this_db = self.started_db)
       return Thread.current[:local_ref_node] if Thread.current[:local_ref_node]
       default_ref_node(this_db)

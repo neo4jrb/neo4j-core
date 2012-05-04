@@ -6,6 +6,7 @@ module Neo4j
   Enumerator = Enumerable::Enumerator unless defined? Enumerator
 end
 
+require 'neo4j-core/version'
 require 'neo4j/config'
 
 require 'neo4j-community'
