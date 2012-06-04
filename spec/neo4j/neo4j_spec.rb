@@ -56,7 +56,6 @@ describe Neo4j do
 
 
   describe "reference node", :type => :mock_db do
-
     it "#ref_node returns the reference node" do
       Neo4j.db.graph.should_receive(:reference_node).and_return(MockNode.new)
       Neo4j.ref_node.should be_kind_of(Java::OrgNeo4jGraphdb::Node)
@@ -68,21 +67,17 @@ describe Neo4j do
       Neo4j.ref_node.should == new_ref
     end
   end
-  #
-  #
-  #it "#all_nodes returns a Enumerable of all nodes in the graph database " do
-  #  # given created three nodes in a clean database
-  #  created_nodes = 3.times.map { Neo4j::Node.new.id }
-  #
-  #  # when
-  #  found_nodes   = Neo4j.all_nodes.map { |node| node.id }
-  #
-  #  # then
-  #  found_nodes.should include(*created_nodes)
-  #  found_nodes.should include(Neo4j.ref_node.id)
-  #end
-  #
-  #it "#management returns by default a management for Primitives", :edition => :advanced do
-  #  Neo4j.management.get_number_of_node_ids_in_use.should > 0
-  #end
+
+  describe "start with external database" do
+    after do
+      Neo4j.shutdown
+    end
+
+    it "uses the specified Neo4j database instance" do
+      my_db = MockDb.new
+      Neo4j.start(nil, my_db)
+      Neo4j.db.graph.should == my_db
+    end
+
+  end
 end

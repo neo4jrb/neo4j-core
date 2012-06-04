@@ -134,6 +134,21 @@ module Neo4j
         end
       end
 
+      # @private
+      def start_external_db(external_graph_db)
+        begin
+          @running = true
+          @graph = external_graph_db
+          @graph.register_transaction_event_handler(@event_handler)
+          @lucene = @graph.index
+          @event_handler.neo4j_started(self)
+          Neo4j.logger.info("Started with external db")
+        rescue
+          @running = false
+          raise
+        end
+      end
+
       private
 
       def start_readonly_graph_db
@@ -168,21 +183,6 @@ module Neo4j
         @graph.register_transaction_event_handler(@event_handler)
         @lucene = @graph.index
         @event_handler.neo4j_started(self)
-      end
-
-      def start_external_db(external_graph_db)
-        begin
-          @running = true
-          @graph = external_graph_db
-          Neo4j.migrate!
-          @graph.register_transaction_event_handler(@event_handler)
-          @lucene = @graph.index #org.neo4j.index.impl.lucene.LuceneIndexProvider.new
-          @event_handler.neo4j_started(self)
-          Neo4j.logger.info("Started with external db")
-        rescue
-          @running = false
-          raise
-        end
       end
 
     end

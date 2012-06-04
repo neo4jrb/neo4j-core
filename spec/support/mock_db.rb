@@ -17,6 +17,10 @@ class MockDb
     Java::OrgNeo4jKernel::EmbeddedGraphDatabase
   end
 
+  def index
+    "MockIndex"
+  end
+
   def shutdown
 
   end
