@@ -68,6 +68,8 @@ module Neo4j
           include Neo4j::Core::Relationship
           include Neo4j::Core::Wrapper
           include Neo4j::Core::Index
+          alias_method :start_node, :start_node_wrapper
+          alias_method :end_node, :end_node_wrapper
         end
       end
 

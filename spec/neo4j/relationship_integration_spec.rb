@@ -59,6 +59,31 @@ describe Neo4j::Relationship, :type => :integration do
     end
   end
 
+
+  describe "wrapping start and end nodes" do
+    subject do
+      new_tx
+      rel = Neo4j::Relationship.new(:friends, node_a, node_b)
+      finish_tx
+      rel
+    end
+
+    it "should call wrapper for start_node" do
+      start_node = mock("start_node")
+      start_node.should_receive(:wrapper).and_return("hej")
+      subject.should_receive(:_start_node).and_return(start_node)
+      subject.start_node.should == "hej"
+    end
+
+    it "should call wrapper for end_node" do
+      end_node = mock("end_node")
+      end_node.should_receive(:wrapper).and_return("hej")
+      subject.should_receive(:_end_node).and_return(end_node)
+      subject.end_node.should == "hej"
+    end
+
+  end
+
   describe "#new(:friends, node_a, node_b, :name => 'kalle')" do
     subject do
       new_tx
