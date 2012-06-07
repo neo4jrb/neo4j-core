@@ -1,0 +1,7 @@
+== 2.0.1 / 2012-06-07
+
+* Remove hard coded Gem dependencies to neo4j-advanced and neo4j-enterprise, #11
+* Make it possible to specify protected keys for Neo4j::Node.update, #8, #9
+* Added missing method for start and end_node, #7
+
+== 2.0.0 / 2012-06-05

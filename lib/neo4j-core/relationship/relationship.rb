@@ -31,7 +31,7 @@ module Neo4j
       # Same as Java::OrgNeo4jGraphdb::Relationship#getEndNode but returns the wrapper for it (if it exist)
       # @see Neo4j::Node#wrapper
       def end_node
-        _end_node.wrapper
+        # Just for documentation purpose, it is aliased from end_node_wrapper
       end
 
       # @private
@@ -42,7 +42,7 @@ module Neo4j
       # Same as Java::OrgNeo4jGraphdb::Relationship#getStartNode but returns the wrapper for it (if it exist)
       # @see Neo4j::Node#wrapper
       def start_node
-        _start_node.wrapper
+        # Just for documentation purpose, it is aliased from start_node_wrapper
       end
 
       # @private
@@ -99,6 +99,9 @@ module Neo4j
         Neo4j::Relationship
       end
 
+
+      alias_method :start_node, :start_node_wrapper
+      alias_method :end_node, :end_node_wrapper
 
     end
   end
