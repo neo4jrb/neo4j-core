@@ -210,7 +210,8 @@ module Neo4j
     # Returns a Management JMX Bean.
     #
     # Notice that this information is also provided by the jconsole Java tool, check http://wiki.neo4j.org/content/Monitoring_and_Deployment
-    # and http://docs.neo4j.org/chunked/milestone/operations-monitoring.html
+    # and http://docs.neo4j.org/chunked/milestone/operations-monitoring.html.
+    # Some of these management features are only available when using the neo4j-advanced and neo4j-enterprise gems.
     #
     # By default it returns the Primitivies JMX Bean that can be used to find number of nodes in use.
     #
@@ -221,9 +222,11 @@ module Neo4j
     #   Neo4j.management.getNumberOfRelationshipIdsInUse
     #   Neo4j.management.get_number_of_relationship_type_ids_in_use
     #
+    # Notice you must require the neo4j-advanced gem for these stats.
+    #
     # @example Example Neo4j HA Cluster Info
     #
-    # Neo4j.management(org.neo4j.management.HighAvailability).isMaster
+    #   Neo4j.management(org.neo4j.management.HighAvailability).isMaster
     #
     # @param jmx_clazz the JMX class http://api.neo4j.org/current/org/neo4j/management/package-summary.html
     # @param this_db default currently running instance or a newly started neo4j db instance

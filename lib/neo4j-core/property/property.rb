@@ -27,25 +27,36 @@ module Neo4j
 
       # Updates this node/relationship's properties by using the provided struct/hash.
       # If the option <code>{:strict => true}</code> is given, any properties present on
-      # the node but not present in the hash will be removed from the node.
+      # the node but not present in the hash will be removed from the node, except '_neo_id' and '_classname'
+      # The option <code>{:protected_keys => array of strings}</code> is similar to the <code<:strict</code> option, except
+      # that it allows you to specify which keys will be protected from being updated or deleted.
+      # If neither the protected nor strict option is given then all properties starting with '_' will never be touched.
       #
       # @param [Hash, :each_pair] struct_or_hash the key and value to be set
       # @param [Hash] options further options defining the context of the update
       # @option options [Boolean] :strict any properties present on the node but not present in the hash will be removed from the node if true
+      # @option options [Array<String>] :protected_keys the keys that never will be touched
       # @return self
       def update(struct_or_hash, options={})
-        strict = options[:strict]
-        keys_to_delete = props.keys - %w(_neo_id _classname) if strict
-        struct_or_hash.each_pair do |key, value|
-          next if key.to_s[0..0] == '_'
+        protected_keys = %w(_neo_id _classname) if options[:strict]
+        protected_keys ||= options[:protected_keys].map(&:to_s) if options[:protected_keys]
+        keys_to_delete = props.keys - protected_keys if protected_keys
+
+        struct_or_hash.each_pair do |k, value|
+          key = k.to_s
           # do not allow special properties to be mass assigned
-          keys_to_delete.delete(key.to_s) if strict
+          if protected_keys
+            keys_to_delete.delete(key)
+            next if protected_keys.include?(key)
+          else
+            next if key[0..0] == '_'
+          end
+
           self[key] = value
         end
-        keys_to_delete.each { |key| remove_property(key) } if strict
+        keys_to_delete.each { |key| remove_property(key) } if protected_keys
         self
       end
-
 
       # @return the value of the given key or nil if the property does not exist.
       def [](key)

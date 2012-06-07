@@ -96,6 +96,24 @@ describe Neo4j::Node, :type => :mock_db do
       new_node.update({:_kalle => 42})
     end
 
+
+    it "should keep _classname and _neo_id properties in strict mode" do
+      new_node = MockNode.new
+      new_node.stub(:props) { {"_classname" => 3, "_neo_id" => "hoj"} }
+      new_node.should_not_receive(:remove_property)
+      new_node.should_receive(:set_property).with('kalle', 42)
+      new_node.update({:kalle => 42}, {:strict => true})
+    end
+
+    it "should not update protected keys" do
+      new_node = MockNode.new
+      new_node.stub(:props) { {"private" => 3, "hej" => "hoj"} }
+      new_node.should_not_receive(:remove_property).with('private')
+      new_node.should_receive(:remove_property).with('hej')
+      new_node.should_receive(:set_property).with('kalle', 42)
+      new_node.update({:kalle => 42}, {:protected_keys => ['private']})
+    end
+
   end
 
   describe "#load" do
