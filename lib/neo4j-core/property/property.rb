@@ -27,7 +27,7 @@ module Neo4j
 
       # Updates this node/relationship's properties by using the provided struct/hash.
       # If the option <code>{:strict => true}</code> is given, any properties present on
-      # the node but not present in the hash will be removed from the node, except '_neo_id' and '_classname'
+      # the node but not present in the hash will be removed from the node, except '_neo_id' and '_classname' (defined in Neo4j::Node.protected_keys).
       # The option <code>{:protected_keys => array of strings}</code> is similar to the <code<:strict</code> option, except
       # that it allows you to specify which keys will be protected from being updated or deleted.
       # If neither the protected nor strict option is given then all properties starting with '_' will never be touched.
@@ -38,7 +38,7 @@ module Neo4j
       # @option options [Array<String>] :protected_keys the keys that never will be touched
       # @return self
       def update(struct_or_hash, options={})
-        protected_keys = %w(_neo_id _classname) if options[:strict]
+        protected_keys = self.class.protected_keys if options[:strict]
         protected_keys ||= options[:protected_keys].map(&:to_s) if options[:protected_keys]
         keys_to_delete = props.keys - protected_keys if protected_keys
 
@@ -56,6 +56,10 @@ module Neo4j
         end
         keys_to_delete.each { |key| remove_property(key) } if protected_keys
         self
+      end
+
+      def protected_keys
+
       end
 
       # @return the value of the given key or nil if the property does not exist.

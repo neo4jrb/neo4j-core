@@ -5,6 +5,7 @@ describe Neo4j::Core::Property do
   let(:node_class) do
     Class.new do
       include Neo4j::Core::Property
+      extend Neo4j::Core::Wrapper::ClassMethods
 
       attr_accessor :props
 
@@ -19,6 +20,7 @@ describe Neo4j::Core::Property do
       def set_property(key, value)
         @props[key] = value
       end
+
     end
   end
 
