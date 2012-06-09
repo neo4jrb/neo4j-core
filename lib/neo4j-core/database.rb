@@ -41,6 +41,11 @@ module Neo4j
         @default_embedded_db = db
       end
 
+      def self.ha_enabled?
+        Neo4j::Config['ha.db']
+      end
+
+
       # Private start method, use Neo4j.start instead
       # @see Neo4j#start
       def start
@@ -51,7 +56,7 @@ module Neo4j
         begin
           if self.class.locked?
             start_readonly_graph_db
-          elsif Neo4j::Config['ha.db']
+          elsif self.class.ha_enabled?
             start_ha_graph_db
             Neo4j.migrate! if Neo4j.respond_to?(:migrate!)
           else
@@ -103,6 +108,11 @@ module Neo4j
           @lucene = nil
           @running = false
           @neo4j_manager = nil
+          if self.class.ha_enabled?
+            Neo4j.logger.info "Neo4j (HA mode) has been shutdown, machine id: #{Neo4j.config['ha.server_id']} at #{Neo4j.config['ha.server']} db #{@storage_path}"
+          else
+            Neo4j.logger.info "Neo4j has been shutdown using storage_path: #{@storage_path}"
+          end
         end
       end
 

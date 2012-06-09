@@ -236,6 +236,12 @@ module Neo4j
       this_db.management(jmx_clazz)
     end
 
+    # Only available using the neo4j-enterprise gem.
+    # @return [Boolean] true if the Neo4j database is the HA master
+    def ha_master?
+      Neo4j.management(Java::OrgNeo4jManagement::HighAvailability).isMaster
+    end
+
     # @return [Enumerable] all nodes in the database
     def all_nodes(this_db = self.started_db)
       Enumerator.new(this_db, :each_node)
