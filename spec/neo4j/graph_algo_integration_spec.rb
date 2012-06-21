@@ -54,7 +54,7 @@ describe Neo4j::Algo, :type => :integration do
     end
 
     it "cost_evaluator{|rel,*| rel[:weight]}. returns the shortest path given the weight property of the relationships" do
-      res = Neo4j::Algo.a_star_path(@x,@y).expand{|r| r._rels}.cost_evaluator{|rel,*| rel[:weight]}.estimate_evaluator{|node,goal| 1.0}
+      res = Neo4j::Algo.a_star_path(@x,@y).expand{|path| path.end_node._rels}.cost_evaluator{|rel,*| rel[:weight]}.estimate_evaluator{|node,goal| 1.0}
       res.should include(@x,@b,@c,@y)
       res = Neo4j::Algo.a_star_path(@x,@y).cost_evaluator{|rel,*| rel[:weight]}.estimate_evaluator{|node,goal| 1.0}
       res.should include(@x,@b,@c,@y)
@@ -142,7 +142,7 @@ describe Neo4j::Algo, :type => :integration do
       end
 
       it "#expand(proc) - only traverse the nodes given with the proc and return the nodes of the shortest path " do
-        res = Neo4j::Algo.shortest_path(@x,@y).expand{|node| node._rels(:outgoing, :friends)}
+        res = Neo4j::Algo.shortest_path(@x,@y).expand{|path| path.end_node._rels(:outgoing, :friends)}
         res.length.should == 3
         res.should include(@x,@b,@c,@y)
       end

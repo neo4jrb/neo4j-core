@@ -376,10 +376,10 @@ module Neo4j
             if @filter_predicate
               @filter_predicate.include_start_node
             else
-              @td = @td.filter(Java::OrgNeo4jKernel::Traversal.return_all_but_start_node)
+              @td = @td.evaluator(Java::OrgNeo4jGraphdbTraversal::Evaluators.exclude_start_position)
             end
           end
-          @td = @td.prune(Java::OrgNeo4jKernel::Traversal.pruneAfterDepth(@depth)) unless @depth == :all
+          @td = @td.evaluator(Java::OrgNeo4jGraphdbTraversal::Evaluators.toDepth(@depth)) unless @depth == :all
           if @traversal_result == :rels
             @td.traverse(@from._java_node).relationships
           elsif @traversal_result == :paths

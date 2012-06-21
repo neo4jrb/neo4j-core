@@ -291,7 +291,7 @@ describe Neo4j::Node, :type => :integration do
       Neo4j::Relationship.new(:friends, @b, @c, :age => 1)
       Neo4j::Relationship.new(:friends, @b, @d, :age => 10)
 
-      res = @x.expand { |n| n._rels.find_all { |r| r[:age] > 5 } }.depth(:all).to_a
+      res = @x.expand { |path| path.end_node._rels.find_all { |r| r[:age] > 5 } }.depth(:all).to_a
       res.should include(@b, @d)
       res.size.should == 2
     end
@@ -302,7 +302,7 @@ describe Neo4j::Node, :type => :integration do
       Neo4j::Relationship.new(:friends, @b, @c, :age => 1)
       Neo4j::Relationship.new(:friends, @b, @d, :age => 10)
 
-      res = @x.expand { |n| n._rels.find_all { |r| r[:age] > 5 } }.to_a
+      res = @x.expand { |path| path.end_node._rels.find_all { |r| r[:age] > 5 } }.to_a
       res.should include(@b)
       res.size.should == 1
     end
