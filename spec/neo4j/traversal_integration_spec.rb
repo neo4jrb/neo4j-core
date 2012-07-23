@@ -242,11 +242,11 @@ describe Neo4j::Node, :type => :integration do
 
   describe "#prune" do
     it "takes a block with parameter of type Java::org.neo4j.graphdb.Path" do
-      @b.outgoing(:friends).depth(4).prune { |path| path.should be_kind_of(Java::org.neo4j.graphdb.Path); false }.each {}
+      @b.outgoing(:friends).depth(4).prune { |path| path.should be_kind_of(Java::OrgNeo4jGraphdb::Path); false }.each {}
     end
 
     it "if provided block returns true the traversal will be 'cut off' that path" do
-      [*@b.outgoing(:work).depth(4).prune { |path| true }].size.should == 2
+      [*@b.outgoing(:work).depth(4).prune { |path| true }].count.should == 2
       @b.outgoing(:work).depth(4).prune { |path| true }.should include(@c, @d)
     end
   end

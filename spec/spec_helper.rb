@@ -7,6 +7,7 @@ require 'its'
 require 'logger'
 
 require 'neo4j-core'
+require 'pry'
 
 
 # Requires supporting ruby files with custom matchers and macros, etc,

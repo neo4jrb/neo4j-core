@@ -4,7 +4,7 @@ module Neo4j
       # Implements the Neo4j Predicate Java interface, only used internally.
       # @private
       class FilterPredicate
-        include Java::OrgNeo4jHelpers::Predicate
+        include Java::OrgNeo4jGraphdbTraversal::Evaluator
 
         def initialize
           @procs = []
@@ -14,15 +14,18 @@ module Neo4j
           @procs << proc
         end
 
-        def include_start_node
-          @include_start_node = true
-        end
-
-        def accept(path)
-          return false if @include_start_node && path.length == 0
+        def evaluate(path)
+          if path.length == 0
+            return Java::OrgNeo4jGraphdbTraversal::Evaluation::EXCLUDE_AND_CONTINUE
+          end
           # find the first filter which returns false
           # if not found then we will accept this path
-          @procs.find { |p| !p.call(path) }.nil?
+          if @procs.find { |p| !p.call(path) }.nil?
+            Java::OrgNeo4jGraphdbTraversal::Evaluation::INCLUDE_AND_CONTINUE
+          else
+            Java::OrgNeo4jGraphdbTraversal::Evaluation::EXCLUDE_AND_CONTINUE
+          end
+
         end
       end
     end
