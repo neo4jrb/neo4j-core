@@ -7,6 +7,7 @@ require 'its'
 require 'logger'
 
 require 'neo4j-core'
+require 'pry'
 
 
 # Requires supporting ruby files with custom matchers and macros, etc,
@@ -75,6 +76,10 @@ RSpec.configure do |c|
 
   c.after(:each, :type => :integration) do
     finish_tx
+  end
+
+  c.before(:all) do
+    Neo4j::Config[:storage_path] = File.join(Dir.tmpdir, "neo4j_core_integration_rspec")
   end
 
   c.before(:all, :type => :mock_db) do

@@ -242,11 +242,11 @@ describe Neo4j::Node, :type => :integration do
 
   describe "#prune" do
     it "takes a block with parameter of type Java::org.neo4j.graphdb.Path" do
-      @b.outgoing(:friends).depth(4).prune { |path| path.should be_kind_of(Java::org.neo4j.graphdb.Path); false }.each {}
+      @b.outgoing(:friends).depth(4).prune { |path| path.should be_kind_of(Java::OrgNeo4jGraphdb::Path); false }.each {}
     end
 
     it "if provided block returns true the traversal will be 'cut off' that path" do
-      [*@b.outgoing(:work).depth(4).prune { |path| true }].size.should == 2
+      [*@b.outgoing(:work).depth(4).prune { |path| true }].count.should == 2
       @b.outgoing(:work).depth(4).prune { |path| true }.should include(@c, @d)
     end
   end
@@ -291,7 +291,7 @@ describe Neo4j::Node, :type => :integration do
       Neo4j::Relationship.new(:friends, @b, @c, :age => 1)
       Neo4j::Relationship.new(:friends, @b, @d, :age => 10)
 
-      res = @x.expand { |n| n._rels.find_all { |r| r[:age] > 5 } }.depth(:all).to_a
+      res = @x.expand { |path| path.end_node._rels.find_all { |r| r[:age] > 5 } }.depth(:all).to_a
       res.should include(@b, @d)
       res.size.should == 2
     end
@@ -302,7 +302,7 @@ describe Neo4j::Node, :type => :integration do
       Neo4j::Relationship.new(:friends, @b, @c, :age => 1)
       Neo4j::Relationship.new(:friends, @b, @d, :age => 10)
 
-      res = @x.expand { |n| n._rels.find_all { |r| r[:age] > 5 } }.to_a
+      res = @x.expand { |path| path.end_node._rels.find_all { |r| r[:age] > 5 } }.to_a
       res.should include(@b)
       res.size.should == 1
     end

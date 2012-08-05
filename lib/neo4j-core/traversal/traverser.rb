@@ -290,7 +290,7 @@ module Neo4j
         #  a.outgoing(:friends).outgoing(:recommend).depth(:all).prune{|path| path.end_node[:name] == 'B'}
         # @see http://components.neo4j.org/neo4j/milestone/apidocs/org/neo4j/graphdb/Path.html
         def prune(&block)
-          @td = @td.prune(PruneEvaluator.new(block))
+          @td = @td.evaluator(PruneEvaluator.new(block))
           self
         end
 
@@ -308,7 +308,7 @@ module Neo4j
           @filter_predicate.add(block)
 
 
-          @td = @td.filter(@filter_predicate)
+          @td = @td.evaluator(@filter_predicate)
           self
         end
 
@@ -373,13 +373,9 @@ module Neo4j
         # @return the java iterator
         def iterator
           unless @include_start_node
-            if @filter_predicate
-              @filter_predicate.include_start_node
-            else
-              @td = @td.filter(Java::OrgNeo4jKernel::Traversal.return_all_but_start_node)
-            end
+            @td = @td.evaluator(Java::OrgNeo4jGraphdbTraversal::Evaluators.exclude_start_position)
           end
-          @td = @td.prune(Java::OrgNeo4jKernel::Traversal.pruneAfterDepth(@depth)) unless @depth == :all
+          @td = @td.evaluator(Java::OrgNeo4jGraphdbTraversal::Evaluators.toDepth(@depth)) unless @depth == :all
           if @traversal_result == :rels
             @td.traverse(@from._java_node).relationships
           elsif @traversal_result == :paths
