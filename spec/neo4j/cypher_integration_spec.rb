@@ -98,4 +98,10 @@ describe "Neo4j#query (cypher)", :type => :integration do
       r.first[:n].wrapper.should == @bar
     end
   end
+
+  describe "issue #208, START n=node(*) RETURN n" do
+    it 'should not raise an exception' do
+      Neo4j._query("START n=node(*) RETURN n").first
+    end
+  end
 end

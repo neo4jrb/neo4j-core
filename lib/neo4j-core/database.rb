@@ -10,6 +10,7 @@ module Neo4j
     #
     # @private
     class Database
+      include org.neo4j.kernel.GraphDatabaseAPI
 
       # The Java graph database
       # @see http://components.neo4j.org/neo4j/1.6.1/apidocs/org/neo4j/graphdb/GraphDatabaseService.html
@@ -175,15 +176,6 @@ module Neo4j
         @event_handler.neo4j_started(self)
       end
 
-      # needed by cypher
-      def getNodeById(id) #:nodoc:
-        Neo4j::Node.load(id)
-      end
-
-      # needed by cypher
-      def getRelationshipById(id) #:nodoc:
-        Neo4j::Relationship.load(id)
-      end
 
       def start_ha_graph_db
         Neo4j.logger.info "starting Neo4j in HA mode, machine id: #{Neo4j.config['ha.server_id']} at #{Neo4j.config['ha.server']} db #{@storage_path}"
@@ -193,6 +185,24 @@ module Neo4j
         @graph.register_transaction_event_handler(@event_handler)
         @lucene = @graph.index
         @event_handler.neo4j_started(self)
+      end
+
+      # Implementation of org.neo4j.kernel.GraphDatabaseAPI
+      # For some strange reason Cypher seems to need those methods
+
+      # needed by cypher
+      def getNodeById(id)
+        Neo4j::Node.load(id)
+      end
+
+      # needed by cypher
+      def getRelationshipById(id)
+        Neo4j::Relationship.load(id)
+      end
+
+      # needed by cypher
+      def getNodeManager
+        @graph.getNodeManager
       end
 
     end
