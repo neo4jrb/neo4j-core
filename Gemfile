@@ -2,7 +2,6 @@ source :gemcutter
 
 gemspec
 
-gem 'neo4j-community', :path => '../neo4j-community'
 gem 'neo4j-advanced',  '>= 1.8.M05', '< 1.9', :require => false
 gem 'neo4j-enterprise', '>= 1.8.M05', '< 1.9', :require => false
 
