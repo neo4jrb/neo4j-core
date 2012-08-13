@@ -4,5 +4,6 @@ before_install:
   - gem --version
 bundler_args: --without development
 rvm:
+  - jruby-1.7.0.preview2
   - jruby-18mode
   - jruby-19mode

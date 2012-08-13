@@ -42,18 +42,20 @@ describe "Neo4j::Node#index", :type => :integration do
 
 
   describe "Neo4j::NodeIndex" do
-    before(:all) do
+    before(:each) do
+      new_tx
       Neo4j::Node.trigger_on(:typex => 'MyTypeX')
       Neo4j::Node.index(:name)
     end
 
-    after(:all) do
+    after(:each) do
+      new_tx
       Neo4j::Node.rm_index_config
       Neo4j::Node.rm_index_type
+      finish_tx
     end
 
     it "will be triggered" do
-      new_tx
       a = Neo4j::Node.new(:name => 'andreas', :typex => 'MyTypeX')
       Neo4j::Node.find(:name => 'andreas').first.should be_nil
       finish_tx
@@ -61,14 +63,12 @@ describe "Neo4j::Node#index", :type => :integration do
     end
 
     it "can by updated with the add_index method" do
-      new_tx
       foo = Neo4j::Node.new(:name => 'foo')
       foo.add_index(:name)
       Neo4j::Node.find(:name => 'foo').first.should == foo
     end
 
     it "can not allow index on none indexed fields" do
-      new_tx
       surname = Neo4j::Node.new(:surname => 'bar')
       surname.add_index(:surname)
       # TODO, either throw an Exception above or allow this
