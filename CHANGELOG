@@ -1,3 +1,7 @@
+== 2.1.0 / 2012-08-14
+
+* Fix for cypher query with node(*) throw error. #13
+* Add methods for Neo4j HA: ha_enabled? ha_master? #12
 * Upgrade to 1.8.M06 - breaking changes, some traversals methods use path objects
 
 == 2.0.1 / 2012-06-07
