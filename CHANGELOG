@@ -1,3 +1,5 @@
+* Add neo4j statistics, #15
+
 == 2.1.0 / 2012-08-14
 
 * Fix for cypher query with node(*) throw error. #13

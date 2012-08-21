@@ -53,6 +53,7 @@ module Neo4j
         return if running?
         @running = true
         @storage_path = Config.storage_path
+        Java::JavaLang::System.setProperty("neo4j.ext.udc.source", "neo4rb")
 
         begin
           if self.class.locked?
