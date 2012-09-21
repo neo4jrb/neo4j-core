@@ -45,9 +45,7 @@ module Neo4j
         # @see #load
         def _load(rel_id, db = Neo4j.started_db)
           return nil if rel_id.nil?
-          rel = db.graph.get_relationship_by_id(rel_id.to_i)
-          # TODO
-          rel
+          db.graph.get_relationship_by_id(rel_id.to_i)
         rescue Java::OrgNeo4jGraphdb::NotFoundException
           nil
         end

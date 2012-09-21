@@ -7,44 +7,34 @@ module Neo4j
         attr_accessor :query, :return_variable
 
         def initialize(start_id, dir, types, query_hash=nil, &block)
-          this = self
-
-          rel_type = ":#{types.map{|x| "`#{x}`"}.join('|')}"
-
-          @query = Neo4j::Cypher.new do
-            default_ret = node(:default_ret)
+          q = Neo4j::Cypher.query do
             n = node(start_id)
-            case dir
-              when :outgoing then
-                n > rel_type > default_ret
-              when :incoming then
-                n < rel_type < default_ret
-              when :both then
-                n - rel_type - default_ret
+            next_nodes = case dir
+                           when :outgoing then
+                             n.outgoing(types)
+                           when :incoming then
+                             n.incoming(types)
+                           when :both then
+                             n.both(types)
+                         end
+            if block
+              self.instance_exec(next_nodes, &block)
+            else
+              query_hash.each{|pair|  next_nodes[pair[0]] == pair[1]}.to_a  if query_hash
+              next_nodes
             end
+          end
 
-            # where statement
-            ret_maybe = block && self.instance_exec(default_ret, &block)
-            ret = ret_maybe.respond_to?(:var_name) ? ret_maybe : default_ret
-            if query_hash
-              expr = []
-              query_hash.each{|pair|  expr << (ret[pair[0]] == pair[1])}.to_a
-              expr.each_with_index do |obj, i|
-                Neo4j::Core::Cypher::ExprOp.new(obj, expr[i+1], "and") if i < expr.size - 1
-              end
-            end
-
-            this.return_variable = ret.var_name.to_sym
-            ret
-          end.to_s
+          @query = q.to_s
+          self.return_variable=q.return_names.last
         end
 
         def to_s
-          @query
+          @query.to_s
         end
 
         def each
-          Neo4j._query(query).each do |r|
+          Neo4j._query(to_s).each do |r|
             yield r[return_variable]
           end
         end

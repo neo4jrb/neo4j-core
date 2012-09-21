@@ -29,6 +29,30 @@ describe "Neo4j#query (cypher)", :type => :integration do
     end
   end
 
+  describe 'return one property' do
+    before(:all) do
+      n1 = @a.neo_id
+      n2 = @b.neo_id
+      @query_result = Neo4j.query{node(n1, n2)[:name].desc}
+    end
+
+    it "has one column" do
+      @query_result.columns.size.should == 1
+      @query_result.columns.first.should == :"v1.name"
+    end
+
+    it "its first value is hash" do
+      puts "Q #{@query_result.to_s}"
+      r = @query_result.to_a # can only loop once
+      r.size.should == 2
+      r.first.should include(:"v1.name")
+      r.first[:"v1.name"].should == 'b'
+      r[1][:"v1.name"].should == 'a'
+    end
+
+  end
+
+
   describe "returning one relationship: {|r| rel(r).as(:n)}" do
     before(:all) do
       @query_result = Neo4j.query(@r){|r| r.as(:n)}

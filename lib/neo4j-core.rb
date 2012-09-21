@@ -6,6 +6,8 @@ module Neo4j
   Enumerator = Enumerable::Enumerator unless defined? Enumerator
 end
 
+require 'neo4j-cypher'
+
 require 'neo4j-core/version'
 require 'neo4j/config'
 
@@ -59,12 +61,8 @@ require 'neo4j-core/traversal/prune_evaluator'
 require 'neo4j-core/traversal/rel_expander'
 require 'neo4j-core/traversal/traversal'
 require 'neo4j-core/traversal/traverser'
-
-require 'neo4j-core/cypher/cypher'
-require 'neo4j-core/cypher/result_wrapper'
 require 'neo4j-core/hash_with_indifferent_access'
 
 require 'neo4j/algo'
-require 'neo4j/cypher'
 require 'neo4j/node'
 require 'neo4j/relationship'

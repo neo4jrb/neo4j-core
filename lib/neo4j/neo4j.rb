@@ -112,9 +112,9 @@ module Neo4j
     # @see http://docs.neo4j.org/chunked/milestone/cypher-query-lang.html The Cypher Query Language Documentation
     # @note Returns a read-once only forward iterable.
     # @param params parameter for the query_dsl block
-    # @return [Neo4j::Core::Cypher::ResultWrapper] a forward read once only Enumerable, containing hash values.
+    # @return [Neo4j::Cypher::ResultWrapper] a forward read once only Enumerable, containing hash values.
     def query(*params, &query_dsl)
-      q = Cypher.new(*params, &query_dsl).to_s
+      q = Neo4j::Cypher.query(*params, &query_dsl).to_s
       _query(q)
     end
 
@@ -124,7 +124,7 @@ module Neo4j
     def _query(q)
       engine = Java::OrgNeo4jCypherJavacompat::ExecutionEngine.new(db)
       result = engine.execute(q)
-      Neo4j::Core::Cypher::ResultWrapper.new(result)
+      Neo4j::Cypher::ResultWrapper.new(result)
     end
 
 

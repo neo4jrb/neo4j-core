@@ -8,7 +8,7 @@ describe Neo4j, " with neo4j-enterprise edition", :type => :integration do
     end
 
     it "can do a backup", :edition => :enterprise  do
-      # TODO this spec does not run together with other specs
+      # This spec does not run together with other specs
       # We need to start neo4j in a separate process I think
       # like see: https://github.com/neo4j/enterprise/blob/master/backup/src/test/java/org/neo4j/backup/TestBackupToolEmbedded.java
       Neo4j::Config['enable_online_backup'] = 'true'

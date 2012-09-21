@@ -39,7 +39,7 @@ module Neo4j
 
         # Specifies an index with configuration
         # Used in the Index DSL.
-        # @param [Hash] args the field and its configuration TODO
+        # @param [Hash] args the field and its configuration
         # @see Neo4j::Core::Index::ClassMethods#index
         def index(args)
           conf = args.last.kind_of?(Hash) ? args.pop : {}

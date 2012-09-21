@@ -24,6 +24,8 @@ The Neo4j module is public and the Neo4j::Core(::*) are internal modules.
 
 == Cypher
 
+The neo4j-core gem depends on the neo4j-cypher gem, see http://github.com/andreasronge/neo4j-cypher
+
 Example:
   Neo4j.query { node(3) }
 
@@ -32,136 +34,6 @@ Example with parameters:
      ref <=> :x
      :x
   end
-
-Notice
-* The last statement in the expression will be the return value.
-* You can skip the start, match, where and ret (they are just empty methods).
-
-=== Cypher Examples
-
- See {Neo4j Wiki Cypher}[https://github.com/andreasronge/neo4j/wiki/Neo4j::Core-Cypher]
-
-"START n0=node(3) RETURN n0"
-  Neo4j.query do
-    start n = node(3)
-    ret n
-  end
-  # the above is same as:
-  Neo4j.query { node(3) }
-
-"START n0=node(42) RETURN n0"
-  node(Neo4j::Node.new)
-
-"START r0=relationship(3,4) RETURN r0"
-  rel(3,4)
-
-"START n0=node(3) MATCH (n0)--(x) RETURN x"
-  start n = node(3)
-  match n <=> :x
-  ret :x
-
-"START n0=node(3) MATCH (n0)--(v0) RETURN v0"
-  x = node
-  n = node(3)
-  match n <=> x
-  ret x
-
-"START n0=node(3) MATCH (n0)--(v0) RETURN v0.name"
-  x = node
-  n = node(3)
-  match n <=> x
-  ret x[:name]
-
-"START n0=node(1) RETURN n0.name AS SomethingTotallyDifferent"
-  x = node(1)
-  x[:name].as('SomethingTotallyDifferent')
-
-"START n0=node:fooindex_exact(name:A) RETURN n0"
-  query(FooIndex, "name:A")
-
-"START n0=node:fooindex_fulltext(desc="A") RETURN n0"
-  lookup(FooIndex, "desc", "A")
-
-"START n0=node(1),n1=node(2) RETURN n0,n1"
-  [node(1), node(2)]
-
-"START n0=node(3) MATCH (n0)-->(c)-->(d) RETURN c"
-  node(3) >> node(:c) >> :d
-  :c
-
-"START n0=node(3) MATCH (n0)-[r]->(x) RETURN r"
-  node(3) > :r > :x
-  :r
-
-"START n0=node(3) MATCH (n0)-[r:friends]->(x) RETURN r"
-  r = rel('r:friends').as(:r)
-  node(3) > r > :x
-  r
-
-"START n0=node(3,1) WHERE n0.age < 30 RETURN n0"
-  n=node(3, 1)
-  where n[:age] < 30
-  ret n
-
-"START n0=node(3,4) WHERE n0.desc = "hej" RETURN n0"
-  n=node(3, 4)
-  n[:desc] == "hej"
-  n
-
-"START n0=node(3) MATCH (n0)<-[:knows]-(c) RETURN c"
-  a=node(3)
-  a < ':knows' < :c
-  :c
-
-"START n0=node(3) MATCH (n0)-[r]->(v1) WHERE type(r) =~ /K.*/ RETURN r"
-  n=node(3)
-  n > (r=rel('r')) > node
-  r.rel_type =~ /K.*/
-  r
-
-"START n0=node(3) MATCH m2 = (n0)-->(b) RETURN b,length(m2)"
-  p = node(3) >> :b; [:b, p.length]
-
-"START n0=node(1) MATCH (n0)-->(b) RETURN distinct n0"
-  n=node(1); n>>:b; n.distinct
-
-"START n0=node(2) MATCH (n0)-->(x) RETURN n0,count(*)"
-  n = node(2))>>:x
-  [n, count]
-
-"START n0=node(2,3,4) RETURN sum(n0.property)"
-  n=node(2, 3, 4)
-  n[:property].sum
-
-"START n0=node(2) MATCH (n0)-->(b) RETURN count(distinct n0.eyes)"
-  n=node(2); n>>:b
-  n[:eyes].distinct.count
-
-"START n0=node(3,4,5) RETURN ID(n0)"
-  node(3, 4, 5).neo_id
-
-"START n0=node(2) WHERE any(x in n0.array WHERE x = "one") RETURN n0"
-  a = node(2)
-  a[:array].any? { |x| x == 'one' }
-  a
-
-"START n0=node(3),n1=node(4),n2=node(1) MATCH m4 = (n0)-->(n1)-->(n2) RETURN extract(x in nodes(m4) : x.age)"
-  a=node(3)
-  b=node(4)
-  c=node(1)
-  p=a>>b>>c
-  p.nodes.extract { |x| x[:age] }
-
-"START n0=node(3) WHERE abs(n0.x) = 3 RETURN n0"
-  a=node(3); a[:x].abs==3
-  a
-
-"START n0=node(3,4,5,1,2) RETURN n0 ORDER BY n0.name SKIP 1 LIMIT 2"
-  a=node(3,4,5,1,2); ret(a).asc(a[:name]).skip(1).limit(2)
-  # o same as
-  a=node(3,4,5,1,2); ret a, :asc => a[:name], :skip => 1, :limit => 2
-
-For more examples, see the RSpecs
 
 
 === License

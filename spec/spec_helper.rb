@@ -71,9 +71,6 @@ FileUtils.rm_rf Neo4j::Config[:storage_path]
 
 RSpec.configure do |c|
 
-  c.include(CustomNeo4jMatchers)
-#  c.filter_run :type => :featured
-
   c.after(:each, :type => :integration) do
     finish_tx
   end
