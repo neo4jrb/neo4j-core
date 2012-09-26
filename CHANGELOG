@@ -1,3 +1,5 @@
+* The []= operator checks that the value is a valid Neo4j value #16
+
 == 2.2.0.rc1 / 2012-09-21
 * Deleted, refactored, improved and moved cypher stuff to neo4j-cypher gem
 * Add neo4j statistics, #15

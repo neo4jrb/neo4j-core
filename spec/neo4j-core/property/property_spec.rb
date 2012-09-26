@@ -9,7 +9,7 @@ describe Neo4j::Core::Property do
 
       attr_accessor :props
 
-      def initialize(props)
+      def initialize(props={})
         @props = props.clone
       end
 
@@ -21,6 +21,27 @@ describe Neo4j::Core::Property do
         @props[key] = value
       end
 
+    end
+  end
+
+  describe "[]=" do
+    subject { node_class.new }
+    context 'when invalid value' do
+      it 'should raise an exception' do
+        Proc.new{subject[:foo] = Object.new}.should raise_error
+      end
+
+      it 'should not set the property' do
+        Proc.new{subject[:foo] = Object.new}.should raise_error
+        subject.props[:foo].should be_nil
+      end
+    end
+
+    context 'when valid value' do
+      it 'should set the property' do
+        subject[:foo] = 'Kalle'
+        subject.props['foo'].should == 'Kalle'
+      end
     end
   end
 

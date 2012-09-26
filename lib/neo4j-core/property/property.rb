@@ -2,6 +2,9 @@ module Neo4j
   module Core
     module Property
 
+      # the valid values on a property, and arrays of those.
+      VALID_PROPERTY_VALUE_CLASSES = Set.new([Array, NilClass, String, Float, TrueClass, FalseClass, Fixnum])
+
       # @return [Hash] all properties plus the id of the node with the key <tt>_neo_id</tt>
       def props
         ret = {"_neo_id" => neo_id}
@@ -69,6 +72,12 @@ module Neo4j
         val.class.superclass == ArrayJavaProxy ? val.to_a : val
       end
 
+      # @param [Object] value the value we want to check if it's a valid neo4j property value
+      # @return [True, False] A false means it can't be persisted.
+      def valid_property?(value)
+        VALID_PROPERTY_VALUE_CLASSES.include?(value.class)
+      end
+
       # Sets the property of this node.
       # Property keys are always strings. Valid property value types are the primitives(<tt>String</tt>, <tt>Fixnum</tt>, <tt>Float</tt>, <tt>FalseClass</tt>, <tt>TrueClass</tt>) or array of those primitives.
       #
@@ -79,6 +88,8 @@ module Neo4j
       # @param [String, Symbol] key of the property to set
       # @param [String,Fixnum,Float,true,false, Array] value to set
       def []=(key, value)
+        raise "Not valid Neo4j Property value #{value.class}, valid: #{VALID_PROPERTY_VALUE_CLASSES.join(', ')}" unless valid_property?(value)
+
         k = key.to_s
         if value.nil?
           remove_property(k)
