@@ -28,5 +28,5 @@ It comes included with the Apache Lucene document database.
   s.rdoc_options = ["--quiet", "--title", "Neo4j::Core", "--line-numbers", "--main", "README.rdoc", "--inline-source"]
 
   s.add_dependency("neo4j-community", '>= 1.8.M05', '< 1.9')
-  s.add_dependency("neo4j-cypher", '~> 1.0.0.rc')
+  s.add_dependency("neo4j-cypher", '~> 1.0.0')
 end

@@ -1,3 +1,6 @@
+== 2.2.0 / 2012-10-02
+* Use 1.0.0 of neo4j-cypher
+* Fix of Neo4j::Config issue using boolean values, andreasronge/neo4j#218
 * The []= operator checks that the value is a valid Neo4j value #16
 
 == 2.2.0.rc1 / 2012-09-21

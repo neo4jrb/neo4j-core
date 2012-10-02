@@ -112,9 +112,9 @@ module Neo4j
         to_hash.each_pair do |k, v|
           case v
             when TrueClass
-              map[k.to_s] = "YES"
+              map[k.to_s] = "true"
             when FalseClass
-              map[k.to_s] = "NO"
+              map[k.to_s] = "false"
             when String, Fixnum, Float
               map[k.to_s] = v.to_s
             # skip list and hash values - not accepted by the Java Neo4j API
