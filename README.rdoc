@@ -8,7 +8,7 @@ The Neo4j module is public and the Neo4j::Core(::*) are internal modules.
 == Documentation
 
 * {YARD}[http://rdoc.info/github/andreasronge/neo4j-core/file/README.rdoc]
-* {Neo4j.rb Wiki}[https://github.com/andreasronge/neo4j/wiki/]
+* {neo4j-core Documentation}[http://github.com/andreasronge/neo4j/wiki/Neo4j::core-introduction]
 
 == The public API
 
@@ -21,20 +21,6 @@ The Neo4j module is public and the Neo4j::Core(::*) are internal modules.
 {Neo4j::Cypher} Cypher Query DSL, see {Neo4j Wiki}[https://github.com/andreasronge/neo4j/wiki/Neo4j%3A%3ACore-Cypher]
 
 {Neo4j::Algo} Included algorithms, like shortest path
-
-== Cypher
-
-The neo4j-core gem depends on the neo4j-cypher gem, see http://github.com/andreasronge/neo4j-cypher
-
-Example:
-  Neo4j.query { node(3) }
-
-Example with parameters:
-  Neo4j.query(Neo4j.ref_node} do |ref|
-     ref <=> :x
-     :x
-  end
-
 
 === License
 * Neo4j.rb - MIT, see the LICENSE file http://github.com/andreasronge/neo4j-core/tree/master/LICENSE.
