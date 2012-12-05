@@ -16,10 +16,24 @@ describe "Neo4j Traversal query method", :type => :integration do
     finish_tx
   end
 
+  it "create a new node" do
+    n = Neo4j.query do
+      node.new(:name => 'newnode').as(:mynode)
+    end.first[:mynode]
+    n[:name].should == 'newnode'
+  end
+
+  it "can create a path" do
+    @a.rels(:outgoing, :friends).count.should == 0
+    Neo4j.query(@a) do |a|
+      a.create_path { |n| n > rel(:friends) > node.new }
+    end
+    @a.rels(:outgoing, :friends).count.should == 1
+  end
+
   describe "a.outgoing(:foo).query" do
     it "returns all outgoing nodes of rel type foo" do
       @a.outgoing(:foo).query.to_a.size.should == 2
-      puts "RESULT ___________ #{@a.outgoing(:foo).query}"
       @a.outgoing(:foo).query.should include(@b, @c)
     end
   end
@@ -47,7 +61,6 @@ describe "Neo4j Traversal query method", :type => :integration do
 
     it "allows a outgoing/incoming clause in the query block" do
       result = @a.outgoing(:foo).query { |x| f = x.as(:x).outgoing(:bar).as(:f); f2 = f.incoming(:bar).as(:f2); ret f.distinct }
-      puts "RESULT #{result.to_s}"
       result.count.should == 1
     end
 

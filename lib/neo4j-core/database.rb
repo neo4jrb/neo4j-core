@@ -196,6 +196,10 @@ module Neo4j
         Neo4j::Node.load(id)
       end
 
+      def createNode
+        Neo4j::Node.new
+      end
+
       # needed by cypher
       def getRelationshipById(id)
         Neo4j::Relationship.load(id)
