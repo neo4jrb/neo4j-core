@@ -44,8 +44,6 @@ require 'neo4j-core/index/indexer'
 require 'neo4j-core/index/lucene_query'
 require 'neo4j-core/index/unique_factory'
 
-require 'neo4j-core/equal/equal'
-
 require 'neo4j-core/wrapper/class_methods'
 require 'neo4j-core/wrapper/wrapper'
 

@@ -1,3 +1,5 @@
+* Fix for JRuby 1.7.1 - don't impl eql and == #18
+
 == 2.2.0 / 2012-10-02
 * Use 1.0.0 of neo4j-cypher
 * Fix of Neo4j::Config issue using boolean values, andreasronge/neo4j#218

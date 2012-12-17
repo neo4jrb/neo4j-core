@@ -44,7 +44,6 @@ module Neo4j
     extend Neo4j::Core::Index::ClassMethods
 
     include Neo4j::Core::Property
-    include Neo4j::Core::Equal
     include Neo4j::Core::Relationship
     include Neo4j::Core::Wrapper
     include Neo4j::Core::Property::Java # for documentation purpose only
@@ -64,7 +63,6 @@ module Neo4j
       def extend_java_class(java_clazz) #:nodoc:
         java_clazz.class_eval do
           include Neo4j::Core::Property
-          include Neo4j::Core::Equal
           include Neo4j::Core::Relationship
           include Neo4j::Core::Wrapper
           include Neo4j::Core::Index

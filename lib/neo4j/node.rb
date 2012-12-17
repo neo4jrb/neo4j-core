@@ -33,7 +33,6 @@ module Neo4j
     include Neo4j::Core::Property
     include Neo4j::Core::Rels
     include Neo4j::Core::Traversal
-    include Neo4j::Core::Equal
     include Neo4j::Core::Node
     include Neo4j::Core::Wrapper
     include Neo4j::Core::Property::Java # for documentation purpose only
@@ -52,7 +51,6 @@ module Neo4j
           include Neo4j::Core::Property
           include Neo4j::Core::Rels
           include Neo4j::Core::Traversal
-          include Neo4j::Core::Equal
           include Neo4j::Core::Node
           include Neo4j::Core::Wrapper
           include Neo4j::Core::Index

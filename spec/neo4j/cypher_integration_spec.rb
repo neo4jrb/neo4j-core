@@ -42,7 +42,6 @@ describe "Neo4j#query (cypher)", :type => :integration do
     end
 
     it "its first value is hash" do
-      puts "Q #{@query_result.to_s}"
       r = @query_result.to_a # can only loop once
       r.size.should == 2
       r.first.should include(:"v1.name")
