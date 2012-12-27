@@ -239,7 +239,7 @@ module Neo4j
     # Only available using the neo4j-enterprise gem.
     # @return [Boolean] true if the Neo4j database is the HA master
     def ha_master?
-      Neo4j.management(Java::OrgNeo4jManagement::HighAvailability).isMaster
+      db.graph && db.graph.isMaster()
     end
 
     # @return [Enumerable] all nodes in the database
