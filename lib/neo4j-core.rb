@@ -6,6 +6,7 @@ module Neo4j
   Enumerator = Enumerable::Enumerator unless defined? Enumerator
 end
 
+require 'neo4j-core/jars/neo4jrb-adaptor.jar'
 require 'set'
 
 require 'neo4j-cypher'

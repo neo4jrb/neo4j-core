@@ -239,7 +239,8 @@ module Neo4j
         # @return self
         # @see Neo4j::Core::Traversal#expand
         def expander(&expander)
-          @td = @td.expand(RelExpander.create_pair(&expander))
+          exp = RelExpander.create_pair(&expander)
+          @td = Java::Neo4jRb::Adaptor.expandPath(@td.java_object, exp)
           self
         end
 
