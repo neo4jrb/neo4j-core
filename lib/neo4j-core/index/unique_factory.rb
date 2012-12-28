@@ -22,12 +22,16 @@ module Neo4j
         end
 
         # Get the indexed entity, creating it (exactly once) if no indexed entity exists.
-        # There must be an index on the key
+        # There must be an index on the key.
+        # Must *not* be called inside a transaction.
         # @param [Symbol] key the key to find the entity under in the index.
         # @param [String, Fixnum, Float] value  the value the key is mapped to for the entity in the index.
         # @param [Hash] props optional properties that the entity will have if created
         # @yield optional, make it possible to initialize the created node in a block
+        # @raise an exception if a transaction is running
         def get_or_create(key, value, props=nil, &init_block)
+          raise "Transaction already running, can't use get_or_create" if Neo4j.db.graph.respond_to?(:transactionRunning) && Neo4j.db.graph.transactionRunning
+
           tx = Neo4j::Transaction.new
           result = @index.get(key.to_s, value).get_single
           return result if result
@@ -44,7 +48,7 @@ module Neo4j
           tx.success
           result
         ensure
-          tx.finish
+          tx && tx.finish
         end
 
       end
