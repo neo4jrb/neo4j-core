@@ -141,8 +141,8 @@ describe Java::OrgNeo4jGraphdb::Node, :type => :java_integration do
         end
 
         describe "set_property" do
-          it "raise Java::OrgNeo4jGraphdb::NotFoundException" do
-            lambda { after_commit_deleted_node.set_property("Foo", "Bar") }.should raise_error(Java::OrgNeo4jGraphdb::NotFoundException)
+          it "raise an exception" do
+            lambda { after_commit_deleted_node.set_property("Foo", "Bar") }.should raise_error
           end
         end
 
