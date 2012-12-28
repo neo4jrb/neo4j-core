@@ -14,7 +14,7 @@ module Neo4j
         # for the state parameter see - http://api.neo4j.org/1.8.1/org/neo4j/graphdb/traversal/BranchState.html
         def evaluate(path, state)
           return Java::OrgNeo4jGraphdbTraversal::Evaluation::EXCLUDE_AND_CONTINUE if path.length == 0
-          if @proc.call(path, state)
+          if @proc.call(path)
             Java::OrgNeo4jGraphdbTraversal::Evaluation::INCLUDE_AND_PRUNE
           else
             Java::OrgNeo4jGraphdbTraversal::Evaluation::INCLUDE_AND_CONTINUE

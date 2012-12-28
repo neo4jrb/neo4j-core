@@ -21,7 +21,7 @@ module Neo4j
           end
           # find the first filter which returns false
           # if not found then we will accept this path
-          if @procs.find { |p| !p.call(path, state) }.nil?
+          if @procs.find { |p| !p.call(path) }.nil?
             Java::OrgNeo4jGraphdbTraversal::Evaluation::INCLUDE_AND_CONTINUE
           else
             Java::OrgNeo4jGraphdbTraversal::Evaluation::EXCLUDE_AND_CONTINUE

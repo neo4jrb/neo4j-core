@@ -2,8 +2,8 @@ source :gemcutter
 
 gemspec
 
-gem 'neo4j-advanced',  '>= 1.9.M03', '< 2.0', :require => false
-gem 'neo4j-enterprise', '>= 1.9.M03', '< 2.0', :require => false
+gem 'neo4j-advanced',  '>= 1.8.1', '< 2.0', :require => false
+gem 'neo4j-enterprise', '>= 1.8.1', '< 2.0', :require => false
 
 group 'development' do
   gem 'pry'
