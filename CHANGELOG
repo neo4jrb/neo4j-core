@@ -1,4 +1,5 @@
-
+== 2.2.3 / 2012-12-28
+* Raise an exception if get_or_create is called inside a transaction
 * fix for JRuby 1.8 mode, #20
 
 == 2.2.2 / 2012-12-27
