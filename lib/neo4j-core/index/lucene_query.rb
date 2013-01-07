@@ -235,12 +235,12 @@ module Neo4j
               if Array === value
                 value.each do |v|
                   term = Java::OrgApacheLuceneIndex::Term.new(key.to_s, v.to_s)
-                  term_query = Java::OrgApacheLuceneSearch::TermQuery.new(term)
+                  term_query = Java::OrgApacheLuceneSearch::WildcardQuery.new(term)
                   and_query.add(term_query, Java::OrgApacheLuceneSearch::BooleanClause::Occur::SHOULD)
                 end
               else
                 term = Java::OrgApacheLuceneIndex::Term.new(key.to_s, value.to_s)
-                term_query = Java::OrgApacheLuceneSearch::TermQuery.new(term)
+                term_query = Java::OrgApacheLuceneSearch::WildcardQuery.new(term)
                 and_query.add(term_query, Java::OrgApacheLuceneSearch::BooleanClause::Occur::MUST)
               end
             end

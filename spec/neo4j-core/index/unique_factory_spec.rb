@@ -36,7 +36,6 @@ describe Neo4j::Core::Index::UniqueFactory do
     end
   end
 
-
   describe "create a default node factory" do
 
     subject do

@@ -65,7 +65,7 @@ describe "Neo4j::Node#index", :type => :integration do
     it "can by updated with the add_index method" do
       foo = Neo4j::Node.new(:name => 'foo')
       foo.add_index(:name)
-      Neo4j::Node.find(:name => 'foo').first.should == foo
+      Neo4j::Node.find(:name => 'foo*').first.should == foo
     end
 
     it "can not allow index on none indexed fields" do

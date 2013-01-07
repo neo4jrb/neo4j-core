@@ -25,7 +25,7 @@ describe Java::OrgNeo4jKernel::EmbeddedGraphDatabase, "lucene", :type => :java_i
     end
 
     let(:parsed_query) do
-      version = Java::OrgApacheLuceneUtil::Version::LUCENE_30
+      version = Java::OrgApacheLuceneUtil::Version::LUCENE_35
       analyzer = Java::OrgApacheLuceneAnalysisStandard::StandardAnalyzer.new(version)
       parser = Java::org.apache.lucene.queryParser.QueryParser.new(version, 'name', analyzer)
       parser.parse('name: andreas')
