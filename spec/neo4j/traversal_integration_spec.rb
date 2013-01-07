@@ -256,6 +256,12 @@ describe Neo4j::Node, :type => :integration do
       @b.outgoing(:friends).depth(4).filter { |path| path.should be_kind_of(Java::org.neo4j.graphdb.Path); false }.each {}
     end
 
+    it "can uses a branch state parameter" do
+      @b.outgoing(:friends).depth(4).filter do |path, state|
+        puts "STATE #{state.class}"
+      end
+    end
+
     it "if provided block returns true the node is not included" do
       nodes = [*@b.outgoing(:work).depth(4).filter { |path| path.length == 2 }]
       nodes.size.should == 1

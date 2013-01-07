@@ -239,7 +239,8 @@ module Neo4j
         # @return self
         # @see Neo4j::Core::Traversal#expand
         def expander(&expander)
-          @td = @td.expand(RelExpander.create_pair(&expander))
+          exp = RelExpander.create_pair(&expander)
+          @td = Java::Neo4jRb::Adaptor.expandPath(@td.java_object, exp)
           self
         end
 
@@ -273,8 +274,13 @@ module Neo4j
         end
 
         # Cuts of of parts of the traversal.
+        #
+        # The optional @branch_state@ parameter is an accessor for a state associated with a TraversalBranch during a traversal.
+        # TraversalBranch can have an associated state which follows down the branch as the traversal goes. If the state is modified with setState(Object) it means that branches further down will have the newly set state, until it potentially gets overridden again. The state returned from getState() represents the state associated with the parent branch, which by this point has followed down to the branch calling getState().
+        #
         # @yield [path]
         # @yieldparam [Java::OrgNeo4jGraphdb::Path] path the path which can be used to filter nodes
+        # @yieldparam [Java::org.neo4j.graphdb.traversal.BranchState] branch_state the path which can be used to filter nodes
         # @yieldreturn [true,false] only if true the path should be cut of, no traversal beyond this.
         # @example
         #  a.outgoing(:friends).outgoing(:recommend).depth(:all).prune{|path| path.end_node[:name] == 'B'}
@@ -285,8 +291,13 @@ module Neo4j
         end
 
         # Only include nodes in the traversal in which the provided block returns true.
+        #
+        # The optional @branch_state@ parameter is an accessor for a state associated with a TraversalBranch during a traversal.
+        # TraversalBranch can have an associated state which follows down the branch as the traversal goes. If the state is modified with setState(Object) it means that branches further down will have the newly set state, until it potentially gets overridden again. The state returned from getState() represents the state associated with the parent branch, which by this point has followed down to the branch calling getState().
+        #
         # @yield [path]
         # @yieldparam [Java::OrgNeo4jGraphdb::Path] path the path which can be used to filter nodes
+        # @yieldparam [Java::org.neo4j.graphdb.traversal.BranchState] branch_state the path which can be used to filter nodes
         # @yieldreturn [true,false] only if true the node will be included in the traversal result.
         #
         # @example Return nodes that are exact at depth 2 from me

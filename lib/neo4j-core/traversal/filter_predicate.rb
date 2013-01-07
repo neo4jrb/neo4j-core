@@ -4,7 +4,7 @@ module Neo4j
       # Implements the Neo4j Predicate Java interface, only used internally.
       # @private
       class FilterPredicate
-        include Java::OrgNeo4jGraphdbTraversal::Evaluator
+        include Java::OrgNeo4jGraphdbTraversal::PathEvaluator
 
         def initialize
           @procs = []
@@ -14,7 +14,8 @@ module Neo4j
           @procs << proc
         end
 
-        def evaluate(path)
+        # for the state parameter see - http://api.neo4j.org/1.8.1/org/neo4j/graphdb/traversal/BranchState.html
+        def evaluate(path, state)
           if path.length == 0
             return Java::OrgNeo4jGraphdbTraversal::Evaluation::EXCLUDE_AND_CONTINUE
           end

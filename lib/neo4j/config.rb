@@ -11,6 +11,7 @@ module Neo4j
   # == Configurations keys
   #
   #   storage_path   where the database is stored
+  #   enable_ha      if ha cluster should be enabled (requires neo4j-enterprise gem)
   #   timestamps     if timestamps should be used when saving the model (Neo4j::Rails::Model)
   #   lucene         lucene configuration for fulltext and exact indices
   #   enable_rules   if false the _all relationship to all instances will not be created and custom rules will not be available. (Neo4j::NodeMixin and Neo4j::Rails::Model)
