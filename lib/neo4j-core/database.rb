@@ -46,31 +46,32 @@ module Neo4j
         !!Neo4j::Config[:enable_ha]
       end
 
-
+      SEMAPHORE = Mutex.new
       # Private start method, use Neo4j.start instead
       # @see Neo4j#start
       def start
-        return if running?
-        @running = true
-        @storage_path = Config.storage_path
-        Java::JavaLang::System.setProperty("neo4j.ext.udc.source", "neo4rb")
+        SEMAPHORE.synchronize do
+          return if running?
+          @storage_path = Config.storage_path
+          Java::JavaLang::System.setProperty("neo4j.ext.udc.source", "neo4rb")
 
-        begin
-          if self.class.locked?
-            start_readonly_graph_db
-          elsif self.class.ha_enabled?
-            start_ha_graph_db
-            Neo4j.migrate! if Neo4j.respond_to?(:migrate!)
-          else
-            start_local_graph_db
-            Neo4j.migrate! if Neo4j.respond_to?(:migrate!)
+          begin
+            if self.class.locked?
+              start_readonly_graph_db
+            elsif self.class.ha_enabled?
+              start_ha_graph_db
+              Neo4j.migrate! if Neo4j.respond_to?(:migrate!)
+            else
+              start_local_graph_db
+              Neo4j.migrate! if Neo4j.respond_to?(:migrate!)
+            end
+          rescue
+            @running = false
+            raise
           end
-        rescue
-          @running = false
-          raise
-        end
 
-        at_exit { shutdown }
+          at_exit { shutdown }
+        end
       end
 
 
@@ -149,10 +150,10 @@ module Neo4j
       # @private
       def start_external_db(external_graph_db)
         begin
-          @running = true
           @graph = external_graph_db
           @graph.register_transaction_event_handler(@event_handler)
           @lucene = @graph.index
+          @running = true
           @event_handler.neo4j_started(self)
           Neo4j.logger.info("Started with external db")
         rescue
@@ -167,6 +168,7 @@ module Neo4j
         Neo4j.logger.info "Starting Neo4j in readonly mode since the #{@storage_path} is locked"
         @graph = Java::OrgNeo4jKernel::EmbeddedReadOnlyGraphDatabase.new(@storage_path, Config.to_java_map)
         @lucene = @graph.index
+        @running = true
       end
 
       def start_local_graph_db
@@ -174,6 +176,7 @@ module Neo4j
         @graph = self.class.default_embedded_db.new(@storage_path, Config.to_java_map)
         @graph.register_transaction_event_handler(@event_handler)
         @lucene = @graph.index
+        @running = true
         @event_handler.neo4j_started(self)
       end
 
@@ -189,6 +192,7 @@ module Neo4j
         #@graph = Java::OrgNeo4jKernelHa::HighlyAvailableGraphDatabase.new(@storage_path, Neo4j.config.to_java_map)
         @graph.register_transaction_event_handler(@event_handler)
         @lucene = @graph.index
+        @running = true
         @event_handler.neo4j_started(self)
       end
 
