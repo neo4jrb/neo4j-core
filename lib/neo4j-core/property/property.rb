@@ -88,7 +88,7 @@ module Neo4j
       # @param [String, Symbol] key of the property to set
       # @param [String,Fixnum,Float,true,false, Array] value to set
       def []=(key, value)
-        raise "Not valid Neo4j Property value #{value.class}, valid: #{VALID_PROPERTY_VALUE_CLASSES.join(', ')}" unless valid_property?(value)
+        raise "Not valid Neo4j Property value #{value.class}, valid: #{VALID_PROPERTY_VALUE_CLASSES.to_a.join(', ')}" unless valid_property?(value)
 
         k = key.to_s
         if value.nil?
