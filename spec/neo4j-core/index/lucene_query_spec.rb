@@ -209,7 +209,7 @@ describe Neo4j::Core::Index::LuceneQuery do
         clause_1 = clauses[0]
         clause_1.should be_a(Java::OrgApacheLuceneSearch::BooleanClause)
         clause_1.should be_required
-        clause_1.query.should be_a(Java::OrgApacheLuceneSearch::TermQuery)
+        clause_1.query.should be_a(Java::OrgApacheLuceneSearch::WildcardQuery)
         clause_1.query.term.text.should == 'andreas'
         clause_1.query.term.field.should == 'name'
 
@@ -226,7 +226,7 @@ describe Neo4j::Core::Index::LuceneQuery do
         result = subject.send(:build_hash_query, :name => 'andreas')
         query = query_for_boolean_clause(result)
 
-        query.should be_a(Java::OrgApacheLuceneSearch::TermQuery)
+        query.should be_a(Java::OrgApacheLuceneSearch::WildcardQuery)
         term = query.term
         term.should be_a(Java::OrgApacheLuceneIndex::Term)
         term.text.should == "andreas"

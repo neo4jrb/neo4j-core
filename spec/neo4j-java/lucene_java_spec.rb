@@ -7,9 +7,7 @@ describe Java::OrgNeo4jKernel::EmbeddedGraphDatabase, "lucene", :type => :java_i
   end
 
   describe "node index" do
-    subject do
-      embedded_db.index.for_nodes("MyIndex")
-    end
+    SUBJECT = embedded_db.index.for_nodes("MyIndex")
 
     def build_composite_query(left_query, right_query, operator=nil) #:nodoc:
       operator ||= Java::OrgApacheLuceneSearch::BooleanClause::Occur::MUST
@@ -19,10 +17,6 @@ describe Java::OrgNeo4jKernel::EmbeddedGraphDatabase, "lucene", :type => :java_i
       composite_query
     end
 
-
-    let(:node) do
-      @node
-    end
 
     let(:parsed_query) do
       version = Java::OrgApacheLuceneUtil::Version::LUCENE_35
@@ -38,32 +32,32 @@ describe Java::OrgNeo4jKernel::EmbeddedGraphDatabase, "lucene", :type => :java_i
 
     before(:all) do
       new_java_tx(embedded_db)
-      @node = embedded_db.create_node
-      subject.add(node, "age", Java::OrgNeo4jIndexLucene::ValueContext.numeric(123.to_java(:long)))
-      subject.add(node, "name", "andreas")
+      NODE = embedded_db.create_node
+      SUBJECT.add(NODE, "age", Java::OrgNeo4jIndexLucene::ValueContext.numeric(123.to_java(:long)))
+      SUBJECT.add(NODE, "name", "andreas")
     end
 
     it "can get the value using the neo4j ValueContext numeric value" do
-      subject.get("age", Java::OrgNeo4jIndexLucene::ValueContext.numeric(123.to_java(:long))).getSingle().should == node
+      SUBJECT.get("age", Java::OrgNeo4jIndexLucene::ValueContext.numeric(123.to_java(:long))).getSingle().should == NODE
     end
 
     it "can query using QueryContext numeric Range" do
       qc = Java::OrgNeo4jIndexLucene::QueryContext.numericRange("age", 123.to_java(:long), 123.to_java(:long))
-      subject.query(qc).first.should == node
+      SUBJECT.query(qc).first.should == NODE
     end
 
 
     it "can query parsing a query string" do
-      subject.query(parsed_query).first.should == node
+      SUBJECT.query(parsed_query).first.should == NODE
     end
 
     it "can query using a org.apache.lucene.search.NumericRangeQuery" do
-      subject.query(numeric_range_query).first.should == node
+      SUBJECT.query(numeric_range_query).first.should == NODE
     end
 
     it "can create composite query using lucene BooleanQuery" do
       composite = build_composite_query(parsed_query, numeric_range_query)
-      subject.query(composite).first.should == node
+      SUBJECT.query(composite).first.should == NODE
     end
 
   end
