@@ -19,7 +19,7 @@ describe Neo4j::Relationship, :type => :integration do
     end
 
     it '#java_class == org.neo4j.kernel.impl.core.RelationshipProxy' do
-      subject.java_class.to_s == "org.neo4j.kernel.impl.core.RelationshipProxy"
+      subject.java_class.to_s.should == "org.neo4j.kernel.impl.core.RelationshipProxy"
     end
 
     its(:neo_id) { should be_a(Fixnum) }
@@ -29,10 +29,20 @@ describe Neo4j::Relationship, :type => :integration do
     its(:wrapper) { should == subject }
     its(:_java_rel) { should == subject }
     its(:_java_entity) { should == subject }
+    
     its(:end_node) { should == node_b }
-    its(:start_node) { should == node_a }
     its(:_end_node) { should == node_b }
+    
+    its(:start_node) { should == node_a }
     its(:_start_node) { should == node_a }
+    
+    it 'should have nodes and _nodes' do
+      subject.nodes.should include(node_a)
+      subject.nodes.should include(node_b)
+      subject._nodes.should include(node_a)
+      subject._nodes.should include(node_b)
+    end
+    
     its("props.size") { should == 1}
     its(:props) { should include('_neo_id')}
 
