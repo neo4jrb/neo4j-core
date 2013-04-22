@@ -31,15 +31,15 @@ module Neo4j
     # @param [String] config_file (optionally) if this is nil or not given use the Neo4j::Config, otherwise setup the Neo4j::Config file using the provided YAML configuration file.
     # @param [Java::OrgNeo4jKernel::EmbeddedGraphDatabase] external_db (optionally) use this Java Neo4j instead of creating a new neo4j database service.
     def start(config_file=nil, external_db = $NEO4J_SERVER)
-      return if @db && @db.running?
+        return if @db && @db.running?
 
-      Neo4j.config.default_file = config_file if config_file
-      if external_db
-        @db ||= Neo4j::Core::Database.new
-        self.db.start_external_db(external_db)
-      else
-        db.start
-      end
+        Neo4j.config.default_file = config_file if config_file
+        if external_db
+          @db ||= Neo4j::Core::Database.new
+          self.db.start_external_db(external_db)
+        else
+          db.start
+        end
     end
 
 

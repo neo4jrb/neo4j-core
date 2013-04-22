@@ -121,7 +121,7 @@ module Neo4j
         classes_changed(class_change_map)
       rescue Exception => e
         # since these exceptions gets swallowed
-        puts "ERROR in before commit hook #{e}"
+        puts "ERROR in before commit hook: #{e.class} - #{e}"
         puts e.backtrace.join("\n")
       end
 
