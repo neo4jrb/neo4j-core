@@ -13,6 +13,12 @@ module Neo4j
       def _start_node
         get_start_node
       end
+      
+      # Same as Java::OrgNeo4jGraphdb::Relationship#getNodes
+      # @see http://api.neo4j.org/1.6.1/org/neo4j/graphdb/Relationship.html#getNodes()
+      def _nodes
+        get_nodes
+      end
 
       # Same as Java::OrgNeo4jGraphdb::Relationship#getOtherNode
       # @see http://api.neo4j.org/1.6.1/org/neo4j/graphdb/Relationship.html#getOtherNode()
