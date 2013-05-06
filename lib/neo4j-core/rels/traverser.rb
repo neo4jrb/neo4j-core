@@ -59,7 +59,7 @@ module Neo4j
         # @param [Neo4j::Node] between a node or an object that implements the Neo4j::Core::Equal mixin
         # @return self
         def between(between)
-          @between = between
+          @between = between._java_node
           self
         end
 

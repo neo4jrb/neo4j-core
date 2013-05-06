@@ -1,3 +1,5 @@
+* Fix for from.rels(...).to_other(to), #27
+* Add support for Relationship#nodes accessor #25, David Butler
 * Fix for NoMethodError on exception message for the []= property method, #24, Aish Aishfenton
 * Made Neo4j.start threadsafe #23, David Butler
 * Better logging for Java Exception #22, David Butler

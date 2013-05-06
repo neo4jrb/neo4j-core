@@ -181,4 +181,31 @@ describe Neo4j::Relationship, :type => :integration do
     end
 
   end
+
+  describe "rels().to_other" do
+    before(:each) do
+      new_tx
+      @a = Neo4j::Node.new
+      @b = Neo4j::Node.new
+      @c = Neo4j::Node.new
+
+    end
+
+    it "returns empty when no relationship" do
+      @a.rels.to_other(@b).should be_empty
+    end
+
+    it "returns empty when no relationship" do
+      r = Neo4j::Relationship.new(:abc, @a, @b)
+      r2 = Neo4j::Relationship.new(:abc, @a, @c)
+      r3 = Neo4j::Relationship.new(:qqq, @a, @b)
+      r4 = Neo4j::Relationship.new(:abc, @b, @a)
+      @a.rels.to_other(@b).should include(r)
+      @a.rels(:outgoing).to_other(@b).should include(r)
+      @a.rels(:outgoing, :abc).to_other(@b).should include(r)
+      @a.rels(:outgoing, :abcd).to_other(@b).should be_empty
+      @a.rels(:incoming, :abc).to_other(@b).should include(r4)
+    end
+
+  end
 end
