@@ -1,3 +1,4 @@
+== 2.2.4 / 2013-05-19
 * Fix for from.rels(...).to_other(to), #27
 * Add support for Relationship#nodes accessor #25, David Butler
 * Fix for NoMethodError on exception message for the []= property method, #24, Aish Aishfenton
