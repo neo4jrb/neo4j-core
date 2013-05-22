@@ -123,7 +123,7 @@ module Neo4j
     # @return (see #query)
     def _query(q, params={})
       engine = Java::OrgNeo4jCypherJavacompat::ExecutionEngine.new(db)
-      result = engine.execute(q, params)
+      result = engine.execute(q, Core::HashWithIndifferentAccess.new(params))
       Neo4j::Cypher::ResultWrapper.new(result)
     end
 
