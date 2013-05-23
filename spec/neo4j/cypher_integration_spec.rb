@@ -127,4 +127,23 @@ describe "Neo4j#query (cypher)", :type => :integration do
       Neo4j._query("START n=node(*) RETURN n").first
     end
   end
+  
+  describe "_query should take params" do
+    it 'should return one node with node id passed in as colon param' do
+      r = Neo4j._query("START n=node({nodeid}) RETURN n", {nodeid: @a.neo_id})
+      r.first[:n][:name].should == 'a'
+    end
+    
+    it 'should return one node with node id passed in as hashrocket param' do
+      r = Neo4j._query("START n=node({nodeid}) RETURN n", {"nodeid" => @a.neo_id})
+      r.first[:n][:name].should == 'a'
+    end    
+    
+    it 'should return one node with empty params' do
+      r = Neo4j._query("START n=node("+@a.neo_id.to_s+") RETURN n", {})
+      r.first[:n][:name].should == 'a'
+    end
+    
+  end
+  
 end
