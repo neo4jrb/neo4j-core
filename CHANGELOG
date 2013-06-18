@@ -1,3 +1,8 @@
+
+== 2.3.0 / 2013-06-18
+* Use 1.9 Neo4j Jars, (#29, Jannis)
+* added ability to pass in params to Neo4j._query method (#28, kmussel)		
+	
 == 2.2.4 / 2013-05-19
 * Fix for from.rels(...).to_other(to), #27
 * Add support for Relationship#nodes accessor #25, David Butler
