@@ -46,6 +46,11 @@ module Neo4j
         !!Neo4j::Config[:enable_ha]
       end
 
+
+      def self.test_db?
+        !!Neo4j::Config[:test_db]
+      end
+
       SEMAPHORE = Mutex.new
       # Private start method, use Neo4j.start instead
       # @see Neo4j#start
@@ -58,6 +63,8 @@ module Neo4j
           begin
             if self.class.locked?
               start_readonly_graph_db
+            elsif self.class.test_db?
+              start_impermanent_graph_db
             elsif self.class.ha_enabled?
               start_ha_graph_db
               Neo4j.migrate! if Neo4j.respond_to?(:migrate!)
@@ -174,6 +181,18 @@ module Neo4j
       def start_local_graph_db
         Neo4j.logger.info "Starting local Neo4j using db #{@storage_path} using #{self.class.default_embedded_db}"
         @graph = self.class.default_embedded_db.new(@storage_path, Config.to_java_map)
+        @graph.register_transaction_event_handler(@event_handler)
+        @lucene = @graph.index
+        @running = true
+        @event_handler.neo4j_started(self)
+      end
+
+      def start_impermanent_graph_db
+        Neo4j.logger.info "Starting impermant Neo4j instance"
+        builder =  Java::OrgNeo4jTest::TestGraphDatabaseFactory.new
+        builder = builder.newImpermanentDatabaseBuilder
+        builder = builder.setConfig(Neo4j.config.to_java_map)
+        @graph  = builder.newGraphDatabase()
         @graph.register_transaction_event_handler(@event_handler)
         @lucene = @graph.index
         @running = true
