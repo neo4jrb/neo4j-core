@@ -3,8 +3,9 @@ require 'spec_helper'
 include Neo4j
 describe Neo4j::Database do
 
-  it "work" do
+  it "can create a new and find it" do
 # Create a new database, which will wrap method with transactions
+    # TODO use ImpermanentDatabase
     db = Neo4j::Database.new('hej', auto_commit: true, delete_existing_db: true)
 
 # Create a new label with an index on property name
