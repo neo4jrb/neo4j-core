@@ -1,14 +1,145 @@
-== Neo4j-core {<img src="https://secure.travis-ci.org/andreasronge/neo4j-core.png" />}[http://travis-ci.org/andreasronge/neo4j-core]
+== Neo4j-core/Neo4j-wrapper 3.0 DRAFT {<img src="https://secure.travis-ci.org/andreasronge/neo4j-core.png" />}[http://travis-ci.org/andreasronge/neo4j-core]
 
-This gem only contains the JRuby mapping of the Neo4j graph database and does not wrap nodes and relationship in ruby objects.
-The neo4j.rb gem consists of three gems, neo4j-core, {neo4j-wrapper}[http://github.com/andreasronge/neo4j-wrapper] and {neo4j}[http://github.com/andreasronge/neo4j].
-This gem contains two modules: Neo4j and Neo4j::Core
-The Neo4j module is public and the Neo4j::Core(::*) are internal modules.
+== Version 3.0 Specification
 
-== Documentation
+The neo4j-core version 3.0 uses the java 2.0 jars and takes advantage of the label feature in ordet to do mappings
+  between Neo4j::Node (java objects) and your own ruby classes.
 
-* {YARD}[http://rdoc.info/github/andreasronge/neo4j-core/file/README.rdoc]
-* {neo4j-core Documentation}[http://github.com/andreasronge/neo4j/wiki/Neo4j::core-introduction]
+The code base for the 3.0 should be much smaller and simpler to maintain because of new features in the java libraries
+but also by removing features that are too complex or not that useful.
+
+The neo4j-wrapper source code is included in this git repo until the refactoring has stabilized.
+The old source code for neo4j-core is also included (lib.old). The old source code might later on be copied into the
+ 3.0 source code (the lib folder).
+
+New features:
+
+* investigate: neo4j-core should provide one API to both the Embedded database and the Neo4j Server
+* auto commit (neo4j-core)
+
+Removed features:
+
+* auto start of the database (neo4j-core)
+* wrapping of Neo4j::Relatonship java objects but there will be a work around (neo4j-wrapper)
+* traversals (the outgoing/incoming/both methods) moves to a new gem, neo4j-traversal.
+
+=== Testing
+
+The testing will be using much more mocking.
+
+* The `unit` rspec folder only contains testing for one Ruby module. All other modules should be mocked.
+* The `integration` rspec folder contains testing for two or more modules but mocks the neo4j database access.
+* The `e2e` rspec folder use Neo4j's ImpermanentDatabase (todo)
+
+=== Neo4j-core specs
+
+Example of index using labels and the auto commit.
+
+  Neo4j::Database.new('hej', auto_commit: true)  # ?
+
+  red = Label.new(:red)
+  red.index(:name)
+
+  # notice, label argument can be both Label objects or string/symbols.
+  node = Node.new({name: 'andreas'}, red, :green)
+  puts "Created node #{node[:name]} with labels #{node.labels.map(&:name).join(', ')}"
+
+  # Find nodes using the label
+  red.find_nodes(:name, "andreas").each do |node|
+    puts "FOUND #{node[:name]} class #{node.class} with labels #{node.labels.map(&:name).join(', ')}"
+  end
+
+All method prefixed with `_` gives direct access to the java layer.
+
+
+=== Neo4j Embedded and Neo4j Server support
+
+Investigate this:
+
+Using the Embedded database:
+
+  Neo4j::Embedded::Database.new('location', auto_commit: true)
+  node = Neo4j::Node.new(name: 'foo')
+
+Using the Server database:
+
+  Neo4j::Server::Database.new('http:://end.point', auto_commit: true)
+  node = Neo4j::Node.new(name: 'foo')
+
+Both Neo4j::Embedded::Database and Neo4j::Server::Database inherits from Neo4j::Database.
+The Neo4j::Database contains the reference to the default database used (Neo4j::Database.instance) which is the
+first database created. It is also possible to use several databases at the same time, e.g.
+
+  db1 = Neo4j::Embedded::Database.new('location', auto_commit: true)
+  node = Neo4j::Node.new(name: 'foo', db1)
+
+  db2 = Neo4j::Server::Database.new('http:://end.point', auto_commit: true)
+  node = Neo4j::Node.new(name: 'foo', db2)
+
+
+Implementation:
+
+The public `Neo4j::Node` classes is abstract and provides a common API/docs for both the embedded and
+  neo4j server.
+
+The Neo4j::Embedded and Neo4j::Server modules contains drivers for classes like the Neo4j::Node.
+This is implemented something like this:
+
+  class Neo4j::Node
+    def [](key)
+     Neo4j::Database.instance.driver_for(Neo4j::Node).get_property(key)
+    end
+
+    def self.new(props, db=Neo4j::Database.instance)
+     db.driver_for(Neo4j::Node).create_node(props)
+    end
+  end
+
+Both implementation use the same E2E specs.
+
+=== Neo4j-wrapper specs
+
+Example of mapping a Neo4j::Node java object to your own class.
+
+  # will use Neo4j label 'Person'
+  class Person
+    include Neo4j::NodeMixin
+  end
+
+
+Example of mapping the Baaz ruby class to Neo4j labels 'Foo', 'Bar' and 'Baaz'
+
+  module Foo
+    def self.label_name
+       "Foo" # specify the label for this module
+    end
+  end
+
+  module Bar
+    extend Neo4j::Wrapper::LabelIndex # to make it possible to search using this module (?)
+    index :stuff # (?)
+  end
+
+  class Baaz
+    include Foo
+    include Bar
+    include Neo4j::NodeMixin
+  end
+
+  Bar.find_nodes(...) # can find Baaz object but also other objects including the Bar mixin.
+
+
+Example of inheritance.
+
+  # will only use the Vehicle label
+  class Vehicle
+    include Neo4j::NodeMixin
+  end
+
+  # will use both Car and Vehicle labels
+  class Car < Vehicle
+  end
+
 
 == The public API
 
