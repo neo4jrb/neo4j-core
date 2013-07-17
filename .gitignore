@@ -8,6 +8,8 @@ b/
 # ignore Rubymine
 .idea
 
+doc
+
 .rvmrc
 .bundle
 tmp
