@@ -2,20 +2,26 @@
 
 == Version 3.0 Specification
 
-The neo4j-core version 3.0 uses the java 2.0 jars and takes advantage of the label feature in ordet to do mappings
+The neo4j-core version 3.0 uses the java Neo4j 2.0 jars and takes advantage of the new label feature in ordet to do mappings
   between Neo4j::Node (java objects) and your own ruby classes.
 
-The code base for the 3.0 should be much smaller and simpler to maintain because of new features in the java libraries
-but also by removing features that are too complex or not that useful.
+The code base for the 3.0 should be smaller and simpler to maintain because there is less work to be done in the
+Ruby layer but also by removing features that are too complex or not that useful.
 
 The neo4j-wrapper source code is included in this git repo until the refactoring has stabilized.
 The old source code for neo4j-core is also included (lib.old). The old source code might later on be copied into the
  3.0 source code (the lib folder).
 
+The neo4j-core gem will work for both the embedded Neo4j API and the server api.
+That means that neo4j.rb will work on any Ruby implementation and not just JRuby. This is under investigation !
+It's possible that some features for the Neo4j.rb 2.0 will not be available in the 3.0 version since it has to work
+ with both the Neo4j server and Neo4j embedded APIs.
+
 New features:
 
 * investigate: neo4j-core should provide one API to both the Embedded database and the Neo4j Server
-* auto commit (neo4j-core)
+* investigate: support for both Cypher and REST implementation of Neo4j::Node and Neo4j::Relationship API.
+* auto commit is default (neo4j-core)
 
 Removed features:
 
@@ -35,7 +41,8 @@ The testing will be using much more mocking.
 
 Example of index using labels and the auto commit.
 
-  Neo4j::Database.new('hej', auto_commit: true)  # ?
+  db = Neo4j::Database.new('hej', auto_commit: true)  # ?
+  db.start
 
   red = Label.new(:red)
   red.index(:name)
@@ -49,7 +56,7 @@ Example of index using labels and the auto commit.
     puts "FOUND #{node[:name]} class #{node.class} with labels #{node.labels.map(&:name).join(', ')}"
   end
 
-All method prefixed with `_` gives direct access to the java layer.
+All method prefixed with `_` gives direct access to the java layer/rest layer.
 
 
 === Neo4j Embedded and Neo4j Server support
@@ -58,22 +65,39 @@ Investigate this:
 
 Using the Embedded database:
 
-  Neo4j::Embedded::Database.new('location', auto_commit: true)
+  db = Neo4j::Embedded::Database.new('db/location')
+  db.start
+  # Notice, auto commit is by default enabled
   node = Neo4j::Node.new(name: 'foo')
 
 Using the Server database:
 
-  Neo4j::Server::Database.new('http:://end.point', auto_commit: true)
+  Neo4j::Server::RestDatabase.new('http://localhost:7474/db/dat') # only auto commit is allowed
   node = Neo4j::Node.new(name: 'foo')
 
-Both Neo4j::Embedded::Database and Neo4j::Server::Database inherits from Neo4j::Database.
-The Neo4j::Database contains the reference to the default database used (Neo4j::Database.instance) which is the
-first database created. It is also possible to use several databases at the same time, e.g.
+Using the Server database with the cypher language:
 
-  db1 = Neo4j::Embedded::Database.new('location', auto_commit: true)
+  db = Neo4j::Server::CypherDatabase.new('http://localhost:7474/db/dat')
+  db.start
+  node = Neo4j::Node.new(name: 'foo')
+
+  # With transactions
+  db = Neo4j::Server::CypherDatabase.new('http://localhost:7474/db/data', auto_commit: false)
+  db.start
+
+  Neo4j::Transaction.run do
+    node = Neo4j::Node.new(name: 'foo')
+  end
+
+
+The Neo4j::Database contains the reference to the default database used (Neo4j::Database.instance) which is the
+first database created. This is used for example when a database is not specified, e.g. `node[:name] = 'me'`
+It is also possible to use several databases at the same time, e.g.
+
+  db1 = Neo4j::Embedded::Database.new('location', auto_commit: true).start
   node = Neo4j::Node.new(name: 'foo', db1)
 
-  db2 = Neo4j::Server::Database.new('http:://end.point', auto_commit: true)
+  db2 = Neo4j::Server::Database.new('http:://end.point', auto_commit: true).start
   node = Neo4j::Node.new(name: 'foo', db2)
 
 
@@ -86,8 +110,8 @@ The Neo4j::Embedded and Neo4j::Server modules contains drivers for classes like 
 This is implemented something like this:
 
   class Neo4j::Node
+    # YARD docs
     def [](key)
-     Neo4j::Database.instance.driver_for(Neo4j::Node).get_property(key)
     end
 
     def self.new(props, db=Neo4j::Database.instance)
@@ -147,7 +171,13 @@ Example of inheritance.
 
 {Neo4j::Relationship} The Java Relationship
 
-{Neo4j} The Database
+{Neo4j::Database} The (default) Database
+
+{Neo4j::Embedded::Database} - good name ?
+
+{Neo4j::Server::RestDatabase}
+
+{Neo4j::Server::CypherDatabase}
 
 {Neo4j::Cypher} Cypher Query DSL, see {Neo4j Wiki}[https://github.com/andreasronge/neo4j/wiki/Neo4j%3A%3ACore-Cypher]
 

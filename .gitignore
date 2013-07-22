@@ -9,6 +9,7 @@ b/
 .idea
 
 doc
+pkg/
 
 .rvmrc
 .bundle

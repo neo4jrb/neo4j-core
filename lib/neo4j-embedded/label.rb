@@ -1,4 +1,4 @@
-module Neo4j
+module Neo4j::Embedded
   class Label
     extend Neo4j::Core::TxMethods
     attr_reader :name
