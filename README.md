@@ -1,6 +1,6 @@
-== Neo4j-core/Neo4j-wrapper 3.0 DRAFT {<img src="https://secure.travis-ci.org/andreasronge/neo4j-core.png" />}[http://travis-ci.org/andreasronge/neo4j-core]
+# Neo4j-core/Neo4j-wrapper 3.0 DRAFT {<img src="https://secure.travis-ci.org/andreasronge/neo4j-core.png" />}[http://travis-ci.org/andreasronge/neo4j-core]
 
-== Version 3.0 Specification
+## Version 3.0 Specification
 
 The neo4j-core version 3.0 uses the java Neo4j 2.0 jars and takes advantage of the new label feature in ordet to do mappings
   between Neo4j::Node (java objects) and your own ruby classes.
@@ -29,7 +29,7 @@ Removed features:
 * wrapping of Neo4j::Relatonship java objects but there will be a work around (neo4j-wrapper)
 * traversals (the outgoing/incoming/both methods) moves to a new gem, neo4j-traversal.
 
-=== Testing
+### Testing
 
 The testing will be using much more mocking.
 
@@ -37,10 +37,11 @@ The testing will be using much more mocking.
 * The `integration` rspec folder contains testing for two or more modules but mocks the neo4j database access.
 * The `e2e` rspec folder use Neo4j's ImpermanentDatabase (todo)
 
-=== Neo4j-core specs
+### Neo4j-core specs
 
 Example of index using labels and the auto commit.
 
+```ruby
   db = Neo4j::Database.new('hej', auto_commit: true)  # ?
   db.start
 
@@ -55,28 +56,35 @@ Example of index using labels and the auto commit.
   red.find_nodes(:name, "andreas").each do |node|
     puts "FOUND #{node[:name]} class #{node.class} with labels #{node.labels.map(&:name).join(', ')}"
   end
+```
 
 All method prefixed with `_` gives direct access to the java layer/rest layer.
 
 
-=== Neo4j Embedded and Neo4j Server support
+### Neo4j Embedded and Neo4j Server support
 
 Investigate this:
 
 Using the Embedded database:
 
+```ruby
   db = Neo4j::Embedded::Database.new('db/location')
   db.start
   # Notice, auto commit is by default enabled
   node = Neo4j::Node.new(name: 'foo')
+```
 
 Using the Server database:
 
+```ruby
   Neo4j::Server::RestDatabase.new('http://localhost:7474/db/dat') # only auto commit is allowed
   node = Neo4j::Node.new(name: 'foo')
+```
 
 Using the Server database with the cypher language:
 
+
+```ruby
   db = Neo4j::Server::CypherDatabase.new('http://localhost:7474/db/dat')
   db.start
   node = Neo4j::Node.new(name: 'foo')
@@ -88,17 +96,19 @@ Using the Server database with the cypher language:
   Neo4j::Transaction.run do
     node = Neo4j::Node.new(name: 'foo')
   end
-
+```
 
 The Neo4j::Database contains the reference to the default database used (Neo4j::Database.instance) which is the
 first database created. This is used for example when a database is not specified, e.g. `node[:name] = 'me'`
 It is also possible to use several databases at the same time, e.g.
 
+```ruby
   db1 = Neo4j::Embedded::Database.new('location', auto_commit: true).start
   node = Neo4j::Node.new(name: 'foo', db1)
 
   db2 = Neo4j::Server::Database.new('http:://end.point', auto_commit: true).start
   node = Neo4j::Node.new(name: 'foo', db2)
+```
 
 
 Implementation:
@@ -109,6 +119,7 @@ The public `Neo4j::Node` classes is abstract and provides a common API/docs for 
 The Neo4j::Embedded and Neo4j::Server modules contains drivers for classes like the Neo4j::Node.
 This is implemented something like this:
 
+```ruby
   class Neo4j::Node
     # YARD docs
     def [](key)
@@ -118,21 +129,24 @@ This is implemented something like this:
      db.driver_for(Neo4j::Node).create_node(props)
     end
   end
+```
 
 Both implementation use the same E2E specs.
 
-=== Neo4j-wrapper specs
+### Neo4j-wrapper specs
 
 Example of mapping a Neo4j::Node java object to your own class.
 
+```ruby
   # will use Neo4j label 'Person'
   class Person
     include Neo4j::NodeMixin
   end
-
+```
 
 Example of mapping the Baaz ruby class to Neo4j labels 'Foo', 'Bar' and 'Baaz'
 
+```ruby
   module Foo
     def self.label_name
        "Foo" # specify the label for this module
@@ -151,10 +165,11 @@ Example of mapping the Baaz ruby class to Neo4j labels 'Foo', 'Bar' and 'Baaz'
   end
 
   Bar.find_nodes(...) # can find Baaz object but also other objects including the Bar mixin.
-
+```
 
 Example of inheritance.
 
+```ruby
   # will only use the Vehicle label
   class Vehicle
     include Neo4j::NodeMixin
@@ -163,27 +178,27 @@ Example of inheritance.
   # will use both Car and Vehicle labels
   class Car < Vehicle
   end
-
+```
 
 == The public API
 
-{Neo4j::Node} The Java Neo4j Node
+* `Neo4j::Node` The Java Neo4j Node
 
-{Neo4j::Relationship} The Java Relationship
+* {Neo4j::Relationship} The Java Relationship
 
-{Neo4j::Database} The (default) Database
+* {Neo4j::Database} The (default) Database
 
-{Neo4j::Embedded::Database} - good name ?
+* {Neo4j::Embedded::Database} - good name ?
 
-{Neo4j::Server::RestDatabase}
+* {Neo4j::Server::RestDatabase}
 
-{Neo4j::Server::CypherDatabase}
+* {Neo4j::Server::CypherDatabase}
 
-{Neo4j::Cypher} Cypher Query DSL, see {Neo4j Wiki}[https://github.com/andreasronge/neo4j/wiki/Neo4j%3A%3ACore-Cypher]
+* {Neo4j::Cypher} Cypher Query DSL, see {Neo4j Wiki}[https://github.com/andreasronge/neo4j/wiki/Neo4j%3A%3ACore-Cypher]
 
-{Neo4j::Algo} Included algorithms, like shortest path
+* {Neo4j::Algo} Included algorithms, like shortest path
 
-=== License
+### License
 * Neo4j.rb - MIT, see the LICENSE file http://github.com/andreasronge/neo4j-core/tree/master/LICENSE.
 * Lucene -  Apache, see http://lucene.apache.org/java/docs/features.html
 * \Neo4j - Dual free software/commercial license, see http://neo4j.org/
