@@ -1,9 +1,9 @@
-# Neo4j-core/Neo4j-wrapper 3.0 DRAFT {<img src="https://secure.travis-ci.org/andreasronge/neo4j-core.png" />}[http://travis-ci.org/andreasronge/neo4j-core]
+# Neo4j-core/Neo4j-wrapper 3.0 DRAFT
 
 ## Version 3.0 Specification
 
-The neo4j-core version 3.0 uses the java Neo4j 2.0 jars and takes advantage of the new label feature in ordet to do mappings
-  between Neo4j::Node (java objects) and your own ruby classes.
+The neo4j-core version 3.0 uses the java Neo4j 2.0 jars and takes advantage of the new label feature in order to do mappings
+  between `Neo4j::Node` (java objects) and your own ruby classes.
 
 The code base for the 3.0 should be smaller and simpler to maintain because there is less work to be done in the
 Ruby layer but also by removing features that are too complex or not that useful.
@@ -17,6 +17,9 @@ That means that neo4j.rb will work on any Ruby implementation and not just JRuby
 It's possible that some features for the Neo4j.rb 2.0 will not be available in the 3.0 version since it has to work
  with both the Neo4j server and Neo4j embedded APIs.
 
+Since neo4j-core provides one unified API to both the server end embedded neo4j database the neo4j-wrapper and neo4j
+gems will also work with server and embedded neo4j databases.
+
 New features:
 
 * investigate: neo4j-core should provide one API to both the Embedded database and the Neo4j Server
@@ -28,14 +31,6 @@ Removed features:
 * auto start of the database (neo4j-core)
 * wrapping of Neo4j::Relatonship java objects but there will be a work around (neo4j-wrapper)
 * traversals (the outgoing/incoming/both methods) moves to a new gem, neo4j-traversal.
-
-### Testing
-
-The testing will be using much more mocking.
-
-* The `unit` rspec folder only contains testing for one Ruby module. All other modules should be mocked.
-* The `integration` rspec folder contains testing for two or more modules but mocks the neo4j database access.
-* The `e2e` rspec folder use Neo4j's ImpermanentDatabase (todo)
 
 ### Neo4j-core specs
 
@@ -113,10 +108,12 @@ It is also possible to use several databases at the same time, e.g.
 
 Implementation:
 
+No state is cached in the neo4j-core (e.g. neo4j properties).
+
 The public `Neo4j::Node` classes is abstract and provides a common API/docs for both the embedded and
   neo4j server.
 
-The Neo4j::Embedded and Neo4j::Server modules contains drivers for classes like the Neo4j::Node.
+The Neo4j::Embedded and Neo4j::Server modules contains drivers for classes like the `Neo4j::Node`.
 This is implemented something like this:
 
 ```ruby
@@ -179,6 +176,16 @@ Example of inheritance.
   class Car < Vehicle
   end
 ```
+
+### Testing
+
+The testing will be using much more mocking.
+
+* The `unit` rspec folder only contains testing for one Ruby module. All other modules should be mocked.
+* The `integration` rspec folder contains testing for two or more modules but mocks the neo4j database access.
+* The `e2e` rspec folder for use the real database (or Neo4j's ImpermanentDatabase (todo))
+* The `shared_examples` common specs for different types of databases
+
 
 == The public API
 
