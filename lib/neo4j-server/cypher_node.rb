@@ -25,12 +25,16 @@ module Neo4j::Server
       r['data'][0][0]
     end
 
+    def exist?
+      query = Neo4j::Cypher.query(self) {|node| node }
+      Neo4j::Server::CypherNode.exec_cypher(query.to_s)
+    end
+
     class << self
       include Neo4j::Server::Resource
 
       def exec_cypher(cypher)
         url = resource_url('cypher')
-
         response = HTTParty.post(url, headers: resource_headers, body: {query: cypher}.to_json)
         expect_response_code(url, response, 200)
         JSON.parse(response.body)

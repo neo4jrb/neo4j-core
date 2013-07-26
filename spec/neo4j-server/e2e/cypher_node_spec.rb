@@ -34,5 +34,9 @@ describe Neo4j::Server::CypherNode do
         node['name'].should == 'andreas'
       end
     end
+
+    describe 'rels' do
+      describe 'rels(:outgoing)'
+    end
   end
 end

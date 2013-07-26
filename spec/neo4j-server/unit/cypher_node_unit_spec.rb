@@ -51,6 +51,20 @@ HERE
   end
 
   describe 'instance methods' do
+
+    describe 'exist?' do
+      it "generates correct cypher" do
+        node = Neo4j::Server::CypherNode.new
+        node.init_resource_data('data', 'http://bla/42')
+        Neo4j::Server::CypherNode.should_receive(:exec_cypher).with('START v1=node(42) RETURN v1')
+      end
+
+      it "returns true if HTTP 200 is received" do
+        node = Neo4j::Server::CypherNode.new
+        node.init_resource_data('data', 'http://bla/42')
+        Neo4j::Server::CypherNode.should_receive(:exec_cypher).and_return
+      end
+    end
     describe '[]=' do
       it 'generates correct cypher' do
         node = Neo4j::Server::CypherNode.new

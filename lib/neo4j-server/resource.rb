@@ -13,6 +13,7 @@ module Neo4j
         @resource_data = resource_data
       end
 
+
       def wrap_resource(rel, resource_class, args=nil, verb=:get, payload=nil)
         url = resource_url(rel, args)
         response = HTTParty.send(verb, url, headers: {'Content-Type' => 'application/json'})

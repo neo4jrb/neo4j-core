@@ -1,6 +1,5 @@
 module Neo4j::Server
-  class CypherDatabase
-    include Resource
+  class CypherDatabase < RestDatabase
 
     def initialize(endpoint_url)
       response = HTTParty.get(endpoint_url)

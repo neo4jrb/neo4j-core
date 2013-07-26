@@ -29,7 +29,7 @@ New features:
 Removed features:
 
 * auto start of the database (neo4j-core)
-* wrapping of Neo4j::Relatonship java objects but there will be a work around (neo4j-wrapper)
+* wrapping of Neo4j::Relationship java objects but there will be a work around (neo4j-wrapper)
 * traversals (the outgoing/incoming/both methods) moves to a new gem, neo4j-traversal.
 
 ### Neo4j-core specs
@@ -105,8 +105,35 @@ It is also possible to use several databases at the same time, e.g.
   node = Neo4j::Node.new(name: 'foo', db2)
 ```
 
+### Relationship
 
-Implementation:
+How to create a relationship between node 1 and node 2 with one property
+
+```ruby
+n1 = Neo4j::Node.new
+n2 = Neo4j::Node.new
+rel = n1.create_rel(:knows, since: 1994).to(n2)
+# or
+rel = n1.create_rel(:knows, since: 1994).to(n2)
+```
+
+How to create a relationship between node 1 and a new node with one property
+
+```ruby
+n1 = Neo4j::Node.new
+n2 = Neo4j::Node.new
+rel = n1.create_rel(:knows, since: 1994).to(name: 'jimmy')
+```
+
+Finding relationships
+
+```ruby
+rels = n1.rels(:outgoing, :know).to_a
+rel = n1.rel(:outgoing, :best_friend) # expect only one relationship
+```
+
+
+## Implementation:
 
 No state is cached in the neo4j-core (e.g. neo4j properties).
 
