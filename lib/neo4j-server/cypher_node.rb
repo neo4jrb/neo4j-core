@@ -2,6 +2,10 @@ module Neo4j::Server
   class CypherNode
     include Neo4j::Server::Resource
 
+    def initialize(db)
+      @db = db
+    end
+
     def neo_id
       # TODO DRY
       resource_url_id
@@ -14,41 +18,25 @@ module Neo4j::Server
 
 
     def []=(key,value)
-      query = Neo4j::Cypher.query(self) {|node| node[key]=value; node}
-      self.class.exec_cypher(query.to_s)
+      RestDatabase.query(self) {|node| node[key]=value; node}
       value
     end
 
     def [](key)
-      query = Neo4j::Cypher.query(self) {|node| node[key]}
-      r = Neo4j::Server::CypherNode.exec_cypher(query.to_s)
+      r = RestDatabase.query(self) {|node| node[key]}
       r['data'][0][0]
     end
 
     def exist?
-      query = Neo4j::Cypher.query(self) {|node| node }
-      Neo4j::Server::CypherNode.exec_cypher(query.to_s)
-    end
-
-    class << self
-      include Neo4j::Server::Resource
-
-      def exec_cypher(cypher)
-        url = resource_url('cypher')
-        response = HTTParty.post(url, headers: resource_headers, body: {query: cypher}.to_json)
-        expect_response_code(url, response, 200)
-        JSON.parse(response.body)
+      response = @db.query(self) {|node| node }
+      return true if response.code == 200
+      body = JSON.parse(response.body)
+      if response.code == 400 && body['exception'] == 'EntityNotFoundException'
+        return false
       end
 
-      def create_node(props = nil, *labels)
-        query = Neo4j::Cypher.query { node.new }
-        cypher_response = exec_cypher(query.to_s)
-        node_data = cypher_response['data'][0][0]
-        url = node_data['self']
-        cypher_node = new
-        cypher_node.init_resource_data(node_data,url)
-        cypher_node
-      end
+      raise "Illegal response #{response.code} body #{response.body} from server"
     end
+
   end
 end

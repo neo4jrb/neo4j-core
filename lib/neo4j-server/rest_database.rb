@@ -8,16 +8,20 @@ module Neo4j::Server
     end
 
     def connect_to_server(endpoint_url)
+      # get the root resource
       response = HTTParty.get(endpoint_url)
       expect_response_code(endpoint_url,response,200)
       root_data = JSON.parse(response.body)
       data_url = root_data['data']
 
+      # get the data resource
       response = HTTParty.get(data_url)
-      expect_response_code(endpoint_url,response,200)
+      expect_response_code(data_url,response,200)
 
-      data = JSON.parse(response.body)
-      RestNode.init_resource_data(data, endpoint_url)
+      data_resource = JSON.parse(response.body)
+
+      # store the resource data
+      init_resource_data(data_resource, endpoint_url)
     end
 
     def driver_for(clazz)

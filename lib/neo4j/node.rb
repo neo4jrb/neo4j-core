@@ -9,18 +9,17 @@ module Neo4j
     end
 
     class << self
-      def new(props=nil, *label_or_db)
-        driver = Neo4j::Database.instance.driver_for(Neo4j::Node)
-        # TODO, db default args
-        driver.create_node(props, label_or_db)
+      def new(props=nil, *labels_or_db)
+        db = Neo4j::Core::ArgumentHelper.db(labels_or_db)
+        db.create_node(props, labels_or_db)
       end
 
       def load(neo_id, db = Neo4j::Database.instance)
-        driver = db.driver_for(Neo4j::Node)
-        driver.load(neo_id)
+        db.load_node(neo_id)
       end
     end
   end
+
   #class Node
   #  # include these modules only for documentation purpose
   #  include Neo4j::Core::Property

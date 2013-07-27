@@ -150,7 +150,7 @@ This is implemented something like this:
     end
 
     def self.new(props, db=Neo4j::Database.instance)
-     db.driver_for(Neo4j::Node).create_node(props)
+     db.create_node(props)
     end
   end
 ```

@@ -1,6 +1,10 @@
 source 'https://rubygems.org'
 
 gemspec
+
+gem 'neo4j-cypher', :path => '../neo4j-cypher'
+
+
 #gem 'neo4j-advanced',   '>= 1.8.1', '< 2.0', :require => false
 #gem 'neo4j-enterprise', '>= 1.8.1', '< 2.0', :require => false
 
