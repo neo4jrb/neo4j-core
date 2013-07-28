@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Neo4j::Server::CypherNode do
 
   before(:all) do
-    @db = Neo4j::Server::CypherDatabase.new("http://localhost:7474/db/data")
+    @db = Neo4j::Server::CypherDatabase.new("http://localhost:7474")
   end
 
   after(:all) do

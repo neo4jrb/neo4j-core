@@ -2,13 +2,21 @@ module Neo4j::Server
   class RestNode
     include Neo4j::Server::Resource
 
-    def initialize(response, url)
+    def initialize(db, response, url)
+      @db = db
       data = JSON.parse(response.body)
       init_resource_data(data, url)
     end
 
     def neo_id
       resource_url_id
+    end
+
+    def add_label(*labels)
+      url = resource_url('labels')
+      response = HTTParty.post(url, body: labels.to_json)
+      expect_response_code(url, response, 201)
+      response
     end
 
     def [](key)
@@ -60,20 +68,6 @@ module Neo4j::Server
       response = HTTParty.delete(resource_url, headers: resource_headers)
       expect_response_code(resource_url, response, 204, "Can't delete node")
       nil
-    end
-
-    class << self
-      include Resource
-
-      def create_node(props = nil, *labels)
-        url = resource_url(:node)
-        response = HTTParty.post(url, headers: resource_headers, body: props.to_json)
-        RestNode.new(response, response.headers['location'])
-      end
-
-      def load(neo_id)
-        wrap_resource(:node, RestNode, neo_id)
-      end
     end
 
   end

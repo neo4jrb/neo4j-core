@@ -8,6 +8,9 @@ module Neo4j
     def []=(key,value)
     end
 
+    def add_label(*labels)
+    end
+
     class << self
       def new(props=nil, *labels_or_db)
         db = Neo4j::Core::ArgumentHelper.db(labels_or_db)

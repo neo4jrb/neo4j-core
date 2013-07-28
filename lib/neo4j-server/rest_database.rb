@@ -24,11 +24,6 @@ module Neo4j::Server
       init_resource_data(data_resource, endpoint_url)
     end
 
-    def driver_for(clazz)
-      # TODO
-      RestNode
-    end
-
     def query(*params, &query_dsl)
       q = Neo4j::Cypher.query(*params, &query_dsl).to_s
       _query(q)
@@ -37,6 +32,16 @@ module Neo4j::Server
     def _query(q, params={})
       url = resource_url('cypher')
       HTTParty.post(url, headers: resource_headers, body: {query: q}.to_json)
+    end
+
+    def create_node(props = nil, *labels)
+      url = resource_url(:node)
+      response = HTTParty.post(url, headers: resource_headers, body: props.to_json)
+      RestNode.new(self, response, response.headers['location'])
+    end
+
+    def load(neo_id)
+      wrap_resource(:node, RestNode, neo_id)
     end
 
   end
