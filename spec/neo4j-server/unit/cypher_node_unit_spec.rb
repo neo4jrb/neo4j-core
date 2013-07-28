@@ -25,6 +25,21 @@ describe Neo4j::Server::CypherNode do
         node.exist?
       end
 
+      it "returns true if HTTP 200" do
+        node = Neo4j::Server::CypherNode.new(db)
+        node.init_resource_data('data', 'http://bla/42')
+        db.should_receive(:_query).and_return(double('response', code: 200))
+
+        node.exist?.should be_true
+      end
+
+      it "raise exception if unexpected response" do
+        node = Neo4j::Server::CypherNode.new(db)
+        node.init_resource_data('data', 'http://bla/42')
+        db.should_receive(:_query).and_return(double('response', code: 404, body: ''))
+        expect{node.exist?}.to raise_error(Neo4j::Server::Resource::ServerException)
+      end
+
       it "returns false if HTTP 400 is received with EntityNotFoundException exception" do
         node = Neo4j::Server::CypherNode.new(db)
         node.init_resource_data('data', 'http://bla/42')
@@ -47,15 +62,15 @@ describe Neo4j::Server::CypherNode do
         response = Struct.new(:code, :body).new(400, bad_request)
         db.should_receive(:_query).and_return(response)
 
-        node.exist?
+        node.exist?.should be_false
       end
     end
 
     describe '[]=' do
       it 'generates correct cypher' do
-        node = Neo4j::Server::CypherNode.new
+        node = Neo4j::Server::CypherNode.new(db)
         node.should_receive(:resource_url_id).and_return(42)
-        Neo4j::Server::RestDatabase.should_receive(:_query).with('START v1=node(42) SET v1.name = "andreas" RETURN v1')
+        db.should_receive(:_query).with('START v1=node(42) SET v1.name = "andreas" RETURN v1')
         node['name'] = 'andreas'
       end
     end
@@ -71,15 +86,15 @@ describe Neo4j::Server::CypherNode do
       end
 
       it 'generates correct cypher' do
-        node = Neo4j::Server::CypherNode.new
+        node = Neo4j::Server::CypherNode.new(db)
         node.should_receive(:resource_url_id).and_return(42)
-        Neo4j::Server::RestDatabase.should_receive(:_query).with('START v1=node(42) RETURN v1.name').and_return(cypher_response)
+        db.should_receive(:_query).with('START v1=node(42) RETURN v1.name').and_return(cypher_response)
         node['name']
       end
 
       it "should parse the return value from the cypher query" do
-        Neo4j::Server::RestDatabase.should_receive(:_query).and_return(cypher_response)
-        node = Neo4j::Server::CypherNode.new
+        db.should_receive(:_query).and_return(cypher_response)
+        node = Neo4j::Server::CypherNode.new(db)
         node.should_receive(:resource_url_id).and_return(42)
         node['name'].should == 'andreas'
       end

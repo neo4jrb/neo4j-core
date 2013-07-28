@@ -11,6 +11,7 @@ module Neo4j
       def init_resource_data(resource_data, resource_url)
         @resource_url = resource_url
         @resource_data = resource_data
+        raise "expected @resource_data to be Hash got #{@resource_data.class}" unless @resource_data.respond_to?(:[])
       end
 
 
@@ -38,6 +39,11 @@ module Neo4j
 
       def expect_response_code(url, response, expected_code, msg="Error for request")
         handle_response_error(url, response, "Expected response code #{expected_code} #{msg}") unless response.code == expected_code
+      end
+
+      def response_exception(response)
+        return nil if response.body.nil? || response.body.empty?
+        JSON.parse(response.body)['exception']
       end
 
       def resource_headers

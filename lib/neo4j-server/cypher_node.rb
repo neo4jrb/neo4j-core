@@ -18,24 +18,22 @@ module Neo4j::Server
 
 
     def []=(key,value)
-      RestDatabase.query(self) {|node| node[key]=value; node}
+      @db.query(self) {|node| node[key]=value; node}
       value
     end
 
     def [](key)
-      r = RestDatabase.query(self) {|node| node[key]}
+      r = @db.query(self) {|node| node[key]}
       r['data'][0][0]
     end
 
     def exist?
       response = @db.query(self) {|node| node }
       return true if response.code == 200
-      body = JSON.parse(response.body)
-      if response.code == 400 && body['exception'] == 'EntityNotFoundException'
-        return false
-      end
 
-      raise "Illegal response #{response.code} body #{response.body} from server"
+      return false if response.code == 400 && response_exception(response) == 'EntityNotFoundException'
+
+      raise Resource::ServerException.new "Illegal response #{response.code} body #{response.body} from server"
     end
 
   end

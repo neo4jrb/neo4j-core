@@ -5,14 +5,14 @@ describe Neo4j::Server::Resource do
   class MyResource
     include Neo4j::Server::Resource
     def initialize(response,url)
-      init_resource_data(response,url)
+      init_resource_data(response.body,url)
     end
   end
 
   describe "resource_url" do
     it "replace {} args" do
-      body = {stuff: '/data/bla/{hej}'}.to_json
-      request = Struct.new(:body, :code).new(body, 200)
+      body = {'stuff' => '/data/bla/{hej}'}
+      request = double("request", body: body, code: 200)
       resource = MyResource.new(request, 'url')
       resource.resource_url(:stuff, hej: 42).should == "/data/bla/42"
     end
