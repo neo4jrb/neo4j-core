@@ -1,11 +1,14 @@
 require 'spec_helper'
 
 describe Neo4j::Server::CypherDatabase do
-  describe 'instance methods' do
+  before do
+    Neo4j::Server::RestDatabase.any_instance.stub(:connect_to_server)
+  end
 
-    describe 'create_node' do
-      let(:create_node_cypher_json) do
-        JSON.parse <<-HERE
+  let(:db) { Neo4j::Server::CypherDatabase.new('http://endpoint')}
+
+  let(:create_node_cypher_json) do
+    response = JSON.parse <<-HERE
       {
        "columns" : [ "v1" ],
        "data" : [ [ {
@@ -28,18 +31,32 @@ describe Neo4j::Server::CypherDatabase do
          "incoming_typed_relationships" : "http://localhost:7474/db/data/node/1915/relationships/in/{-list|&|types}"
        } ] ]
      }
-        HERE
+    HERE
+    response.stub(:code).and_return(200)
+    response.stub(:request).and_return(double('request', path: 'http:://request.com'))
+    response
+  end
+
+  describe 'instance methods' do
+
+    describe 'load_node' do
+      it "generates 'START v0 = node(1915); RETURN v0'" do
+        db.should_receive(:_query).with("START v1=node(1915) RETURN v1").and_return(create_node_cypher_json)
+        db.load_node(1915)
       end
+
+    end
+
+
+    describe 'create_node' do
 
       before do
-        Neo4j::Server::RestDatabase.any_instance.stub(:connect_to_server)
+        db.stub(:resource_url).and_return("http://resource_url")
       end
 
-      let(:db) { Neo4j::Server::CypherDatabase.new('http://endpoint')}
-
       it "create_node() generates 'CREATE (v1) RETURN v1'" do
+        db.stub(:resource_url).and_return
         db.should_receive(:_query).with("CREATE (v1) RETURN v1").and_return(create_node_cypher_json)
-
         db.create_node
       end
 

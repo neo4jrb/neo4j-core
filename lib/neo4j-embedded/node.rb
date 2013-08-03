@@ -5,6 +5,16 @@ module Neo4j::Embedded
       def extend_java_class(java_clazz)
         java_clazz.class_eval do
           include Neo4j::Embedded::Property
+
+          # TODO move
+          def _set_db(db)
+            @_database = db
+          end
+
+          def exist?
+            @_database.node_exist?(self)
+          end
+
           def class
             Neo4j::Node
           end

@@ -10,13 +10,13 @@ module Neo4j::Server
     def connect_to_server(endpoint_url)
       # get the root resource
       response = HTTParty.get(endpoint_url)
-      expect_response_code(endpoint_url,response,200)
+      expect_response_code(response,200)
       root_data = JSON.parse(response.body)
       data_url = root_data['data']
 
       # get the data resource
       response = HTTParty.get(data_url)
-      expect_response_code(data_url,response,200)
+      expect_response_code(response,200)
 
       data_resource = JSON.parse(response.body)
 
@@ -34,14 +34,16 @@ module Neo4j::Server
       HTTParty.post(url, headers: resource_headers, body: {query: q}.to_json)
     end
 
-    def create_node(props = nil, *labels)
+    def create_node(props = nil, labels=[])
       url = resource_url(:node)
       response = HTTParty.post(url, headers: resource_headers, body: props.to_json)
-      RestNode.new(self, response, response.headers['location'])
+      node = RestNode.new(self, response, response.headers['location'])
+      node.add_label(labels) unless labels.empty?
+      node
     end
 
-    def load(neo_id)
-      wrap_resource(:node, RestNode, neo_id)
+    def load_node(neo_id)
+      wrap_resource(self, :node, RestNode, neo_id)
     end
 
   end

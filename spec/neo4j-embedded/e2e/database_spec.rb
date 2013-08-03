@@ -6,10 +6,11 @@ describe Neo4j::Database do
   it "can create a new and find it" do
 # Create a new database, which will wrap method with transactions
     # TODO use ImpermanentDatabase
-    db = Neo4j::Database.new('hej', auto_commit: true, delete_existing_db: true)
+    db = Neo4j::Embedded::Database.new('hej', auto_commit: true, delete_existing_db: true)
 
 # Create a new label with an index on property name
-    red = Label.new(:red)
+    # TODO move
+    red = Neo4j::Embedded::Label.new(:red)
     red.index(:name)
 
 # how should we specify constraints like unique ?

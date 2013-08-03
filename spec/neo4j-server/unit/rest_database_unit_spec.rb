@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 describe Neo4j::Server::RestDatabase do
+  let(:dummy_request) { double("dummy request", path: 'http://dummy.request')}
+
   let(:create_node_cypher_json) do
     JSON.parse <<-HERE
       {
@@ -37,7 +39,7 @@ describe Neo4j::Server::RestDatabase do
           "data" : "http://localhost:7474/db/data/"
         }
         HERE
-        response1 = Struct.new(:body, :code).new(body1, 200)
+        response1 = double("response1", body: body1, code: 200, request: dummy_request)
 
         body2 = <<-HERE
         {
@@ -56,7 +58,7 @@ describe Neo4j::Server::RestDatabase do
         }
         HERE
 
-        response2 = Struct.new(:body, :code).new(body2, 200)
+        response2 = double('respone2', body: body2, code: 200, request: dummy_request)
         HTTParty.should_receive(:get).with('http://url').and_return(response1)
         HTTParty.should_receive(:get).with('http://localhost:7474/db/data/').and_return(response2)
         Neo4j::Server::RestDatabase.new('http://url')
@@ -91,10 +93,12 @@ describe Neo4j::Server::RestDatabase do
       end
 
       it 'create_node({}, [:person])' do
-        pending
         db.should_receive(:resource_url).with(:node).and_return("http://my/node")
+        HTTParty.should_receive(:post).and_return(double("response", headers:''))
+        node = double("new node")
+        Neo4j::Server::RestNode.should_receive(:new).and_return(node)
+        node.should_receive(:add_label).with([:person])
         db.create_node({}, [:person])
-        RestNode.any_instance
       end
 
     end

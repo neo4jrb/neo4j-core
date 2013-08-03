@@ -15,10 +15,10 @@ module Neo4j
       end
 
 
-      def wrap_resource(rel, resource_class, args=nil, verb=:get, payload=nil)
+      def wrap_resource(db, rel, resource_class, args=nil, verb=:get, payload=nil)
         url = resource_url(rel, args)
         response = HTTParty.send(verb, url, headers: {'Content-Type' => 'application/json'})
-        response.code == 404 ? nil : resource_class.new(response, url)
+        response.code == 404 ? nil : resource_class.new(db, response, url)
       end
 
       def resource_url(rel=nil, args=nil)
@@ -33,12 +33,12 @@ module Neo4j
         end
       end
 
-      def handle_response_error(url, response, msg="Error for request")
+      def handle_response_error(response, msg="Error for request", url = response.request.path.to_s )
         raise ServerException.new("#{msg} #{url}, #{response.code}, #{response.body}")
       end
 
-      def expect_response_code(url, response, expected_code, msg="Error for request")
-        handle_response_error(url, response, "Expected response code #{expected_code} #{msg}") unless response.code == expected_code
+      def expect_response_code(response, expected_code, msg="Error for request", url=response.request.path.to_s )
+        handle_response_error(response, "Expected response code #{expected_code} #{msg}",url) unless response.code == expected_code
       end
 
       def response_exception(response)

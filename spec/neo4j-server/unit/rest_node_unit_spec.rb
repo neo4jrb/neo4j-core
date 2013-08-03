@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 describe Neo4j::Server::RestNode do
+  let(:dummy_request) { double("dummy request", path: 'http://dummy.request')}
+
   let(:node_response_body) do
     <<-HERE
     {
@@ -46,7 +48,7 @@ describe Neo4j::Server::RestNode do
       it "does a POST on the labels resource" do
         HTTParty.should_receive(:post)
           .with('http://localhost:7474/db/data/node/394/labels', {body: ['person'].to_json})
-          .and_return(double('response', code: 201))
+          .and_return(double('response', code: 201, request: dummy_request))
         node.add_label(:person)
       end
     end

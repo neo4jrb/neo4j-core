@@ -15,6 +15,57 @@ describe Neo4j::Server::CypherNode do
 
     let(:db) { MockDatabase.new}
 
+    describe 'props' do
+      let(:cypher_body) do
+        # POST /db/data/cypher {"query" : "START a=node(43) RETURN a"}
+        #        200 OK
+        <<-HERE
+        {
+          "columns" : [ "a" ],
+          "data" : [ [ {
+            "outgoing_relationships" : "http://localhost:7474/db/data/node/43/relationships/out",
+            "labels" : "http://localhost:7474/db/data/node/43/labels",
+            "data" : {
+              "name" : "andreas"
+            },
+            "all_typed_relationships" : "http://localhost:7474/db/data/node/43/relationships/all/{-list|&|types}",
+            "traverse" : "http://localhost:7474/db/data/node/43/traverse/{returnType}",
+            "self" : "http://localhost:7474/db/data/node/43",
+            "property" : "http://localhost:7474/db/data/node/43/properties/{key}",
+            "outgoing_typed_relationships" : "http://localhost:7474/db/data/node/43/relationships/out/{-list|&|types}",
+            "properties" : "http://localhost:7474/db/data/node/43/properties",
+            "incoming_relationships" : "http://localhost:7474/db/data/node/43/relationships/in",
+            "extensions" : {
+            },
+            "create_relationship" : "http://localhost:7474/db/data/node/43/relationships",
+            "paged_traverse" : "http://localhost:7474/db/data/node/43/paged/traverse/{returnType}{?pageSize,leaseTime}",
+            "all_relationships" : "http://localhost:7474/db/data/node/43/relationships/all",
+            "incoming_typed_relationships" : "http://localhost:7474/db/data/node/43/relationships/in/{-list|&|types}"
+          } ] ]
+        }
+      HERE
+      end
+      it "returns all properties" do
+        node = Neo4j::Server::CypherNode.new(db)
+        node.init_resource_data('data', 'http://bla/42')
+
+        db.should_receive(:_query).with('START v1=node(42) RETURN v1').and_return(Struct.new(:code, :body).new(200, cypher_body))
+        node.props.should == {name: 'andreas'}
+      end
+    end
+
+    describe 'del' do
+      it 'generates "START v1=node(42) DELETE v1"' do
+        db.should_receive(:_query).with('START v1=node(42) DELETE v1').and_return(Struct.new(:code).new(200))
+        node = Neo4j::Server::CypherNode.new(db)
+        node.init_resource_data('data', 'http://bla/42')
+        node.should_receive(:expect_response_code)
+
+        # when
+        node.del
+      end
+    end
+
     describe 'exist?' do
       it "generates correct cypher" do
         db.should_receive(:_query).with('START v1=node(42) RETURN v1').and_return(Struct.new(:code).new(200))
@@ -36,7 +87,7 @@ describe Neo4j::Server::CypherNode do
       it "raise exception if unexpected response" do
         node = Neo4j::Server::CypherNode.new(db)
         node.init_resource_data('data', 'http://bla/42')
-        db.should_receive(:_query).and_return(double('response', code: 404, body: ''))
+        db.should_receive(:_query).and_return(double('response', code: 404, body: '', request: double('request', path:'')))
         expect{node.exist?}.to raise_error(Neo4j::Server::Resource::ServerException)
       end
 
@@ -70,7 +121,7 @@ describe Neo4j::Server::CypherNode do
       it 'generates correct cypher' do
         node = Neo4j::Server::CypherNode.new(db)
         node.should_receive(:resource_url_id).and_return(42)
-        db.should_receive(:_query).with('START v1=node(42) SET v1.name = "andreas" RETURN v1')
+        db.should_receive(:_query).with('START v1=node(42) SET v1.name = "andreas"')
         node['name'] = 'andreas'
       end
     end
@@ -88,7 +139,7 @@ describe Neo4j::Server::CypherNode do
       it 'generates correct cypher' do
         node = Neo4j::Server::CypherNode.new(db)
         node.should_receive(:resource_url_id).and_return(42)
-        db.should_receive(:_query).with('START v1=node(42) RETURN v1.name').and_return(cypher_response)
+        db.should_receive(:_query).with('START v1=node(42) RETURN v1.name?').and_return(cypher_response)
         node['name']
       end
 
