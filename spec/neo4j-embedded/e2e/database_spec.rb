@@ -3,11 +3,18 @@ require 'spec_helper'
 include Neo4j
 describe Neo4j::Database do
 
-  it "can create a new and find it" do
-# Create a new database, which will wrap method with transactions
+  before(:all) do
     # TODO use ImpermanentDatabase
-    db = Neo4j::Embedded::Database.new('hej', auto_commit: true, delete_existing_db: true)
+    @db = Neo4j::Embedded::Database.new('path', delete_existing_db: true, auto_commit: true)
+  end
 
+  after(:all) do
+    @db.shutdown
+  end
+
+  it "can create a new and find it" do
+
+    pending
 # Create a new label with an index on property name
     # TODO move
     red = Neo4j::Embedded::Label.new(:red)

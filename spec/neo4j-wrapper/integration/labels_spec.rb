@@ -23,7 +23,5 @@ describe "Neo4j::Wrapper::Labels and Neo4j::Wrapper::Initialize" do
       thing._java_node.should == java_node
     end
   end
-
-  describe ""
 end
 

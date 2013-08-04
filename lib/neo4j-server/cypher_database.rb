@@ -6,7 +6,7 @@ module Neo4j::Server
     end
 
     def unregister
-      Neo4j::Database.set_instance(nil)
+      Neo4j::Database.unregister_instance(nil)
     end
 
     def create_node(props=nil, labels=[])

@@ -1,11 +1,27 @@
 module Neo4j::Embedded::Property
   extend Neo4j::Core::TxMethods
+
+  # TODO DRY
+  def valid_property?(value)
+    Neo4j::Node::VALID_PROPERTY_VALUE_CLASSES.include?(value.class)
+  end
+
+
   def []=(key,value)
-    set_property(key.to_s, value)
+    unless valid_property?(value) # TODO DRY
+      raise Neo4j::InvalidPropertyException.new("Not valid Neo4j Property value #{value.class}, valid: #{Neo4j::Node::VALID_PROPERTY_VALUE_CLASSES.to_a.join(', ')}")
+    end
+
+    if value.nil?
+      remove_property(key)
+    else
+      set_property(key.to_s, value)
+    end
   end
   tx_methods :[]=
 
   def [](key)
+    return nil unless has_property?(key.to_s)
     get_property(key.to_s)
   end
 

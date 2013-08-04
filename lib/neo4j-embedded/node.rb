@@ -5,6 +5,7 @@ module Neo4j::Embedded
       def extend_java_class(java_clazz)
         java_clazz.class_eval do
           include Neo4j::Embedded::Property
+          extend Neo4j::Core::TxMethods
 
           # TODO move
           def _set_db(db)
@@ -14,6 +15,20 @@ module Neo4j::Embedded
           def exist?
             @_database.node_exist?(self)
           end
+
+          def props
+            property_keys.inject({}) do |ret, key|
+              ret[key] = get_property(key)
+              ret
+            end
+          end
+
+          def del
+            # TODO _rels.each { |r| r.del }
+            delete
+            nil
+          end
+          tx_methods :del
 
           def class
             Neo4j::Node
