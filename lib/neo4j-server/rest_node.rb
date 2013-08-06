@@ -19,28 +19,23 @@ module Neo4j::Server
       response
     end
 
-    def [](key)
-      url = resource_url('property', key: key)
-      response = HTTParty.get(url, headers: resource_headers)
+    def get_property(key)
+      response = HTTParty.get(property_url(key), headers: resource_headers)
       return convert_from_json_value(response.body) if response.code == 200
       body = JSON.parse(response.body)
       return nil if body['exception'] == 'NoSuchPropertyException'
       raise "Error getting property '#{key}', #{body['exception']}"
     end
 
-    def []=(key,value)
-      unless valid_property?(value)
-        raise Neo4j::InvalidPropertyException.new("Not valid Neo4j Property value #{value.class}, valid: #{Neo4j::Node::VALID_PROPERTY_VALUE_CLASSES.to_a.join(', ')}")
-      end
-
-      url = resource_url('property', key: key)
-      if value.nil?
-        response = HTTParty.delete(url, headers: resource_headers, body: convert_to_json_value(value))
-      else
-        response = HTTParty.put(url, headers: resource_headers, body: convert_to_json_value(value))
-      end
+    def set_property(key,value)
+      response = HTTParty.put(property_url(key), headers: resource_headers, body: convert_to_json_value(value))
       expect_response_code(response, 204, "Can't update property #{key} with value '#{value}'")
       value
+    end
+
+    def remove_property(key)
+      response = HTTParty.delete(property_url(key), headers: resource_headers)
+      expect_response_code(response, 204, "Can't remove property #{key}")
     end
 
     def props
@@ -74,6 +69,10 @@ module Neo4j::Server
       nil
     end
 
+    # @private
+    def property_url(key)
+      resource_url('property', key: key)
+    end
   end
 end
 

@@ -22,17 +22,16 @@ module Neo4j::Server
       props.keys.inject({}){|hash,key| hash[key.to_sym] = props[key]; hash}
     end
 
-    def []=(key,value)
-      unless valid_property?(value) # TODO DRY
-        raise Neo4j::InvalidPropertyException.new("Not valid Neo4j Property value #{value.class}, valid: #{Neo4j::Node::VALID_PROPERTY_VALUE_CLASSES.to_a.join(', ')}")
-      end
+    def remove_property(key)
+      @db.query(self) {|node| node[key]=:NULL}
+    end
 
-      value = :NULL if value.nil?
-      @db.query(self) {|node| node[key]=value; node}
+    def set_property(key,value)
+      @db.query(self) {|node| node[key]=value}
       value
     end
 
-    def [](key)
+    def get_property(key)
       r = @db.query(self) {|node| node["#{key}?"]}
       r['data'][0][0]
     end

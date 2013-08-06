@@ -1,16 +1,25 @@
 module Neo4j
   class Node
 
-    # TODO include Neo4j::Core::Property
-
     # the valid values on a property, and arrays of those.
     VALID_PROPERTY_VALUE_CLASSES = Set.new([Array, NilClass, String, Float, TrueClass, FalseClass, Fixnum])
 
     # Only documentation here
     def [](key)
+      get_property(key)
     end
 
+
     def []=(key,value)
+      unless valid_property?(value)
+        raise Neo4j::InvalidPropertyException.new("Not valid Neo4j Property value #{value.class}, valid: #{Neo4j::Node::VALID_PROPERTY_VALUE_CLASSES.to_a.join(', ')}")
+      end
+
+      if value.nil?
+        remove_property(key)
+      else
+        set_property(key,value)
+      end
     end
 
     def add_label(*labels)
@@ -42,27 +51,5 @@ module Neo4j
       end
     end
   end
-
-  #class Node
-  #  # include these modules only for documentation purpose
-  #  include Neo4j::Core::Property
-  #  include Neo4j::Core::Label
-  #  include Neo4j::Core::Wrapper
-  #  extend Neo4j::Core::Initialize::ClassMethods
-  #  extend Neo4j::Core::Wrapper::ClassMethods
-  #
-  #  class << self
-  #    # This method is used to extend a Java Neo4j class so that it includes the same mixins as this class.
-  #    def extend_java_class(java_clazz)
-  #      java_clazz.class_eval do
-  #        include Neo4j::Core::Property
-  #        include Neo4j::Core::Label
-  #        include Neo4j::Core::Wrapper
-  #      end
-  #    end
-  #  end
-  #
-  #  extend_java_class(Java::OrgNeo4jKernelImplCore::NodeProxy)
-  #end
 
 end
