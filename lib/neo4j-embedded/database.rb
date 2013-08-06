@@ -34,7 +34,7 @@ module Neo4j::Embedded
 
     def shutdown
       graph_db.shutdown
-      Neo4j::Database.set_instance(nil)
+      Neo4j::Database.unregister_instance(self)
     end
 
     def create_node(properties = nil, labels=[])
@@ -46,16 +46,13 @@ module Neo4j::Embedded
       end
 
       properties.each_pair { |k, v| _java_node[k]=v } if properties
-      _java_node._set_db(self)
       _java_node
     end
     tx_methods :create_node
 
     def load_node(node_id)
       return nil unless node_id
-      _java_node = graph_db.get_node_by_id(node_id.to_i)
-      _java_node._set_db(self)
-      _java_node
+      graph_db.get_node_by_id(node_id.to_i)
     rescue Java::OrgNeo4jGraphdb.NotFoundException
       nil
     end

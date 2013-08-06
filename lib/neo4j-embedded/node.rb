@@ -7,13 +7,10 @@ module Neo4j::Embedded
           include Neo4j::Core::Property
           extend Neo4j::Core::TxMethods
 
-          # TODO move
-          def _set_db(db)
-            @_database = db
-          end
-
           def exist?
-            @_database.node_exist?(self)
+            !!graph_database.get_node_by_id(neo_id)
+          rescue Java::OrgNeo4jGraphdb.NotFoundException
+            nil
           end
 
           def props
@@ -28,6 +25,7 @@ module Neo4j::Embedded
             delete
             nil
           end
+
           tx_methods :del
 
           def class
