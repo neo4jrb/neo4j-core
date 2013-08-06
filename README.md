@@ -32,6 +32,10 @@ Removed features:
 * wrapping of Neo4j::Relationship java objects but there will be a work around (neo4j-wrapper)
 * traversals (the outgoing/incoming/both methods) moves to a new gem, neo4j-traversal.
 
+Changes:
+
+* `Neo4j::Node.create` now creates a node instead of `Neo4j::Node.new`
+
 ### Neo4j-core specs
 
 Example of index using labels and the auto commit.
@@ -44,7 +48,7 @@ Example of index using labels and the auto commit.
   red.index(:name)
 
   # notice, label argument can be both Label objects or string/symbols.
-  node = Node.new({name: 'andreas'}, red, :green)
+  node = Node.create({name: 'andreas'}, red, :green)
   puts "Created node #{node[:name]} with labels #{node.labels.map(&:name).join(', ')}"
 
   # Find nodes using the label
@@ -66,14 +70,14 @@ Using the Embedded database:
   db = Neo4j::Embedded::Database.new('db/location')
   db.start
   # Notice, auto commit is by default enabled
-  node = Neo4j::Node.new(name: 'foo')
+  node = Neo4j::Node.create(name: 'foo')
 ```
 
 Using the Server database:
 
 ```ruby
   Neo4j::Server::RestDatabase.new('http://localhost:7474/db/dat') # only auto commit is allowed
-  node = Neo4j::Node.new(name: 'foo')
+  node = Neo4j::Node.create(name: 'foo')
 ```
 
 Using the Server database with the cypher language:
@@ -82,14 +86,14 @@ Using the Server database with the cypher language:
 ```ruby
   db = Neo4j::Server::CypherDatabase.new('http://localhost:7474/db/dat')
   db.start
-  node = Neo4j::Node.new(name: 'foo')
+  node = Neo4j::Node.create(name: 'foo')
 
   # With transactions
   db = Neo4j::Server::CypherDatabase.new('http://localhost:7474/db/data', auto_commit: false)
   db.start
 
   Neo4j::Transaction.run do
-    node = Neo4j::Node.new(name: 'foo')
+    node = Neo4j::Node.create(name: 'foo')
   end
 ```
 
@@ -99,10 +103,10 @@ It is also possible to use several databases at the same time, e.g.
 
 ```ruby
   db1 = Neo4j::Embedded::Database.new('location', auto_commit: true).start
-  node = Neo4j::Node.new(name: 'foo', db1)
+  node = Neo4j::Node.create(name: 'foo', db1)
 
   db2 = Neo4j::Server::Database.new('http:://end.point', auto_commit: true).start
-  node = Neo4j::Node.new(name: 'foo', db2)
+  node = Neo4j::Node.create(name: 'foo', db2)
 ```
 
 ### Relationship
@@ -110,8 +114,8 @@ It is also possible to use several databases at the same time, e.g.
 How to create a relationship between node 1 and node 2 with one property
 
 ```ruby
-n1 = Neo4j::Node.new
-n2 = Neo4j::Node.new
+n1 = Neo4j::Node.create
+n2 = Neo4j::Node.create
 rel = n1.create_rel(:knows, since: 1994).to(n2)
 # or
 rel = n1.create_rel(:knows, since: 1994).to(n2)
@@ -120,8 +124,8 @@ rel = n1.create_rel(:knows, since: 1994).to(n2)
 How to create a relationship between node 1 and a new node with one property
 
 ```ruby
-n1 = Neo4j::Node.new
-n2 = Neo4j::Node.new
+n1 = Neo4j::Node.create
+n2 = Neo4j::Node.create
 rel = n1.create_rel(:knows, since: 1994).to(name: 'jimmy')
 ```
 
@@ -147,9 +151,11 @@ This is implemented something like this:
   class Neo4j::Node
     # YARD docs
     def [](key)
+      get_property(key) # abstract method - impl using either HTTP or Java API
     end
 
-    def self.new(props, db=Neo4j::Database.instance)
+
+    def self.create(props, db=Neo4j::Database.instance)
      db.create_node(props)
     end
   end

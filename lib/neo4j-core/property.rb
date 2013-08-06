@@ -1,11 +1,9 @@
-module Neo4j::Embedded::Property
+module Neo4j::Core::Property
   extend Neo4j::Core::TxMethods
 
-  # TODO DRY
   def valid_property?(value)
     Neo4j::Node::VALID_PROPERTY_VALUE_CLASSES.include?(value.class)
   end
-
 
   def []=(key,value)
     unless valid_property?(value) # TODO DRY

@@ -1,5 +1,5 @@
 module Neo4j::Server
-  class RestNode
+  class RestNode < Neo4j::Node
     include Neo4j::Server::Resource
 
     def initialize(db, response, url)
@@ -26,10 +26,6 @@ module Neo4j::Server
       body = JSON.parse(response.body)
       return nil if body['exception'] == 'NoSuchPropertyException'
       raise "Error getting property '#{key}', #{body['exception']}"
-    end
-
-    def valid_property?(value)
-      Neo4j::Node::VALID_PROPERTY_VALUE_CLASSES.include?(value.class)
     end
 
     def []=(key,value)

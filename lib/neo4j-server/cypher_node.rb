@@ -1,5 +1,5 @@
 module Neo4j::Server
-  class CypherNode #< Neo4j::Node
+  class CypherNode < Neo4j::Node
     include Neo4j::Server::Resource
 
     def initialize(db)
@@ -20,11 +20,6 @@ module Neo4j::Server
       r = @db.query(self) { |node| node }
       props = JSON.parse(r.body)['data'][0][0]['data']
       props.keys.inject({}){|hash,key| hash[key.to_sym] = props[key]; hash}
-    end
-
-    # TODO DRY
-    def valid_property?(value)
-      Neo4j::Node::VALID_PROPERTY_VALUE_CLASSES.include?(value.class)
     end
 
     def []=(key,value)

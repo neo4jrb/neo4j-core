@@ -1,10 +1,10 @@
 share_examples_for "Neo4j::Node" do
   context "with auto commit" do
     describe "class methods" do
-      describe 'new' do
+      describe 'create' do
 
         subject do
-          Neo4j::Node.new
+          Neo4j::Node.create
         end
         its(:exist?) { should be_true }
         its(:neo_id) { should be_a(Fixnum) }
@@ -13,7 +13,7 @@ share_examples_for "Neo4j::Node" do
 
       describe 'load' do
         it "can load a node if it exists" do
-          node1 = Neo4j::Node.new
+          node1 = Neo4j::Node.create
           id1 = node1.neo_id
           node2 = Neo4j::Node.load(id1)
           node1.neo_id.should == node2.neo_id
@@ -28,7 +28,7 @@ share_examples_for "Neo4j::Node" do
     describe 'instance methods' do
 
       let(:node) do
-        Neo4j::Node.new
+        Neo4j::Node.create
       end
 
       describe 'neo_id' do
@@ -40,14 +40,14 @@ share_examples_for "Neo4j::Node" do
 
       describe 'del' do
         it "deletes the node" do
-          n = Neo4j::Node.new
+          n = Neo4j::Node.create
           n.should exist
           n.del
           n.should_not exist
         end
 
         it 'raise an exception if node does not exist' do
-          n = Neo4j::Node.new
+          n = Neo4j::Node.create
           n.del
           Proc.new { n.del }.should raise_error
         end

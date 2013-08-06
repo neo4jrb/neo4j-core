@@ -1,5 +1,8 @@
 module Neo4j
   class Node
+
+    # TODO include Neo4j::Core::Property
+
     # the valid values on a property, and arrays of those.
     VALID_PROPERTY_VALUE_CLASSES = Set.new([Array, NilClass, String, Float, TrueClass, FalseClass, Fixnum])
 
@@ -19,10 +22,11 @@ module Neo4j
     # @param [Object] value the value we want to check if it's a valid neo4j property value
     # @return [True, False] A false means it can't be persisted.
     def valid_property?(value)
+      VALID_PROPERTY_VALUE_CLASSES.include?(value.class)
     end
 
     class << self
-      def new(props=nil, *labels_or_db)
+      def create(props=nil, *labels_or_db)
         db = Neo4j::Core::ArgumentHelper.db(labels_or_db)
         db.create_node(props, labels_or_db)
       end

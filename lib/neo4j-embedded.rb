@@ -8,6 +8,5 @@ jars.each { |jar| require File.expand_path(jar, jar_folder) }
 
 require 'neo4j-embedded/label'
 require 'neo4j-embedded/database'
-require 'neo4j-embedded/property'
 require 'neo4j-embedded/node'
 
