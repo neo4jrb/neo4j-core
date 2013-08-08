@@ -63,6 +63,8 @@ describe Neo4j::Server::CypherDatabase do
     describe 'begin_tx' do
       let(:dummy_request) { double("dummy request", path: 'http://dummy.request')}
 
+      after { Thread.current[:neo4j_curr_tx] = nil }
+
       let(:body) do
         <<-HERE
 {"commit":"http://localhost:7474/db/data/transaction/1/commit","results":[],"transaction":{"expires":"Tue, 06 Aug 2013 21:35:20 +0000"},"errors":[]}

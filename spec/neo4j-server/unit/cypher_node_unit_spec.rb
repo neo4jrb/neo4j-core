@@ -17,9 +17,7 @@ describe Neo4j::Server::CypherNode do
 
     describe 'props' do
       let(:cypher_body) do
-        # POST /db/data/cypher {"query" : "START a=node(43) RETURN a"}
-        #        200 OK
-        <<-HERE
+        JSON.parse <<-HERE
         {
           "columns" : [ "a" ],
           "data" : [ [ {
@@ -45,21 +43,32 @@ describe Neo4j::Server::CypherNode do
         }
       HERE
       end
+
+      let(:cypher_response) do
+        double('cypher response', error?: false, first_data: cypher_body['data'][0][0])
+      end
+
       it "returns all properties" do
         node = Neo4j::Server::CypherNode.new(db)
         node.init_resource_data('data', 'http://bla/42')
 
-        db.should_receive(:_query).with('START v1=node(42) RETURN v1').and_return(Struct.new(:code, :body).new(200, cypher_body))
+        db.should_receive(:_query).with('START v1=node(42) RETURN v1').and_return(cypher_response)
         node.props.should == {name: 'andreas'}
       end
     end
 
     describe 'del' do
+      let(:cypher_response) do
+        double('cypher response', error?: false)
+      end
+
       it 'generates "START v1=node(42) DELETE v1"' do
-        db.should_receive(:_query).with('START v1=node(42) DELETE v1').and_return(Struct.new(:code).new(200))
+        cypher_response.should_receive(:raise_unless_response_code)
+        db.should_receive(:_query).with('START v1=node(42) DELETE v1').and_return(cypher_response)
         node = Neo4j::Server::CypherNode.new(db)
         node.init_resource_data('data', 'http://bla/42')
         node.should_receive(:expect_response_code)
+
 
         # when
         node.del
@@ -68,7 +77,7 @@ describe Neo4j::Server::CypherNode do
 
     describe 'exist?' do
       it "generates correct cypher" do
-        db.should_receive(:_query).with('START v1=node(42) RETURN v1').and_return(Struct.new(:code).new(200))
+        db.should_receive(:_query).with('START v1=node(42) RETURN v1').and_return(cypher_response)
         node = Neo4j::Server::CypherNode.new(db)
         node.init_resource_data('data', 'http://bla/42')
 
