@@ -18,9 +18,9 @@ module Neo4j::Server
       raise "Response code #{response.code}, expected #{code} for #{response.request.path}" unless response.code == code
     end
 
-    def set_data(data, column)
+    def set_data(data, columns)
       @data = data
-      @column = column
+      @columns = columns
       self
     end
 

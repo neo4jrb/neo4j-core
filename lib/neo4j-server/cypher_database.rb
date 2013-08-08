@@ -30,7 +30,7 @@ module Neo4j::Server
       elsif (cypher_response.exception == 'EntityNotFoundException')
         return nil
       else
-        handle_response_error(response)
+        handle_response_error(cypher_response.response)
       end
 
     end
