@@ -13,10 +13,13 @@ module Neo4j::Server
     def create_node(props=nil, labels=[])
       cypher_response = query { node.new(props, *labels) }
       node_data = cypher_response.first_data
-      url = node_data['self']
-      cypher_node = CypherNode.new(self)
-      cypher_node.init_resource_data(node_data,url)
-      cypher_node
+
+      if cypher_response.uncommited?
+        CypherNodeUncommited.new(self, node_data)
+      else
+        url = node_data['self']
+        CypherNode.new(self).init_resource_data(node_data,url)
+      end
     end
 
     def load_node(neo_id)

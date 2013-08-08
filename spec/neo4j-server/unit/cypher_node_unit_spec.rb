@@ -67,7 +67,6 @@ describe Neo4j::Server::CypherNode do
         db.should_receive(:_query).with('START v1=node(42) DELETE v1').and_return(cypher_response)
         node = Neo4j::Server::CypherNode.new(db)
         node.init_resource_data('data', 'http://bla/42')
-        node.should_receive(:expect_response_code)
 
 
         # when
@@ -77,6 +76,7 @@ describe Neo4j::Server::CypherNode do
 
     describe 'exist?' do
       it "generates correct cypher" do
+        cypher_response = double("cypher response", error?: false)
         db.should_receive(:_query).with('START v1=node(42) RETURN v1').and_return(cypher_response)
         node = Neo4j::Server::CypherNode.new(db)
         node.init_resource_data('data', 'http://bla/42')
@@ -88,7 +88,7 @@ describe Neo4j::Server::CypherNode do
       it "returns true if HTTP 200" do
         node = Neo4j::Server::CypherNode.new(db)
         node.init_resource_data('data', 'http://bla/42')
-        db.should_receive(:_query).and_return(double('response', code: 200))
+        db.should_receive(:_query).and_return(double('response', error?: false))
 
         node.exist?.should be_true
       end
@@ -96,32 +96,15 @@ describe Neo4j::Server::CypherNode do
       it "raise exception if unexpected response" do
         node = Neo4j::Server::CypherNode.new(db)
         node.init_resource_data('data', 'http://bla/42')
-        db.should_receive(:_query).and_return(double('response', code: 404, body: '', request: double('request', path:'')))
+        request = double('request', path:'')
+        db.should_receive(:_query).and_return(double('response', error?: true, exception: 'UnknownException', response: double('response').as_null_object))
         expect{node.exist?}.to raise_error(Neo4j::Server::Resource::ServerException)
       end
 
       it "returns false if HTTP 400 is received with EntityNotFoundException exception" do
         node = Neo4j::Server::CypherNode.new(db)
         node.init_resource_data('data', 'http://bla/42')
-
-        bad_request =<<-HERE
-         {
-           "message" : "Node with id 42111",
-           "exception" : "EntityNotFoundException",
-           "fullname" : "org.neo4j.cypher.EntityNotFoundException",
-           "stacktrace" : [ "org.neo4j.cypher.internal.spi.gdsimpl.TransactionBoundQueryContext$NodeOperations.getById(TransactionBoundQueryContext.scala:107)", "org.neo4j.cypher.internal.spi.gdsimpl.TransactionBoundQueryContext$NodeOperations.getById(TransactionBoundQueryContext.scala:102)", "org.neo4j.cypher.internal.spi.DelegatingOperations.getById(DelegatingQueryContext.scala:93)", "org.neo4j.cypher.internal.executionplan.builders.EntityProducerFactory$$anonfun$3$$anonfun$applyOrElse$3$$anonfun$apply$1.apply(EntityProducerFactory.scala:77)", "org.neo4j.cypher.internal.executionplan.builders.EntityProducerFactory$$anonfun$3$$anonfun$applyOrElse$3$$anonfun$apply$1.apply(EntityProducerFactory.scala:77)", "org.neo4j.cypher.internal.executionplan.builders.GetGraphElements$.org$neo4j$cypher$internal$executionplan$builders$GetGraphElements$$castElement$1(GetGraphElements.scala:30)", "org.neo4j.cypher.internal.executionplan.builders.GetGraphElements$$anonfun$getElements$3.apply(GetGraphElements.scala:40)", "scala.collection.Iterator$$anon$11.next(Iterator.scala:328)", "scala.collection.Iterator$$anon$11.next(Iterator.scala:328)", "scala.collection.Iterator$$anon$13.next(Iterator.scala:372)", "org.neo4j.cypher.internal.ClosingIterator$$anonfun$next$1.apply(ClosingIterator.scala:44)", "org.neo4j.cypher.internal.ClosingIterator.failIfThrows(ClosingIterator.scala:84)", "org.neo4j.cypher.internal.ClosingIterator.next(ClosingIterator.scala:43)", "org.neo4j.cypher.PipeExecutionResult.next(PipeExecutionResult.scala:159)", "org.neo4j.cypher.PipeExecutionResult.next(PipeExecutionResult.scala:33)", "scala.collection.Iterator$$anon$11.next(Iterator.scala:328)", "scala.collection.convert.Wrappers$IteratorWrapper.next(Wrappers.scala:30)", "org.neo4j.cypher.PipeExecutionResult$$anon$1.next(PipeExecutionResult.scala:75)", "org.neo4j.helpers.collection.ExceptionHandlingIterable$1.next(ExceptionHandlingIterable.java:67)", "org.neo4j.helpers.collection.IteratorWrapper.next(IteratorWrapper.java:47)", "org.neo4j.server.rest.repr.ListRepresentation.serialize(ListRepresentation.java:58)", "org.neo4j.server.rest.repr.Serializer.serialize(Serializer.java:75)", "org.neo4j.server.rest.repr.MappingSerializer.putList(MappingSerializer.java:61)", "org.neo4j.server.rest.repr.CypherResultRepresentation.serialize(CypherResultRepresentation.java:83)", "org.neo4j.server.rest.repr.MappingRepresentation.serialize(MappingRepresentation.java:42)", "org.neo4j.server.rest.repr.OutputFormat.assemble(OutputFormat.java:185)", "org.neo4j.server.rest.repr.OutputFormat.formatRepresentation(OutputFormat.java:133)", "org.neo4j.server.rest.repr.OutputFormat.response(OutputFormat.java:119)", "org.neo4j.server.rest.repr.OutputFormat.ok(OutputFormat.java:57)", "org.neo4j.server.rest.web.CypherService.cypher(CypherService.java:96)", "java.lang.reflect.Method.invoke(Method.java:597)", "org.neo4j.server.rest.security.SecurityFilter.doFilter(SecurityFilter.java:112)" ],
-           "cause" : {
-             "message" : "Node 42111 not found",
-             "exception" : "NotFoundException",
-             "stacktrace" : [ "org.neo4j.kernel.impl.core.NodeManager.getNodeById(NodeManager.java:342)", "org.neo4j.kernel.InternalAbstractGraphDatabase.getNodeById(InternalAbstractGraphDatabase.java:991)", "org.neo4j.cypher.internal.spi.gdsimpl.TransactionBoundQueryContext$NodeOperations.getById(TransactionBoundQueryContext.scala:108)", "org.neo4j.cypher.internal.spi.gdsimpl.TransactionBoundQueryContext$NodeOperations.getById(TransactionBoundQueryContext.scala:102)", "org.neo4j.cypher.internal.spi.DelegatingOperations.getById(DelegatingQueryContext.scala:93)", "org.neo4j.cypher.internal.executionplan.builders.EntityProducerFactory$$anonfun$3$$anonfun$applyOrElse$3$$anonfun$apply$1.apply(EntityProducerFactory.scala:77)", "org.neo4j.cypher.internal.executionplan.builders.EntityProducerFactory$$anonfun$3$$anonfun$applyOrElse$3$$anonfun$apply$1.apply(EntityProducerFactory.scala:77)", "org.neo4j.cypher.internal.executionplan.builders.GetGraphElements$.org$neo4j$cypher$internal$executionplan$builders$GetGraphElements$$castElement$1(GetGraphElements.scala:30)", "org.neo4j.cypher.internal.executionplan.builders.GetGraphElements$$anonfun$getElements$3.apply(GetGraphElements.scala:40)", "scala.collection.Iterator$$anon$11.next(Iterator.scala:328)", "scala.collection.Iterator$$anon$11.next(Iterator.scala:328)", "scala.collection.Iterator$$anon$13.next(Iterator.scala:372)", "org.neo4j.cypher.internal.ClosingIterator$$anonfun$next$1.apply(ClosingIterator.scala:44)", "org.neo4j.cypher.internal.ClosingIterator.failIfThrows(ClosingIterator.scala:84)", "org.neo4j.cypher.internal.ClosingIterator.next(ClosingIterator.scala:43)", "org.neo4j.cypher.PipeExecutionResult.next(PipeExecutionResult.scala:159)", "org.neo4j.cypher.PipeExecutionResult.next(PipeExecutionResult.scala:33)", "scala.collection.Iterator$$anon$11.next(Iterator.scala:328)", "scala.collection.convert.Wrappers$IteratorWrapper.next(Wrappers.scala:30)", "org.neo4j.cypher.PipeExecutionResult$$anon$1.next(PipeExecutionResult.scala:75)", "org.neo4j.helpers.collection.ExceptionHandlingIterable$1.next(ExceptionHandlingIterable.java:67)", "org.neo4j.helpers.collection.IteratorWrapper.next(IteratorWrapper.java:47)", "org.neo4j.server.rest.repr.ListRepresentation.serialize(ListRepresentation.java:58)", "org.neo4j.server.rest.repr.Serializer.serialize(Serializer.java:75)", "org.neo4j.server.rest.repr.MappingSerializer.putList(MappingSerializer.java:61)", "org.neo4j.server.rest.repr.CypherResultRepresentation.serialize(CypherResultRepresentation.java:83)", "org.neo4j.server.rest.repr.MappingRepresentation.serialize(MappingRepresentation.java:42)", "org.neo4j.server.rest.repr.OutputFormat.assemble(OutputFormat.java:185)", "org.neo4j.server.rest.repr.OutputFormat.formatRepresentation(OutputFormat.java:133)", "org.neo4j.server.rest.repr.OutputFormat.response(OutputFormat.java:119)", "org.neo4j.server.rest.repr.OutputFormat.ok(OutputFormat.java:57)", "org.neo4j.server.rest.web.CypherService.cypher(CypherService.java:96)", "java.lang.reflect.Method.invoke(Method.java:597)", "org.neo4j.server.rest.security.SecurityFilter.doFilter(SecurityFilter.java:112)" ],
-             "fullname" : "org.neo4j.graphdb.NotFoundException"
-           }
-         }
-        HERE
-
-        response = Struct.new(:code, :body).new(400, bad_request)
-        db.should_receive(:_query).and_return(response)
-
+        db.should_receive(:_query).and_return(double("response", error?: true, exception: 'EntityNotFoundException'))
         node.exist?.should be_false
       end
     end
@@ -136,26 +119,10 @@ describe Neo4j::Server::CypherNode do
     end
 
     describe '[]' do
-      let(:cypher_response) do
-        JSON.parse <<-HERE
-        {
-          "columns" : [ "n.name" ],
-           "data" : [ [ "andreas" ] ]
-        }
-        HERE
-      end
-
       it 'generates correct cypher' do
         node = Neo4j::Server::CypherNode.new(db)
         node.should_receive(:resource_url_id).and_return(42)
-        db.should_receive(:_query).with('START v1=node(42) RETURN v1.name?').and_return(cypher_response)
-        node['name']
-      end
-
-      it "should parse the return value from the cypher query" do
-        db.should_receive(:_query).and_return(cypher_response)
-        node = Neo4j::Server::CypherNode.new(db)
-        node.should_receive(:resource_url_id).and_return(42)
+        db.should_receive(:_query).with('START v1=node(42) RETURN v1.name?').and_return(double('cypher response',first_data: 'andreas'))
         node['name'].should == 'andreas'
       end
     end

@@ -2,16 +2,26 @@ module Neo4j::Server
   class CypherResponse
     attr_reader :data, :columns, :error_msg, :exception, :exception_fullname, :response
 
-    def initialize(response)
+    def initialize(response, uncommited = false)
       @response = response
+      @uncommited = uncommited
     end
 
     def first_data
-      @data[0][0]
+      if uncommited?
+        puts "@DATA #{@data.inspect}"
+        @data.first['row'].first
+      else
+        @data[0][0]
+      end
     end
 
     def error?
       !!@error
+    end
+
+    def uncommited?
+      @uncommited
     end
 
     def raise_unless_response_code(code)
@@ -47,12 +57,12 @@ module Neo4j::Server
       raise "Unknown response code #{response.code} for #{response.request.path.to_s}" unless response.code == 200
 
       first_result = response['results'][0]
-      cr = CypherResponse.new(response)
+      cr = CypherResponse.new(response, true)
 
-      if (response.errors.empty?)
+      if (response['errors'].empty?)
         cr.set_data(first_result['data'], first_result['columns'])
       else
-        first_error = response.errors.first
+        first_error = response['errors'].first
         cr.set_error(first_error['message'], first_error['status'], first_error['code'])
       end
       cr

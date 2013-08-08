@@ -2,7 +2,7 @@
 
 ## Version 3.0 Specification
 
-The neo4j-core version 3.0 uses the java Neo4j 2.0 jar and/or the Neo4j Server 2.0 API. This mean that it should work on
+The neo4j-core version 3.0 uses the java Jar and/or the Neo4j Server version 2.0.0-M4+ . This mean that it should work on
 Ruby implementation and not just JRuby.
 
 It uses the new label feature in order to do mappings between `Neo4j::Node` (java objects) and your own ruby classes.
@@ -64,8 +64,6 @@ All method prefixed with `_` gives direct access to the java layer/rest layer.
 
 ### Neo4j Embedded and Neo4j Server support
 
-Investigate this:
-
 Using the Embedded database:
 
 ```ruby
@@ -74,7 +72,6 @@ Using the Embedded database:
   # Notice, auto commit is by default enabled
   node = Neo4j::Node.create(name: 'foo')
 ```
-
 Using the Server database:
 
 ```ruby

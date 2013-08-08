@@ -10,17 +10,34 @@ describe Neo4j::Server::CypherTransaction do
   end
 
 
-  it "can open and commit an transaction" do
+  it "can open and commit a transaction" do
     tx = @db.begin_tx
     tx.success
     tx.finish
   end
 
-  it "can open create a query and commit" do
+  it "can create a query and commit" do
     tx = @db.begin_tx
     q = tx._query("START n=node(0) RETURN n")
-    q.response.code.should == '200'
+    q.code.should == 200
     tx.success
     tx.finish.code.should == 200
+  end
+
+  it "can create a node" do
+    tx = @db.begin_tx
+    node = Neo4j::Node.create(name: 'andreas')
+    tx.success
+    tx.finish.code.should == 200
+
+    node['name'].should == 'andreas'
+  end
+
+  it "can use Transaction block style" do
+    node = Neo4j::Transaction.run do
+      Neo4j::Node.create(name: 'andreas')
+    end
+
+    node['name'].should == 'andreas'
   end
 end

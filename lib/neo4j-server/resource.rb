@@ -9,10 +9,11 @@ module Neo4j
       attr_reader :resource_data
 
       def init_resource_data(resource_data, resource_url)
+        raise "No RESOURCE URL" unless resource_url
         @resource_url = resource_url
-        raise "No resource url" unless resource_url
         @resource_data = resource_data
         raise "expected @resource_data to be Hash got #{@resource_data.class}" unless @resource_data.respond_to?(:[])
+        self
       end
 
 

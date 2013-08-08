@@ -32,7 +32,7 @@ module Neo4j::Server
     end
 
     def get_property(key)
-      r = @db.query(self) {|node| node["#{key}?"]}
+      r = @db.query(self) {|node| node[key]}
       r.first_data
     end
 
