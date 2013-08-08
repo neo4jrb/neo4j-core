@@ -18,7 +18,7 @@ module Neo4j::Server
 
     def props
       r = @db.query(self) { |node| node }
-      props = JSON.parse(r.body)['data'][0][0]['data']
+      props = r.first_data['data']
       props.keys.inject({}){|hash,key| hash[key.to_sym] = props[key]; hash}
     end
 
@@ -33,21 +33,22 @@ module Neo4j::Server
 
     def get_property(key)
       r = @db.query(self) {|node| node["#{key}?"]}
-      r['data'][0][0]
+      r.first_data
     end
 
     def del
-      response = @db.query(self) {|node| node.del}
-      expect_response_code(response, 200)
+      @db.query(self) {|node| node.del}.raise_unless_response_code(200)
     end
 
     def exist?
       response = @db.query(self) {|node| node }
-      return true if response.code == 200
-
-      return false if response.code == 400 && response_exception(response) == 'EntityNotFoundException'
-
-      handle_response_error(response)
+      if (!response.error?)
+        return true
+      elsif (response.exception == 'EntityNotFoundException')
+        return false
+      else
+        handle_response_error(response.response)
+      end
     end
 
   end

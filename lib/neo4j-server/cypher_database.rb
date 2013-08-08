@@ -9,10 +9,10 @@ module Neo4j::Server
       Neo4j::Database.unregister_instance(nil)
     end
 
+
     def create_node(props=nil, labels=[])
       cypher_response = query { node.new(props, *labels) }
-      expect_response_code(cypher_response, 200)
-      node_data = cypher_response['data'][0][0]
+      node_data = cypher_response.first_data
       url = node_data['self']
       cypher_node = CypherNode.new(self)
       cypher_node.init_resource_data(node_data,url)
@@ -21,15 +21,16 @@ module Neo4j::Server
 
     def load_node(neo_id)
       cypher_response = query { node(neo_id) }
-      if (cypher_response.code == 200)
-        node_data = cypher_response['data'][0][0]
+      if (!cypher_response.error?)
+        node_data = cypher_response.first_data
         url = node_data['self']
         cypher_node = CypherNode.new(self)
         cypher_node.init_resource_data(node_data,url)
         cypher_node
+      elsif (cypher_response.exception == 'EntityNotFoundException')
+        return nil
       else
-        return nil if response_exception(cypher_response) == 'EntityNotFoundException'
-        raise "Unknown response, #{cypher_response.code}, #{cypher_response.body}"
+        handle_response_error(response)
       end
 
     end

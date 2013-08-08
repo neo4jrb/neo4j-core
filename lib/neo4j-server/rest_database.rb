@@ -24,14 +24,32 @@ module Neo4j::Server
       init_resource_data(data_resource, endpoint_url)
     end
 
+    def begin_tx
+      raise "Already running a transaction" if current_tx
+      tx = wrap_resource(self, 'transaction', CypherTransaction, nil, :post)
+      Thread.current[:neo4j_curr_tx] = tx
+      tx
+    end
+
+    def current_tx
+      Thread.current[:neo4j_curr_tx]
+    end
+
     def query(*params, &query_dsl)
       q = Neo4j::Cypher.query(*params, &query_dsl).to_s
       _query(q)
     end
 
     def _query(q, params={})
-      url = resource_url('cypher')
-      HTTParty.post(url, headers: resource_headers, body: {query: q}.to_json)
+      if (current_tx)
+        raise "Params not supported" unless params.empty? # TODO
+        response = current_tx._query(q)
+        CypherResponse.create_with_tx(response)
+      else
+        url = resource_url('cypher')
+        response = HTTParty.post(url, headers: resource_headers, body: {query: q}.to_json)
+        CypherResponse.create_with_no_tx(response)
+      end
     end
 
     def create_node(props = nil, labels=[])

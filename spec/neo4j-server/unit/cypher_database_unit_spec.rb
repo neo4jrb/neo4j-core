@@ -44,9 +44,28 @@ describe Neo4j::Server::CypherDatabase do
         db.should_receive(:_query).with("START v1=node(1915) RETURN v1").and_return(create_node_cypher_json)
         db.load_node(1915)
       end
-
     end
 
+    describe 'begin_tx' do
+      let(:dummy_request) { double("dummy request", path: 'http://dummy.request')}
+
+      let(:body) do
+        <<-HERE
+{"commit":"http://localhost:7474/db/data/transaction/1/commit","results":[],"transaction":{"expires":"Tue, 06 Aug 2013 21:35:20 +0000"},"errors":[]}
+        HERE
+      end
+
+      it "create a new transaction and stores it in thread local" do
+        response = double('response', headers: {'location' => 'http://tx/42'}, code: 201, request: dummy_request)
+        response.should_receive(:[]).with('commit').and_return('http://tx/42/commit')
+        db.should_receive(:resource_url).with('transaction').and_return('http://new.tx')
+        HTTParty.should_receive(:post).with('http://new.tx').and_return(response)
+        tx = db.begin_tx
+        tx.commit_url.should == 'http://tx/42/commit'
+        tx.exec_url.should == 'http://tx/42'
+        Thread.current[:neo4j_curr_tx].should == tx
+      end
+    end
 
     describe 'create_node' do
 

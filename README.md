@@ -2,8 +2,10 @@
 
 ## Version 3.0 Specification
 
-The neo4j-core version 3.0 uses the java Neo4j 2.0 jars and takes advantage of the new label feature in order to do mappings
-  between `Neo4j::Node` (java objects) and your own ruby classes.
+The neo4j-core version 3.0 uses the java Neo4j 2.0 jar and/or the Neo4j Server 2.0 API. This mean that it should work on
+Ruby implementation and not just JRuby.
+
+It uses the new label feature in order to do mappings between `Neo4j::Node` (java objects) and your own ruby classes.
 
 The code base for the 3.0 should be smaller and simpler to maintain because there is less work to be done in the
 Ruby layer but also by removing features that are too complex or not that useful.
@@ -22,8 +24,8 @@ gems will also work with server and embedded neo4j databases.
 
 New features:
 
-* investigate: neo4j-core should provide one API to both the Embedded database and the Neo4j Server
-* investigate: support for both Cypher and REST implementation of Neo4j::Node and Neo4j::Relationship API.
+* neo4j-core should provide one API to both the Embedded database and the Neo4j Server
+* support for both Cypher and REST implementation of Neo4j::Node and Neo4j::Relationship API.
 * auto commit is default (neo4j-core)
 
 Removed features:
