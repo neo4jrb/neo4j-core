@@ -7,7 +7,6 @@ module Neo4j::Server
     end
 
     def neo_id
-      # TODO DRY
       resource_url_id
     end
 
@@ -20,6 +19,20 @@ module Neo4j::Server
       r = @db.query(self) { |node| node }
       props = r.first_data['data']
       props.keys.inject({}){|hash,key| hash[key.to_sym] = props[key]; hash}
+    end
+
+    def create_rel(type, other_node, props = nil)
+      cypher_response = @db.query(self, other_node) { |start_node, end_node| create_path { start_node > rel(type).as(:r) > end_node }; :r }
+
+      node_data = cypher_response.first_data
+
+      if cypher_response.uncommited?
+        raise "not implemented"
+      else
+        url = node_data['self']
+        CypherRelationship.new(self).init_resource_data(node_data,url)
+      end
+
     end
 
     def remove_property(key)

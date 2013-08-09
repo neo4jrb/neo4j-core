@@ -110,23 +110,14 @@ It is also possible to use several databases at the same time, e.g.
 
 ### Relationship
 
-How to create a relationship between node 1 and node 2 with one property
+How to create a relationship between node n1 and node n2 with one property
 
 ```ruby
 n1 = Neo4j::Node.create
 n2 = Neo4j::Node.create
-rel = n1.create_rel(:knows, since: 1994).to(n2)
-# or
-rel = n1.create_rel(:knows, since: 1994).to(n2)
+rel = n1.create_rel(:knows, n2, since: 1994)
 ```
 
-How to create a relationship between node 1 and a new node with one property
-
-```ruby
-n1 = Neo4j::Node.create
-n2 = Neo4j::Node.create
-rel = n1.create_rel(:knows, since: 1994).to(name: 'jimmy')
-```
 
 Finding relationships
 
@@ -135,6 +126,12 @@ rels = n1.rels(:outgoing, :know).to_a
 rel = n1.rel(:outgoing, :best_friend) # expect only one relationship
 ```
 
+Delete relationship
+
+```ruby
+rel = n1.rel(:outgoing, :know) # expects only one relationship
+rel.del
+```
 
 ## Implementation:
 

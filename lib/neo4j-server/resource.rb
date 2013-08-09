@@ -53,8 +53,8 @@ module Neo4j
         {'Content-Type' => 'application/json', 'Accept' => 'application/json'}
       end
 
-      def resource_url_id
-        @resource_url.match(/\/(\d+)$/)[1].to_i
+      def resource_url_id(url = @resource_url)
+        url.match(/\/(\d+)$/)[1].to_i
       end
 
       def convert_from_json_value(value)

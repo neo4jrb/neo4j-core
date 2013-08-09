@@ -22,6 +22,11 @@ module Neo4j
       end
     end
 
+    # @abstract
+    def create_rel(type, other_node, props = nil)
+
+    end
+
     def add_label(*labels)
     end
 

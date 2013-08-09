@@ -1,14 +1,40 @@
 module Neo4j
   class Relationship
+
+    # @abstract
+    def start_node
+      raise 'not implemented'
+    end
+
+    # @abstract
+    def end_node
+      raise 'not implemented'
+    end
+
+    # @abstract
+    def del
+      raise 'not implemented'
+    end
+
+    # @abstract
+    def neo_id
+      raise 'not implemented'
+    end
+
+    # @abstract
+    def exist?
+      raise 'not implemented'
+    end
+
     class << self
-      def new(props=nil, db = Neo4j::Database.instance)
-        driver = Neo4j::Database.instance.driver_for(Neo4j::Relationship)
-        driver.create_relationship(props)
+      def create(props=nil, db = Neo4j::Database.instance)
+        # TODO
+        raise "todo"
       end
 
       def load(neo_id, db = Neo4j::Database.instance)
-        driver = db.driver_for(Neo4j::Relationship)
-        driver.load(neo_id)
+        # TODO
+        raise "todo"
       end
 
     end
