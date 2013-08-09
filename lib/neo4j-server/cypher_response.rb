@@ -9,7 +9,6 @@ module Neo4j::Server
 
     def first_data
       if uncommited?
-        puts "@DATA #{@data.inspect}"
         @data.first['row'].first
       else
         @data[0][0]
