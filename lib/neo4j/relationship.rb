@@ -1,6 +1,8 @@
 module Neo4j
   class Relationship
 
+    include Properties
+
     # @abstract
     def start_node
       raise 'not implemented'

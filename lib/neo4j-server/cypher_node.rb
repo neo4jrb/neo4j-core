@@ -15,14 +15,12 @@ module Neo4j::Server
       self
     end
 
-    def props
-      r = @db.query(self) { |node| node }
-      props = r.first_data['data']
-      props.keys.inject({}){|hash,key| hash[key.to_sym] = props[key]; hash}
-    end
-
     def create_rel(type, other_node, props = nil)
-      cypher_response = @db.query(self, other_node) { |start_node, end_node| create_path { start_node > rel(type).as(:r) > end_node }; :r }
+      if props
+        cypher_response = @db.query(self, other_node) { |start_node, end_node| create_path { start_node > rel(type, props).as(:r) > end_node }; :r }
+      else
+        cypher_response = @db.query(self, other_node) { |start_node, end_node| create_path { start_node > rel(type).as(:r) > end_node }; :r }
+      end
 
       node_data = cypher_response.first_data
 
@@ -30,9 +28,15 @@ module Neo4j::Server
         raise "not implemented"
       else
         url = node_data['self']
-        CypherRelationship.new(self).init_resource_data(node_data,url)
+        CypherRelationship.new(@db).init_resource_data(node_data,url)
       end
 
+    end
+
+    def props
+      r = @db.query(self) { |node| node }
+      props = r.first_data['data']
+      props.keys.inject({}){|hash,key| hash[key.to_sym] = props[key]; hash}
     end
 
     def remove_property(key)

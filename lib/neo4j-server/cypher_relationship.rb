@@ -38,5 +38,11 @@ module Neo4j::Server
       Neo4j::Node.load(id)
     end
 
+    def get_property(key)
+      id = neo_id
+      r = @db.query{rel(id)[key]}
+      r.first_data
+    end
+
   end
 end

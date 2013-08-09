@@ -13,34 +13,33 @@ module Neo4j::Server
     end
 
     def _query(cypher_query)
-      if @failure
-        # TODO what should we do ?
-        puts "Transaction failed, can't exec #{cypher_query}"
-      else
-        body = {statements: [statement: cypher_query]}
-        response = HTTParty.post(@exec_url, headers: resource_headers, body: body.to_json)
-        expect_response_code(response,200)
-        response
-      end
+      body = {statements: [statement: cypher_query]}
+      response = HTTParty.post(@exec_url, headers: resource_headers, body: body.to_json)
+      expect_response_code(response, 200)
+      response
     end
 
     def success
-
+      # this is need in the Java API
     end
 
     def failure
-      response = HTTParty.delete(@exec_url, headers: resource_headers)
       @failure = true
-      expect_response_code(response,200)
+    end
+
+    def failure?
+      !!@failure
     end
 
     def finish
       self.class.clear_current
-      unless @failure
+      if failure?
+        response = HTTParty.delete(@exec_url, headers: resource_headers)
+      else
         response = HTTParty.post(@commit_url, headers: resource_headers)
-        expect_response_code(response,200)
-        response
       end
+      expect_response_code(response,200)
+      response
     end
 
     def self.current=(tx)
