@@ -26,6 +26,12 @@ describe 'Neo4j::Server::CypherNode' do
       rel = node_a.create_rel(:best_friend, node_b, since: 2001)
       rel[:since].should == 2001
     end
+
+    it 'can set properties after relationship has been created' do
+      rel = node_a.create_rel(:best_friend, node_b)
+      rel[:since] = 2000
+      rel[:since].should == 2000
+    end
   end
 
   describe 'rels' do

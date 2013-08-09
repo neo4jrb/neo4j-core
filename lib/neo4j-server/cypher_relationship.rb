@@ -41,7 +41,20 @@ module Neo4j::Server
     def get_property(key)
       id = neo_id
       r = @db.query{rel(id)[key]}
+      expect_response_code(r.response, 200)
       r.first_data
+    end
+
+    def set_property(key,value)
+      id = neo_id
+      r = @db.query{rel(id)[key]=value}
+      expect_response_code(r.response, 200)
+    end
+
+    def remove_property(key)
+      id = neo_id
+      r = @db.query{rel(id)[key]=:NULL}
+      expect_response_code(r.response, 200)
     end
 
   end
