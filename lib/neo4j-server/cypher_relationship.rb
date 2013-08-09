@@ -57,5 +57,23 @@ module Neo4j::Server
       expect_response_code(r.response, 200)
     end
 
+    def del
+      id = neo_id
+      @db.query{rel(id).del}.raise_unless_response_code(200)
+    end
+
+    def exist?
+      id = neo_id
+      response = @db.query{rel(id)}
+
+      if (!response.error?)
+        return true
+      elsif (response.exception == 'BadInputException') # TODO see github issue neo4j/1061
+        return false
+      else
+        handle_response_error(response.response)
+      end
+    end
+
   end
 end
