@@ -1,7 +1,8 @@
 module Neo4j
   class Node
 
-    include Properties
+    include PropertyContainer
+    include EntityEquality
 
     # @abstract
     def create_rel(type, other_node, props = nil)

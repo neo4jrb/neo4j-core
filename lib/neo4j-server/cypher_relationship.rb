@@ -24,8 +24,17 @@ module Neo4j::Server
       @db = db
     end
 
+    def ==(o)
+      o.class == self.class && o.neo_id == neo_id
+    end
+    alias_method :eql?, :==
+
     def neo_id
       resource_url_id
+    end
+
+    def inspect
+      "CypherRelationship #{neo_id}, start #{resource_url_id(resource_url(:start))} end #{resource_url_id(resource_url(:end))} (#{object_id})"
     end
 
     def start_node

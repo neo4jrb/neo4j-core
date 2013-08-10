@@ -1,5 +1,5 @@
 module Neo4j
-  module Properties
+  module PropertyContainer
 
     # the valid values on a property, and arrays of those.
     VALID_PROPERTY_VALUE_CLASSES = Set.new([Array, NilClass, String, Float, TrueClass, FalseClass, Fixnum])

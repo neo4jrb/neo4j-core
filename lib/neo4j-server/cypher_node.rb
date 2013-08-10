@@ -10,6 +10,10 @@ module Neo4j::Server
       resource_url_id
     end
 
+    def inspect
+      "CypherNode #{neo_id} (#{object_id})"
+    end
+
     # TODO, needed by neo4j-cypher
     def _java_node
       self
@@ -66,6 +70,40 @@ module Neo4j::Server
       else
         handle_response_error(response.response)
       end
+    end
+
+    def rels(match={})
+      dir = match[:dir] || :both
+      cypher_rel = match[:type] ? ["r?:`#{match[:type]}`"] : ['r?']
+      between_id = match[:between] && match[:between].neo_id
+
+      case dir
+        when :outgoing
+          if between_id
+            r = @db.query(self) {|n| n.outgoing(cypher_rel, node(between_id)); :r}
+          else
+            r = @db.query(self) {|n| n.outgoing(cypher_rel); :r}
+          end
+        when :incoming
+          if between_id
+            r = @db.query(self) {|n| n.incoming(cypher_rel, node(between_id)); :r}
+          else
+            r = @db.query(self) {|n| n.incoming(cypher_rel); :r}
+          end
+        when :both
+          if between_id
+            r = @db.query(self) {|n| n.both(cypher_rel, node(between_id)); :r}
+          else
+            r = @db.query(self) {|n| n.both(cypher_rel); :r}
+          end
+        else
+          raise "illegal direction, allowed :outgoing, :incoming and :both for paramter :dir"
+      end
+
+      r.data.map do |rel|
+        next if rel[0].nil?
+        CypherRelationship.new(@db).init_resource_data(rel[0],rel[0]['self'])
+      end.compact
     end
 
   end

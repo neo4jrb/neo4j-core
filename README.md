@@ -37,6 +37,7 @@ Removed features:
 Changes:
 
 * `Neo4j::Node.create` now creates a node instead of `Neo4j::Node.new`
+* `Neo4j::Node#rels` different arguments, see below
 
 ### Neo4j-core specs
 
@@ -122,9 +123,36 @@ rel = n1.create_rel(:knows, n2, since: 1994)
 Finding relationships
 
 ```ruby
-rels = n1.rels(:outgoing, :know).to_a
-rel = n1.rel(:outgoing, :best_friend) # expect only one relationship
+# any type any direction any label
+n1.rels
+
+# Outgoing of one type:
+n1.rels(dir: :outgoing, type: :know).to_a
+
+# same but expects only one relationship
+n1.rel(dir: :outgoing, type: :best_friend)
+
+# several types
+n1.rels(types: [:knows, :friend])
+
+# label
+n1.rels(label: :rich)
+
+# matching several labels
+n1.rels(labels: [:rich, :poor])
+
+# outgoing between two nodes
+n1.rels(dir: :outgoing, between: n2)
 ```
+
+Returns nodes instead of relationships
+
+```ruby
+# same parameters as rels method
+n1.nodes(dir: outgoing)
+n1.node(dir: outgoing)
+```
+
 
 Delete relationship
 

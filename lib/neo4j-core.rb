@@ -8,7 +8,8 @@ require 'neo4j-core/property'
 require 'neo4j/exceptions'
 require 'neo4j/database'
 
-require 'neo4j/properties'
+require 'neo4j/property_container'
+require 'neo4j/entity_equality'
 require 'neo4j/node'
 
 require 'neo4j/relationship'

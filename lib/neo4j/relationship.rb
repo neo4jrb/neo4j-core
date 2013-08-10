@@ -1,7 +1,8 @@
 module Neo4j
   class Relationship
 
-    include Properties
+    include PropertyContainer
+    include EntityEquality
 
     # @abstract
     def start_node

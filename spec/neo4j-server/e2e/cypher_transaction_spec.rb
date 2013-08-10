@@ -56,6 +56,17 @@ describe Neo4j::Server::CypherTransaction do
     node['name'].should == 'andreas'
   end
 
+  it 'can continue operations after transaction is rolledback' do
+    node = Neo4j::Node.create(name: 'andreas')
+    Neo4j::Transaction.run do |tx|
+      tx.failure
+      node[:name] = 'foo'
+      node[:name].should == 'foo'
+    end
+    node['name'].should == 'andreas'
+
+  end
+
   it "can use Transaction block style" do
     node = Neo4j::Transaction.run do
       Neo4j::Node.create(name: 'andreas')
