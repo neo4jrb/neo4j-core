@@ -4,12 +4,16 @@ module Neo4j::Server
 
     def initialize(db, response, url)
       @db = db
-      data = JSON.parse(response.body)
+      data = JSON.parse(response.body) # TODO already done by HTTParty
       init_resource_data(data, url)
     end
 
     def neo_id
       resource_url_id
+    end
+
+    def inspect
+      "RestNode #{neo_id} (#{object_id})"
     end
 
     def add_label(*labels)
@@ -69,7 +73,21 @@ module Neo4j::Server
       nil
     end
 
-    # @private
+    def create_rel(type, other_node, props = nil)
+      payload = {to: other_node.resource_url, type: type}
+      payload[:data] = props if props
+      wrap_resource(@db, 'create_relationship', RestRelationship, nil, :post, payload.to_json)
+    end
+
+    def rels(match = nil)
+      url = resource_url('all_relationships')
+      response = HTTParty.get(url, headers: resource_headers)
+      expect_response_code(response, 200, "Can't find relationships")
+      response.map do |r|
+        RestRelationship.new(@db, r)
+      end
+    end
+
     def property_url(key)
       resource_url('property', key: key)
     end

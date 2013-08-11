@@ -12,31 +12,4 @@ describe Neo4j::Server::CypherNode do
 
   it_behaves_like "Neo4j::Node"
 
-  #describe "class methods" do
-  #
-  #  describe "new" do
-  #    it "creates a new node with a neo_id" do
-  #      node = Neo4j::Node.new
-  #      node.neo_id.should be_a(Fixnum)
-  #    end
-  #  end
-  #
-  #end
-  #
-  #describe "instance methods" do
-  #  let(:node) do
-  #    Neo4j::Node.new
-  #  end
-  #
-  #  describe '[] and []=' do
-  #    it 'sets a property' do
-  #      node['name'] = 'andreas'
-  #      node['name'].should == 'andreas'
-  #    end
-  #  end
-  #
-  #  describe 'rels' do
-  #    describe 'rels(:outgoing)'
-  #  end
-  #end
 end

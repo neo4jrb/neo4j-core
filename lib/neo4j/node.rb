@@ -6,13 +6,22 @@ module Neo4j
 
     # @abstract
     def create_rel(type, other_node, props = nil)
-
+      raise 'not implemented'
     end
 
+    # @abstract
+    def rels(spec = nil)
+      raise 'not implemented'
+    end
+
+    # @abstract
     def add_label(*labels)
+      raise 'not implemented'
     end
 
+    # @abstract
     def exist?
+      raise 'not implemented'
     end
 
     class << self

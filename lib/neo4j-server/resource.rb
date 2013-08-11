@@ -10,6 +10,7 @@ module Neo4j
 
       def init_resource_data(resource_data, resource_url)
         raise "No RESOURCE URL" unless resource_url
+        raise "Exception #{response['exception']}" if resource_data['exception']
         @resource_url = resource_url
         @resource_data = resource_data
         raise "expected @resource_data to be Hash got #{@resource_data.class}" unless @resource_data.respond_to?(:[])
@@ -19,7 +20,7 @@ module Neo4j
 
       def wrap_resource(db, rel, resource_class, args=nil, verb=:get, payload=nil)
         url = resource_url(rel, args)
-        response = HTTParty.send(verb, url, headers: {'Content-Type' => 'application/json'})
+        response = HTTParty.send(verb, url, headers: {'Content-Type' => 'application/json'}, body: payload)
         response.code == 404 ? nil : resource_class.new(db, response, url)
       end
 
