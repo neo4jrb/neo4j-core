@@ -29,6 +29,16 @@ module Neo4j
       raise 'not implemented'
     end
 
+    def other_node(node)
+      if node == start_node
+        return end_node
+      elsif node == end_node
+        return start_node
+      else
+        raise "Node #{node.inspect} is neither start nor end node"
+      end
+    end
+
     class << self
       def create(props=nil, db = Neo4j::Database.instance)
         # TODO

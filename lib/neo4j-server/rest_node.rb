@@ -80,11 +80,35 @@ module Neo4j::Server
     end
 
     def rels(match = nil)
-      url = resource_url('all_relationships')
+      dir = (match && match[:dir]) || :both
+
+      case dir
+        when :both
+          url = resource_url('all_relationships')
+        when :incoming
+          url = resource_url('incoming_relationships')
+        when :outgoing
+          url = resource_url('outgoing_relationships')
+        else
+          raise "Unknown direction #{dir}, allowed :both, :incoming or :outgoing"
+      end
+
+      type = match && match[:type]
+      if (type)
+        url += "/#{type}"
+      end
+
       response = HTTParty.get(url, headers: resource_headers)
       expect_response_code(response, 200, "Can't find relationships")
-      response.map do |r|
+      result = response.map do |r|
         RestRelationship.new(@db, r)
+      end
+
+      between = match && match[:between]
+      if between
+        result.find_all {|rel| rel.start_node == between || rel.end_node == between}
+      else
+        result
       end
     end
 
