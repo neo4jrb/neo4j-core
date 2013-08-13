@@ -56,6 +56,7 @@ module Neo4j::Embedded
     rescue Java::OrgNeo4jGraphdb.NotFoundException
       nil
     end
+    tx_methods :load_node
 
     # Checks if the given entity node or entity id (Neo4j::Node#neo_id) exists in the database.
     # @return [true, false] if exist
@@ -68,6 +69,7 @@ module Neo4j::Embedded
     rescue java.lang.IllegalStateException
       nil # the node has been deleted
     end
+    tx_methods :node_exist?
 
   end
 

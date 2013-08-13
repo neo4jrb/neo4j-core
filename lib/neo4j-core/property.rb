@@ -22,6 +22,7 @@ module Neo4j::Core::Property
     return nil unless has_property?(key.to_s)
     get_property(key.to_s)
   end
+  tx_methods :[]
 
   def neo_id
     get_id

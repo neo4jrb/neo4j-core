@@ -12,6 +12,7 @@ module Neo4j::Embedded
           rescue Java::OrgNeo4jGraphdb.NotFoundException
             nil
           end
+          tx_methods :exist?
 
           def props
             property_keys.inject({}) do |ret, key|
@@ -19,6 +20,7 @@ module Neo4j::Embedded
               ret
             end
           end
+          tx_methods :props
 
           def del
             # TODO _rels.each { |r| r.del }
