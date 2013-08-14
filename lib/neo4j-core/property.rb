@@ -24,6 +24,14 @@ module Neo4j::Core::Property
   end
   tx_methods :[]
 
+  def props
+    property_keys.inject({}) do |ret, key|
+      ret[key] = get_property(key)
+      ret
+    end
+  end
+  tx_methods :props
+
   def neo_id
     get_id
   end

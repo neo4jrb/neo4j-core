@@ -5,6 +5,7 @@ module Neo4j::Embedded
       def extend_java_class(java_clazz)
         java_clazz.class_eval do
           include Neo4j::Core::Property
+          include Neo4j::EntityEquality
           extend Neo4j::Core::TxMethods
 
           def exist?
@@ -14,21 +15,19 @@ module Neo4j::Embedded
           end
           tx_methods :exist?
 
-          def props
-            property_keys.inject({}) do |ret, key|
-              ret[key] = get_property(key)
-              ret
-            end
-          end
-          tx_methods :props
-
           def del
             # TODO _rels.each { |r| r.del }
             delete
             nil
           end
-
           tx_methods :del
+
+          def create_rel(type, other_node, props = nil)
+            rel = create_relationship_to(other_node, ToJava.type_to_java(type))
+            props.each_pair { |k, v| rel[k] = v } if props
+            rel
+          end
+          tx_methods :create_rel
 
           def class
             Neo4j::Node
