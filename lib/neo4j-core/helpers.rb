@@ -29,9 +29,9 @@ module Neo4j::Core
       methods.each do |method|
         tx_method = "#{method}_in_tx"
         send(:alias_method, tx_method, method)
-        send(:define_method, method) do |*args|
+        send(:define_method, method) do |*args, &block|
           db = args.last.respond_to?(:auto_commit?) ? args.last : Neo4j::Database.instance
-          Neo4j::Transaction.run(db.auto_commit?) { send(tx_method, *args) }
+          Neo4j::Transaction.run(db.auto_commit?) { send(tx_method, *args, &block) }
         end
       end
     end

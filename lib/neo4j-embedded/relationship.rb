@@ -20,6 +20,11 @@ module Neo4j::Embedded
           end
           tx_methods :start_node
 
+          def del
+            delete
+          end
+          tx_methods :del
+
           def end_node
             getEndNode
           end
