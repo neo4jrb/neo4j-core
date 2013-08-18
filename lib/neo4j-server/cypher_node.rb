@@ -20,11 +20,11 @@ module Neo4j::Server
     end
 
     def create_rel(type, other_node, props = nil)
-      if props
-        cypher_response = @db.query(self, other_node) { |start_node, end_node| create_path { start_node > rel(type, props).as(:r) > end_node }; :r }
-      else
-        cypher_response = @db.query(self, other_node) { |start_node, end_node| create_path { start_node > rel(type).as(:r) > end_node }; :r }
-      end
+      cypher_response = if props
+                          cypher_create_rels_with_props(other_node, type, props)
+                        else
+                          cypher_create_rels(other_node, type)
+                        end
 
       node_data = cypher_response.first_data
 
@@ -77,33 +77,69 @@ module Neo4j::Server
       cypher_rel = match[:type] ? ["r?:`#{match[:type]}`"] : ['r?']
       between_id = match[:between] && match[:between].neo_id
 
-      case dir
-        when :outgoing
-          if between_id
-            r = @db.query(self) {|n| n.outgoing(cypher_rel, node(between_id)); :r}
-          else
-            r = @db.query(self) {|n| n.outgoing(cypher_rel); :r}
-          end
-        when :incoming
-          if between_id
-            r = @db.query(self) {|n| n.incoming(cypher_rel, node(between_id)); :r}
-          else
-            r = @db.query(self) {|n| n.incoming(cypher_rel); :r}
-          end
-        when :both
-          if between_id
-            r = @db.query(self) {|n| n.both(cypher_rel, node(between_id)); :r}
-          else
-            r = @db.query(self) {|n| n.both(cypher_rel); :r}
-          end
-        else
-          raise "illegal direction, allowed :outgoing, :incoming and :both for paramter :dir"
-      end
+      r = cypher_rels(between_id, cypher_rel, dir)
 
       r.data.map do |rel|
         next if rel[0].nil?
         CypherRelationship.new(@db).init_resource_data(rel[0],rel[0]['self'])
       end.compact
+    end
+
+    def cypher_create_rels(other_node, type)
+      @db.query(self, other_node) { |start_node, end_node| create_path { start_node > rel(type).as(:r) > end_node }; :r }
+    end
+
+    def cypher_create_rels_with_props(other_node, type, props)
+      @db.query(self, other_node) { |start_node, end_node| create_path { start_node > rel(type, props).as(:r) > end_node }; :r }
+    end
+
+    def cypher_rels(between_id, cypher_rel, dir)
+      case dir
+        when :outgoing
+          if between_id
+            cypher_outgoing_rels_between(cypher_rel, between_id)
+          else
+            cypher_outgoing_rels(cypher_rel)
+          end
+        when :incoming
+          if between_id
+            cypher_incoming_rels_between(cypher_rel, between_id)
+          else
+            cypher_incoming_rels(cypher_rel)
+          end
+        when :both
+          if between_id
+            cypher_both_rels_between(cypher_rel, between_id)
+          else
+            cypher_both_rels(cypher_rel)
+          end
+        else
+          raise "illegal direction, allowed :outgoing, :incoming and :both for paramter :dir"
+      end
+    end
+
+    def cypher_outgoing_rels_between(cypher_rel, between_id)
+      @db.query(self) {|n| n.outgoing(cypher_rel, node(between_id)); :r}
+    end
+
+    def cypher_outgoing_rels(cypher_rel)
+      @db.query(self) {|n| n.outgoing(cypher_rel); :r}
+    end
+
+    def cypher_incoming_rels_between(cypher_rel, between_id)
+      @db.query(self) {|n| n.incoming(cypher_rel, node(between_id)); :r}
+    end
+
+    def cypher_incoming_rels(cypher_rel)
+      @db.query(self) {|n| n.incoming(cypher_rel); :r}
+    end
+
+    def cypher_both_rels_between(cypher_rel, between_id)
+      @db.query(self) {|n| n.both(cypher_rel, node(between_id)); :r}
+    end
+
+    def cypher_both_rels(cypher_rel)
+      @db.query(self) {|n| n.both(cypher_rel); :r}
     end
 
   end
