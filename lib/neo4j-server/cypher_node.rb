@@ -57,6 +57,16 @@ module Neo4j::Server
       r.first_data
     end
 
+    def labels
+      url = resource_url('labels')
+      response = HTTParty.send(:get, url, headers: resource_headers)
+      Enumerator.new do |yielder|
+        response.each do |data|
+          yielder << data
+        end
+      end
+    end
+
     def del
       @db.query(self) {|node| node.del}.raise_unless_response_code(200)
     end

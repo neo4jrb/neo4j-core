@@ -13,3 +13,10 @@ require 'neo4j-core'
 
 
 Dir["#{File.dirname(__FILE__)}/shared_examples/**/*.rb"].each { |f| require f }
+
+
+require "#{File.dirname(__FILE__)}/helpers"
+
+RSpec.configure do |c|
+  c.include Helpers
+end

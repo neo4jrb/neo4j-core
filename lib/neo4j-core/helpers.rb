@@ -12,15 +12,19 @@ module Neo4j::Core
     include Enumerable
     def initialize(iterable)
       @_iterable = iterable
+      puts "INIT #{iterable}"
     end
 
     def each
+      puts "TEST ----------"
       iterator = @_iterable.iterator
+      puts "GOT iterator: #{iterator.class}"
       while (iterator.has_next)
+        puts "NEXT"
         yield iterator.next
       end
     ensure
-      iterator.close
+      iterator && iterator.close
     end
   end
 

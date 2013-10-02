@@ -24,6 +24,11 @@ module Neo4j
       raise 'not implemented'
     end
 
+    # @abstract
+    def labels
+      raise 'not implemented'
+    end
+
     class << self
       def create(props=nil, *labels_or_db)
         db = Neo4j::Core::ArgumentHelper.db(labels_or_db)
@@ -38,6 +43,10 @@ module Neo4j
       # @return [true, false] if exist
       def exist?(entity_or_entity_id)
         db.node_exist?(neo_id)
+      end
+
+      def find_nodes(label, value=nil, db = Neo4j::Database.instance)
+        db.find_nodes(label, value)
       end
     end
   end

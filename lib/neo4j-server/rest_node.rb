@@ -5,8 +5,7 @@ module Neo4j::Server
 
     def initialize(db, response, url)
       @db = db
-      data = JSON.parse(response.body) # TODO already done by HTTParty
-      init_resource_data(data, url)
+      init_resource_data(response, url)
     end
 
     def inspect
@@ -19,7 +18,6 @@ module Neo4j::Server
       expect_response_code(response, 201)
       response
     end
-
 
     def create_rel(type, other_node, props = nil)
       payload = {to: other_node.resource_url, type: type}

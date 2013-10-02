@@ -13,32 +13,21 @@ describe Neo4j::Database do
   end
 
   it "can create a new and find it" do
-
-    pending
-# Create a new label with an index on property name
-    # TODO move
-    red = Neo4j::Embedded::Label.new(:red)
+    red = Neo4j::Label.create(:red)
     red.index(:name)
+    Neo4j::Node.create({name: 'andreas'}, red, :green)
+    red.find_nodes(:name, "andreas").map{|node| node[:name]}.should == ['andreas']
+  end
 
-# how should we specify constraints like unique ?
-#   red.index(:name).unique!
-#   red.index_unique(:name)
-#   red.index(:name, constraints: [:unique])
-#   red.index do
-#     property :name, contraints: :unique
-#   end
-
-
-# labels argument can be either, string, symbol or Label objects (anything responding to 'to_s')
-    node = Node.new({name: 'andreas'}, red, :green)
-    puts "Created node #{node[:name]} with labels #{node.labels.map(&:name).join(', ')}"
-
-# Find nodes using the label
-    red.find_nodes(:name, "andreas").each do |node|
-      # notice that we do not wrap the java object, but instead extend the Java class with ruby methods
-      # prints out: FOUND andreas class Java::OrgNeo4jKernelImplCore::NodeProxy with labels red, green
-      puts "FOUND #{node[:name]} class #{node.class} with labels #{node.labels.map(&:name).join(', ')}"
-    end
-
+  it "can use raw java api not wrapped" do
+    tx = @db.begin_tx
+    red = Neo4j::Label.create(:yellow)
+    red.index(:name)
+    Neo4j::Node.create({name: 'jimmy'}, :yellow)
+    iterator = red._find_nodes(:name, "jimmy")
+    iterator.to_a.map{|n| n[:name]}.should == ['jimmy']
+    iterator.close  # Don't forget !
+    tx.success
+    tx.finish
   end
 end

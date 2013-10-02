@@ -35,7 +35,13 @@ module Neo4j::Server
       else
         handle_response_error(cypher_response.response)
       end
-
     end
+
+    def create_label(name)
+      # TODO hard coded url, not available yet in server ???
+      url = "#{@data_url}schema/index/#{name}"
+      CypherLabel.new(self, url, name)
+    end
+
   end
 end

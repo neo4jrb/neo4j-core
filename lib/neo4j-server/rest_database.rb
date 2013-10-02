@@ -12,10 +12,10 @@ module Neo4j::Server
       response = HTTParty.get(endpoint_url)
       expect_response_code(response,200)
       root_data = JSON.parse(response.body)
-      data_url = root_data['data']
+      @data_url = root_data['data']
 
       # get the data resource
-      response = HTTParty.get(data_url)
+      response = HTTParty.get(@data_url)
       expect_response_code(response,200)
 
       data_resource = JSON.parse(response.body)
@@ -61,6 +61,12 @@ module Neo4j::Server
 
     def load_node(neo_id)
       wrap_resource(self, :node, RestNode, neo_id)
+    end
+
+    def create_label(name)
+      # TODO hard coded url, not available yet in server ???
+      url = "#{@data_url}schema/index/#{name}"
+      RestLabel.new(self, url, name)
     end
 
   end

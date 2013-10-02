@@ -3,7 +3,7 @@
 ## Version 3.0 Specification
 
 The neo4j-core version 3.0 uses the java Jar and/or the Neo4j Server version 2.0.0-M4+ . This mean that it should work on
-Ruby implementation and not just JRuby.
+Ruby implementation and not just JRuby !
 
 It uses the new label feature in order to do mappings between `Neo4j::Node` (java objects) and your own ruby classes.
 
@@ -24,7 +24,8 @@ gems will also work with server and embedded neo4j databases.
 
 New features:
 
-* neo4j-core should provide one API to both the Embedded database and the Neo4j Server
+* neo4j-core provides the same API to both the Embedded database and the Neo4j Server
+* Only very limited transaction is supported for the server
 * support for both Cypher and REST implementation of Neo4j::Node and Neo4j::Relationship API.
 * auto commit is default (neo4j-core)
 
@@ -33,35 +34,78 @@ Removed features:
 * auto start of the database (neo4j-core)
 * wrapping of Neo4j::Relationship java objects but there will be a work around (neo4j-wrapper)
 * traversals (the outgoing/incoming/both methods) moves to a new gem, neo4j-traversal.
+* rules will not be supported
+* versioning will not be supported, will Neo4j support it ?
+* multitenancy will not be supported, will Neo4j support it ?
+
+Status Unknown:
+* Limited support for lucene queries, fulltext search ???
+* Unclear: Specifying which index to drop works differently on REST/Cypher and Embedded, compound keys ?
 
 Changes:
 
 * `Neo4j::Node.create` now creates a node instead of `Neo4j::Node.new`
 * `Neo4j::Node#rels` different arguments, see below
+* Many Neo4j Java methods requires you to close an ResourceIterable as well as be in an transaction (even for read operations)
+In neo4j-core there are two version of these methods, one that create transaction and close the iterable for you and one raw
+where you have to do it yourself (which may give you be better performance).
 
-### Neo4j-core specs
+### Status 2013-10-01
+
+* Impl. CRUD operations on nodes/relationships
+* Impl. navigation of relationships
+* Started to impl Label support
+* Using 2.0.0-M4
+
+Investigate/TODO
+
+* How do I test using Neo4j Server on travis ?
+* How do I clean database between tests
+* Use ImpermanentDatabase
+
+
+## Neo4j-core API
 
 Example of index using labels and the auto commit.
 
 ```ruby
-  db = Neo4j::Database.new('hej', auto_commit: true)  # ?
+  # Using Neo4j Server Cypher Database
+  db = Neo4j::Server::CypherDatabase.new("http://localhost:7474")
+
+  # Using Neo4j Embedded Database
+  # db = Neo4j::Embedded::Database.new('hej', auto_commit: true)
+
   db.start
 
-  red = Label.new(:red)
-  red.index(:name)
+  red = Label.create(:red)
+  red.create_index(:name, :age)
 
   # notice, label argument can be both Label objects or string/symbols.
   node = Node.create({name: 'andreas'}, red, :green)
   puts "Created node #{node[:name]} with labels #{node.labels.map(&:name).join(', ')}"
 
-  # Find nodes using the label
-  red.find_nodes(:name, "andreas").each do |node|
-    puts "FOUND #{node[:name]} class #{node.class} with labels #{node.labels.map(&:name).join(', ')}"
-  end
+  # Find nodes using an index, returns an Enumerable
+  red.find_nodes(:name, "andreas")
+
+  # Find all nodes for this label, returns an Enumerable
+  red.find_nodes
+
+  # which labels does a node have ?
+  node.labels # [:red]
+
+  # which indexes do we have and on which properties
+  red.indexes.each {|i| puts "Index #{i.label} properties: #{i.properties}"}
+
+  # drop index, we assume it's the first one we want
+  red.indexes.first.drop(:name)
+
+  # which indices exist ?
+  # (compound keys will be supported)
+  red.indices # => [[:age]]
 ```
 
 All method prefixed with `_` gives direct access to the java layer/rest layer.
-
+Notice, the database starts with auto commit by default.
 
 ### Neo4j Embedded and Neo4j Server support
 
@@ -187,7 +231,7 @@ This is implemented something like this:
 
 Both implementation use the same E2E specs.
 
-### Neo4j-wrapper specs
+## Neo4j-wrapper API
 
 Example of mapping a Neo4j::Node java object to your own class.
 
@@ -234,7 +278,7 @@ Example of inheritance.
   end
 ```
 
-### Testing
+## Testing
 
 The testing will be using much more mocking.
 
@@ -262,7 +306,7 @@ The testing will be using much more mocking.
 
 * {Neo4j::Algo} Included algorithms, like shortest path
 
-### License
+## License
 * Neo4j.rb - MIT, see the LICENSE file http://github.com/andreasronge/neo4j-core/tree/master/LICENSE.
 * Lucene -  Apache, see http://lucene.apache.org/java/docs/features.html
 * \Neo4j - Dual free software/commercial license, see http://neo4j.org/

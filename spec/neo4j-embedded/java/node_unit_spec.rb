@@ -19,12 +19,11 @@ describe "org.neo4j.graphdb.Node" do
       tx.success
       tx.finish
       id = node.get_id
-#      puts "Created node #{node.inspect}, id #{id}"
-
+      tx = @graph_db.begin_tx
       node2 = @graph_db.get_node_by_id(id)
-#      puts "Loaded node2 #{node2}"
       label_names = node2.get_labels.map(&:name)
-#      puts "labels #{label_names.join(', ')}"
+      tx.success
+      tx.finish
       label_names.should =~ %w[foo bar]
     end
   end
@@ -32,6 +31,7 @@ describe "org.neo4j.graphdb.Node" do
   describe "getNodeById" do
     it "throws Java::OrgNeo4jGraphdb::NotFoundException if not found" do
       be_called = false
+      tx = @graph_db.begin_tx
       begin
         node = @graph_db.get_node_by_id(12344)
         node.should be_nil
@@ -39,7 +39,8 @@ describe "org.neo4j.graphdb.Node" do
         be_called = true
 #        puts "Got #{e.inspect} exception!"
       end
-
+      tx.success
+      tx.finish
       be_called.should be_true
     end
   end

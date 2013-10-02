@@ -71,6 +71,9 @@ module Neo4j::Embedded
     end
     tx_methods :node_exist?
 
+    def create_label(name)
+      Label.new(name)
+    end
   end
 
 end

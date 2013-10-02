@@ -127,9 +127,6 @@ share_examples_for "Neo4j::Node" do
           it 'finds relationship of any dir and any type' do
             rel_a = node_a.create_rel(:best_friend, node_b, age: 42)
             rel_b = node_b.create_rel(:work, node_a)
-            puts "NODE A #{node_a.inspect}, #{node_b.inspect}"
-            puts "REL_A #{rel_a.inspect}"
-            puts "REL_B #{rel_b.inspect}"
             node_a.rels.to_a.should =~ [rel_a, rel_b]
           end
 

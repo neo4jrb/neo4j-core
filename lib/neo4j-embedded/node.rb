@@ -35,6 +35,16 @@ module Neo4j::Embedded
           end
           tx_methods :exist?
 
+          def labels
+            iterator = _labels.iterator
+            iterator.to_a.map{|x| x.name.to_sym}
+          ensure
+            iterator && iterator.close
+          end
+          tx_methods :labels
+
+          alias_method :_labels, :getLabels
+
           def del
             # TODO _rels.each { |r| r.del }
             delete
