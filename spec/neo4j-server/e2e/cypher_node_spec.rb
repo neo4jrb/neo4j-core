@@ -14,7 +14,9 @@ describe Neo4j::Server::CypherNode do
 
   describe 'label' do
     it 'can create a node with a label' do
-      Neo4j::Node.create()
+      node = Neo4j::Node.create({}, :my_label, :label2)
+      node.labels.to_a.should include(:my_label, :label2)
+      node.labels.count.should == 2
     end
   end
 

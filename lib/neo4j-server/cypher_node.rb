@@ -59,11 +59,14 @@ module Neo4j::Server
     end
 
     def labels
+      r = @session.query(self) { |node| node }
+      @resource_data = r.first_data
       url = resource_url('labels')
       response = HTTParty.send(:get, url, headers: resource_headers)
+
       Enumerator.new do |yielder|
         response.each do |data|
-          yielder << data
+          yielder << data.to_sym
         end
       end
     end

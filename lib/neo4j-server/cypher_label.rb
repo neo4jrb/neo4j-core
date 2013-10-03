@@ -11,18 +11,17 @@ module Neo4j::Server
     def create_index(*properties)
       response = @session._query(@session.cypher_mapping.create_index(@name, properties))
       response.raise_error if response.error?
-      puts "CREATE INDEX #{properties.inspect}, #{response.inspect}"
     end
 
 
     def find_nodes(key=nil,value=nil)
       q = create_cypher_query(key,value)
       response = @session._query(q)
+      response.raise_error if response.error?
       return [] unless response.data
       Enumerator.new do |yielder|
         response.data.each do |data|
-          first_column = data[0]
-          yielder << CypherNode.new(self).init_resource_data(first_column,first_column['self'])
+          yielder << CypherNode.new(@sessopm, data[0])
         end
       end
     end
@@ -30,7 +29,7 @@ module Neo4j::Server
     def drop_index(*properties)
       properties.each do |property|
         response = @session._query(@session.cypher_mapping.drop_index(@name, property))
-        response.raise_error if response.error?
+        response.raise_error if response.error? && !response.error_msg.match(/No such INDEX ON/)
       end
     end
 
@@ -38,14 +37,14 @@ module Neo4j::Server
     def create_cypher_query(key,value)
       if (key)
         <<-CYPHER
-          MATCH n:`#{@name}`
+          MATCH (n:`#{@name}`)
           USING INDEX n:`#{@name}`(#{key})
           WHERE n.#{key} = '#{value}'
-          RETURN n
+          RETURN ID(n)
         CYPHER
       else
         <<-CYPHER
-          MATCH n:`#{@name}` RETURN n
+          MATCH (n:`#{@name}`) RETURN ID(n)
         CYPHER
       end
     end

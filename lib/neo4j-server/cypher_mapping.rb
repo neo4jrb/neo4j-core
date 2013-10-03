@@ -1,6 +1,6 @@
 module Neo4j::Server
   class CypherMapping
-    def create_node(props, *labels)
+    def create_node(props, labels)
       Neo4j::Cypher.query { node.new(props, *labels).neo_id }.to_s
     end
 

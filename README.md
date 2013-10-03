@@ -85,11 +85,11 @@ Using the Neo4j Embedded Database
   session.start
 ```
 
-When a session has been created it will be stored in the `Neo4j::Database` object.
+When a session has been created it will be stored in the `Neo4j::Session` object.
 Example, get the default session
 
 ```ruby
-session = Neo4j::Database.default_session
+session = Neo4j::Session.current
 ```
 
 The default session is used by all operation unless specified as the last argument.

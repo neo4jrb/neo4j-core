@@ -5,7 +5,7 @@ describe Neo4j::Server::CypherDatabase do
     Neo4j::Server::RestDatabase.any_instance.stub(:connect_to_server)
   end
 
-  let(:db) { Neo4j::Server::CypherDatabase.new('http://endpoint')}
+  let(:db) { Neo4j::Server::CypherDatabase.connect('http://endpoint')}
 
   let(:cypher_response) do
     double('cypher response', error?: false, first_data: [28])
