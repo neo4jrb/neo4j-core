@@ -9,7 +9,7 @@ require 'logger'
 #require 'neo4j-server'
 #require 'neo4j-embedded'
 require 'neo4j-core'
-#require 'neo4j-wrapper'
+require 'neo4j-wrapper'
 
 
 Dir["#{File.dirname(__FILE__)}/shared_examples/**/*.rb"].each { |f| require f }

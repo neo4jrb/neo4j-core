@@ -22,7 +22,7 @@ describe Neo4j::Wrapper::Initialize do
     end
   end
 
-  describe "new" do
+  describe "create" do
     before do
       db = mock("db", create_node: java_node)
       Neo4j::Core::ArgumentHelper.stub!(:db).and_return(db)
@@ -30,7 +30,7 @@ describe Neo4j::Wrapper::Initialize do
     end
 
     it "sets the _java_node/_java_entity" do
-      thing = thingClass.new
+      thing = thingClass.create
       thing._java_entity.should == java_node
       thing._java_node.should == java_node
     end
@@ -41,7 +41,7 @@ describe Neo4j::Wrapper::Initialize do
       db = mock("db", create_node: java_node)
 
       # when
-      thingClass.new(:a => 1)
+      thingClass.create(:a => 1)
     end
 
     it "calls the init_on_load method" do
@@ -52,7 +52,7 @@ describe Neo4j::Wrapper::Initialize do
           super
         end
       end
-      thing = clazz.new
+      thing = clazz.create
       thing._java_entity.should == java_node
       thing.foo.should == 1
     end
@@ -67,7 +67,7 @@ describe Neo4j::Wrapper::Initialize do
           super
         end
       end
-      thing = clazz.new(10,20)
+      thing = clazz.create(10,20)
       thing._java_entity.should == java_node
       thing.arg1.should == 10
       thing.arg2.should == 20

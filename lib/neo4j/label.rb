@@ -28,8 +28,8 @@ module Neo4j
     end
 
     class << self
-      def create(name, db = Neo4j::Database.instance)
-        db.create_label(name)
+      def create(name, session = Neo4j::Session.current)
+        session.create_label(name)
       end
     end
   end

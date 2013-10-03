@@ -3,11 +3,11 @@ require 'spec_helper'
 describe 'label' do
 
   before(:all) do
-    @db = Neo4j::Server::CypherDatabase.new("http://localhost:7474")
+    @session = Neo4j::Server::CypherDatabase.connect("http://localhost:7474")
   end
 
   after(:all) do
-    @db.unregister
+    @session.close
   end
 
   before(:each) do

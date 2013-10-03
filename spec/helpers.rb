@@ -4,6 +4,7 @@ module Helpers
     q = 'START n = node(*) MATCH n-[r?]-() WHERE ID(n)>0 DELETE n, r;'
     url = 'http://localhost:7474/db/data/cypher'
     response = HTTParty.post(url, headers: resource_headers, body: {query: q}.to_json)
+    puts "CLEAN DB #{response.inspect}"
     raise "can't delete database, #{response}" unless response.code == 200
   end
 

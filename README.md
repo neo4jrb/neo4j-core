@@ -68,30 +68,44 @@ Investigate/TODO
 
 Example of index using labels and the auto commit.
 
+
+### Creating a database session
+
+Using the Neo4j Server
 ```ruby
   # Using Neo4j Server Cypher Database
-  db = Neo4j::Server::CypherDatabase.new("http://localhost:7474")
+  session = Neo4j::Server::CypherDatabase.connect("http://localhost:7474")
+```
 
+Using the Neo4j Embedded Database
+
+```ruby
   # Using Neo4j Embedded Database
-  # db = Neo4j::Embedded::Database.new('hej', auto_commit: true)
+  session = Neo4j::Embedded::Database.connect('/folder/db', auto_commit: true)
+  session.start
+```
 
-  db.start
+When a session has been created it will be stored in the `Neo4j::Database` object.
+Example, get the default session
 
+```ruby
+session = Neo4j::Database.default_session
+```
+
+The default session is used by all operation unless specified as the last argument.
+For example create a node with a different session:
+
+```ruby
+my_session = Neo4j::Server::CypherDatabase.connect("http://localhost:7474")
+Neo4j::Node.create(name: 'kalle', my_session)
+```
+
+
+### Label and Index Support
+
+```ruby
   red = Label.create(:red)
   red.create_index(:name, :age)
-
-  # notice, label argument can be both Label objects or string/symbols.
-  node = Node.create({name: 'andreas'}, red, :green)
-  puts "Created node #{node[:name]} with labels #{node.labels.map(&:name).join(', ')}"
-
-  # Find nodes using an index, returns an Enumerable
-  red.find_nodes(:name, "andreas")
-
-  # Find all nodes for this label, returns an Enumerable
-  red.find_nodes
-
-  # which labels does a node have ?
-  node.labels # [:red]
 
   # which indexes do we have and on which properties
   red.indexes.each {|i| puts "Index #{i.label} properties: #{i.properties}"}
@@ -101,11 +115,57 @@ Example of index using labels and the auto commit.
 
   # which indices exist ?
   # (compound keys will be supported)
-  red.indices # => [[:age]]
+  red.indexes # => [[:age]]
+```
+
+### Creating Nodes
+
+```ruby
+  # notice, label argument can be both Label objects or string/symbols.
+  node = Node.create({name: 'andreas'}, red, :green)
+  puts "Created node #{node[:name]} with labels #{node.labels.map(&:name).join(', ')}"
+```
+
+
+### Finding Nodes
+
+```ruby
+  # Find nodes using an index, returns an Enumerable
+  red.find_nodes(:name, "andreas")
+
+  # Find all nodes for this label, returns an Enumerable
+  red.find_nodes
+
+  # which labels does a node have ?
+  node.labels # [:red]
 ```
 
 All method prefixed with `_` gives direct access to the java layer/rest layer.
 Notice, the database starts with auto commit by default.
+
+
+### Identity
+
+By default the identity for a node is the same as the native Neo4j id.
+You can specify your own identity of nodes.
+
+```ruby
+session = Neo4j::CypherDatabase.connect('URL')
+session.config.node_identity = '_my_id'
+```
+
+### Transactions
+
+By default each Neo4j operation is wrapped in an transaction.
+If you want to execute several operation in one operation you can use the `Neo4j::Transaction` class, example:
+
+```ruby
+Neo4j::Transaction.run do
+  n = Neo4j::Node.create(name: 'kalle')
+  n[:age] = 42
+end
+```
+
 
 ### Neo4j Embedded and Neo4j Server support
 
@@ -117,6 +177,7 @@ Using the Embedded database:
   # Notice, auto commit is by default enabled
   node = Neo4j::Node.create(name: 'foo')
 ```
+
 Using the Server database:
 
 ```ruby
@@ -139,18 +200,6 @@ Using the Server database with the cypher language:
   Neo4j::Transaction.run do
     node = Neo4j::Node.create(name: 'foo')
   end
-```
-
-The Neo4j::Database contains the reference to the default database used (Neo4j::Database.instance) which is the
-first database created. This is used for example when a database is not specified, e.g. `node[:name] = 'me'`
-It is also possible to use several databases at the same time, e.g.
-
-```ruby
-  db1 = Neo4j::Embedded::Database.new('location', auto_commit: true).start
-  node = Neo4j::Node.create(name: 'foo', db1)
-
-  db2 = Neo4j::Server::Database.new('http:://end.point', auto_commit: true).start
-  node = Neo4j::Node.create(name: 'foo', db2)
 ```
 
 ### Relationship

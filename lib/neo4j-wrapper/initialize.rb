@@ -68,12 +68,12 @@ module Neo4j::Wrapper::Initialize
     #
     # @param args typically a hash of properties, but could be anything which will be given to the init_on_create method
     # @return the object return from the super method
-    def new(*args)
+    def create(*args)
       # get the label
       db = Neo4j::Core::ArgumentHelper.db(args)
-      java_label = Neo4j::Label.to_java(labels) # label defined in Neo4j::Wrapper::Labels
-      node = db.create_node(java_label)
-      wrapped_node = super()
+      props = args[0] if args[0].is_a?(Hash)
+      node = db.create_node(props, labels)
+      wrapped_node = new()
 #          Neo4j::IdentityMap.add(node, wrapped_node)
       wrapped_node.init_on_load(node)
       wrapped_node.init_on_create(*args)

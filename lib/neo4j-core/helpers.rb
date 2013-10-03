@@ -3,8 +3,8 @@ module Neo4j::Core
 
   module ArgumentHelper
 
-    def self.db(args)
-      args.last.respond_to?(:create_node) ? args.pop : Neo4j::Database.instance
+    def self.session(args)
+      args.last.kind_of?(Neo4j::Session) ? args.pop : Neo4j::Session.current
     end
   end
 

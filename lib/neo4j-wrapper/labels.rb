@@ -38,11 +38,11 @@ module Neo4j
         end
 
         def labels
-          label_names.map{|label_name| Neo4j::Label.new(label_name)}
+          label_names.map{|label_name| Neo4j::Label.create(label_name)}
         end
 
         def label
-          @_label ||= Neo4j::Label.new(label_name)
+          @_label ||= Neo4j::Label.create(label_name)
         end
 
         def label_name

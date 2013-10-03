@@ -12,6 +12,7 @@ require 'neo4j/property_container'
 require 'neo4j/entity_equality'
 require 'neo4j/node'
 require 'neo4j/label'
+require 'neo4j/session'
 
 require 'neo4j/relationship'
 require 'neo4j/transaction'

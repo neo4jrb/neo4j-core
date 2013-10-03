@@ -31,22 +31,22 @@ module Neo4j
 
     class << self
       def create(props=nil, *labels_or_db)
-        db = Neo4j::Core::ArgumentHelper.db(labels_or_db)
-        db.create_node(props, labels_or_db)
+        session = Neo4j::Core::ArgumentHelper.session(labels_or_db)
+        session.create_node(props, labels_or_db)
       end
 
-      def load(neo_id, db = Neo4j::Database.instance)
-        db.load_node(neo_id)
+      def load(neo_id, session = Neo4j::Session.current)
+        session.load_node(neo_id)
       end
 
       # Checks if the given entity node or entity id (Neo4j::Node#neo_id) exists in the database.
       # @return [true, false] if exist
-      def exist?(entity_or_entity_id)
-        db.node_exist?(neo_id)
+      def exist?(entity_or_entity_id, session = Neo4j::Session.current)
+        session.node_exist?(neo_id)
       end
 
-      def find_nodes(label, value=nil, db = Neo4j::Database.instance)
-        db.find_nodes(label, value)
+      def find_nodes(label, value=nil, session = Neo4j::Session.current)
+        session.find_nodes(label, value)
       end
     end
   end

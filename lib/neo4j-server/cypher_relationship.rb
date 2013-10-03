@@ -77,10 +77,10 @@ module Neo4j::Server
 
       if (!response.error?)
         return true
-      elsif (response.exception == 'BadInputException') # TODO see github issue neo4j/1061
+      elsif (response.error_status == 'BadInputException') # TODO see github issue neo4j/1061
         return false
       else
-        handle_response_error(response.response)
+        response.raise_error
       end
     end
 

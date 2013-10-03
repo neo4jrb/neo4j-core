@@ -44,13 +44,14 @@ describe Neo4j::Wrapper::Labels do
 
     describe "index" do
       it "index using the Neo4j::Label object" do
+        pending
         clazz = Class.new do
           extend Neo4j::Wrapper::Labels::ClassMethods
           def self.to_s
             "MyClass"
           end
         end
-        clazz.should_receive(:)
+        clazz.should_receive(:fooo)
         clazz.index(:me)
 
       end

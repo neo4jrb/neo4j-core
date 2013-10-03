@@ -3,8 +3,8 @@ module Neo4j::Server
     include Neo4j::Server::Resource
     attr_reader :name
 
-    def initialize(db, url, name)
-      @db = db
+    def initialize(session, url, name)
+      @session = session
       @name = name
       @resource_url = url
     end

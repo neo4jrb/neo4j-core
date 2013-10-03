@@ -1,6 +1,16 @@
 module Neo4j::Server
   class CypherResponse
-    attr_reader :data, :columns, :error_msg, :exception, :exception_fullname, :response
+    attr_reader :data, :columns, :error_msg, :error_status, :error_code, :response
+
+    class ResponseError < StandardError
+      attr_reader :status, :code
+
+      def initialize(msg, status, code)
+        super(msg)
+        @status = status
+        @code = code
+      end
+    end
 
     def initialize(response, uncommited = false)
       @response = response
@@ -33,12 +43,17 @@ module Neo4j::Server
       self
     end
 
-    def set_error(error_msg, exception, exception_fullname)
+    def set_error(error_msg, error_status, error_core)
       @error = true
       @error_msg = error_msg
-      @exception = exception
-      @exception_fullname = exception_fullname
+      @error_status = error_status
+      @error_code = error_core
       self
+    end
+
+    def raise_error
+      raise "Tried to raise error without an error" unless @error
+      raise ResponseError.new(@error_msg, @error_status, @error_code)
     end
 
     def self.create_with_no_tx(response)

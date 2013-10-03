@@ -2,12 +2,13 @@ module Neo4j::Server
   class CypherNode < Neo4j::Node
     include Neo4j::Server::Resource
 
-    def initialize(db)
-      @db = db
+    def initialize(session, id)
+      @session = session
+      @id = id
     end
 
     def neo_id
-      resource_url_id
+      @id
     end
 
     def inspect
@@ -32,28 +33,28 @@ module Neo4j::Server
         raise "not implemented"
       else
         url = node_data['self']
-        CypherRelationship.new(@db).init_resource_data(node_data,url)
+        CypherRelationship.new(@session).init_resource_data(node_data,url)
       end
 
     end
 
     def props
-      r = @db.query(self) { |node| node }
+      r = @session.query(self) { |node| node }
       props = r.first_data['data']
       props.keys.inject({}){|hash,key| hash[key.to_sym] = props[key]; hash}
     end
 
     def remove_property(key)
-      @db.query(self) {|node| node[key]=:NULL}
+      @session.query(self) {|node| node[key]=:NULL}
     end
 
     def set_property(key,value)
-      @db.query(self) {|node| node[key]=value}
+      @session.query(self) {|node| node[key]=value}
       value
     end
 
     def get_property(key)
-      r = @db.query(self) {|node| node[key]}
+      r = @session.query(self) {|node| node[key]}
       r.first_data
     end
 
@@ -68,17 +69,17 @@ module Neo4j::Server
     end
 
     def del
-      @db.query(self) {|node| node.del}.raise_unless_response_code(200)
+      @session.query(self) {|node| node.del}.raise_unless_response_code(200)
     end
 
     def exist?
-      response = @db.query(self) {|node| node }
+      response = @session.query(self) {|node| node }
       if (!response.error?)
         return true
-      elsif (response.exception == 'EntityNotFoundException')
+      elsif (response.error_status == 'EntityNotFoundException')
         return false
       else
-        handle_response_error(response.response)
+        response.raise_error
       end
     end
 
@@ -91,16 +92,16 @@ module Neo4j::Server
 
       r.data.map do |rel|
         next if rel[0].nil?
-        CypherRelationship.new(@db).init_resource_data(rel[0],rel[0]['self'])
+        CypherRelationship.new(@session).init_resource_data(rel[0],rel[0]['self'])
       end.compact
     end
 
     def cypher_create_rels(other_node, type)
-      @db.query(self, other_node) { |start_node, end_node| create_path { start_node > rel(type).as(:r) > end_node }; :r }
+      @session.query(self, other_node) { |start_node, end_node| create_path { start_node > rel(type).as(:r) > end_node }; :r }
     end
 
     def cypher_create_rels_with_props(other_node, type, props)
-      @db.query(self, other_node) { |start_node, end_node| create_path { start_node > rel(type, props).as(:r) > end_node }; :r }
+      @session.query(self, other_node) { |start_node, end_node| create_path { start_node > rel(type, props).as(:r) > end_node }; :r }
     end
 
     def cypher_rels(between_id, cypher_rel, dir)
@@ -129,27 +130,27 @@ module Neo4j::Server
     end
 
     def cypher_outgoing_rels_between(cypher_rel, between_id)
-      @db.query(self) {|n| n.outgoing(cypher_rel, node(between_id)); :r}
+      @session.query(self) {|n| n.outgoing(cypher_rel, node(between_id)); :r}
     end
 
     def cypher_outgoing_rels(cypher_rel)
-      @db.query(self) {|n| n.outgoing(cypher_rel); :r}
+      @session.query(self) {|n| n.outgoing(cypher_rel); :r}
     end
 
     def cypher_incoming_rels_between(cypher_rel, between_id)
-      @db.query(self) {|n| n.incoming(cypher_rel, node(between_id)); :r}
+      @session.query(self) {|n| n.incoming(cypher_rel, node(between_id)); :r}
     end
 
     def cypher_incoming_rels(cypher_rel)
-      @db.query(self) {|n| n.incoming(cypher_rel); :r}
+      @session.query(self) {|n| n.incoming(cypher_rel); :r}
     end
 
     def cypher_both_rels_between(cypher_rel, between_id)
-      @db.query(self) {|n| n.both(cypher_rel, node(between_id)); :r}
+      @session.query(self) {|n| n.both(cypher_rel, node(between_id)); :r}
     end
 
     def cypher_both_rels(cypher_rel)
-      @db.query(self) {|n| n.both(cypher_rel); :r}
+      @session.query(self) {|n| n.both(cypher_rel); :r}
     end
 
   end

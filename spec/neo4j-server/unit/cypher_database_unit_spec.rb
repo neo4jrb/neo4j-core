@@ -7,35 +7,8 @@ describe Neo4j::Server::CypherDatabase do
 
   let(:db) { Neo4j::Server::CypherDatabase.new('http://endpoint')}
 
-  let(:create_node_cypher_json) do
-    JSON.parse <<-HERE
-      {
-       "columns" : [ "v1" ],
-       "data" : [ [ {
-         "outgoing_relationships" : "http://localhost:7474/db/data/node/1915/relationships/out",
-         "labels" : "http://localhost:7474/db/data/node/1915/labels",
-         "data" : {
-         },
-         "all_typed_relationships" : "http://localhost:7474/db/data/node/1915/relationships/all/{-list|&|types}",
-         "traverse" : "http://localhost:7474/db/data/node/1915/traverse/{returnType}",
-         "self" : "http://localhost:7474/db/data/node/1915",
-         "property" : "http://localhost:7474/db/data/node/1915/properties/{key}",
-         "outgoing_typed_relationships" : "http://localhost:7474/db/data/node/1915/relationships/out/{-list|&|types}",
-         "properties" : "http://localhost:7474/db/data/node/1915/properties",
-         "incoming_relationships" : "http://localhost:7474/db/data/node/1915/relationships/in",
-         "extensions" : {
-         },
-         "create_relationship" : "http://localhost:7474/db/data/node/1915/relationships",
-         "paged_traverse" : "http://localhost:7474/db/data/node/1915/paged/traverse/{returnType}{?pageSize,leaseTime}",
-         "all_relationships" : "http://localhost:7474/db/data/node/1915/relationships/all",
-         "incoming_typed_relationships" : "http://localhost:7474/db/data/node/1915/relationships/in/{-list|&|types}"
-       } ] ]
-     }
-    HERE
-  end
-
   let(:cypher_response) do
-    double('cypher response', error?: false, first_data: create_node_cypher_json['data'][0][0])
+    double('cypher response', error?: false, first_data: [28])
   end
 
   describe 'instance methods' do
@@ -73,6 +46,7 @@ describe Neo4j::Server::CypherDatabase do
 
       it "create a new transaction and stores it in thread local" do
         response = double('response', headers: {'location' => 'http://tx/42'}, code: 201, request: dummy_request)
+        response.should_receive(:[]).with('exception').and_return(nil)
         response.should_receive(:[]).with('commit').and_return('http://tx/42/commit')
         db.should_receive(:resource_url).with('transaction', nil).and_return('http://new.tx')
         HTTParty.should_receive(:post).with('http://new.tx', anything).and_return(response)
@@ -91,7 +65,7 @@ describe Neo4j::Server::CypherDatabase do
 
       it "create_node() generates 'CREATE (v1) RETURN v1'" do
         db.stub(:resource_url).and_return
-        db.should_receive(:_query).with("CREATE (v1) RETURN v1").and_return(cypher_response)
+        db.should_receive(:_query).with("CREATE (v1) RETURN ID(v1)").and_return(cypher_response)
         db.create_node
       end
 
