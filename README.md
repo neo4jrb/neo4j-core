@@ -25,9 +25,7 @@ gems will also work with server and embedded neo4j databases.
 New features:
 
 * neo4j-core provides the same API to both the Embedded database and the Neo4j Server
-* Only very limited transaction is supported for the server
-* support for both Cypher and REST implementation of Neo4j::Node and Neo4j::Relationship API.
-* auto commit is default (neo4j-core)
+* auto commit is each operation is now default (neo4j-core)
 
 Removed features:
 
@@ -38,10 +36,6 @@ Removed features:
 * versioning will not be supported, will Neo4j support it ?
 * multitenancy will not be supported, will Neo4j support it ?
 
-Status Unknown:
-* Limited support for lucene queries, fulltext search ???
-* Unclear: Specifying which index to drop works differently on REST/Cypher and Embedded, compound keys ?
-
 Changes:
 
 * `Neo4j::Node.create` now creates a node instead of `Neo4j::Node.new`
@@ -50,17 +44,20 @@ Changes:
 In neo4j-core there are two version of these methods, one that create transaction and close the iterable for you and one raw
 where you have to do it yourself (which may give you be better performance).
 
-### Status 2013-10-01
+Future (when Neo4j 2.1 is released)
+* Support for fulltext search
+* Compound keys in index
+
+### Status 2013-10-04
 
 * Impl. CRUD operations on nodes/relationships
 * Impl. navigation of relationships
-* Started to impl Label support
-* Using 2.0.0-M4
+* Indexing via label works
+* Using 2.0.0-M6
 
 Investigate/TODO
 
-* How do I test using Neo4j Server on travis ?
-* How do I clean database between tests
+* Run test on Travis with Neo4j Server - copy .travis file from neography
 * Use ImpermanentDatabase
 
 
@@ -105,9 +102,15 @@ Neo4j::Node.create(name: 'kalle', my_session)
 
 ```ruby
   red = Label.create(:red)
-  red.create_index(:name, :age)
+  red.create_index(:name) # compound keys will be supported in Neo4j 2.1
 
-  # which indexes do we have and on which properties
+  red.drop_index(:name)
+```
+
+TODO, Not working yet, no Cypher API - must use REST API
+
+```ruby
+  # which indexes do we have and on which properties,
   red.indexes.each {|i| puts "Index #{i.label} properties: #{i.properties}"}
 
   # drop index, we assume it's the first one we want
@@ -125,6 +128,8 @@ Neo4j::Node.create(name: 'kalle', my_session)
   node = Node.create({name: 'andreas'}, red, :green)
   puts "Created node #{node[:name]} with labels #{node.labels.map(&:name).join(', ')}"
 ```
+
+Notice, nodes will be indexed based on which labels they have.
 
 
 ### Finding Nodes
@@ -146,6 +151,7 @@ Notice, the database starts with auto commit by default.
 
 ### Identity
 
+NOT WORKING YET, TODO.
 By default the identity for a node is the same as the native Neo4j id.
 You can specify your own identity of nodes.
 
@@ -166,42 +172,6 @@ Neo4j::Transaction.run do
 end
 ```
 
-
-### Neo4j Embedded and Neo4j Server support
-
-Using the Embedded database:
-
-```ruby
-  db = Neo4j::Embedded::Database.new('db/location')
-  db.start
-  # Notice, auto commit is by default enabled
-  node = Neo4j::Node.create(name: 'foo')
-```
-
-Using the Server database:
-
-```ruby
-  Neo4j::Server::RestDatabase.new('http://localhost:7474/db/dat') # only auto commit is allowed
-  node = Neo4j::Node.create(name: 'foo')
-```
-
-Using the Server database with the cypher language:
-
-
-```ruby
-  db = Neo4j::Server::CypherDatabase.new('http://localhost:7474/db/dat')
-  db.start
-  node = Neo4j::Node.create(name: 'foo')
-
-  # With transactions
-  db = Neo4j::Server::CypherDatabase.new('http://localhost:7474/db/data', auto_commit: false)
-  db.start
-
-  Neo4j::Transaction.run do
-    node = Neo4j::Node.create(name: 'foo')
-  end
-```
-
 ### Relationship
 
 How to create a relationship between node n1 and node n2 with one property
@@ -211,7 +181,6 @@ n1 = Neo4j::Node.create
 n2 = Neo4j::Node.create
 rel = n1.create_rel(:knows, n2, since: 1994)
 ```
-
 
 Finding relationships
 
@@ -268,12 +237,13 @@ This is implemented something like this:
   class Neo4j::Node
     # YARD docs
     def [](key)
-      get_property(key) # abstract method - impl using either HTTP or Java API
+      # abstract method - impl using either HTTP or Java API
+      get_property(key,session=Neo4j::Session.current)
     end
 
 
-    def self.create(props, db=Neo4j::Database.instance)
-     db.create_node(props)
+    def self.create(props, session=Neo4j::Session.current)
+     session.create_node(props)
     end
   end
 ```
@@ -282,6 +252,7 @@ Both implementation use the same E2E specs.
 
 ## Neo4j-wrapper API
 
+TODO this is not implemented yet.
 Example of mapping a Neo4j::Node java object to your own class.
 
 ```ruby
@@ -337,7 +308,7 @@ The testing will be using much more mocking.
 * The `shared_examples` common specs for different types of databases
 
 
-== The public API
+## The public API
 
 * `Neo4j::Node` The Java Neo4j Node
 
