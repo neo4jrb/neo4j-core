@@ -2,7 +2,7 @@ require 'rake'
 #require 'rcov/rcovtask'
 require "bundler/gem_tasks"
 require 'rspec/core/rake_task'
-#FileList = Rake::FileList
+require 'neo4j/tasks'
 
 def jar_path
   spec = Gem::Specification.find_by_name("neo4j-community")

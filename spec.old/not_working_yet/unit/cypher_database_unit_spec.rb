@@ -1,11 +1,7 @@
 require 'spec_helper'
 
 describe Neo4j::Server::CypherDatabase do
-  before do
-    Neo4j::Server::RestDatabase.any_instance.stub(:connect_to_server)
-  end
-
-  let(:db) { Neo4j::Server::CypherDatabase.connect('http://endpoint')}
+  let(:session) { Neo4j::Server::CypherSession.new}
 
   let(:cypher_response) do
     double('cypher response', error?: false, first_data: [28])
@@ -15,21 +11,21 @@ describe Neo4j::Server::CypherDatabase do
 
     describe 'load_node' do
       it "generates 'START v0 = node(1915); RETURN v0'" do
-        db.should_receive(:_query).with("START v1=node(1915) RETURN v1").and_return(cypher_response)
-        node = db.load_node(1915)
+        session.should_receive(:_query).with("START v1=node(1915) RETURN v1").and_return(cypher_response)
+        node = session.load_node(1915)
         node.neo_id.should == 1915
       end
 
       it "returns nil if EntityNotFoundException" do
         r = double('cypher response', error?: true, exception: 'EntityNotFoundException')
-        db.should_receive(:_query).with("START v1=node(1915) RETURN v1").and_return(r)
-        db.load_node(1915).should be_nil
+        session.should_receive(:_query).with("START v1=node(1915) RETURN v1").and_return(r)
+        session.load_node(1915).should be_nil
       end
 
       it "raise an exception if there is an error but not an EntityNotFoundException exception" do
         r = double('cypher response', error?: true, exception: 'SomeError', response: double("response").as_null_object)
-        db.should_receive(:_query).with("START v1=node(1915) RETURN v1").and_return(r)
-        expect{db.load_node(1915)}.to raise_error(Neo4j::Server::Resource::ServerException)
+        session.should_receive(:_query).with("START v1=node(1915) RETURN v1").and_return(r)
+        expect{session.load_node(1915)}.to raise_error(Neo4j::Server::Resource::ServerException)
       end
     end
 
@@ -48,9 +44,9 @@ describe Neo4j::Server::CypherDatabase do
         response = double('response', headers: {'location' => 'http://tx/42'}, code: 201, request: dummy_request)
         response.should_receive(:[]).with('exception').and_return(nil)
         response.should_receive(:[]).with('commit').and_return('http://tx/42/commit')
-        db.should_receive(:resource_url).with('transaction', nil).and_return('http://new.tx')
+        session.should_receive(:resource_url).with('transaction', nil).and_return('http://new.tx')
         HTTParty.should_receive(:post).with('http://new.tx', anything).and_return(response)
-        tx = db.begin_tx
+        tx = session.begin_tx
         tx.commit_url.should == 'http://tx/42/commit'
         tx.exec_url.should == 'http://tx/42'
         Thread.current[:neo4j_curr_tx].should == tx
@@ -60,27 +56,27 @@ describe Neo4j::Server::CypherDatabase do
     describe 'create_node' do
 
       before do
-        db.stub(:resource_url).and_return("http://resource_url")
+        session.stub(:resource_url).and_return("http://resource_url")
       end
 
       it "create_node() generates 'CREATE (v1) RETURN v1'" do
-        db.stub(:resource_url).and_return
-        db.should_receive(:_query).with("CREATE (v1) RETURN ID(v1)").and_return(cypher_response)
-        db.create_node
+        session.stub(:resource_url).and_return
+        session.should_receive(:_query).with("CREATE (v1) RETURN ID(v1)").and_return(cypher_response)
+        session.create_node
       end
 
       it 'create_node(name: "jimmy") generates ' do
-        db.should_receive(:_query).with("CREATE (v1 {name : 'jimmy'}) RETURN v1").and_return(cypher_response)
-        db.create_node(name: 'jimmy')
+        session.should_receive(:_query).with("CREATE (v1 {name : 'jimmy'}) RETURN v1").and_return(cypher_response)
+        session.create_node(name: 'jimmy')
       end
 
       it 'create_node({}, [:person])' do
-        db.should_receive(:_query).with("CREATE (v1:`person`) RETURN v1").and_return(cypher_response)
-        db.create_node({}, [:person])
+        session.should_receive(:_query).with("CREATE (v1:`person`) RETURN v1").and_return(cypher_response)
+        session.create_node({}, [:person])
       end
 
       it "initialize a CypherNode instance" do
-        db.should_receive(:_query).with("CREATE (v1) RETURN v1").and_return(cypher_response)
+        session.should_receive(:_query).with("CREATE (v1) RETURN v1").and_return(cypher_response)
         n = double("cypher node")
         Neo4j::Server::CypherNode.should_receive(:new).and_return(n)
         n.should_receive(:init_resource_data).with  do |node_data, url|
@@ -88,7 +84,7 @@ describe Neo4j::Server::CypherDatabase do
           url.should == 'http://localhost:7474/db/data/node/1915'
         end
 
-        db.create_node
+        session.create_node
       end
     end
 

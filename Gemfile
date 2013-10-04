@@ -9,6 +9,7 @@ gem 'neo4j-cypher', :path => '../neo4j-cypher'
 #gem 'neo4j-enterprise', '>= 1.8.1', '< 2.0', :require => false
 
 group 'development' do
+  gem 'os'
 #  gem 'pry'
 end
 

@@ -5,7 +5,6 @@ module Neo4j::Server
       include Resource
 
       def connect(endpoint_url)
-        # get the root resource
         response = HTTParty.get(endpoint_url)
         expect_response_code(response,200)
         root_data = JSON.parse(response.body)

@@ -1,4 +1,24 @@
-# Neo4j-core/Neo4j-wrapper 3.0 DRAFT
+# Neo4j-core
+
+
+## Installation
+
+
+### Usage from Neo4j Server
+
+You need to install the Neo4j server. This can be done by included Rake file.
+
+Example
+
+```
+rake neo4j:install[community-2.0.0,M05]
+rake neo4j:start
+```
+
+### Usage from Neo4j Embedded
+
+The Gemfile contains references to Neo4j Java libraries. Nothing is needed to be installed.
+
 
 ## Version 3.0 Specification
 

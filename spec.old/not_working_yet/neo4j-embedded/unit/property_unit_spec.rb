@@ -8,16 +8,16 @@ describe Neo4j::Core::Property do
     clazz.new
   end
 
-  let(:mock_db) do
-    double('mock db', auto_commit?: false)
+  let(:mock_session) do
+    double('mock session')
   end
 
   before do
-    Neo4j::Database.register_instance(mock_db)
+    Neo4j::Session.register(mock_session)
   end
 
   after do
-    Neo4j::Database.unregister_instance(mock_db)
+    Neo4j::Session.unregister(mock_session)
   end
 
   describe '[]=' do

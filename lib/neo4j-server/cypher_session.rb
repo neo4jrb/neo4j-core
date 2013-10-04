@@ -53,14 +53,15 @@ module Neo4j::Server
       _query(q)
     end
 
-    def _query(q, params={})
+    def _query(q, params=nil)
       curr_tx = Neo4j::Transaction.current
       if (curr_tx)
-        raise "Params not supported" unless params.empty? # TODO
+        raise "Params not supported" if params # TODO
         curr_tx._query(q)
       else
         url = resource_url('cypher')
-        response = HTTParty.post(url, headers: resource_headers, body: {query: q}.to_json)
+        q = params ? {query: q} : {query: q, params: params}
+        response = HTTParty.post(url, headers: resource_headers, body: q.to_json)
         CypherResponse.create_with_no_tx(response)
       end
     end

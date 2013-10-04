@@ -1,8 +1,4 @@
+script: "bundle exec rake neo4j:install['enterprise','1.8.M07'] neo4j:start spec --trace"
 language: ruby
-before_install:
-  - gem update --system 1.8.24
-  - gem --version
-bundler_args: --without development
 rvm:
-  - jruby-18mode
-  - jruby-19mode
+  - 1.9.3
