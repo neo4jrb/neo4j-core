@@ -27,7 +27,4 @@ task 'build-java' do
   END
 end
 
-task 'bla' do
-  puts "GEM LIB #{gem_lib}"
-end
 task :default => 'spec'
