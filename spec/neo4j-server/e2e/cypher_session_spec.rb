@@ -47,6 +47,9 @@ module Neo4j::Server
 
       it "allows you to specify parameters" do
         result = @session._query("START n=node({myparam}) RETURN ID(n)", myparam: 0)
+        result.data.should == [[0]]
+        result.columns.should == ['ID(n)']
+        result.error?.should be_false
       end
 
       it 'returns error codes if not a valid cypher query' do

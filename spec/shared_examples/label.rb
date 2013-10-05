@@ -6,6 +6,50 @@ share_examples_for "Neo4j::Label" do
         red.name.should == :red
       end
     end
+
+
+    describe 'find_all_nodes' do
+      before(:all) do
+        @red1 = Neo4j::Node.create({}, :red)
+        @red2 = Neo4j::Node.create({}, :red)
+        @green = Neo4j::Node.create({}, :green)
+      end
+
+      it 'returns all nodes with that label' do
+        result = Neo4j::Label.find_all_nodes(:red)
+        result.count.should == 2
+        result.should include(@red1, @red2)
+      end
+    end
+
+    describe 'find_nodes' do
+      before(:all) do
+        # create label stuff with one index on property colour
+        stuff = Neo4j::Label.create(:stuff)
+        stuff.drop_index(:colour) # just in case
+        stuff.create_index(:colour)
+
+        @red = Neo4j::Node.create({colour: 'red', name: 'r'}, :stuff)
+        @green = Neo4j::Node.create({colour: 'green', name: 'g'}, :stuff)
+      end
+
+      it 'finds nodes using an index' do
+        result = Neo4j::Label.find_nodes(:stuff, :colour, 'red')
+        result.count.should == 1
+        result.should include(@red)
+      end
+
+
+      it "does not find it if it does not exist" do
+        result = Neo4j::Label.find_nodes(:stuff, :colour, 'black')
+        result.count.should == 0
+      end
+
+      it "raises an exception if there is no index on the property" do
+        expect{Neo4j::Label.find_nodes(:stuff, :name, 'r')}.to raise_error
+      end
+    end
+
   end
 
   describe 'instance methods' do
@@ -38,48 +82,6 @@ share_examples_for "Neo4j::Label" do
         people.drop_index(:foo)
 #        people.indexes.should == [[:name]]
         people.drop_index(:name)
-      end
-    end
-
-    describe 'find_nodes' do
-      it 'find can find all nodes for a label' do
-        stuff = Neo4j::Label.create(:stuff)
-        red = Neo4j::Node.create({colour: 'red'}, :stuff)
-        green = Neo4j::Node.create({colour: 'green'}, :stuff)
-
-        result = stuff.find_nodes
-        result.count.should == 2
-        result.should include(red, green)
-      end
-
-      it 'find can find nodes using an index' do
-        stuff = Neo4j::Label.create(:stuff2)
-        stuff.drop_index(:colour) # just in case
-        stuff.create_index(:colour)
-        red = Neo4j::Node.create({colour: 'red'}, :stuff2)
-        green = Neo4j::Node.create({colour: 'green'}, :stuff2)
-
-        result = stuff.find_nodes(:colour, 'red')
-        result.count.should == 1
-        result.should include(red)
-      end
-
-
-      it "does not find it if it does not exist" do
-        stuff = Neo4j::Label.create(:stuff3)
-        stuff.drop_index(:colour) # just in case
-        stuff.create_index(:colour)
-        result = stuff.find_nodes(:colour, 'red')
-        result.count.should == 0
-      end
-
-      it "can find nodes without index" do
-        pending "server and embedded get different results"
-        stuff = Neo4j::Label.create(:stuff4)
-        stuff.drop_index(:colour) # just in case
-        red = Neo4j::Node.create({colour: 'red'}, :stuff4)
-        result = stuff.find_nodes(:colour, 'red')
-        result.should include(red)
       end
     end
   end

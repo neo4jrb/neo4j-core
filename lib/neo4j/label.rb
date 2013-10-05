@@ -7,11 +7,6 @@ module Neo4j
     end
 
     # @abstract
-    def find_nodes(key=nil, value=nil)
-      raise 'not implemented'
-    end
-
-    # @abstract
     def create_index(*properties)
       raise 'not implemented'
     end
@@ -31,6 +26,15 @@ module Neo4j
       def create(name, session = Neo4j::Session.current)
         session.create_label(name)
       end
+
+      def find_all_nodes(label_name, session = Neo4j::Session.current)
+        session.find_all_nodes(label_name)
+      end
+
+      def find_nodes(label_name, key,value, session = Neo4j::Session.current)
+        session.find_nodes(label_name, key,value)
+      end
+
     end
   end
 

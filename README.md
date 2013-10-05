@@ -120,11 +120,19 @@ Neo4j::Node.create(name: 'kalle', my_session)
 
 ### Label and Index Support
 
+Create a node with an label `person` and one property
 ```ruby
-  red = Label.create(:red)
-  red.create_index(:name) # compound keys will be supported in Neo4j 2.1
+Neo4j::Node.create({name: 'kalle'}, :person)
+```
 
-  red.drop_index(:name)
+Add index on a label
+
+```ruby
+  person = Label.create(:person)
+  person.create_index(:name) # compound keys will be supported in Neo4j 2.1
+
+  # drop index
+  person.drop_index(:name)
 ```
 
 TODO, Not working yet, no Cypher API - must use REST API

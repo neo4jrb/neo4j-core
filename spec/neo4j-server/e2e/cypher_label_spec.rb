@@ -10,7 +10,7 @@ describe 'label' do
     @session.close
   end
 
-  before(:each) do
+  before(:all) do
     clean_server_db
   end
 

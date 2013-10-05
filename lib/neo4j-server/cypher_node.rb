@@ -1,6 +1,8 @@
 module Neo4j::Server
   class CypherNode < Neo4j::Node
     include Neo4j::Server::Resource
+    extend Forwardable
+    def_delegator :@session, :query_cypher_for
 
     def initialize(session, id)
       @session = session
@@ -39,22 +41,21 @@ module Neo4j::Server
     end
 
     def props
-      r = @session.query(self) { |node| node }
-      props = r.first_data['data']
+      props = query_cypher_for(:load_node, neo_id).first_data['data']
       props.keys.inject({}){|hash,key| hash[key.to_sym] = props[key]; hash}
     end
 
     def remove_property(key)
-      @session.query(self) {|node| node[key]=:NULL}
+      query_cypher_for(:remove_property, neo_id, key)
     end
 
     def set_property(key,value)
-      @session.query(self) {|node| node[key]=value}
+      query_cypher_for(:set_property, neo_id, key, value)
       value
     end
 
     def get_property(key)
-      r = @session.query(self) {|node| node[key]}
+      r = query_cypher_for(:get_property, neo_id, key)
       r.first_data
     end
 
@@ -72,7 +73,7 @@ module Neo4j::Server
     end
 
     def del
-      @session.query(self) {|node| node.del}.raise_unless_response_code(200)
+      query_cypher_for(:delete_node, neo_id).raise_unless_response_code(200)
     end
 
     def exist?
