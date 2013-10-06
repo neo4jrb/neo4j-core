@@ -1,5 +1,5 @@
 module Neo4j::Embedded
-  class Label
+  class EmbeddedLabel
     extend Neo4j::Core::TxMethods
     attr_reader :name
     JAVA_CLASS = Java::OrgNeo4jGraphdb::DynamicLabel

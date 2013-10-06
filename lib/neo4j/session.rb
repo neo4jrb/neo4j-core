@@ -8,6 +8,28 @@ module Neo4j
       self.class.unregister(self)
     end
 
+    # Only for embedded database
+    # @abstract
+    def start
+      raise "not impl."
+    end
+
+    # Only for embedded database
+    # @abstract
+    def shutdown
+      raise "not impl."
+    end
+
+    # Only for embedded database
+    # @abstract
+    def running
+      raise "not impl."
+    end
+
+    def auto_commit?
+      true # TODO
+    end
+
     # @abstract
     def begin_tx
       raise "not impl."

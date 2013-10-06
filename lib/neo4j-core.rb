@@ -18,6 +18,14 @@ require 'neo4j/relationship'
 require 'neo4j/transaction'
 
 require 'neo4j-server'
-require 'neo4j-embedded' if RUBY_PLATFORM == 'java'
+
+if RUBY_PLATFORM == 'java'
+  require 'neo4j-embedded'
+else
+  # just for the tests
+  module Neo4j::Embedded
+  end
+end
+
 
 #require 'neo4j-wrapper' # TODO should be move to a separate gem

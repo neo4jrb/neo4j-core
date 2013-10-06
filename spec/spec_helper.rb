@@ -20,3 +20,21 @@ require "#{File.dirname(__FILE__)}/helpers"
 RSpec.configure do |c|
   c.include Helpers
 end
+
+
+RSpec.configure do |c|
+
+  c.before(:each, api: :embedded) do
+    Neo4j::Embedded::EmbeddedDatabase.stub(:create_db) do
+      Java::OrgNeo4jTest::TestGraphDatabaseFactory.new.newImpermanentDatabase()
+    end
+  end
+
+  c.exclusion_filter = {
+      :api => lambda do |ed|
+        RUBY_PLATFORM != 'java' && ed == :embedded
+      end
+  }
+
+end
+

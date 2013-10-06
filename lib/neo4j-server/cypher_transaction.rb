@@ -52,10 +52,8 @@ module Neo4j::Server
     def finish
       Neo4j::Transaction.unregister(self)
       if failure?
-        puts "FAILURE"
         response = HTTParty.delete(@exec_url, headers: resource_headers)
       else
-        puts "COMMIT #{@commit_url}"
         response = HTTParty.post(@commit_url, headers: resource_headers)
       end
       expect_response_code(response,200)
