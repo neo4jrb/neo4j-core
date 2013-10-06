@@ -70,7 +70,7 @@ module Neo4j::Server
       describe 'exist?' do
         it "generates correct cypher" do
           cypher_response = double("cypher response", error?: false)
-          session.should_receive(:_query).with('START v1=node(42) RETURN v1').and_return(cypher_response)
+          session.should_receive(:_query).with('START v1=node(42) RETURN ID(v1)').and_return(cypher_response)
           node = CypherNode.new(session, 42)
           node.init_resource_data('data', 'http://bla/42')
 
@@ -90,14 +90,14 @@ module Neo4j::Server
           node = CypherNode.new(session, 42)
           response = double('response', error?: true, error_status: 'Unknown')
           response.should_receive(:raise_error)
-          session.should_receive(:_query).with('START v1=node(42) RETURN v1').and_return(response)
+          session.should_receive(:_query).with('START v1=node(42) RETURN ID(v1)').and_return(response)
           node.exist?
         end
 
         it "returns false if HTTP 400 is received with EntityNotFoundException exception" do
           node = CypherNode.new(session, 42)
           response = double("response", error?: true, error_status: 'EntityNotFoundException')
-          session.should_receive(:_query).with('START v1=node(42) RETURN v1').and_return(response)
+          session.should_receive(:_query).with('START v1=node(42) RETURN ID(v1)').and_return(response)
           node.exist?.should be_false
         end
       end

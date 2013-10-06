@@ -24,20 +24,13 @@ module Neo4j::Server
 
     def create_rel(type, other_node, props = nil)
       cypher_response = if props
-                          cypher_create_rels_with_props(other_node, type, props)
+                          query_cypher_for(:create_rels_with_props, neo_id, other_node.neo_id, type, props)
                         else
-                          cypher_create_rels(other_node, type)
+                          query_cypher_for(:create_rels, neo_id, other_node.neo_id, type)
                         end
 
-      node_data = cypher_response.first_data
-
-      if cypher_response.uncommited?
-        raise "not implemented"
-      else
-        url = node_data['self']
-        CypherRelationship.new(@session).init_resource_data(node_data,url)
-      end
-
+      id = cypher_response.first_data
+      CypherRelationship.new(@session, id)
     end
 
     def props
@@ -61,7 +54,7 @@ module Neo4j::Server
 
     def labels
       r = @session.query(self) { |node| node }
-      @resource_data = r.first_data
+      @resource_data = r.first_data  # TODO optitimize !
       url = resource_url('labels')
       response = HTTParty.send(:get, url, headers: resource_headers)
 
@@ -77,7 +70,7 @@ module Neo4j::Server
     end
 
     def exist?
-      response = @session.query(self) {|node| node }
+      response = query_cypher_for(:get_same_node_id, neo_id)
       if (!response.error?)
         return true
       elsif (response.error_status == 'EntityNotFoundException')
@@ -95,17 +88,10 @@ module Neo4j::Server
       r = cypher_rels(between_id, cypher_rel, dir)
 
       r.data.map do |rel|
-        next if rel[0].nil?
-        CypherRelationship.new(@session).init_resource_data(rel[0],rel[0]['self'])
+        next if r.uncommited? ? rel['row'].first.nil? : rel.first.nil?
+        id = r.uncommited? ? rel['row'].first : rel.first
+        CypherRelationship.new(@session, id)
       end.compact
-    end
-
-    def cypher_create_rels(other_node, type)
-      @session.query(self, other_node) { |start_node, end_node| create_path { start_node > rel(type).as(:r) > end_node }; :r }
-    end
-
-    def cypher_create_rels_with_props(other_node, type, props)
-      @session.query(self, other_node) { |start_node, end_node| create_path { start_node > rel(type, props).as(:r) > end_node }; :r }
     end
 
     def cypher_rels(between_id, cypher_rel, dir)
@@ -134,27 +120,27 @@ module Neo4j::Server
     end
 
     def cypher_outgoing_rels_between(cypher_rel, between_id)
-      @session.query(self) {|n| n.outgoing(cypher_rel, node(between_id)); :r}
+      @session.query(self) {|n| n.outgoing(cypher_rel, node(between_id)); rel.as(:r).neo_id}
     end
 
     def cypher_outgoing_rels(cypher_rel)
-      @session.query(self) {|n| n.outgoing(cypher_rel); :r}
+      @session.query(self) {|n| n.outgoing(cypher_rel); rel.as(:r).neo_id}
     end
 
     def cypher_incoming_rels_between(cypher_rel, between_id)
-      @session.query(self) {|n| n.incoming(cypher_rel, node(between_id)); :r}
+      @session.query(self) {|n| n.incoming(cypher_rel, node(between_id)); rel.as(:r).neo_id}
     end
 
     def cypher_incoming_rels(cypher_rel)
-      @session.query(self) {|n| n.incoming(cypher_rel); :r}
+      @session.query(self) {|n| n.incoming(cypher_rel); rel.as(:r).neo_id}
     end
 
     def cypher_both_rels_between(cypher_rel, between_id)
-      @session.query(self) {|n| n.both(cypher_rel, node(between_id)); :r}
+      @session.query(self) {|n| n.both(cypher_rel, node(between_id)); rel.as(:r).neo_id}
     end
 
     def cypher_both_rels(cypher_rel)
-      @session.query(self) {|n| n.both(cypher_rel); :r}
+      @session.query(self) {|n| n.both(cypher_rel); rel.as(:r).neo_id}
     end
 
   end

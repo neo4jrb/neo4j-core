@@ -24,10 +24,10 @@ share_examples_for "Neo4j::Label" do
 
     describe 'find_nodes' do
       before(:all) do
-        # create label stuff with one index on property colour
         stuff = Neo4j::Label.create(:stuff)
         stuff.drop_index(:colour) # just in case
         stuff.create_index(:colour)
+        sleep(0.5)
 
         @red = Neo4j::Node.create({colour: 'red', name: 'r'}, :stuff)
         @green = Neo4j::Node.create({colour: 'green', name: 'g'}, :stuff)
@@ -59,6 +59,7 @@ share_examples_for "Neo4j::Label" do
         people.drop_index(:name, :things)
         people.create_index(:name)
         people.create_index(:things)
+        sleep(0.1)
 #        people.indexes.count.should == 2
       end
     end

@@ -32,6 +32,28 @@ module Neo4j::Server
       Neo4j::Cypher.query{node(node_id)[key]}.to_s
     end
 
+    def remove_rel_property(rel_id, key)
+      Neo4j::Cypher.query{rel(rel_id)[key]=:NULL}.to_s
+    end
+
+    def set_rel_property(rel_id, key,value)
+      Neo4j::Cypher.query{rel(rel_id)[key]=value}.to_s
+    end
+
+    def get_rel_property(rel_id, key)
+      Neo4j::Cypher.query{rel(rel_id)[key]}.to_s
+    end
+
+    # to check if the rel still exists
+    def get_same_rel_id(rel_id)
+      Neo4j::Cypher.query{rel(rel_id).neo_id}.to_s
+    end
+
+    # to check if the node still exists
+    def get_same_node_id(node_id)
+      Neo4j::Cypher.query{node(node_id).neo_id}.to_s
+    end
+
     def find_nodes_with_index(label_name, key, value)
       <<-CYPHER
         MATCH (n:`#{label_name}`)
@@ -44,5 +66,14 @@ module Neo4j::Server
     def find_all_nodes(label_name)
       "MATCH (n:`#{label_name}`) RETURN ID(n)"
     end
+
+    def create_rels(start_node, end_node, type)
+      Neo4j::Cypher.query { create_path { node(start_node) > rel(type).as(:r) > node(end_node) }; rel.as(:r).neo_id }.to_s
+    end
+
+    def create_rels_with_props(start_node, end_node, type, props)
+      Neo4j::Cypher.query { create_path { node(start_node) > rel(type, props).as(:r) > node(end_node) }; rel.as(:r).neo_id }.to_s
+    end
+
   end
 end

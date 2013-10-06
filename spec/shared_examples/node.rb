@@ -3,6 +3,40 @@ share_examples_for "Neo4j::Node" do
   let(:node_b) { Neo4j::Node.create(name: 'b') }
   let(:node_c) { Neo4j::Node.create(name: 'c') }
 
+  context "inside a transaction" do
+
+    describe 'Neo4j::Node.create' do
+      it 'creates a new node' do
+        n = Neo4j::Transaction.run do
+          Neo4j::Node.create name: 'jimmy'
+        end
+        n[:name].should == 'jimmy'
+      end
+
+      it 'does not have any relationships' do
+        Neo4j::Transaction.run do
+          n = Neo4j::Node.create
+          n.rels.should be_empty
+          n
+        end.rels.should be_empty
+      end
+    end
+
+    describe 'create_rel' do
+      it 'creates the relationship' do
+        rel = Neo4j::Transaction.run do
+          node_a = Neo4j::Node.create name: 'a'
+          node_b = Neo4j::Node.create name: 'b'
+          rel_a = node_a.create_rel(:best_friend, node_b, age: 42)
+          node_a.rels.to_a.should == [rel_a]
+          rel_a[:age].should == 42
+          rel_a
+        end
+        rel[:age].should == 42
+      end
+
+    end
+  end
   context "with auto commit" do
     describe "class methods" do
       describe 'create' do
@@ -127,6 +161,7 @@ share_examples_for "Neo4j::Node" do
           it 'finds relationship of any dir and any type' do
             rel_a = node_a.create_rel(:best_friend, node_b, age: 42)
             rel_b = node_b.create_rel(:work, node_a)
+            node_a.rels.count.should == 2
             node_a.rels.to_a.should =~ [rel_a, rel_b]
           end
 

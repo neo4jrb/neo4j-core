@@ -3,8 +3,9 @@ module Neo4j::Server
   class CypherRelationship < Neo4j::Relationship
     include Neo4j::Server::Resource
 
-    def initialize(session)
+    def initialize(session, id)
       @session = session
+      @id = id
     end
 
     def ==(o)
@@ -13,19 +14,29 @@ module Neo4j::Server
     alias_method :eql?, :==
 
     def neo_id
-      resource_url_id
+      @id
     end
 
     def inspect
-      "CypherRelationship #{neo_id}, start #{resource_url_id(resource_url(:start))} end #{resource_url_id(resource_url(:end))} (#{object_id})"
+      "CypherRelationship #{neo_id}"
+    end
+
+    def load_resource
+      id = neo_id
+      unless @resource_data
+        r = @session.query{ rel(id) }
+        @resource_data = r.first_data
+      end
     end
 
     def start_node
+      load_resource
       id = resource_url_id(resource_url(:start))
       Neo4j::Node.load(id)
     end
 
     def end_node
+      load_resource
       id = resource_url_id(resource_url(:end))
       Neo4j::Node.load(id)
     end
