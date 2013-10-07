@@ -16,6 +16,8 @@ pkg/
 tmp
 db/
 
+neo4j/
+
 # jedit
 *~
 

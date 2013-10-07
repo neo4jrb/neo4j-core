@@ -7,7 +7,7 @@ describe 'label' do
   end
 
   after(:all) do
-    @session.close
+    @session && @session.close
   end
 
   before(:all) do
