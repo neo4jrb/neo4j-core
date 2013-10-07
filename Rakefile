@@ -27,14 +27,4 @@ task 'build-java' do
   END
 end
 
-task 'download_and_start_server' do
-    Rake::Task["neo4j:install"].invoke('community', '2.0.0-M06')
-    Rake::Task['neo4j:start']
-    puts "Sleep 30 sec to make sure server starts"
-    sleep(30) # just in case
-    puts "Server should now be awake"
-end
-
-task 'travis' => [:download_and_start_server, :spec]
-
 task :default => 'spec'
