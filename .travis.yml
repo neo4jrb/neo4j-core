@@ -2,4 +2,3 @@ script: "bundle exec rake travis --trace"
 language: ruby
 rvm:
   - 1.9.3
-  - jruby-19mode
