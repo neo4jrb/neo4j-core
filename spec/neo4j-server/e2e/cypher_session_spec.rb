@@ -13,7 +13,7 @@ module Neo4j::Server
       clean_server_db
     end
 
-    describe 'connect' do
+    describe 'for a created session' do
       it 'unregister the session when it is closed' do
         @session = CypherDatabase.connect("http://localhost:7474")
         Neo4j::Session.current.should == @session
@@ -31,6 +31,8 @@ module Neo4j::Server
         Neo4j::Session.current.should == @session
       end
     end
+
+
 
     describe '_query' do
 

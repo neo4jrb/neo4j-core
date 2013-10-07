@@ -7,7 +7,7 @@ module Neo4j::Server
     end
 
     after do
-      @session.close
+      @session && @session.close
       Neo4j::Transaction.current && Neo4j::Transaction.current.finish
     end
 

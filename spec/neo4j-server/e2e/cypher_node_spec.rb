@@ -7,7 +7,7 @@ describe Neo4j::Server::CypherNode do
   end
 
   after(:all) do
-    @session.close
+    @session && @session.close
   end
 
   before(:all) do
