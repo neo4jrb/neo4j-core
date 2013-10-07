@@ -12,6 +12,7 @@ module Neo4j::Embedded
     end
 
     def start
+      raise EmbeddedDatabase::Error.new("Embedded Neo4j db is already running") if running?
       @graph_db = EmbeddedDatabase.create_db(db_location)
     end
 
@@ -27,6 +28,15 @@ module Neo4j::Embedded
 
     def running?
       !!graph_db
+    end
+
+    # Performs a cypher query with given string
+    # @param [String] q the cypher query as a String
+    # @return (see #query)
+    def _query(q, params={})
+      engine = Java::OrgNeo4jCypherJavacompat::ExecutionEngine.new(@graph_db)
+      result = engine.execute(q, Neo4j::Core::HashWithIndifferentAccess.new(params))
+      Neo4j::Cypher::ResultWrapper.new(result)
     end
 
     def create_node(properties = nil, labels=[])
