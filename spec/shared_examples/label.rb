@@ -27,8 +27,6 @@ share_examples_for "Neo4j::Label" do
         stuff = Neo4j::Label.create(:stuff)
         stuff.drop_index(:colour) # just in case
         stuff.create_index(:colour)
-        sleep(0.5)
-
         @red = Neo4j::Node.create({colour: 'red', name: 'r'}, :stuff)
         @green = Neo4j::Node.create({colour: 'green', name: 'g'}, :stuff)
       end
