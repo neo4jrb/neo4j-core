@@ -5,8 +5,6 @@ module Neo4j::Embedded
 
   describe 'EmbeddedSession', api: :embedded do
 
-    TEST_DIR = '/Users/andreasronge/projects/neo4j-core/test-db'
-
 #    it_behaves_like "Neo4j::Node with tx"
 
     describe 'connect' do
@@ -15,19 +13,19 @@ module Neo4j::Embedded
       end
 
       it 'unregister the session when it is closed' do
-        @session = EmbeddedDatabase.connect(TEST_DIR)
+        @session = EmbeddedDatabase.connect(EMBEDDED_DB_PATH)
         Neo4j::Session.current.should == @session
         @session.close
         Neo4j::Session.current.should be_nil
       end
 
       it 'is created by connecting to the database' do
-        @session = EmbeddedDatabase.connect(TEST_DIR)
+        @session = EmbeddedDatabase.connect(EMBEDDED_DB_PATH)
         @session.should be_a_kind_of(Neo4j::Session)
       end
 
       it 'sets it as the current session' do
-        @session = EmbeddedDatabase.connect(TEST_DIR)
+        @session = EmbeddedDatabase.connect(EMBEDDED_DB_PATH)
         Neo4j::Session.current.should == @session
       end
     end
@@ -38,19 +36,19 @@ module Neo4j::Embedded
       end
 
       it 'starts the database' do
-        @session = EmbeddedDatabase.connect(TEST_DIR)
+        @session = EmbeddedDatabase.connect(EMBEDDED_DB_PATH)
         @session.start
         @session.running?.should be_true
       end
 
       it "raise an error if session already was started" do
-        @session = EmbeddedDatabase.connect(TEST_DIR)
+        @session = EmbeddedDatabase.connect(EMBEDDED_DB_PATH)
         @session.start
         expect{ @session.start }.to raise_error
       end
 
       it 'is allowed to start the session after it has been shutdown' do
-        @session = EmbeddedDatabase.connect(TEST_DIR)
+        @session = EmbeddedDatabase.connect(EMBEDDED_DB_PATH)
         @session.start
         @session.shutdown
         @session.running?.should be_false
@@ -66,7 +64,7 @@ module Neo4j::Embedded
       end
 
       it 'starts the database' do
-        @session = EmbeddedDatabase.connect(TEST_DIR)
+        @session = EmbeddedDatabase.connect(EMBEDDED_DB_PATH)
         @session.start
         @session.running?.should be_true
         @session.shutdown
@@ -74,7 +72,7 @@ module Neo4j::Embedded
       end
 
       it 'ok to shutdown twice' do
-        @session = EmbeddedDatabase.connect(TEST_DIR)
+        @session = EmbeddedDatabase.connect(EMBEDDED_DB_PATH)
         @session.start
         @session.shutdown
         @session.running?.should be_false
@@ -88,7 +86,7 @@ module Neo4j::Embedded
 
 
       before(:all) do
-        @session = EmbeddedDatabase.connect(TEST_DIR)
+        @session = EmbeddedDatabase.connect(EMBEDDED_DB_PATH)
         @session.start
       end
       after(:all) do
@@ -127,7 +125,7 @@ module Neo4j::Embedded
 
     #describe 'create_node' do
     #  before(:each) do
-    #    @session = EmbeddedDatabase.connect(TEST_DIR)
+    #    @session = EmbeddedDatabase.connect(EMBEDDED_DB_PATH)
     #    @session.start
     #  end
     #

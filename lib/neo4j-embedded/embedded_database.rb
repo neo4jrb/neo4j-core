@@ -14,6 +14,7 @@ module Neo4j::Embedded
       end
 
       def create_db(db_location)
+        puts "Start embedded Neo4j db at #{db_location}"
         factory = Java::OrgNeo4jGraphdbFactory::GraphDatabaseFactory.new
         factory.newEmbeddedDatabase(db_location)
       end

@@ -14,6 +14,7 @@ require 'neo4j-wrapper'
 
 Dir["#{File.dirname(__FILE__)}/shared_examples/**/*.rb"].each { |f| require f }
 
+EMBEDDED_DB_PATH = File.join(Dir.tmpdir, "neo4j-core-java")
 
 require "#{File.dirname(__FILE__)}/helpers"
 
@@ -21,13 +22,16 @@ RSpec.configure do |c|
   c.include Helpers
 end
 
+# Always use mock db when running db
+class Neo4j::Embedded::EmbeddedDatabase
+  def self.create_db(location,conf=nil)
+    Java::OrgNeo4jTest::TestGraphDatabaseFactory.new.newImpermanentDatabase()
+  end
+end
 
 RSpec.configure do |c|
 
   c.before(:each, api: :embedded) do
-    Neo4j::Embedded::EmbeddedDatabase.stub(:create_db) do
-      Java::OrgNeo4jTest::TestGraphDatabaseFactory.new.newImpermanentDatabase()
-    end
   end
 
   c.exclusion_filter = {
