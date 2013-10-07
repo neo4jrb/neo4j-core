@@ -31,6 +31,7 @@ task 'download_and_start_server_unless_java' do
   if RUBY_PLATFORM != 'java'
     Rake::Task["neo4j:install"].invoke('community', '2.0.0-M06')
     Rake::Task['neo4j:start']
+    sleep(20) # just in case
   end
 end
 
