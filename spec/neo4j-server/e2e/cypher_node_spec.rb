@@ -14,6 +14,7 @@ describe Neo4j::Server::CypherNode do
     clean_server_db
   end
 
-  it_behaves_like "Neo4j::Node"
+  it_behaves_like "Neo4j::Node auto tx"
+  it_behaves_like "Neo4j::Node with tx"
 
 end
