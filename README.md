@@ -88,17 +88,21 @@ Example of index using labels and the auto commit.
 
 ### Creating a database session
 
-Using the Neo4j Server
+There are currently two available types of session, one for connecting to a neo4j server
+and one for connecting to the embedded Neo4j database (which requires JRuby).
+
+Using the Neo4j Server: `:cypher_server_db`
+
 ```ruby
   # Using Neo4j Server Cypher Database
-  session = Neo4j::Server::CypherDatabase.connect("http://localhost:7474")
+  session = Neo4j::Session.create(:server_db, "http://localhost:7474")
 ```
 
-Using the Neo4j Embedded Database
+Using the Neo4j Embedded Database, `:local_embedded_db`
 
 ```ruby
   # Using Neo4j Embedded Database
-  session = Neo4j::Embedded::Database.connect('/folder/db', auto_commit: true)
+  session = Neo4j::Session.create(:local_embedded_db, '/folder/db', auto_commit: true)
   session.start
 ```
 
@@ -113,7 +117,7 @@ The default session is used by all operation unless specified as the last argume
 For example create a node with a different session:
 
 ```ruby
-my_session = Neo4j::Server::CypherDatabase.connect("http://localhost:7474")
+my_session = Neo4j::Session.create(:server_db, "http://localhost:7474")
 Neo4j::Node.create(name: 'kalle', my_session)
 ```
 

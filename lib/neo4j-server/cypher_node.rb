@@ -53,7 +53,7 @@ module Neo4j::Server
     end
 
     def labels
-      r = @session.query(self) { |node| node }
+      r = @session._query_internal(self) { |node| node } # TODO
       @resource_data = r.first_data  # TODO optitimize !
       url = resource_url('labels')
       response = HTTParty.send(:get, url, headers: resource_headers)
@@ -120,27 +120,27 @@ module Neo4j::Server
     end
 
     def cypher_outgoing_rels_between(cypher_rel, between_id)
-      @session.query(self) {|n| n.outgoing(cypher_rel, node(between_id)); rel.as(:r).neo_id}
+      @session._query_internal(self) {|n| n.outgoing(cypher_rel, node(between_id)); rel.as(:r).neo_id}
     end
 
     def cypher_outgoing_rels(cypher_rel)
-      @session.query(self) {|n| n.outgoing(cypher_rel); rel.as(:r).neo_id}
+      @session._query_internal(self) {|n| n.outgoing(cypher_rel); rel.as(:r).neo_id}
     end
 
     def cypher_incoming_rels_between(cypher_rel, between_id)
-      @session.query(self) {|n| n.incoming(cypher_rel, node(between_id)); rel.as(:r).neo_id}
+      @session._query_internal(self) {|n| n.incoming(cypher_rel, node(between_id)); rel.as(:r).neo_id}
     end
 
     def cypher_incoming_rels(cypher_rel)
-      @session.query(self) {|n| n.incoming(cypher_rel); rel.as(:r).neo_id}
+      @session._query_internal(self) {|n| n.incoming(cypher_rel); rel.as(:r).neo_id}
     end
 
     def cypher_both_rels_between(cypher_rel, between_id)
-      @session.query(self) {|n| n.both(cypher_rel, node(between_id)); rel.as(:r).neo_id}
+      @session._query_internal(self) {|n| n.both(cypher_rel, node(between_id)); rel.as(:r).neo_id}
     end
 
     def cypher_both_rels(cypher_rel)
-      @session.query(self) {|n| n.both(cypher_rel); rel.as(:r).neo_id}
+      @session._query_internal(self) {|n| n.both(cypher_rel); rel.as(:r).neo_id}
     end
 
   end

@@ -2,6 +2,8 @@ module Neo4j::Server
   class CypherSession < Neo4j::Session
     include Resource
 
+    alias_method :super_query, :query
+
     def initialize(data_url, cypher_mapping)
       @cypher_mapping = cypher_mapping
       Neo4j::Session.register(self)
@@ -69,8 +71,16 @@ module Neo4j::Server
     end
 
     def query(*params, &query_dsl)
-      q = Neo4j::Cypher.query(*params, &query_dsl).to_s
-      _query(q)
+      result = super
+      if result.error?
+        raise Neo4j::Session::CypherError.new(result.error_msg, result.error_code, result.error_status)
+      end
+      result.to_hash_enumeration
+    end
+
+    # TODO remove this function and do not use cypher DSL internally
+    def _query_internal(*params, &query_dsl)
+      super_query(*params, &query_dsl)
     end
 
     def _query(q, params=nil)

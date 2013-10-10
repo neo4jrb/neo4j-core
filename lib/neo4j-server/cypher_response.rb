@@ -12,10 +12,38 @@ module Neo4j::Server
       end
     end
 
+
+    class HashEnumeration
+      include Enumerable
+      extend Forwardable
+      def_delegator :@response, :error_msg
+      def_delegator :@response, :error_status
+      def_delegator :@response, :error_code
+      def_delegator :@response, :data
+      def_delegator :@response, :columns
+
+      def initialize(response)
+        @response = response
+      end
+
+      def each()
+        data.each do |row|
+          row.each_with_index do |row, i|
+            yield columns[i].to_sym => row[i]
+          end
+        end
+      end
+    end
+
+    def to_hash_enumeration
+      HashEnumeration.new(self)
+    end
+
     def initialize(response, uncommited = false)
       @response = response
       @uncommited = uncommited
     end
+
 
     def first_data
       if uncommited?

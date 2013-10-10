@@ -24,7 +24,7 @@ module Neo4j::Server
     def load_resource
       id = neo_id
       unless @resource_data
-        r = @session.query{ rel(id) }
+        r = @session._query_internal{ rel(id) }
         @resource_data = r.first_data
       end
     end
@@ -43,31 +43,31 @@ module Neo4j::Server
 
     def get_property(key)
       id = neo_id
-      r = @session.query{rel(id)[key]}
+      r = @session._query_internal{rel(id)[key]}
       expect_response_code(r.response, 200)
       r.first_data
     end
 
     def set_property(key,value)
       id = neo_id
-      r = @session.query{rel(id)[key]=value}
+      r = @session._query_internal{rel(id)[key]=value}
       expect_response_code(r.response, 200)
     end
 
     def remove_property(key)
       id = neo_id
-      r = @session.query{rel(id)[key]=:NULL}
+      r = @session._query_internal{rel(id)[key]=:NULL}
       expect_response_code(r.response, 200)
     end
 
     def del
       id = neo_id
-      @session.query{rel(id).del}.raise_unless_response_code(200)
+      @session._query_internal{rel(id).del}.raise_unless_response_code(200)
     end
 
     def exist?
       id = neo_id
-      response = @session.query{rel(id)}
+      response = @session._query_internal{rel(id)}
 
       if (!response.error?)
         return true

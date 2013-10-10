@@ -30,6 +30,17 @@ module Neo4j::Embedded
       !!graph_db
     end
 
+    def query(*params, &query_dsl)
+      begin
+        result = super
+        raise CypherError.new(result.error_msg, result.error_code, result.error_status) if result.respond_to?(:error?) && result.error?
+        # TODO ugly, the server database must convert the result
+        result.respond_to?(:to_hash_enumeration) ? result.to_hash_enumeration : result.to_a
+      rescue Exception => e
+        raise CypherError.new(e,nil,nil)
+      end
+    end
+
     # Performs a cypher query with given string
     # @param [String] q the cypher query as a String
     # @return (see #query)
