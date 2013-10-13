@@ -87,12 +87,20 @@ module Neo4j
     end
 
     class << self
+      # Creates a new session
+      # @param db_type the type of database, e.g. :embedded_db, or :server_db
+      def open(db_type, *params)
+        raise "Database #{db_type} is not supported (embedded_db db are only available on JRuby)" unless self.respond_to?(db_type)
+        register(self.send(db_type, *params))
+      end
+
       def current
         @@current_session
       end
 
       def register(session)
         @@current_session = session unless @@current_session
+        @@current_session
       end
 
       def unregister(session)

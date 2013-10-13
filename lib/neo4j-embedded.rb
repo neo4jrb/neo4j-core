@@ -7,7 +7,6 @@ jars = Dir.new(jar_folder).entries.find_all { |x| x =~ /\.jar$/ }
 jars.each { |jar| require File.expand_path(jar, jar_folder) }
 
 require 'neo4j-embedded/embedded_session'
-require 'neo4j-embedded/embedded_database'
 require 'neo4j-embedded/embedded_label'
 require 'neo4j-embedded/embedded_node'
 #require 'neo4j-embedded/to_java'

@@ -1,5 +1,17 @@
+# Plugin
+class Neo4j::Session
+  def self.embedded_db(db_location, config={})
+      Neo4j::Embedded::EmbeddedSession.new(db_location, config)
+  end
+end
+
+
 module Neo4j::Embedded
   class EmbeddedSession < Neo4j::Session
+
+    class Error < StandardError
+    end
+
     attr_reader :graph_db, :db_location
     extend Forwardable
     def_delegator :@graph_db, :begin_tx
@@ -12,8 +24,15 @@ module Neo4j::Embedded
     end
 
     def start
-      raise EmbeddedDatabase::Error.new("Embedded Neo4j db is already running") if running?
-      @graph_db = EmbeddedDatabase.create_db(db_location)
+      raise Error.new("Embedded Neo4j db is already running") if running?
+      puts "Start embedded Neo4j db at #{db_location}"
+      factory = Java::OrgNeo4jGraphdbFactory::GraphDatabaseFactory.new
+      @graph_db = factory.newEmbeddedDatabase(db_location)
+    end
+
+    def factory_class
+      Java::OrgNeo4jGraphdbFactory::GraphDatabaseFactory
+      Java::OrgNeo4jTest::ImpermanentGraphDatabase
     end
 
     def close
@@ -41,7 +60,8 @@ module Neo4j::Embedded
       end
     end
 
-    # Performs a cypher query with given string
+    # Performs a cypher query with given string.
+    # Remember that you should close the resource iterator.
     # @param [String] q the cypher query as a String
     # @return (see #query)
     def _query(q, params={})

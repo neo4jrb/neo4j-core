@@ -3,7 +3,7 @@ require 'spec_helper'
 module Neo4j::Server
   describe CypherTransaction do
     before do
-      @session = CypherDatabase.connect("http://localhost:7474")
+      @session = Neo4j::Session.current || Neo4j::Session.open(:server_db, "http://localhost:7474")
     end
 
     after do

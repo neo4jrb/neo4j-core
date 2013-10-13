@@ -3,13 +3,15 @@ require 'spec_helper'
 module Neo4j::Embedded
 
   describe 'EmbeddedSession', api: :embedded do
-    before(:all) do
-      @session = EmbeddedDatabase.connect(EMBEDDED_DB_PATH)
-      @session.start
+
+    let(:open_session) do
+      session = Neo4j::Session.open(:embedded_db, EMBEDDED_DB_PATH)
+      session.start
+      session
     end
 
     after(:all) do
-      @session && @session.close
+      Neo4j::Session.current && Neo4j::Session.current.close
     end
 
     it_behaves_like "Neo4j::Session"
@@ -18,78 +20,76 @@ module Neo4j::Embedded
 
   describe 'EmbeddedSession', api: :embedded do
 
+    let(:session) do
+      Neo4j::Session.current || Neo4j::Session.open(:embedded_db, EMBEDDED_DB_PATH)
+    end
 
-    describe 'connect' do
-      after(:each) do
-        @session && @session.close
-      end
 
-      it 'unregister the session when it is closed' do
-        @session = EmbeddedDatabase.connect(EMBEDDED_DB_PATH)
-        Neo4j::Session.current.should == @session
-        @session.close
-        Neo4j::Session.current.should be_nil
-      end
-
-      it 'is created by connecting to the database' do
-        @session = EmbeddedDatabase.connect(EMBEDDED_DB_PATH)
-        @session.should be_a_kind_of(Neo4j::Session)
-      end
-
-      it 'sets it as the current session' do
-        @session = EmbeddedDatabase.connect(EMBEDDED_DB_PATH)
-        Neo4j::Session.current.should == @session
+    describe 'db_location' do
+      it "returns the location of the database" do
+        session.db_location.should == EMBEDDED_DB_PATH
       end
     end
 
     describe 'start' do
-      after(:each) do
-        @session && @session.close
+
+      before do
+        Neo4j::Session.current &&  Neo4j::Session.current.close
       end
 
       it 'starts the database' do
-        @session = EmbeddedDatabase.connect(EMBEDDED_DB_PATH)
-        @session.start
-        @session.running?.should be_true
+        session.start
+        session.running?.should be_true
       end
 
       it "raise an error if session already was started" do
-        @session = EmbeddedDatabase.connect(EMBEDDED_DB_PATH)
-        @session.start
-        expect{ @session.start }.to raise_error
+        session.start
+        session.running?.should be_true
+        expect{ session.start }.to raise_error
       end
 
       it 'is allowed to start the session after it has been shutdown' do
-        @session = EmbeddedDatabase.connect(EMBEDDED_DB_PATH)
-        @session.start
-        @session.shutdown
-        @session.running?.should be_false
-        @session.start
-        @session.running?.should be_true
+        session.start
+        session.shutdown
+        session.running?.should be_false
+        session.start
+        session.running?.should be_true
       end
     end
 
 
     describe 'shutdown' do
-      after(:each) do
-        @session && @session.close
+      before do
+        Neo4j::Session.current &&  Neo4j::Session.current.close
       end
 
       it 'starts the database' do
-        @session = EmbeddedDatabase.connect(EMBEDDED_DB_PATH)
-        @session.start
-        @session.running?.should be_true
-        @session.shutdown
-        @session.running?.should be_false
+        session.start
+        session.running?.should be_true
+        session.shutdown
+        session.running?.should be_false
       end
 
       it 'ok to shutdown twice' do
-        @session = EmbeddedDatabase.connect(EMBEDDED_DB_PATH)
-        @session.start
-        @session.shutdown
-        @session.running?.should be_false
-        @session.shutdown
-        @session.running?.should be_false
+        session.start
+        session.shutdown
+        session.running?.should be_false
+        session.shutdown
+        session.running?.should be_false
+      end
+    end
+
+    describe '_query' do
+      before(:all) do
+        Neo4j::Session.current || Neo4j::Session.open(:embedded_db, EMBEDDED_DB_PATH)
+        Neo4j::Session.current.start unless Neo4j::Session.current.running?
+      end
+
+      it "returns a raw Neo4j Iterator" do
+        r = session._query('START n=node(0) RETURN n')
+        all = r.to_a # only allowed to traverse once
+        all.count.should == 1
+        all.first.should include(:n)
       end
     end
 
