@@ -8,7 +8,7 @@ module Helpers
   end
 
   def clean_embedded_db
-    graph_db = Neo4j::Database.instance.graph_db
+    graph_db = Neo4j::Session.current.graph_db
     ggo = Java::OrgNeo4jTooling::GlobalGraphOperations.at(graph_db)
 
     tx = graph_db.begin_tx

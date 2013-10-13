@@ -1,28 +1,26 @@
 require 'spec_helper'
 
 module Neo4j::Server
-  describe CypherTransaction do
+  describe CypherTransaction, api: :server do
+
     before do
-      @session = Neo4j::Session.current || Neo4j::Session.open(:server_db, "http://localhost:7474")
+      session || create_server_session
     end
 
     after do
-      @session && @session.close
+      session && session.close
       Neo4j::Transaction.current && Neo4j::Transaction.current.finish
     end
 
-    after(:all) do
-      clean_server_db
-    end
 
     it "can open and commit a transaction" do
-      tx = @session.begin_tx
+      tx = session.begin_tx
       tx.success
       tx.finish
     end
 
     it "can run a valid query" do
-      tx = @session.begin_tx
+      tx = session.begin_tx
       q = tx._query("START n=node(0) RETURN ID(n)")
       q.response.code.should == 200
       q.response['results'].should == [{"columns"=>["ID(n)"], "data"=>[{"row"=>[0]}]}]
@@ -30,7 +28,7 @@ module Neo4j::Server
 
 
     it "sets the response error fields if not a valid query" do
-      tx = @session.begin_tx
+      tx = session.begin_tx
       r = tx._query("START n=fs(0) RRETURN ID(n)")
       r.error?.should be_true
 
@@ -40,7 +38,7 @@ module Neo4j::Server
     end
 
     it 'can commit' do
-      tx = @session.begin_tx
+      tx = session.begin_tx
       tx.success
       response = tx.finish
       response.code.should == 200
@@ -48,7 +46,7 @@ module Neo4j::Server
 
 
     it "can create a node" do
-      tx = @session.begin_tx
+      tx = session.begin_tx
       node = Neo4j::Node.create(name: 'andreas')
       tx.success
       tx.finish.code.should == 200

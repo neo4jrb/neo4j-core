@@ -3,27 +3,16 @@ require 'spec_helper'
 module Neo4j::Server
 
 
-  describe CypherSession do
+  describe CypherSession, api: :server do
 
-    let(:open_session) do
-        Neo4j::Session.open(:server_db, "http://localhost:7474")
-    end
-
-    after(:all) do
-      clean_server_db
+    def open_session
+      create_server_session
     end
 
     it_behaves_like "Neo4j::Session"
 
 
     describe '_query' do
-
-      let(:session) do
-        @session ||= open_session
-      end
-      after(:all) do
-        @session.close
-      end
 
       it 'returns a result containing data,columns and error?' do
         result = session._query("START n=node(0) RETURN ID(n)")

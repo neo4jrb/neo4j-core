@@ -19,13 +19,6 @@ share_examples_for "Neo4j::Session" do
   end
 
   describe 'with a open session' do
-      let(:session) do
-        Neo4j::Session.current || open_session
-      end
-
-      after(:all) do
-        Neo4j::Session.current && Neo4j::Session.current.close
-      end
 
     describe 'query' do
       it 'returns data as arrays of hashs' do
