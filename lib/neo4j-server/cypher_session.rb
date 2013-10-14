@@ -1,13 +1,11 @@
 module Neo4j::Server
 
   # Plugin
-  class Neo4j::Session
-    def self.server_db(endpoint_url)
-      response = HTTParty.get(endpoint_url)
-      raise "Server not available on #{endpoint_url} (response code #{response.code})" unless response.code == 200
-      root_data = JSON.parse(response.body)
-      Neo4j::Server::CypherSession.new(root_data['data'], CypherMapping.new)
-    end
+  Neo4j::Session.register_db(:server_db) do |endpoint_url|
+    response = HTTParty.get(endpoint_url)
+    raise "Server not available on #{endpoint_url} (response code #{response.code})" unless response.code == 200
+    root_data = JSON.parse(response.body)
+    Neo4j::Server::CypherSession.new(root_data['data'], CypherMapping.new)
   end
 
   class CypherSession < Neo4j::Session

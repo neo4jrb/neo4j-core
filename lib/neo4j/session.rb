@@ -2,6 +2,7 @@ module Neo4j
   class Session
 
     @@current_session = nil
+    @@factories = {}
 
     # @abstract
     def close
@@ -90,8 +91,11 @@ module Neo4j
       # Creates a new session
       # @param db_type the type of database, e.g. :embedded_db, or :server_db
       def open(db_type, *params)
-        raise "Database #{db_type} is not supported (embedded_db db are only available on JRuby)" unless self.respond_to?(db_type)
-        register(self.send(db_type, *params))
+        unless (@@factories[db_type])
+          raise "Can't connect to database '#{db_type}', available #{@@factories.keys.join(',')}"
+        end
+        session = @@factories[db_type].call(*params)
+        register(session)
       end
 
       def current
@@ -105,6 +109,11 @@ module Neo4j
 
       def unregister(session)
         @@current_session = nil if @@current_session == session
+      end
+
+      def register_db(db, &session_factory)
+        raise "Factory for #{db} already exists" if @@factories[db]
+        @@factories[db] = session_factory
       end
     end
   end

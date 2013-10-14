@@ -5,7 +5,7 @@ module Neo4j::Embedded
   describe 'EmbeddedSession', api: :embedded do
 
     let(:open_session) do
-      session = Neo4j::Session.open(:embedded_db, EMBEDDED_DB_PATH)
+      session = create_embedded_session
       session.start
       session
     end
@@ -21,7 +21,7 @@ module Neo4j::Embedded
   describe 'EmbeddedSession', api: :embedded do
 
     let(:session) do
-      Neo4j::Session.current || Neo4j::Session.open(:embedded_db, EMBEDDED_DB_PATH)
+      Neo4j::Session.current || create_embedded_session
     end
 
 
@@ -81,7 +81,7 @@ module Neo4j::Embedded
 
     describe '_query' do
       before(:all) do
-        Neo4j::Session.current || Neo4j::Session.open(:embedded_db, EMBEDDED_DB_PATH)
+        Neo4j::Session.current || create_embedded_session
         Neo4j::Session.current.start unless Neo4j::Session.current.running?
       end
 

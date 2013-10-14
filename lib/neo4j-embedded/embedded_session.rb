@@ -1,10 +1,12 @@
 # Plugin
-class Neo4j::Session
-  def self.embedded_db(db_location, config={})
-      Neo4j::Embedded::EmbeddedSession.new(db_location, config)
-  end
+
+Neo4j::Session.register_db(:embedded_db) do |*args|
+  Neo4j::Embedded::EmbeddedSession.new(*args)
 end
 
+Neo4j::Session.register_db(:impermanent_db) do |*args|
+  Neo4j::Embedded::EmbeddedImpermanentSession.new(*args)
+end
 
 module Neo4j::Embedded
   class EmbeddedSession < Neo4j::Session
@@ -14,6 +16,7 @@ module Neo4j::Embedded
 
     attr_reader :graph_db, :db_location
     extend Forwardable
+    extend Neo4j::Core::TxMethods
     def_delegator :@graph_db, :begin_tx
 
 
@@ -81,7 +84,18 @@ module Neo4j::Embedded
 #      properties.each_pair { |k, v| _java_node[k]=v } if properties
       _java_node
     end
-#    tx_methods :create_node
+    tx_methods :create_node
 
   end
+
+  class EmbeddedImpermanentSession < EmbeddedSession
+    def start
+      raise Error.new("Embedded Neo4j db is already running") if running?
+      #puts "Start test impermanent embedded Neo4j db at #{db_location}"
+      @graph_db = Java::OrgNeo4jTest::TestGraphDatabaseFactory.new.newImpermanentDatabase()
+    end
+  end
+
+
+
 end

@@ -22,15 +22,9 @@ RSpec.configure do |c|
   c.include Helpers
 end
 
-# Always use mock db when running db
-class Neo4j::Embedded::EmbeddedDatabase
-  def self.create_db(location,conf=nil)
-    Java::OrgNeo4jTest::TestGraphDatabaseFactory.new.newImpermanentDatabase()
-  end
-end
-
 def create_embedded_session
-  Neo4j::Session.open(:embedded_db, EMBEDDED_DB_PATH)
+  Neo4j::Session.open(:impermanent_db, EMBEDDED_DB_PATH, auto_commit: true)
+  #Neo4j::Session.open(:embedded_db, EMBEDDED_DB_PATH)
 end
 
 def create_server_session
@@ -40,6 +34,9 @@ end
 def session
   Neo4j::Session.current
 end
+
+
+FileUtils.rm_rf(EMBEDDED_DB_PATH)
 
 RSpec.configure do |c|
 
