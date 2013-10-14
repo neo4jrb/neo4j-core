@@ -75,10 +75,7 @@ Future (when Neo4j 2.1 is released)
 * Indexing via label works
 * Using 2.0.0-M6
 
-Investigate/TODO
-
-* Run test on Travis with Neo4j Server - copy .travis file from neography
-* Use ImpermanentDatabase
+For detail status what works, see the RSpecs.
 
 
 ## Neo4j-core API
