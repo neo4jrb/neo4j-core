@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Neo4j::Server::CypherNode, api: :embedded do
+describe "Neo4j::Embedded::EmbeddedNode", api: :embedded do
 
 
   it_behaves_like "Neo4j::Node auto tx"
