@@ -73,6 +73,18 @@ share_examples_for "Neo4j::Node auto tx" do
         end
       end
 
+      describe 'labels' do
+        it 'returns [] if there are no labels' do
+          n = Neo4j::Node.create
+          n.labels.to_a.should == []
+        end
+
+        it 'returns all labels for the node' do
+          n = Neo4j::Node.create({}, :label1, :label2)
+          n.labels.to_a.should == [:label1, :label2]
+        end
+      end
+
       describe '[] and []=' do
         it "can write and read String" do
           node[:foo] = 'bar'
