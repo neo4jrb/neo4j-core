@@ -1,5 +1,5 @@
 module Neo4j::Embedded
-  class Relationship
+  class EmbeddedRelationship
     class << self
       # This method is used to extend a Java Neo4j class so that it includes the same mixins as this class.
       def extend_java_class(java_clazz)
