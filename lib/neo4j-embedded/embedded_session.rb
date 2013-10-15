@@ -63,9 +63,21 @@ module Neo4j::Embedded
 
     # Same as load but does not return the node as a wrapped Ruby object.
     #
-    def _load_node(node_id)
-      return nil if node_id.nil?
-      @graph_db.get_node_by_id(node_id.to_i)
+    def _load_node(neo_id)
+      return nil if neo_id.nil?
+      @graph_db.get_node_by_id(neo_id.to_i)
+    rescue Java::OrgNeo4jGraphdb.NotFoundException
+      nil
+    end
+
+    def load_relationship(neo_id)
+      _load_relationship(neo_id)
+    end
+    tx_methods :load_relationship
+
+    def _load_relationship(neo_id)
+      return nil if neo_id.nil?
+      @graph_db.get_relationship_by_id(neo_id.to_i)
     rescue Java::OrgNeo4jGraphdb.NotFoundException
       nil
     end

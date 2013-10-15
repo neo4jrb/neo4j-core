@@ -12,6 +12,10 @@ module Neo4j::Server
       Neo4j::Cypher.query { node(id) }.to_s
     end
 
+    def load_relationship(id)
+      "START r=relationship(#{id}) RETURN r"
+    end
+
     def create_index(label, properties)
       "CREATE INDEX ON :`#{label}`(#{properties.join(',')})"
     end

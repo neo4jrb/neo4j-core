@@ -63,6 +63,17 @@ module Neo4j::Server
       end
     end
 
+    def load_relationship(neo_id)
+      cypher_response = query_cypher_for(:load_relationship, neo_id)
+      if (!cypher_response.error?)
+        CypherRelationship.new(self, neo_id)
+      elsif (cypher_response.error_msg =~ /not found/)  # Ugly that the Neo4j API gives us this error message
+        return nil
+      else
+        cypher_response.raise_error
+      end
+    end
+
     def create_label(name)
       CypherLabel.new(self, name)
     end

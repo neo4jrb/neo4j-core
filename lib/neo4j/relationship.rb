@@ -40,14 +40,8 @@ module Neo4j
     end
 
     class << self
-      def create(props=nil, db = Neo4j::Database.instance)
-        # TODO
-        raise "todo"
-      end
-
-      def load(neo_id, db = Neo4j::Database.instance)
-        # TODO
-        raise "todo"
+      def load(neo_id, session = Neo4j::Session.current)
+        session.load_relationship(neo_id)
       end
 
     end
