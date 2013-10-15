@@ -26,7 +26,7 @@ module Neo4j::Core::Property
 
   def props
     property_keys.inject({}) do |ret, key|
-      ret[key] = get_property(key)
+      ret[key.to_sym] = get_property(key)
       ret
     end
   end

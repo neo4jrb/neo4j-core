@@ -5,7 +5,7 @@ share_examples_for "Neo4j::Node auto tx" do
 
   context "with auto commit" do
     describe "class methods" do
-      describe 'create' do
+      describe 'create()' do
 
         subject do
           Neo4j::Node.create
@@ -14,6 +14,22 @@ share_examples_for "Neo4j::Node auto tx" do
         its(:neo_id) { should be_a(Fixnum) }
         its(:props) { should == {} }
       end
+
+      describe 'create(name: "kalle", age: 42)' do
+
+        subject do
+          Neo4j::Node.create(name: 'kalle', age: 42)
+        end
+        its(:exist?) { should be_true }
+        its(:neo_id) { should be_a(Fixnum) }
+        its(:props) { should == { name: 'kalle', age: 42} }
+
+        it 'read the properties using []' do
+          subject[:name].should == 'kalle'
+          subject[:age].should == 42
+        end
+      end
+
 
       describe 'load' do
         it "can load a node if it exists" do

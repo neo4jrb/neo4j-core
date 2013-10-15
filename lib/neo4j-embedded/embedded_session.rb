@@ -52,6 +52,9 @@ module Neo4j::Embedded
       !!graph_db
     end
 
+    def create_label(name)
+      EmbeddedLabel.new(self, name)
+    end
 
     def load_node(neo_id)
       _load_node(neo_id)
@@ -78,6 +81,14 @@ module Neo4j::Embedded
       end
     end
 
+    def find_all_nodes(label)
+      EmbeddedLabel.new(self, label).find_nodes
+    end
+
+    def find_nodes(label, key, value)
+      EmbeddedLabel.new(self, label).find_nodes(key,value)
+    end
+
     # Performs a cypher query with given string.
     # Remember that you should close the resource iterator.
     # @param [String] q the cypher query as a String
@@ -95,8 +106,7 @@ module Neo4j::Embedded
         labels = EmbeddedLabel.as_java(labels)
         _java_node = graph_db.create_node(labels)
       end
-# TODO
-#      properties.each_pair { |k, v| _java_node[k]=v } if properties
+      properties.each_pair { |k, v| _java_node[k]=v } if properties
       _java_node
     end
     tx_methods :create_node

@@ -43,8 +43,15 @@ share_examples_for "Neo4j::Label" do
         result.count.should == 0
       end
 
-      it "raises an exception if there is no index on the property" do
-        expect{Neo4j::Label.find_nodes(:stuff, :name, 'r')}.to raise_error
+      it "does not find it if it does not exist using an unknown label" do
+        result = Neo4j::Label.find_nodes(:unknown_label99, :colour, 'red')
+        result.count.should == 0
+      end
+
+      it "finds it event if there is no index on it" do
+        result = Neo4j::Label.find_nodes(:stuff, :name, 'r')
+        result.should include(@red)
+        result.count.should == 1
       end
     end
 

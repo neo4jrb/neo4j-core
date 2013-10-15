@@ -57,7 +57,6 @@ module Neo4j::Server
     def find_nodes_with_index(label_name, key, value)
       <<-CYPHER
         MATCH (n:`#{label_name}`)
-        USING INDEX n:`#{label_name}`(#{key})
         WHERE n.#{key} = '#{value}'
         RETURN ID(n)
       CYPHER
