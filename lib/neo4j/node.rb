@@ -9,8 +9,27 @@ module Neo4j
       raise 'not implemented'
     end
 
+
+    # Returns an enumeration of relationships.
+    # It always returns relationships of depth one.
+    #
+    # @param [Hash] opts the options to create a message with.
+    # @option opts [Symbol] :dir dir the direction of the relationship, allowed values: :both, :incoming, :outgoing.
+    # @option opts [Symbol] :type the type of relationship to navigate
+    # @option opts [Symbol] :between return all the relationships between this and given node
+    # @return [Enumerable] of Neo4j::Relationship objects
+    #
+    # @example Return both incoming and outgoing relationships of any type
+    #   node_a.rels
+    #
+    # @example All outgoing or incoming relationship of type friends
+    #   node_a.rels(type: :friends)
+    #
+    # @example All outgoing relationships between me and another node of type friends
+    #   node_a.rels(type: :friends, dir: :outgoing, between: node_b)
+    #
     # @abstract
-    def rels(spec = nil)
+    def rels(opts = {dir: :both})
       raise 'not implemented'
     end
 
@@ -26,6 +45,35 @@ module Neo4j
 
     # @abstract
     def labels
+      raise 'not implemented'
+    end
+
+    # Returns the only node of a given type and direction that is attached to this node, or nil.
+    # This is a convenience method that is used in the commonly occuring situation where a node has exactly zero or one relationships of a given type and direction to another node.
+    # Typically this invariant is maintained by the rest of the code: if at any time more than one such relationships exist, it is a fatal error that should generate an exception.
+
+    # This method reflects that semantics and returns either:
+    # * nil if there are zero relationships of the given type and direction,
+    # * the relationship if there's exactly one, or
+    # * throws an unchecked exception in all other cases.
+    #
+    # This method should be used only in situations with an invariant as described above. In those situations, a "state-checking" method (e.g. #rel?) is not required,
+    # because this method behaves correctly "out of the box."
+    #
+    # @abstract
+    # @param (see #rel)
+    def node(dir, type)
+      raise 'not implemented'
+    end
+
+
+    # Works like #rels method but instead returns the nodes.
+    # It does try to load a Ruby wrapper around each node
+    # @abstract
+    # @param (see #rels)
+    # @return [Enumerable] an Enumeration of either Neo4j::Node objects or wrapped Neo4j::Node objects
+    # @notice it's possible that the same node is returned more then once because of several relationship reaching to the same node, see #outgoing for alternative
+    def nodes(dir, *types)
       raise 'not implemented'
     end
 

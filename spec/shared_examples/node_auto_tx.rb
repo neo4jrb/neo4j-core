@@ -210,6 +210,29 @@ share_examples_for "Neo4j::Node auto tx" do
             node_a.rels(between: node_b).to_a.should == [rel_a]
             node_a.rels(between: node_c).to_a.should == [rel_b]
           end
+
+          it 'can be combined with type, between: node_b, type: friends' do
+            rel_a = node_a.create_rel(:work, node_b)
+            rel_b = node_a.create_rel(:work, node_c)
+            rel_c = node_a.create_rel(:friends, node_b)
+            rel_d = node_a.create_rel(:friends, node_c)
+            node_a.rels(between: node_b, type: :friends).to_a.should == [rel_c]
+            node_a.rels(between: node_c, type: :friends).to_a.should == [rel_d]
+            node_a.rels(between: node_b, type: :work).to_a.should == [rel_a]
+            node_a.rels(between: node_c, type: :work).to_a.should == [rel_b]
+          end
+
+          it 'can be combined with direction' do
+            rel_a = node_a.create_rel(:work, node_b)
+            rel_b = node_a.create_rel(:work, node_c)
+            rel_c = node_a.create_rel(:friends, node_b)
+            rel_d = node_a.create_rel(:friends, node_c)
+            node_a.rels(between: node_b, dir: :both).to_a.should =~ [rel_c, rel_a]
+            node_a.rels(between: node_c, dir: :both).to_a.should =~ [rel_d, rel_b]
+            node_a.rels(between: node_b, dir: :outgoing).to_a.should =~ [rel_a, rel_c]
+            node_a.rels(between: node_c, dir: :incoming).to_a.should be_empty
+            node_c.rels(between: node_a, dir: :incoming).to_a.should =~ [rel_b, rel_d]
+          end
         end
 
       end

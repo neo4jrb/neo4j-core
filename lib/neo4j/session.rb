@@ -102,8 +102,12 @@ module Neo4j
         @@current_session
       end
 
+      def set_current(session)
+        @@current_session = session
+      end
+
       def register(session)
-        @@current_session = session unless @@current_session
+        set_current(session) unless @@current_session
         @@current_session
       end
 

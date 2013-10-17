@@ -38,6 +38,24 @@ share_examples_for "Neo4j::Relationship" do
     end
   end
 
+  describe 'end_node' do
+    let(:rel_a) { node_a.create_rel(:best_friend, node_b) }
+
+    it 'returns the end_node' do
+      rel_a.end_node.should == node_b
+    end
+
+  end
+
+  describe 'start_node' do
+    let(:rel_a) { node_a.create_rel(:best_friend, node_b) }
+
+    it 'returns the end_node' do
+      rel_a.start_node.should == node_a
+    end
+
+  end
+
   describe 'del' do
     let(:rel_a) { node_a.create_rel(:best_friend, node_b) }
 
