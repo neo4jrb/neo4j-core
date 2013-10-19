@@ -23,23 +23,27 @@ share_examples_for "Neo4j::Label" do
     end
 
     describe 'find_nodes' do
+
       before(:all) do
-        stuff = Neo4j::Label.create(:stuff)
+        r = Random.new
+        @random_label = ("R " + r.rand(0..10000000).to_s).to_sym
+
+        stuff = Neo4j::Label.create(@random_label)
         stuff.drop_index(:colour) # just in case
         stuff.create_index(:colour)
-        @red = Neo4j::Node.create({colour: 'red', name: 'r'}, :stuff)
-        @green = Neo4j::Node.create({colour: 'green', name: 'g'}, :stuff)
+        @red = Neo4j::Node.create({colour: 'red', name: 'r'}, @random_label)
+        @green = Neo4j::Node.create({colour: 'green', name: 'g'}, @random_label)
       end
 
       it 'finds nodes using an index' do
-        result = Neo4j::Label.find_nodes(:stuff, :colour, 'red')
+        result = Neo4j::Label.find_nodes(@random_label, :colour, 'red')
         result.count.should == 1
         result.should include(@red)
       end
 
 
       it "does not find it if it does not exist" do
-        result = Neo4j::Label.find_nodes(:stuff, :colour, 'black')
+        result = Neo4j::Label.find_nodes(@random_label, :colour, 'black')
         result.count.should == 0
       end
 
@@ -49,7 +53,7 @@ share_examples_for "Neo4j::Label" do
       end
 
       it "finds it event if there is no index on it" do
-        result = Neo4j::Label.find_nodes(:stuff, :name, 'r')
+        result = Neo4j::Label.find_nodes(@random_label, :name, 'r')
         result.should include(@red)
         result.count.should == 1
       end
