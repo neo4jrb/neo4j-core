@@ -8,6 +8,8 @@ module Neo4j::Embedded
           include Neo4j::EntityEquality
           extend Neo4j::Core::TxMethods
 
+          alias_method :other_node, :getOtherNode
+
           def exist?
             !!graph_database.get_relationship_by_id(neo_id)
           rescue Java::OrgNeo4jGraphdb.NotFoundException

@@ -62,7 +62,7 @@ module Neo4j
     #
     # @abstract
     # @param (see #rel)
-    def node(dir, type)
+    def node(specs = {})
       raise 'not implemented'
     end
 
@@ -73,8 +73,8 @@ module Neo4j
     # @param (see #rels)
     # @return [Enumerable] an Enumeration of either Neo4j::Node objects or wrapped Neo4j::Node objects
     # @notice it's possible that the same node is returned more then once because of several relationship reaching to the same node, see #outgoing for alternative
-    def nodes(dir, *types)
-      raise 'not implemented'
+    def nodes(specs = {})
+      #rels(specs).map{|n| n.other_node(self)}
     end
 
     class << self

@@ -2,6 +2,8 @@ share_examples_for "Neo4j::Node auto tx" do
   let(:node_a) { Neo4j::Node.create(name: 'a') }
   let(:node_b) { Neo4j::Node.create(name: 'b') }
   let(:node_c) { Neo4j::Node.create(name: 'c') }
+  let(:node_d) { Neo4j::Node.create(name: 'd') }
+
 
   context "with auto commit" do
     describe "class methods" do
@@ -146,6 +148,70 @@ share_examples_for "Neo4j::Node auto tx" do
           rel[:since].should == 2001
           rel.exist?.should be_true
         end
+
+      end
+
+      describe 'nodes' do
+
+        describe 'nodes()' do
+          it 'returns incoming and outgoing nodes of any type' do
+            node_a.create_rel(:bar, node_b)
+            node_a.create_rel(:bar, node_c)
+            node_d.create_rel(:foo, node_a)
+            node_a.nodes.to_a.should =~ [node_b, node_c, node_d]
+          end
+        end
+
+        describe 'nodes(type: :work)' do
+          it 'returns incoming and outgoing nodes of any type' do
+            node_a.create_rel(:best_friend, node_b)
+            node_b.create_rel(:work, node_a)
+            node_a.nodes(type: :work).to_a.should == [node_b]
+            node_a.nodes(type: :best_friend).to_a.should == [node_b]
+            node_a.nodes(type: :unknown_rel).should be_empty
+          end
+        end
+
+        describe 'nodes(dir: :outgoing)' do
+          it 'finds outgoing nodes of any type' do
+            node_a.create_rel(:best_friend, node_b)
+            node_b.create_rel(:work, node_a)
+            node_a.nodes(dir: :outgoing).to_a.should == [node_b]
+            node_b.nodes(dir: :outgoing).to_a.should == [node_a]
+            node_c.nodes(dir: :outgoing).should be_empty
+
+          end
+        end
+
+        describe 'nodes(dir: :incoming)' do
+          it 'finds outgoing nodes of any type' do
+            node_a.create_rel(:best_friend, node_b)
+            node_a.nodes(dir: :incoming).should be_empty
+            node_b.nodes(dir: :incoming).to_a.should == [node_a]
+          end
+        end
+
+        describe 'nodes(dir: incoming, type: work)' do
+          it 'finds incoming nodes of any type' do
+            node_a.create_rel(:best_friend, node_b)
+            node_b.create_rel(:work, node_a)
+
+            node_a.nodes(dir: :incoming, type: :work).to_a.should == [node_b]
+            node_b.nodes(dir: :incoming, type: :work).to_a.should be_empty
+          end
+        end
+
+        describe 'rels(between: node_b)' do
+          it 'finds all relationships between two nodes' do
+            node_a.create_rel(:work, node_b)
+            node_a.create_rel(:work, node_c)
+            node_a.nodes(between: node_b).to_a.should == [node_b]
+            node_a.nodes(between: node_c).to_a.should == [node_c]
+            node_a.nodes(between: node_d).to_a.should be_empty
+          end
+
+        end
+
 
       end
 

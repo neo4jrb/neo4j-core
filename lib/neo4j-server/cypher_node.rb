@@ -80,67 +80,35 @@ module Neo4j::Server
       end
     end
 
+
+    def nodes(match={})
+      match(CypherNode, "ID(p)", match)
+    end
+
+    def match(clazz, returns, match={})
+      to_dir = {outgoing: ->(rel) {"-#{rel}->"},
+                incoming: ->(rel) {"<-#{rel}-"},
+                both:     ->(rel) {"-#{rel}-"} }
+
+      cypher_rel = match[:type] ? "[r:`#{match[:type]}`]" : '[r]'
+      between_id = match[:between] ? ",p=node(#{match[:between].neo_id}) " : ""
+      dir_func = to_dir[match[:dir] || :both]
+      cypher = "START n=node(#{neo_id}) #{between_id} MATCH (n)#{dir_func.call(cypher_rel)}(p) RETURN #{returns}"
+      r = @session._query(cypher)
+      r.raise_error if r.error?
+      _map_result(r, clazz)
+    end
+
     def rels(match={})
-      dir = match[:dir] || :both
-      cypher_rel = match[:type] ? ["r?:`#{match[:type]}`"] : ['r?']
-      between_id = match[:between] && match[:between].neo_id
+      match(CypherRelationship, "ID(r)", match)
+    end
 
-      r = cypher_rels(between_id, cypher_rel, dir)
-
+    def _map_result(r, clazz)
       r.data.map do |rel|
         next if r.uncommited? ? rel['row'].first.nil? : rel.first.nil?
         id = r.uncommited? ? rel['row'].first : rel.first
-        CypherRelationship.new(@session, id)
+        clazz.new(@session, id)
       end.compact
-    end
-
-    def cypher_rels(between_id, cypher_rel, dir)
-      case dir
-        when :outgoing
-          if between_id
-            cypher_outgoing_rels_between(cypher_rel, between_id)
-          else
-            cypher_outgoing_rels(cypher_rel)
-          end
-        when :incoming
-          if between_id
-            cypher_incoming_rels_between(cypher_rel, between_id)
-          else
-            cypher_incoming_rels(cypher_rel)
-          end
-        when :both
-          if between_id
-            cypher_both_rels_between(cypher_rel, between_id)
-          else
-            cypher_both_rels(cypher_rel)
-          end
-        else
-          raise "illegal direction, allowed :outgoing, :incoming and :both for paramter :dir"
-      end
-    end
-
-    def cypher_outgoing_rels_between(cypher_rel, between_id)
-      @session._query_internal(self) {|n| n.outgoing(cypher_rel, node(between_id)); rel.as(:r).neo_id}
-    end
-
-    def cypher_outgoing_rels(cypher_rel)
-      @session._query_internal(self) {|n| n.outgoing(cypher_rel); rel.as(:r).neo_id}
-    end
-
-    def cypher_incoming_rels_between(cypher_rel, between_id)
-      @session._query_internal(self) {|n| n.incoming(cypher_rel, node(between_id)); rel.as(:r).neo_id}
-    end
-
-    def cypher_incoming_rels(cypher_rel)
-      @session._query_internal(self) {|n| n.incoming(cypher_rel); rel.as(:r).neo_id}
-    end
-
-    def cypher_both_rels_between(cypher_rel, between_id)
-      @session._query_internal(self) {|n| n.both(cypher_rel, node(between_id)); rel.as(:r).neo_id}
-    end
-
-    def cypher_both_rels(cypher_rel)
-      @session._query_internal(self) {|n| n.both(cypher_rel); rel.as(:r).neo_id}
     end
 
   end

@@ -19,6 +19,26 @@ module Neo4j::Embedded
 
   end
 
+  class NodesIterator
+    include Enumerable
+    extend Neo4j::Core::TxMethods
+
+    def initialize(node, match)
+      @node = node
+      @match = match
+    end
+
+    def each(&block)
+      @node._rels(@match).each {|r| block.call(r.other_node(@node))}
+    end
+    tx_methods :each
+
+    def empty?
+      first == nil
+    end
+
+  end
+
   class EmbeddedNode
     class << self
       # This method is used to extend a Java Neo4j class so that it includes the same mixins as this class.
@@ -62,6 +82,10 @@ module Neo4j::Embedded
 
           def rels(match={})
             RelsIterator.new(self, match)
+          end
+
+          def nodes(match={})
+            NodesIterator.new(self, match)
           end
 
           def _rels(match={})
