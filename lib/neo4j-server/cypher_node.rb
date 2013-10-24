@@ -81,6 +81,23 @@ module Neo4j::Server
     end
 
 
+    def node(match={})
+      result = match(CypherNode, "ID(p)", match)
+      raise "Expected to only find one relationship from node #{neo_id} matching #{match.inspect} but found #{result.count}" if result.count > 1
+      result.first
+    end
+
+    def rel(match={})
+      result = match(CypherRelationship, "ID(r)", match)
+      raise "Expected to only find one relationship from node #{neo_id} matching #{match.inspect} but found #{result.count}" if result.count > 1
+      result.first
+    end
+
+    def rel?(match={})
+      result = match(CypherRelationship, "ID(r)", match)
+      !!result.first
+    end
+
     def nodes(match={})
       match(CypherNode, "ID(p)", match)
     end

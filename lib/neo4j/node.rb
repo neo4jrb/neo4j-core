@@ -51,11 +51,11 @@ module Neo4j
     # Returns the only node of a given type and direction that is attached to this node, or nil.
     # This is a convenience method that is used in the commonly occuring situation where a node has exactly zero or one relationships of a given type and direction to another node.
     # Typically this invariant is maintained by the rest of the code: if at any time more than one such relationships exist, it is a fatal error that should generate an exception.
-
+    #
     # This method reflects that semantics and returns either:
     # * nil if there are zero relationships of the given type and direction,
     # * the relationship if there's exactly one, or
-    # * throws an unchecked exception in all other cases.
+    # * throws an exception in all other cases.
     #
     # This method should be used only in situations with an invariant as described above. In those situations, a "state-checking" method (e.g. #rel?) is not required,
     # because this method behaves correctly "out of the box."
@@ -66,6 +66,16 @@ module Neo4j
       raise 'not implemented'
     end
 
+    # Same as #node but returns the relationship. Notice it may raise an exception if there are more then one relationship matching.
+    def rel(spec = {})
+      raise 'not implemented'
+    end
+
+    # Returns true or false if there is one or more relationships
+    # Same as `!! #rel()`
+    def rel?(spec = {})
+      raise 'not implemented'
+    end
 
     # Works like #rels method but instead returns the nodes.
     # It does try to load a Ruby wrapper around each node
