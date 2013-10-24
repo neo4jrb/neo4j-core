@@ -88,6 +88,46 @@ module Neo4j::Embedded
             NodesIterator.new(self, match)
           end
 
+          def node(match={})
+            rel = _rel(match)
+            rel && rel.other_node(self)
+          end
+          tx_methods :node
+
+          def rel?(match={})
+            _rels(match).has_next
+          end
+          tx_methods :rel?
+
+          def rel(match={})
+            _rel(match)
+          end
+          tx_methods :rel
+
+          def _rel(match={})
+            dir = match[:dir] || :both
+            rel_type = match[:type]
+
+            rel = if rel_type
+                     get_single_relationship(ToJava.type_to_java(rel_type), ToJava.dir_to_java(dir))
+                  else
+                     iter = get_relationships(ToJava.dir_to_java(dir)).iterator
+                     if (iter.has_next)
+                       first = iter.next
+                       raise "Expected to only find one relationship from node #{neo_id} matching #{match.inspect}" if iter.has_next
+                       first
+                     end
+                   end
+
+            between_id = match[:between] && match[:between].neo_id
+
+            if (rel && between_id)
+              rel.other_node(self).neo_id == between_id ? rel : nil
+            else
+              rel
+            end
+          end
+
           def _rels(match={})
             dir = match[:dir] || :both
             rel_type = match[:type]
