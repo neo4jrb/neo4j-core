@@ -66,7 +66,7 @@ module Neo4j::Embedded
           alias_method :_labels, :getLabels
 
           def del
-            # TODO _rels.each { |r| r.del }
+            _rels.each { |r| r.del }
             delete
             nil
           end

@@ -73,6 +73,16 @@ share_examples_for "Neo4j::Node auto tx" do
           n.del
           Proc.new { n.del }.should raise_error
         end
+
+        it 'does delete its relationships as well' do
+          n = Neo4j::Node.create
+          m = Neo4j::Node.create
+          rel = n.create_rel(:friends, m)
+          rel.should exist
+          n.del
+          n.should_not exist
+          rel.should_not exist
+        end
       end
 
       describe 'labels' do

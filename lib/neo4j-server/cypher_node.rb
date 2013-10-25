@@ -66,7 +66,13 @@ module Neo4j::Server
     end
 
     def del
-      query_cypher_for(:delete_node, neo_id).raise_unless_response_code(200)
+      cypher = "START n = node(#{neo_id}) MATCH n-[r]-() DELETE r"
+      r = @session._query(cypher)
+      r.raise_error if r.error?
+
+      cypher = "START n = node(#{neo_id}) DELETE n"
+      r = @session._query(cypher)
+      r.raise_error if r.error?
     end
 
     def exist?

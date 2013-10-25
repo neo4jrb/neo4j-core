@@ -50,23 +50,6 @@ module Neo4j::Server
         end
       end
 
-      describe 'del' do
-        let(:cypher_response) do
-          double('cypher response', error?: false)
-        end
-
-        it 'generates "START v1=node(42) DELETE v1"' do
-          cypher_response.should_receive(:raise_unless_response_code)
-          session.should_receive(:_query).with('START v1=node(42) DELETE v1').and_return(cypher_response)
-          node = CypherNode.new(session, 42)
-          node.init_resource_data('data', 'http://bla/42')
-
-
-          # when
-          node.del
-        end
-      end
-
       describe 'exist?' do
         it "generates correct cypher" do
           cypher_response = double("cypher response", error?: false)

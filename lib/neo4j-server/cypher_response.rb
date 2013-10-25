@@ -62,7 +62,7 @@ module Neo4j::Server
     end
 
     def raise_unless_response_code(code)
-      raise "Response code #{response.code}, expected #{code} for #{response.request.path}" unless response.code == code
+      raise "Response code #{response.code}, expected #{code} for #{response.request.path}, #{response.body}" unless response.code == code
     end
 
     def set_data(data, columns)
