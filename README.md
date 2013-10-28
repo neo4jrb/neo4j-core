@@ -136,8 +136,6 @@ Add index on a label
   person.drop_index(:name)
 ```
 
-TODO, Not working yet, no Cypher API - must use REST API
-
 ```ruby
   # which indexes do we have and on which properties,
   red.indexes.each {|i| puts "Index #{i.label} properties: #{i.properties}"}
@@ -146,8 +144,8 @@ TODO, Not working yet, no Cypher API - must use REST API
   red.indexes.first.drop(:name)
 
   # which indices exist ?
-  # (compound keys will be supported)
-  red.indexes # => [[:age]]
+  # (compound keys will be supported in Neo4j 2.1 (?))
+  red.indexes # => {:property_keys => [[:age]]}
 ```
 
 ### Creating Nodes

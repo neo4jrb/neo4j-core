@@ -37,5 +37,10 @@ module Neo4j::Core
     end
   end
 
+  def self.symbolize!(hash)
+    hash.keys.each do |key|
+      hash[(key.to_sym rescue key) || key] = hash.delete(key)
+    end
+  end
 
 end

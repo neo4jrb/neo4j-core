@@ -21,5 +21,8 @@ module Neo4j::Server
       end
     end
 
+    def indexes
+      @session.indexes(@name)
+    end
   end
 end

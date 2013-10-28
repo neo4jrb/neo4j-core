@@ -45,9 +45,11 @@ module Neo4j::Embedded
     tx_methods :create_index
 
     def indexes()
-      @session.graph_db.schema.indexes(as_java).map do |index_def|
-        index_def.property_keys.map{|x| x.to_sym}
-      end
+      {
+          property_keys: @session.graph_db.schema.indexes(as_java).map do |index_def|
+            index_def.property_keys.map{|x| x.to_sym}
+          end
+      }
     end
     tx_methods :indexes
 

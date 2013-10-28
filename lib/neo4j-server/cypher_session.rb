@@ -78,6 +78,20 @@ module Neo4j::Server
       CypherLabel.new(self, name)
     end
 
+    def indexes(label)
+      response = HTTParty.get("#{@resource_url}schema/index/#{label}")
+      expect_response_code(response, 200)
+      data_resource = JSON.parse(response.body)
+
+      property_keys = data_resource.map do |row|
+        row['property-keys'].map(&:to_sym)
+      end
+
+      {
+          property_keys: property_keys
+      }
+    end
+
     def find_all_nodes(label_name)
       response = query_cypher_for(:find_all_nodes, label_name)
       response.raise_error if response.error?
