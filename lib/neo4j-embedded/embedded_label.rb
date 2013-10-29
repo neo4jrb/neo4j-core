@@ -16,7 +16,7 @@ module Neo4j::Embedded
     def find_nodes(key=nil, value=nil)
        begin
         iterator = _find_nodes(key,value)
-        iterator.to_a
+        iterator.to_a.map{|n| n.wrapper}
       ensure
         iterator && iterator.close
       end

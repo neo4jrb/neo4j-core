@@ -12,8 +12,16 @@ module Neo4j::Server
       Neo4j::Cypher.query { node(id) }.to_s
     end
 
+    def delete_rels(neo_id)
+      "START n = node(#{neo_id}) MATCH n-[r]-() DELETE r"
+    end
+
     def load_relationship(id)
       "START r=relationship(#{id}) RETURN r"
+    end
+
+    def delete_node(neo_id)
+      "START n = node(#{neo_id}) DELETE n"
     end
 
     def create_index(label, properties)

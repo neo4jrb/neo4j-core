@@ -24,7 +24,7 @@ module Neo4j
 
     class << self
       def create(name, session = Neo4j::Session.current)
-        session.create_label(name)
+          session.create_label(name)
       end
 
       def find_all_nodes(label_name, session = Neo4j::Session.current)

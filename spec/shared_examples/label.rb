@@ -1,22 +1,28 @@
 share_examples_for "Neo4j::Label" do
+
+  before(:all) do
+    r = Random.new
+    @label1 = ("R1 " + r.rand(0..1000000).to_s).to_sym
+    @label2 = ("R2 " + r.rand(0..1000000).to_s).to_sym
+    @random_label = ("R3 " + r.rand(0..1000000).to_s).to_sym
+    @red1 = Neo4j::Node.create({}, @label1)
+    @red2 = Neo4j::Node.create({}, @label1)
+    @green = Neo4j::Node.create({}, @label2)
+  end
+
+
   describe "class methods" do
     describe 'create' do
       it "creates a label with a name" do
-        red = Neo4j::Label.create(:red)
-        red.name.should == :red
+        red = Neo4j::Label.create(@label1)
+        red.name.should == @label1
       end
     end
 
 
     describe 'find_all_nodes' do
-      before(:all) do
-        @red1 = Neo4j::Node.create({}, :red)
-        @red2 = Neo4j::Node.create({}, :red)
-        @green = Neo4j::Node.create({}, :green)
-      end
-
       it 'returns all nodes with that label' do
-        result = Neo4j::Label.find_all_nodes(:red)
+        result = Neo4j::Label.find_all_nodes(@label1)
         result.count.should == 2
         result.should include(@red1, @red2)
       end
@@ -25,9 +31,6 @@ share_examples_for "Neo4j::Label" do
     describe 'find_nodes' do
 
       before(:all) do
-        r = Random.new
-        @random_label = ("R " + r.rand(0..10000000).to_s).to_sym
-
         stuff = Neo4j::Label.create(@random_label)
         stuff.drop_index(:colour) # just in case
         stuff.create_index(:colour)

@@ -53,7 +53,7 @@ module Neo4j::Server
     end
 
     def labels
-      r = @session._query_internal(self) { |node| node } # TODO
+      r = query_cypher_for(:load_node, neo_id)
       @resource_data = r.first_data  # TODO optitimize !
       url = resource_url('labels')
       response = HTTParty.send(:get, url, headers: resource_headers)
@@ -66,12 +66,9 @@ module Neo4j::Server
     end
 
     def del
-      cypher = "START n = node(#{neo_id}) MATCH n-[r]-() DELETE r"
-      r = @session._query(cypher)
+      r = query_cypher_for(:delete_rels, neo_id)
       r.raise_error if r.error?
-
-      cypher = "START n = node(#{neo_id}) DELETE n"
-      r = @session._query(cypher)
+      r = query_cypher_for(:delete_node, neo_id)
       r.raise_error if r.error?
     end
 

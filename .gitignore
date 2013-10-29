@@ -21,6 +21,8 @@ db/
 # jedit
 *~
 
+target
+
 # vim
 .*.sw[a-z]
 

@@ -4,6 +4,7 @@ module Helpers
     q = 'START n = node(*) MATCH n-[r?]-() WHERE ID(n)>0 DELETE n, r;'
     url = 'http://localhost:7474/db/data/cypher'
     response = HTTParty.post(url, headers: resource_headers, body: {query: q}.to_json)
+    Neo4j::Session.set_current(nil)
     raise "can't delete database, #{response}" unless response.code == 200
   end
 
@@ -24,5 +25,6 @@ module Helpers
     end
     tx.success
     tx.finish
+    Neo4j::Session.set_current(nil)
   end
 end

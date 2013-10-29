@@ -279,7 +279,6 @@ Both implementation use the same E2E specs.
 
 ## Neo4j-wrapper API
 
-TODO this is not implemented yet.
 Example of mapping a Neo4j::Node java object to your own class.
 
 ```ruby
@@ -287,13 +286,31 @@ Example of mapping a Neo4j::Node java object to your own class.
   class Person
     include Neo4j::NodeMixin
   end
+
+  # find all person instances
+  Person.find_all
 ```
+
+Using an index
+
+```ruby
+  # will use Neo4j label 'Person'
+  class Person
+    include Neo4j::NodeMixin
+    index :name
+  end
+
+  # find all person instances with key value = name, andreas
+  andreas = Person.create(:name => 'andreas')
+  Person.find(:name, 'andreas')  # will include andreas
+```
+
 
 Example of mapping the Baaz ruby class to Neo4j labels 'Foo', 'Bar' and 'Baaz'
 
 ```ruby
   module Foo
-    def self.label_name
+    def self.mapped_label_name
        "Foo" # specify the label for this module
     end
   end

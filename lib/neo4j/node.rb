@@ -1,8 +1,17 @@
 module Neo4j
+
+  module Wrapper
+    # Used by Neo4j::NodeMixin to wrap nodes
+    def wrapper
+      self
+    end
+  end
+
   class Node
 
     include PropertyContainer
     include EntityEquality
+    include Wrapper
 
     # @abstract
     def create_rel(type, other_node, props = nil)
@@ -94,7 +103,8 @@ module Neo4j
       end
 
       def load(neo_id, session = Neo4j::Session.current)
-        session.load_node(neo_id)
+        node = session.load_node(neo_id)
+        node && node.wrapper
       end
 
       # Checks if the given entity node or entity id (Neo4j::Node#neo_id) exists in the database.

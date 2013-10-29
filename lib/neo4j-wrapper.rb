@@ -2,6 +2,28 @@ require 'neo4j-core'
 
 require 'neo4j-wrapper/labels'
 require 'neo4j-wrapper/initialize'
+require 'neo4j-wrapper/delegates'
+require 'neo4j-wrapper/node_mixin'
+
+Neo4j::NodeMixin = Neo4j::Wrapper::NodeMixin
+
+module Neo4j::Wrapper
+
+  def wrapper
+    found = labels.find do |label_name|
+      Neo4j::Wrapper::Labels._wrapped_labels[label_name].class == Class
+    end
+
+    if found
+      wrapped_node = Neo4j::Wrapper::Labels._wrapped_labels[found].new
+      wrapped_node.init_on_load(self)
+      wrapped_node
+    else
+      self
+    end
+  end
+
+end
 
 #module Neo4j
 #  module LabelMethod

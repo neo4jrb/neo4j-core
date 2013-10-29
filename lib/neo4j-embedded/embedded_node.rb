@@ -152,7 +152,7 @@ module Neo4j::Embedded
             Neo4j::Node
           end
           #include Neo4j::Core::Label
-          #include Neo4j::Core::Wrapper
+          include Neo4j::Wrapper
         end
       end
     end

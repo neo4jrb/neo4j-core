@@ -8,7 +8,6 @@ module Neo4j
       attr_reader :resource_data, :resource_url
 
       def init_resource_data(resource_data, resource_url)
-        raise "No RESOURCE URL" unless resource_url
         raise "Exception #{response['exception']}" if resource_data['exception']
         @resource_url = resource_url
         @resource_data = resource_data

@@ -19,11 +19,15 @@ module Neo4j::Server
       initialize_resource(data_url)
     end
 
+    def to_s
+      "CypherSession #{@resource_url}"
+    end
+
     def initialize_resource(data_url)
       response = HTTParty.get(data_url)
       expect_response_code(response,200)
       data_resource = JSON.parse(response.body)
-
+      raise "!!!!NO data_resource for #{response.body}" unless data_resource
       # store the resource data
       init_resource_data(data_resource, data_url)
     end
@@ -134,9 +138,10 @@ module Neo4j::Server
 
     def search_result_to_enumerable(response)
       return [] unless response.data
+
       Enumerator.new do |yielder|
         response.data.each do |data|
-          yielder << CypherNode.new(@session, data[0])
+          yielder << CypherNode.new(self, data[0]).wrapper
         end
       end
     end
