@@ -8,18 +8,26 @@ tests = Proc.new do
 
     class TestClass
       include Neo4j::NodeMixin
-      def to_s
-        "TestClass"
-      end
     end
 
-    #sleep(2)
     Neo4j::Label.create(:IndexedTestClass).drop_index(:name)
 
     class IndexedTestClass
       include Neo4j::NodeMixin
       index :name  # will index using the IndexedTestClass label
     end
+    #
+    #module FooLabel
+    #  def self.mapped_label_name
+    #    "Foo" # specify the label for this module
+    #  end
+    #end
+    #
+    #module BarIndexedLabel
+    #  extend Neo4j::Wrapper::LabelIndex # to make it possible to search using this module (?)
+    #  index :stuff # (?)
+    #end
+    #
   end
 
   after(:all) do
@@ -87,12 +95,16 @@ tests = Proc.new do
       end
 
       it 'does not find it if deleted' do
-        kalle2 = IndexedTestClass.create(name: 'kalle23')
+        kalle2 = IndexedTestClass.create(name: 'kalle2')
         result = IndexedTestClass.find(:name, 'kalle2')
         result.should include(kalle2)
         kalle2.del
         IndexedTestClass.find(:name, 'kalle2').should_not include(kalle2)
       end
+    end
+
+    describe 'when finding using a Module' do
+
     end
   end
 
