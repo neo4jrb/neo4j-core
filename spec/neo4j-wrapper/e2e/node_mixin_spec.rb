@@ -1,7 +1,8 @@
 require 'spec_helper'
 
 
-tests = Proc.new do
+#tests = Proc.new do
+share_examples_for 'Neo4j::NodeMixin' do
   before(:all) do
     Neo4j::Wrapper::Labels._wrapped_classes = []
     Neo4j::Wrapper::Labels._wrapped_labels = nil
@@ -16,18 +17,17 @@ tests = Proc.new do
       include Neo4j::NodeMixin
       index :name  # will index using the IndexedTestClass label
     end
-    #
-    #module FooLabel
-    #  def self.mapped_label_name
-    #    "Foo" # specify the label for this module
-    #  end
-    #end
-    #
-    #module BarIndexedLabel
-    #  extend Neo4j::Wrapper::LabelIndex # to make it possible to search using this module (?)
-    #  index :stuff # (?)
-    #end
-    #
+
+    module SomeLabelMixin
+      def self.mapped_label_name
+        :some_label
+      end
+    end
+
+    class SomeLabelClass
+      include Neo4j::NodeMixin
+      include SomeLabelMixin
+    end
   end
 
   after(:all) do
@@ -44,6 +44,11 @@ tests = Proc.new do
       it 'automatically sets a label' do
         p = TestClass.create
         p.labels.to_a.should == [:TestClass]
+      end
+
+      it "sets label for mixin classes" do
+        p = SomeLabelClass.create
+        p.labels.to_a.should =~ [:SomeLabelClass, :some_label]
       end
     end
 
@@ -108,12 +113,48 @@ tests = Proc.new do
     end
   end
 
+
 end
 
-describe 'Neo4j::NodeMixin', api: :server do
-  self.instance_eval(&tests)
+share_examples_for 'Neo4j::NodeMixin with Mixin Index'do
+  before(:all) do
+    Neo4j::Wrapper::Labels._wrapped_classes = []
+    Neo4j::Wrapper::Labels._wrapped_labels = nil
+
+    Neo4j::Label.create(:BarIndexedLabel).drop_index(:baaz)
+    sleep(1) # to make it possible to search using this module (?)
+
+    module BarIndexedLabel
+      extend Neo4j::Wrapper::Labels::ClassMethods # to make it possible to search using this module (?)
+      begin
+        index :baaz
+      rescue => e
+        puts "WARNING: sometimes neo4j has a problem with removing and adding indexes in tests #{e}" # TODO
+      end
+    end
+
+    class TestClassWithBar
+      include Neo4j::NodeMixin
+      include BarIndexedLabel
+    end
+  end
+
+
+  it "can be found using the Mixin Module" do
+    hej = TestClassWithBar.create(:baaz => 'hej')
+    BarIndexedLabel.find(:baaz, 'hej').should include(hej)
+    TestClassWithBar.find(:baaz, 'hej').should include(hej)
+    BarIndexedLabel.find(:baaz, 'hej2').should_not include(hej)
+    TestClassWithBar.find(:baaz, 'hej2').should_not include(hej)
+  end
 end
 
-describe 'Neo4j::NodeMixin', api: :embedded do
-  self.instance_eval(&tests)
+describe 'Neo4j::NodeMixin, server', api: :server do
+  it_behaves_like 'Neo4j::NodeMixin'
+  it_behaves_like "Neo4j::NodeMixin with Mixin Index"
+end
+
+describe 'Neo4j::NodeMixin, embedded', api: :embedded do
+  it_behaves_like 'Neo4j::NodeMixin'
+  it_behaves_like "Neo4j::NodeMixin with Mixin Index"
 end
