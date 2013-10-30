@@ -5,16 +5,16 @@ module Neo4j::Server
     response = HTTParty.get(endpoint_url)
     raise "Server not available on #{endpoint_url} (response code #{response.code})" unless response.code == 200
     root_data = JSON.parse(response.body)
-    Neo4j::Server::CypherSession.new(root_data['data'], CypherMapping.new)
+    Neo4j::Server::CypherSession.new(root_data['data'])
   end
 
   class CypherSession < Neo4j::Session
     include Resource
+    include CypherHelper
 
     alias_method :super_query, :query
 
-    def initialize(data_url, cypher_mapping)
-      @cypher_mapping = cypher_mapping
+    def initialize(data_url)
       Neo4j::Session.register(self)
       initialize_resource(data_url)
     end
@@ -32,14 +32,6 @@ module Neo4j::Server
       init_resource_data(data_resource, data_url)
     end
 
-    def cypher_for(method, *args)
-      @cypher_mapping.send(method, *args)
-    end
-
-    def query_cypher_for(method, *args)
-      _query(cypher_for(method, *args))
-    end
-
     def close
       super
       Neo4j::Transaction.unregister_current
@@ -52,12 +44,14 @@ module Neo4j::Server
     end
 
     def create_node(props=nil, labels=[])
-      cypher_response = query_cypher_for(:create_node, props, labels)
-      CypherNode.new(self, cypher_response.first_data)
+      l = labels.empty? ? "" : ":" + labels.map{|k| "`#{k}`"}.join(':')
+      q = "CREATE (n#{l} #{cypher_prop_list(props)}) RETURN ID(n)"
+      cypher_response = _query_or_fail(q, true)
+      CypherNode.new(self, cypher_response)
     end
 
     def load_node(neo_id)
-      cypher_response = query_cypher_for(:load_node, neo_id)
+      cypher_response = _query("START n=node(#{neo_id}) RETURN n")
       if (!cypher_response.error?)
         CypherNode.new(self, neo_id)
       elsif (cypher_response.error_status == 'EntityNotFoundException')
@@ -68,7 +62,7 @@ module Neo4j::Server
     end
 
     def load_relationship(neo_id)
-      cypher_response = query_cypher_for(:load_relationship, neo_id)
+      cypher_response = _query("START r=relationship(#{neo_id}) RETURN r")
       if (!cypher_response.error?)
         CypherRelationship.new(self, neo_id)
       elsif (cypher_response.error_msg =~ /not found/)  # Ugly that the Neo4j API gives us this error message
@@ -97,14 +91,16 @@ module Neo4j::Server
     end
 
     def find_all_nodes(label_name)
-      response = query_cypher_for(:find_all_nodes, label_name)
-      response.raise_error if response.error?
+      response = _query_or_fail("MATCH (n:`#{label_name}`) RETURN ID(n)")
       search_result_to_enumerable(response)
     end
 
-    def find_nodes(label_name, key,value)
-      response = query_cypher_for(:find_nodes_with_index, label_name, key, value)
-      response.raise_error if response.error?
+    def find_nodes(label_name, key, value)
+      response = _query_or_fail <<-CYPHER
+        MATCH (n:`#{label_name}`)
+        WHERE n.#{key} = '#{value}'
+        RETURN ID(n)
+      CYPHER
       search_result_to_enumerable(response)
     end
 
@@ -121,11 +117,16 @@ module Neo4j::Server
       super_query(*params, &query_dsl)
     end
 
+    def _query_or_fail(q, single_row = false, params=nil)
+      response = _query(q, params)
+      response.raise_error if response.error?
+      single_row ? response.first_data : response
+    end
+
     def _query(q, params=nil)
       curr_tx = Neo4j::Transaction.current
       if (curr_tx)
-        raise "Params not supported" if params # TODO
-        curr_tx._query(q)
+        curr_tx._query(q, params)
       else
         url = resource_url('cypher')
         q = params.nil? ? {query: q} : {query: q, params: params}

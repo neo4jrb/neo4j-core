@@ -8,27 +8,27 @@ module Neo4j::Server
 
     let(:session) do
       CypherSession.any_instance.stub(:initialize_resource).and_return(nil)
-      CypherSession.new('http://foo.bar', CypherMapping.new)
+      CypherSession.new('http://foo.bar')
     end
     describe 'instance methods' do
 
       describe 'load_node' do
         it "generates 'START v0 = node(1915); RETURN v0'" do
-          session.should_receive(:_query).with("START v1=node(1915) RETURN v1").and_return(cypher_response)
+          session.should_receive(:_query).with("START n=node(1915) RETURN n").and_return(cypher_response)
           node = session.load_node(1915)
           node.neo_id.should == 1915
         end
 
         it "returns nil if EntityNotFoundException" do
           r = double('cypher response', error?: true, error_status: 'EntityNotFoundException')
-          session.should_receive(:_query).with("START v1=node(1915) RETURN v1").and_return(r)
+          session.should_receive(:_query).with("START n=node(1915) RETURN n").and_return(r)
           session.load_node(1915).should be_nil
         end
 
         it "raise an exception if there is an error but not an EntityNotFoundException exception" do
           r = double('cypher response', error?: true, error_status: 'SomeError', response: double("response").as_null_object)
           r.should_receive(:raise_error)
-          session.should_receive(:_query).with("START v1=node(1915) RETURN v1").and_return(r)
+          session.should_receive(:_query).with("START n=node(1915) RETURN n").and_return(r)
           session.load_node(1915)
         end
       end
@@ -65,22 +65,22 @@ module Neo4j::Server
 
         it "create_node() generates 'CREATE (v1) RETURN v1'" do
           session.stub(:resource_url).and_return
-          session.should_receive(:_query).with("CREATE (v1) RETURN ID(v1)").and_return(cypher_response)
+          session.should_receive(:_query).with("CREATE (n ) RETURN ID(n)", nil).and_return(cypher_response)
           session.create_node
         end
 
         it 'create_node(name: "jimmy") generates ' do
-          session.should_receive(:_query).with("CREATE (v1 {name : 'jimmy'}) RETURN ID(v1)").and_return(cypher_response)
+          session.should_receive(:_query).with("CREATE (n {name : 'jimmy'}) RETURN ID(n)",nil).and_return(cypher_response)
           session.create_node(name: 'jimmy')
         end
 
         it 'create_node({}, [:person])' do
-          session.should_receive(:_query).with("CREATE (v1:`person`) RETURN ID(v1)").and_return(cypher_response)
+          session.should_receive(:_query).with("CREATE (n:`person` {}) RETURN ID(n)",nil).and_return(cypher_response)
           session.create_node({}, [:person])
         end
 
         it "initialize a CypherNode instance" do
-          session.should_receive(:_query).with("CREATE (v1) RETURN ID(v1)").and_return(cypher_response)
+          session.should_receive(:_query).with("CREATE (n ) RETURN ID(n)",nil).and_return(cypher_response)
           n = double("cypher node")
           CypherNode.should_receive(:new).and_return(n)
           session.create_node

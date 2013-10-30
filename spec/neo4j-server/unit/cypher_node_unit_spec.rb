@@ -5,7 +5,7 @@ module Neo4j::Server
 
     let(:session) do
       CypherSession.any_instance.stub(:initialize_resource)
-      CypherSession.new('http://an.url', CypherMapping.new)
+      CypherSession.new('http://an.url')
     end
 
     describe 'instance methods' do
@@ -45,7 +45,7 @@ module Neo4j::Server
 
         it "returns all properties" do
           node = CypherNode.new(session, 42)
-          session.should_receive(:_query).with('START v1=node(42) RETURN v1').and_return(cypher_response)
+          session.should_receive(:_query).with("START n=node(42) RETURN n",nil).and_return(cypher_response)
           node.props.should == {name: 'andreas'}
         end
       end
@@ -53,7 +53,7 @@ module Neo4j::Server
       describe 'exist?' do
         it "generates correct cypher" do
           cypher_response = double("cypher response", error?: false)
-          session.should_receive(:_query).with('START v1=node(42) RETURN ID(v1)').and_return(cypher_response)
+          session.should_receive(:_query).with('START n=node(42) RETURN ID(n)').and_return(cypher_response)
           node = CypherNode.new(session, 42)
           node.init_resource_data('data', 'http://bla/42')
 
@@ -73,14 +73,14 @@ module Neo4j::Server
           node = CypherNode.new(session, 42)
           response = double('response', error?: true, error_status: 'Unknown')
           response.should_receive(:raise_error)
-          session.should_receive(:_query).with('START v1=node(42) RETURN ID(v1)').and_return(response)
+          session.should_receive(:_query).with('START n=node(42) RETURN ID(n)').and_return(response)
           node.exist?
         end
 
         it "returns false if HTTP 400 is received with EntityNotFoundException exception" do
           node = CypherNode.new(session, 42)
           response = double("response", error?: true, error_status: 'EntityNotFoundException')
-          session.should_receive(:_query).with('START v1=node(42) RETURN ID(v1)').and_return(response)
+          session.should_receive(:_query).with('START n=node(42) RETURN ID(n)').and_return(response)
           node.exist?.should be_false
         end
       end
@@ -88,7 +88,8 @@ module Neo4j::Server
       describe '[]=' do
         it 'generates correct cypher' do
           node = CypherNode.new(session, 42)
-          session.should_receive(:_query).with('START v1=node(42) SET v1.name = "andreas"')
+          response = double("cypher response", error?: false)
+          session.should_receive(:_query).with('START n=node(42) SET n.`name` = { value }', {value: 'andreas'}).and_return(response)
           node['name'] = 'andreas'
         end
       end
@@ -96,7 +97,8 @@ module Neo4j::Server
       describe '[]' do
         it 'generates correct cypher' do
           node = CypherNode.new(session, 42)
-          session.should_receive(:_query).with('START v1=node(42) RETURN v1.name').and_return(double('cypher response',first_data: 'andreas'))
+          response = double('cypher response',first_data: 'andreas', error?: false)
+          session.should_receive(:_query).with('START n=node(42) RETURN n.`name`',nil).and_return(response)
           node['name'].should == 'andreas'
         end
       end

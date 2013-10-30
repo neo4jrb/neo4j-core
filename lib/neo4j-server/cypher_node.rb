@@ -1,8 +1,7 @@
 module Neo4j::Server
   class CypherNode < Neo4j::Node
     include Neo4j::Server::Resource
-    extend Forwardable
-    def_delegator :@session, :query_cypher_for
+    include CypherHelper
 
     def initialize(session, id)
       @session = session
@@ -23,57 +22,41 @@ module Neo4j::Server
     end
 
     def create_rel(type, other_node, props = nil)
-      cypher_response = if props
-                          query_cypher_for(:create_rels_with_props, neo_id, other_node.neo_id, type, props)
-                        else
-                          query_cypher_for(:create_rels, neo_id, other_node.neo_id, type)
-                        end
-
-      id = cypher_response.first_data
+      q = "START a=node(#{neo_id}), b=node(#{other_node.neo_id}) CREATE (a)-[r:`#{type}` #{cypher_prop_list(props)}]->(b) RETURN ID(r)"
+      id = @session._query_or_fail(q, true)
       CypherRelationship.new(@session, id)
     end
 
     def props
-      props = query_cypher_for(:load_node, neo_id).first_data['data']
+      props = @session._query_or_fail("START n=node(#{neo_id}) RETURN n", true)['data']
       props.keys.inject({}){|hash,key| hash[key.to_sym] = props[key]; hash}
     end
 
     def remove_property(key)
-      query_cypher_for(:remove_property, neo_id, key)
+      @session._query_or_fail("START n=node(#{neo_id}) REMOVE n.`#{key}`")
     end
 
     def set_property(key,value)
-      query_cypher_for(:set_property, neo_id, key, value)
+      @session._query_or_fail("START n=node(#{neo_id}) SET n.`#{key}` = { value }", false, value: value)
       value
     end
 
     def get_property(key)
-      r = query_cypher_for(:get_property, neo_id, key)
-      r.first_data
+      @session._query_or_fail("START n=node(#{neo_id}) RETURN n.`#{key}`", true)
     end
 
     def labels
-      r = query_cypher_for(:load_node, neo_id)
-      @resource_data = r.first_data  # TODO optitimize !
-      url = resource_url('labels')
-      response = HTTParty.send(:get, url, headers: resource_headers)
-
-      Enumerator.new do |yielder|
-        response.each do |data|
-          yielder << data.to_sym
-        end
-      end
+      r = @session._query_or_fail("START n=node(#{neo_id}) RETURN labels(n) as labels", true)
+      r.map(&:to_sym)
     end
 
     def del
-      r = query_cypher_for(:delete_rels, neo_id)
-      r.raise_error if r.error?
-      r = query_cypher_for(:delete_node, neo_id)
-      r.raise_error if r.error?
+      @session._query_or_fail("START n = node(#{neo_id}) MATCH n-[r]-() DELETE r")
+      @session._query_or_fail("START n = node(#{neo_id}) DELETE n")
     end
 
     def exist?
-      response = query_cypher_for(:get_same_node_id, neo_id)
+      response = @session._query("START n=node(#{neo_id}) RETURN ID(n)")
       if (!response.error?)
         return true
       elsif (response.error_status == 'EntityNotFoundException')

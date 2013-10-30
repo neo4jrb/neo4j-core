@@ -3,6 +3,7 @@ module Neo4j::Server
     attr_reader :commit_url, :exec_url
 
     include Resource
+    include CypherHelper
 
     class CypherError < StandardError
       attr_reader :code, :status
@@ -21,8 +22,23 @@ module Neo4j::Server
       Neo4j::Transaction.register(self)
     end
 
-    def _query(cypher_query)
-      body = {statements: [statement: cypher_query]}
+    def _query(cypher_query, params=nil)
+      statement = {statement: cypher_query}
+      body = {statements: [statement]}
+
+      if params
+        # TODO can't get this working for some reason using parameters
+        #props = params.keys.inject({}) do|ack, k|
+        #  ack[k] = {name: params[k]}
+        #  ack
+        #end
+        #statement[:parameters] = props
+
+        # So we have to do this workaround
+        params.each_pair do |k,v|
+          statement[:statement].gsub!("{ #{k} }", escape_value(v))
+        end
+      end
       response = HTTParty.post(@exec_url, headers: resource_headers, body: body.to_json)
 
       first_result = response['results'][0]
