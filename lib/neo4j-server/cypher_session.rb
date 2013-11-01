@@ -135,8 +135,6 @@ module Neo4j::Server
       end
     end
 
-    private
-
     def search_result_to_enumerable(response)
       return [] unless response.data
 

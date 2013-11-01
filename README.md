@@ -163,10 +163,10 @@ Notice, nodes will be indexed based on which labels they have.
 
 ```ruby
   # Find nodes using an index, returns an Enumerable
-  red.find_nodes(:name, "andreas")
+  Neo4j::Label.find_nodes(:red, :name, "andreas")
 
   # Find all nodes for this label, returns an Enumerable
-  red.find_nodes
+  Neo4j::Label.find_all_nodes(:red)
 
   # which labels does a node have ?
   node.labels # [:red]
@@ -175,6 +175,11 @@ Notice, nodes will be indexed based on which labels they have.
 All method prefixed with `_` gives direct access to the java layer/rest layer.
 Notice, the database starts with auto commit by default.
 
+Example, Finding with order by on label :person
+
+```ruby
+  Neo4j::Label.query(:person, order: [:name, {age: :asc}])
+```
 
 ### Identity
 
