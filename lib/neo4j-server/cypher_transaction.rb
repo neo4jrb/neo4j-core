@@ -3,7 +3,7 @@ module Neo4j::Server
     attr_reader :commit_url, :exec_url
 
     include Resource
-    include CypherHelper
+    include Neo4j::Core::CypherTranslator
 
     class CypherError < StandardError
       attr_reader :code, :status

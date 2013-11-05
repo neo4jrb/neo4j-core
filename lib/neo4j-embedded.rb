@@ -12,3 +12,6 @@ require 'neo4j-embedded/embedded_label'
 require 'neo4j-embedded/embedded_node'
 require 'neo4j-embedded/embedded_relationship'
 require 'neo4j-embedded/embedded_label'
+
+# TODO replace this with https://github.com/intridea/hashie gem
+require 'neo4j-core/hash_with_indifferent_access'

@@ -1,7 +1,7 @@
 module Neo4j::Server
   class CypherNode < Neo4j::Node
     include Neo4j::Server::Resource
-    include CypherHelper
+    include Neo4j::Core::CypherTranslator
 
     def initialize(session, id)
       @session = session

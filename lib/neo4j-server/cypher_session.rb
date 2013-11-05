@@ -10,7 +10,7 @@ module Neo4j::Server
 
   class CypherSession < Neo4j::Session
     include Resource
-    include CypherHelper
+    include Neo4j::Core::CypherTranslator
 
     alias_method :super_query, :query
 
