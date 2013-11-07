@@ -1,4 +1,9 @@
-# Neo4j-core
+# Neo4j-core v2.x
+
+See the v2.x branch
+
+
+# Neo4j-core v3.0
 
 
 ## Installation
@@ -11,7 +16,7 @@ You need to install the Neo4j server. This can be done by included Rake file.
 Example
 
 ```
-rake neo4j:install[community-2.0.0,M05]
+rake neo4j:install[community-2.0.0,M06]
 rake neo4j:start
 ```
 
@@ -20,9 +25,9 @@ rake neo4j:start
 The Gemfile contains references to Neo4j Java libraries. Nothing is needed to be installed.
 
 
-## Version 3.0 Specification
+## Version 3.0
 
-The neo4j-core version 3.0 uses the java Jar and/or the Neo4j Server version 2.0.0-M4+ . This mean that it should work on
+The neo4j-core version 3.0 uses the java Jar and/or the Neo4j Server version 2.0.0-M6+ . This mean that it should work on
 Ruby implementation and not just JRuby !
 
 It uses the new label feature in order to do mappings between `Neo4j::Node` (java objects) and your own ruby classes.
@@ -63,12 +68,15 @@ Changes:
 * Many Neo4j Java methods requires you to close an ResourceIterable as well as be in an transaction (even for read operations)
 In neo4j-core there are two version of these methods, one that create transaction and close the iterable for you and one raw
 where you have to do it yourself (which may give you be better performance).
+* The neo4j-core includes the neo4j-wrapper implementation.
 
 Future (when Neo4j 2.1 is released)
 * Support for fulltext search
 * Compound keys in index
 
 ### Status 2013-10-04
+
+Notice v3.0 is not released and should not be used in production !
 
 * Impl. CRUD operations on nodes/relationships
 * Impl. navigation of relationships
