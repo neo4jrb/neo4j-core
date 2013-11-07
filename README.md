@@ -1,9 +1,7 @@
-# Neo4j-core v2.x
+# Neo4j-core v3.0 [![Code Climate](https://codeclimate.com/github/andreasronge/neo4j-core.png)](https://codeclimate.com/github/andreasronge/neo4j-core)
+[![Build Status](https://travis-ci.org/andreasronge/neo4j-core.png)](https://travis-ci.org/andreasronge/neo4j-core)
 
-See the v2.x branch
-
-
-# Neo4j-core v3.0
+For the stable v2.0 version, see the v2.0 branch https://github.com/andreasronge/neo4j-core/tree/v2.x
 
 
 ## Installation
