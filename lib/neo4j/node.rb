@@ -1,64 +1,122 @@
 module Neo4j
-  # A node in the graph with properties and relationships to other entities.
-  # Along with relationships, nodes are the core building blocks of the Neo4j data representation model.
-  # Node has three major groups of operations: operations that deal with relationships, operations that deal with properties and operations that traverse the node space.
-  # The property operations give access to the key-value property pairs.
-  # Property keys are always strings. Valid property value types are the primitives (<tt>String</tt>, <tt>Fixnum</tt>, <tt>Float</tt>, <tt>Boolean</tt>), and arrays of those primitives.
-  #
-  # The Neo4j::Node#new method does not return a new Ruby instance (!). Instead it will call the Neo4j Java API which will return a
-  # *org.neo4j.kernel.impl.core.NodeProxy* object. This java object includes the same mixin as this class. The #class method on the java object
-  # returns Neo4j::Node in order to make it feel like an ordinary Ruby object.
-  #
-  # @example Create a node with one property (see {Neo4j::Core::Node::ClassMethods})
-  #   Neo4j::Node.new(:name => 'andreas')
-  #
-  # @example Create a relationship (see {Neo4j::Core::Traversal})
-  #   Neo4j::Node.new.outgoing(:friends) << Neo4j::Node.new
-  #
-  # @example Finding relationships (see {Neo4j::Core::Rels})
-  #   node.rels(:outgoing, :friends)
-  #
-  # @example Lucene index (see {Neo4j::Core::Index})
-  #   Neo4j::Node.trigger_on(:typex => 'MyTypeX')
-  #   Neo4j::Node.index(:name)
-  #   a = Neo4j::Node.new(:name => 'andreas', :typex => 'MyTypeX')
-  #   # finish_tx
-  #   Neo4j::Node.find(:name => 'andreas').first.should == a
-  #
-  class Node
-    extend Neo4j::Core::Node::ClassMethods
-    extend Neo4j::Core::Wrapper::ClassMethods
-    extend Neo4j::Core::Index::ClassMethods
 
-    include Neo4j::Core::Property
-    include Neo4j::Core::Rels
-    include Neo4j::Core::Traversal
-    include Neo4j::Core::Node
-    include Neo4j::Core::Wrapper
-    include Neo4j::Core::Property::Java # for documentation purpose only
-    include Neo4j::Core::Index
-
-    node_indexer do
-      index_names :exact => 'default_node_index_exact', :fulltext => 'default_node_index_fulltext'
-    end
-
-    class << self
-
-
-      # This method is used to extend a Java Neo4j class so that it includes the same mixins as this class.
-      def extend_java_class(java_clazz)
-        java_clazz.class_eval do
-          include Neo4j::Core::Property
-          include Neo4j::Core::Rels
-          include Neo4j::Core::Traversal
-          include Neo4j::Core::Node
-          include Neo4j::Core::Wrapper
-          include Neo4j::Core::Index
-        end
-      end
+  module Wrapper
+    # Used by Neo4j::NodeMixin to wrap nodes
+    def wrapper
+      self
     end
   end
 
-  Neo4j::Node.extend_java_class(Java::OrgNeo4jKernelImplCore::NodeProxy)
+  class Node
+
+    include PropertyContainer
+    include EntityEquality
+    include Wrapper
+
+    # @abstract
+    def create_rel(type, other_node, props = nil)
+      raise 'not implemented'
+    end
+
+
+    # Returns an enumeration of relationships.
+    # It always returns relationships of depth one.
+    #
+    # @param [Hash] opts the options to create a message with.
+    # @option opts [Symbol] :dir dir the direction of the relationship, allowed values: :both, :incoming, :outgoing.
+    # @option opts [Symbol] :type the type of relationship to navigate
+    # @option opts [Symbol] :between return all the relationships between this and given node
+    # @return [Enumerable] of Neo4j::Relationship objects
+    #
+    # @example Return both incoming and outgoing relationships of any type
+    #   node_a.rels
+    #
+    # @example All outgoing or incoming relationship of type friends
+    #   node_a.rels(type: :friends)
+    #
+    # @example All outgoing relationships between me and another node of type friends
+    #   node_a.rels(type: :friends, dir: :outgoing, between: node_b)
+    #
+    # @abstract
+    def rels(opts = {dir: :both})
+      raise 'not implemented'
+    end
+
+    # @abstract
+    def add_label(*labels)
+      raise 'not implemented'
+    end
+
+    # @abstract
+    def exist?
+      raise 'not implemented'
+    end
+
+    # @abstract
+    def labels
+      raise 'not implemented'
+    end
+
+    # Returns the only node of a given type and direction that is attached to this node, or nil.
+    # This is a convenience method that is used in the commonly occuring situation where a node has exactly zero or one relationships of a given type and direction to another node.
+    # Typically this invariant is maintained by the rest of the code: if at any time more than one such relationships exist, it is a fatal error that should generate an exception.
+    #
+    # This method reflects that semantics and returns either:
+    # * nil if there are zero relationships of the given type and direction,
+    # * the relationship if there's exactly one, or
+    # * throws an exception in all other cases.
+    #
+    # This method should be used only in situations with an invariant as described above. In those situations, a "state-checking" method (e.g. #rel?) is not required,
+    # because this method behaves correctly "out of the box."
+    #
+    # @abstract
+    # @param (see #rel)
+    def node(specs = {})
+      raise 'not implemented'
+    end
+
+    # Same as #node but returns the relationship. Notice it may raise an exception if there are more then one relationship matching.
+    def rel(spec = {})
+      raise 'not implemented'
+    end
+
+    # Returns true or false if there is one or more relationships
+    # Same as `!! #rel()`
+    def rel?(spec = {})
+      raise 'not implemented'
+    end
+
+    # Works like #rels method but instead returns the nodes.
+    # It does try to load a Ruby wrapper around each node
+    # @abstract
+    # @param (see #rels)
+    # @return [Enumerable] an Enumeration of either Neo4j::Node objects or wrapped Neo4j::Node objects
+    # @notice it's possible that the same node is returned more then once because of several relationship reaching to the same node, see #outgoing for alternative
+    def nodes(specs = {})
+      #rels(specs).map{|n| n.other_node(self)}
+    end
+
+    class << self
+      def create(props=nil, *labels_or_db)
+        session = Neo4j::Core::ArgumentHelper.session(labels_or_db)
+        session.create_node(props, labels_or_db)
+      end
+
+      def load(neo_id, session = Neo4j::Session.current)
+        node = session.load_node(neo_id)
+        node && node.wrapper
+      end
+
+      # Checks if the given entity node or entity id (Neo4j::Node#neo_id) exists in the database.
+      # @return [true, false] if exist
+      def exist?(entity_or_entity_id, session = Neo4j::Session.current)
+        session.node_exist?(neo_id)
+      end
+
+      def find_nodes(label, value=nil, session = Neo4j::Session.current)
+        session.find_nodes(label, value)
+      end
+    end
+  end
 
 end

@@ -3,93 +3,76 @@ require "bundler/setup"
 require 'rspec'
 require 'fileutils'
 require 'tmpdir'
-require 'its'
+#require 'its'
 require 'logger'
 
+#require 'neo4j-server'
+#require 'neo4j-embedded'
 require 'neo4j-core'
-#require 'pry'
+require 'neo4j-wrapper'
 
 
-# Requires supporting ruby files with custom matchers and macros, etc,
-# in spec/support/ and its subdirectories.
-Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each { |f| require f }
+Dir["#{File.dirname(__FILE__)}/shared_examples/**/*.rb"].each { |f| require f }
 
-
-#unless ENV['TRAVIS'] == 'true'
-#  puts "Use test db"
-#  Neo4j::Community.load_test_jars!
-#  #Neo4j::Core::Database.default_embedded_db = Java::OrgNeo4jTest::ImpermanentGraphDatabase
-#  $NEO4J_SERVER = Java::OrgNeo4jTest::ImpermanentGraphDatabase.new
-#end
-
-# Config
-Neo4j::Config[:logger_level] = Logger::ERROR
-Neo4j::Config[:debug_java] = true
 EMBEDDED_DB_PATH = File.join(Dir.tmpdir, "neo4j-core-java")
-FileUtils.rm_rf EMBEDDED_DB_PATH
 
-def embedded_db
-  @@db ||= begin
-    FileUtils.rm_rf EMBEDDED_DB_PATH
-    db = Java::OrgNeo4jKernel::EmbeddedGraphDatabase.new(EMBEDDED_DB_PATH, Neo4j.config.to_java_map)
-    at_exit do
-      db.shutdown
-      FileUtils.rm_rf EMBEDDED_DB_PATH
-    end
-    db
-  end
+require "#{File.dirname(__FILE__)}/helpers"
+
+RSpec.configure do |c|
+  c.include Helpers
 end
 
-def shutdown_embedded_db
-  if defined? @@db && @@db
-    finish_tx
-    @@db.shutdown
-    FileUtils.rm_rf EMBEDDED_DB_PATH
-    @@db = nil
-  end
+def create_embedded_session
+  Neo4j::Session.open(:impermanent_db, EMBEDDED_DB_PATH, auto_commit: true)
+  #Neo4j::Session.open(:embedded_db, EMBEDDED_DB_PATH)
 end
 
-def new_java_tx(db)
-  finish_tx if @tx
-  @tx = db.begin_tx
+def create_server_session
+  Neo4j::Session.open(:server_db, "http://localhost:7474")
 end
 
-def finish_tx
-  return unless @tx
-  @tx.success
-  @tx.finish
-  @tx = nil
+def session
+  Neo4j::Session.current
 end
 
-def new_tx
-  finish_tx if @tx
-  @tx = Neo4j::Transaction.new
-end
 
-Neo4j::Config[:storage_path] = File.join(Dir.tmpdir, "neo4j_core_integration_rspec")
-FileUtils.rm_rf Neo4j::Config[:storage_path]
+FileUtils.rm_rf(EMBEDDED_DB_PATH)
 
 RSpec.configure do |c|
 
-  c.after(:each, :type => :integration) do
-    finish_tx
+  c.before(:all, api: :server) do
+    Neo4j::Session.current.close if Neo4j::Session.current
+    create_server_session
   end
 
-  c.before(:all) do
-    Neo4j::Config[:storage_path] = File.join(Dir.tmpdir, "neo4j_core_integration_rspec")
+  c.before(:all, api: :embedded) do
+    Neo4j::Session.current.close if Neo4j::Session.current
+    create_embedded_session
+    Neo4j::Session.current.start unless Neo4j::Session.current.running?
   end
 
-  c.before(:all, :type => :mock_db) do
-    Neo4j.shutdown
-    Neo4j::Config[:storage_path] = File.join(Dir.tmpdir, "neo4j_core_integration_rspec")
-    FileUtils.rm_rf Neo4j::Config[:storage_path]
-    Neo4j::Core::Database.default_embedded_db= MockDb
-    Neo4j.start
+  c.before(:each, api: :embedded) do
+    curr_session = Neo4j::Session.current
+    curr_session.close if curr_session && !curr_session.kind_of?(Neo4j::Embedded::EmbeddedSession)
+    Neo4j::Session.current || create_embedded_session
+    Neo4j::Session.current.start unless Neo4j::Session.current.running?
   end
 
-  c.after(:all, :type => :mock_db) do
-    Neo4j.shutdown
-    Neo4j::Core::Database.default_embedded_db = nil
+  c.before(:each, api: :server) do
+    curr_session = Neo4j::Session.current
+    curr_session.close if curr_session && !curr_session.kind_of?(Neo4j::Server::CypherSession)
+    Neo4j::Session.current || create_server_session
   end
+
+  #c.after(:all, api: :server) do
+  #  clean_server_db if Neo4j::Session.current && Neo4j::Session.current.kind_of?(Neo4j::Server::CypherSession)
+  #end
+
+  c.exclusion_filter = {
+      :api => lambda do |ed|
+        RUBY_PLATFORM != 'java' && ed == :embedded
+      end
+  }
 
 end
+

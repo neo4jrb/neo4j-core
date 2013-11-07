@@ -8,13 +8,20 @@ b/
 # ignore Rubymine
 .idea
 
+doc
+pkg/
+
 .rvmrc
 .bundle
 tmp
 db/
 
+/neo4j/
+
 # jedit
 *~
+
+target
 
 # vim
 .*.sw[a-z]

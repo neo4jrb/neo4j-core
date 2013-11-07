@@ -1,69 +1,31 @@
-require 'java'
-include Java
-
-module Neo4j
-  # Enumerator has been moved to top level in Ruby 1.9.2, make it compatible with Ruby 1.8.7
-  Enumerator = Enumerable::Enumerator unless defined? Enumerator
-end
-
-require 'neo4j-core/jars/neo4jrb-adaptor.jar'
-require 'set'
+require 'forwardable'
+require 'fileutils'
 
 require 'neo4j-cypher'
 
-require 'neo4j-core/version'
-require 'neo4j/config'
+require 'neo4j-core/helpers'
+require 'neo4j-core/property'
+require 'neo4j/exceptions'
 
-require 'neo4j-community'
+require 'neo4j-core/cypher_helper'
+require 'neo4j/property_container'
+require 'neo4j/entity_equality'
+require 'neo4j/node'
+require 'neo4j/label'
+require 'neo4j/session'
 
-require 'neo4j/neo4j'
-
-require 'neo4j-core/lazy_map'
-require 'neo4j-core/relationship_set'
-require 'neo4j-core/event_handler'
-require 'neo4j-core/database'
-require 'neo4j-core/to_java'
-
-require 'neo4j-core/property/property'
-require 'neo4j-core/property/java'
-
-require 'neo4j-core/rels/rels'
-require 'neo4j-core/rels/traverser'
-
-require 'neo4j-core/traversal/traversal'
-require 'neo4j-core/traversal/traversal'
-require 'neo4j-core/traversal/filter_predicate'
-require 'neo4j-core/traversal/prune_evaluator'
-require 'neo4j-core/traversal/rel_expander'
-require 'neo4j-core/traversal/traverser'
-
-require 'neo4j-core/index/index'
-require 'neo4j-core/index/class_methods'
-require 'neo4j-core/index/indexer_registry'
-require 'neo4j-core/index/index_config'
-require 'neo4j-core/index/indexer'
-require 'neo4j-core/index/lucene_query'
-require 'neo4j-core/index/unique_factory'
-
-require 'neo4j-core/wrapper/class_methods'
-require 'neo4j-core/wrapper/wrapper'
-
-require 'neo4j-core/relationship/relationship'
-require 'neo4j-core/relationship/class_methods'
-
-require 'neo4j-core/node/node'
-require 'neo4j-core/node/class_methods'
-
+require 'neo4j/relationship'
 require 'neo4j/transaction'
 
-require 'neo4j-core/traversal/evaluator'
-require 'neo4j-core/traversal/filter_predicate'
-require 'neo4j-core/traversal/prune_evaluator'
-require 'neo4j-core/traversal/rel_expander'
-require 'neo4j-core/traversal/traversal'
-require 'neo4j-core/traversal/traverser'
-require 'neo4j-core/hash_with_indifferent_access'
+require 'neo4j-server'
 
-require 'neo4j/algo'
-require 'neo4j/node'
-require 'neo4j/relationship'
+if RUBY_PLATFORM == 'java'
+  require 'neo4j-embedded'
+else
+  # just for the tests
+  module Neo4j::Embedded
+  end
+end
+
+
+#require 'neo4j-wrapper' # TODO should be move to a separate gem
