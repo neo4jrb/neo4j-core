@@ -8,22 +8,6 @@ module Neo4j::Core
     end
   end
 
-  class ResourceIterator
-    include Enumerable
-    def initialize(iterable)
-      @_iterable = iterable
-    end
-
-    def each
-      iterator = @_iterable.iterator
-      while (iterator.has_next)
-        yield iterator.next
-      end
-    ensure
-      iterator && iterator.close
-    end
-  end
-
   module TxMethods
     def tx_methods(*methods)
       methods.each do |method|
@@ -37,10 +21,5 @@ module Neo4j::Core
     end
   end
 
-  def self.symbolize!(hash)
-    hash.keys.each do |key|
-      hash[(key.to_sym rescue key) || key] = hash.delete(key)
-    end
-  end
 
 end

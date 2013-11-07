@@ -4,7 +4,7 @@ module Neo4j::Embedded
       # This method is used to extend a Java Neo4j class so that it includes the same mixins as this class.
       def extend_java_class(java_clazz)
         java_clazz.class_eval do
-          include Neo4j::Core::Property
+          include Neo4j::Embedded::Property
           include Neo4j::EntityEquality
           extend Neo4j::Core::TxMethods
 

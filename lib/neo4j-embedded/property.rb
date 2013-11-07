@@ -1,4 +1,7 @@
-module Neo4j::Core::Property
+
+# TODO code duplication with the Neo4j::PropertyContainer,
+# This module should extend that module by adding transaction around methods
+module Neo4j::Embedded::Property
   extend Neo4j::Core::TxMethods
 
   def valid_property?(value)
