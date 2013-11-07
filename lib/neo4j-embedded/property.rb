@@ -2,23 +2,11 @@
 # TODO code duplication with the Neo4j::PropertyContainer,
 # This module should extend that module by adding transaction around methods
 module Neo4j::Embedded::Property
+  include Neo4j::PropertyValidator
+  include Neo4j::PropertyContainer
   extend Neo4j::Core::TxMethods
 
-  def valid_property?(value)
-    Neo4j::Node::VALID_PROPERTY_VALUE_CLASSES.include?(value.class)
-  end
-
-  def []=(key,value)
-    unless valid_property?(value) # TODO DRY
-      raise Neo4j::InvalidPropertyException.new("Not valid Neo4j Property value #{value.class}, valid: #{Neo4j::Node::VALID_PROPERTY_VALUE_CLASSES.to_a.join(', ')}")
-    end
-
-    if value.nil?
-      remove_property(key)
-    else
-      set_property(key.to_s, value)
-    end
-  end
+  # inherit the []= method but add auto transaction around it
   tx_methods :[]=
 
   def [](key)

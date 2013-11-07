@@ -121,7 +121,7 @@ share_examples_for "Neo4j::Node auto tx" do
         end
 
         it "raise exception for illegal values" do
-          Proc.new { node[:illegal_thing] = Object.new }.should raise_error(Neo4j::InvalidPropertyException)
+          Proc.new { node[:illegal_thing] = Object.new }.should raise_error(Neo4j::PropertyValidator::InvalidPropertyException)
           node[:illegal_thing].should be_nil
         end
 

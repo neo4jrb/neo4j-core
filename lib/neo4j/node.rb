@@ -8,10 +8,9 @@ module Neo4j
   end
 
   class Node
-
-    include PropertyContainer
     include EntityEquality
     include Wrapper
+    include PropertyContainer
 
     # @abstract
     def create_rel(type, other_node, props = nil)
