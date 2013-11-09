@@ -55,7 +55,7 @@ share_examples_for "Neo4j::Label" do
         result.count.should == 0
       end
 
-      it "finds it event if there is no index on it" do
+      it "finds it even if there is no index on it" do
         result = Neo4j::Label.find_nodes(@random_label, :name, 'r')
         result.should include(@red)
         result.count.should == 1
@@ -85,7 +85,7 @@ share_examples_for "Neo4j::Label" do
       end
     end
 
-    describe 'drop' do
+    describe 'drop_index' do
       it "drops a index" do
         people = Neo4j::Label.create(:people)
         people.drop_index(:name, :foo)
