@@ -111,6 +111,19 @@ module Neo4j::Embedded
       Neo4j::Cypher::ResultWrapper.new(result)
     end
 
+    def query_default_return
+      " RETURN n"
+    end
+
+    def _query_or_fail(q)
+      engine = Java::OrgNeo4jCypherJavacompat::ExecutionEngine.new(@graph_db)
+      engine.execute(q)
+    end
+
+    def search_result_to_enumerable(result)
+      result.map {|column| column['n']}
+    end
+
     def create_node(properties = nil, labels=[])
       if labels.empty?
         _java_node = graph_db.create_node

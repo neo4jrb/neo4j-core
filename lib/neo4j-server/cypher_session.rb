@@ -123,6 +123,10 @@ module Neo4j::Server
       single_row ? response.first_data : response
     end
 
+    def query_default_return
+      " RETURN ID(n)"
+    end
+
     def _query(q, params=nil)
       curr_tx = Neo4j::Transaction.current
       if (curr_tx)

@@ -31,8 +31,8 @@ module Neo4j
 
       def query(label_name, query, session = Neo4j::Session.current)
         cypher = "MATCH (n:`#{label_name}`)"
-        cypher += condition_to_cypher(query) if query[:conditions]
-        cypher += "  RETURN ID(n)"
+        cypher += condition_to_cypher(query) if query[:conditions] && !query[:conditions].empty?
+        cypher += session.query_default_return
         cypher += order_to_cypher(query) if query[:order]
 
         response = session._query_or_fail(cypher)
