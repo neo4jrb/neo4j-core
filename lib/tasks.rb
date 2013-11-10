@@ -40,11 +40,13 @@ namespace :neo4j do
         puts "Neo4j Installed as a service."
       end
 
-    else    
-      %x[wget http://dist.neo4j.org/neo4j-#{args[:edition]}-#{args[:version]}-unix.tar.gz]
-      %x[tar -xvzf neo4j-#{args[:edition]}-#{args[:version]}-unix.tar.gz]
+    else
+      file_name = "neo4j-#{args[:edition]}-#{args[:version]}-unix.tar.gz"
+      unless File.exist?(file_name)
+        %x[wget http://dist.neo4j.org/#{file_name}]
+      end
+      %x[tar -xvzf #{file_name}]
       %x[mv neo4j-#{args[:edition]}-#{args[:version]} neo4j]
-      %x[rm neo4j-#{args[:edition]}-#{args[:version]}-unix.tar.gz]
       puts "Neo4j Installed in to neo4j directory."
     end
     puts "Type 'rake neo4j:start' to start it"
@@ -94,7 +96,7 @@ namespace :neo4j do
   end
 
   desc "Reset the Neo4j Server"
-  task :reset_yes_i_am_sure do
+  task :reset do
     # Stop the server
     if OS::Underlying.windows? 
       if %x[reg query "HKU\\S-1-5-19"].size > 0

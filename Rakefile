@@ -9,27 +9,22 @@ def jar_path
 end
 
 desc "Run neo4j-core specs"
-task 'spec-core' do
-  success = system('rspec spec/')
-  abort("RSpec neo4j-core failed") unless success
+namespace :test do
+  desc "REST implementation"
+  task :rest do
+    success = system('rspec spec/rest')
+    abort("RSpec neo4j-core for REST implementation failed") unless success
+  end
+
+  desc "Embedded implementation"
+  task :embedded do
+    success = system('rspec spec/embedded')
+    abort("RSpec neo4j-core for embedded implementation failed") unless success
+  end
 end
 
-# desc "Run neo4j-wrapper specs"
-# task :'spec-wrapper' do
-#   success = system('rspec spec/neo4j-wrapper')
-#   abort("RSpec neo4j-wrapper failed") unless success
-# end
-#RSpec::Core::RakeTask.new("spec-wrapper") do |t|
-#  #t.rspec_opts = ["-c"]
-#  t.rspec_opts = './spec/neo4j-wrapper'
-#end
+desc "Run all the neo4j-core specs"
+task test: ['test:rest', 'test:embedded']
 
-desc 'delete server db'
-task :rm_server_db do
-  FileUtils.rm_rf('./neo4j/data')
-  FileUtils.mkdir_p('./neo4j/data')
-end
-
-task :clean_db => ['neo4j:stop', 'rm_server_db', 'neo4j:start']
-
-task :default => ['spec-core', 'neo4j:restart', 'spec-wrapper']
+task :clean => ['neo4j:stop', 'neo4j:reset']
+task :default => [:test]

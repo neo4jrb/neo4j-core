@@ -8,15 +8,22 @@ require "helpers"
 RSpec.configure do |config|
   config.include Helpers
 
-  # Start the database beofre all tests run
+  # Start a clean database beofre all tests run
   config.before :all, api: :rest do
-    Helpers::Rest.clean
-    Helpers::Rest.run
+    Helpers::Rest.clean_start
   end
 
   config.before :all, api: :embedded do
-    Helpers::Embedded.clean
-    Helpers::Embedded.run
+    Helpers::Embedded.clean_start
+  end
+
+  # Stop the database after you're done
+  config.after :all, api: :rest do
+    Helpers::Rest.stop
+  end
+
+  config.after :all, api: :rest do
+    Helpers::Embedded.stop
   end
 
   config.exclusion_filter = {

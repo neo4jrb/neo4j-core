@@ -1,15 +1,16 @@
 require "tmpdir"
+load "Rakefile"
 
 module Helpers
   module Rest
     class << self
-      def run
-        Neo4j::Session.stop if Neo4j::Session.running?
-        Neo4j::Session.open :rest
+      def stop
+        Rake.application['neo4j:stop'].invoke
       end
 
-      def clean
-        Neography::Rest.new.commit_transaction 'START n = node(*) MATCH n-[r?]-() WHERE ID(n)>0 DELETE n, r;'
+      def clean_start
+        Rake.application[:clean].invoke
+        Rake.application['neo4j:start'].invoke
       end
     end
   end
@@ -18,12 +19,12 @@ module Helpers
     PATH = File.join(Dir.tmpdir, "neo4j-core-java")
 
     class << self
-      def run
+      def start
         Neo4j::Session.stop if Neo4j::Session.running?
         Neo4j::Session.open :impermamnent
       end
 
-      def clean
+      def clean_start
         graph_db = Neo4j::Session.current.graph_db
         ggo = Java::OrgNeo4jTooling::GlobalGraphOperations.at(graph_db)
 
