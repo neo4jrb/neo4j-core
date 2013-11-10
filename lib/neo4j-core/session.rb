@@ -17,16 +17,25 @@ module Neo4j
           else
             raise InvalidSessionType
           end
-          @current = session unless @current
+          current = session unless current
           session
       end
 
+      def running?
+        if current
+          current.running?
+        else
+          false
+        end
+      end
+
       def start
-        @current.start
+        current.start
       end
 
       def stop
-        @current.stop
+        raise "Could not stop the current database" if !current.stop
+        current = nil
       end
     end
   end

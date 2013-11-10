@@ -22,7 +22,7 @@ RSpec.configure do |config|
     Helpers::Rest.stop
   end
 
-  config.after :all, api: :rest do
+  config.after :all, api: :embedded do
     Helpers::Embedded.stop
   end
 

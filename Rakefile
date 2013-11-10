@@ -10,6 +10,20 @@ end
 
 desc "Run neo4j-core specs"
 namespace :test do
+  desc "Abstract modules"
+  task :abstract do
+    spec_files = Dir["spec/*.rb"].map do |sf|
+      case sf
+      when "spec/helpers.rb", "spec/spec_helper.rb"
+        nil
+      else
+        sf
+      end
+    end.join(' ').strip
+    success = system("rspec #{spec_files}")
+    abort("RSpec neo4j-core for abstract module implementation failed") unless success
+  end
+
   desc "REST implementation"
   task :rest do
     success = system('rspec spec/rest')
@@ -24,7 +38,7 @@ namespace :test do
 end
 
 desc "Run all the neo4j-core specs"
-task test: ['test:rest', 'test:embedded']
+task test: ['test:abstract', 'test:rest', 'test:embedded']
 
 task :clean => ['neo4j:stop', 'neo4j:reset']
 task :default => [:test]

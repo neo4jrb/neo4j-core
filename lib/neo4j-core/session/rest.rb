@@ -5,11 +5,15 @@ module Neo4j
         @neo = Neography::Rest.new url
       end
 
-      # Start and stop make no sense for a rest server so we just return true to make our specs happy
-      def start
+      # These methods make no sense for a rest server so we just return true to make our specs happy
+      def always_true
         true
       end
-      alias :stop :start
+
+      private :always_true
+      alias :start :always_true
+      alias :stop :always_true
+      alias :running? :always_true
     end
   end
 end

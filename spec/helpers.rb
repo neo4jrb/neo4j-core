@@ -16,16 +16,20 @@ module Helpers
   end
 
   module Embedded
-    PATH = File.join(Dir.tmpdir, "neo4j-core-java")
-
     class << self
-      def start
+      def tmp_path
+        File.join(Dir.tmpdir, "neo4j-core-java")
+      end
+
+      def stop
         Neo4j::Session.stop if Neo4j::Session.running?
-        Neo4j::Session.open :impermamnent
       end
 
       def clean_start
-        graph_db = Neo4j::Session.current.graph_db
+        Neo4j::Session.stop if Neo4j::Session.running?
+        session = Neo4j::Session.new :embedded, tmp_path
+        session.start
+        graph_db = session.database
         ggo = Java::OrgNeo4jTooling::GlobalGraphOperations.at(graph_db)
 
         tx = graph_db.begin_tx
@@ -41,7 +45,7 @@ module Helpers
         end
         tx.success
         tx.finish
-        Neo4j::Session.stop
+        session.stop
       end
     end
   end
