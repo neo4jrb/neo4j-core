@@ -5,10 +5,10 @@ module Neo4j
         @neo = Neography::Rest.new url
       end
 
+      # Start and stop make no sense for a rest server so we just return true to make our specs happy
       def start
         true
       end
-
       alias :stop :start
     end
   end

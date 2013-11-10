@@ -1,6 +1,6 @@
 require 'rake'
 require "bundler/gem_tasks"
-require 'neo4j/tasks'
+require 'tasks'
 
 def jar_path
   spec = Gem::Specification.find_by_name("neo4j-community")
@@ -10,15 +10,15 @@ end
 
 desc "Run neo4j-core specs"
 task 'spec-core' do
-  success = system('rspec spec/neo4j-server spec/neo4j-embedded')
+  success = system('rspec spec/')
   abort("RSpec neo4j-core failed") unless success
 end
 
-desc "Run neo4j-wrapper specs"
-task :'spec-wrapper' do
-  success = system('rspec spec/neo4j-wrapper')
-  abort("RSpec neo4j-wrapper failed") unless success
-end
+# desc "Run neo4j-wrapper specs"
+# task :'spec-wrapper' do
+#   success = system('rspec spec/neo4j-wrapper')
+#   abort("RSpec neo4j-wrapper failed") unless success
+# end
 #RSpec::Core::RakeTask.new("spec-wrapper") do |t|
 #  #t.rspec_opts = ["-c"]
 #  t.rspec_opts = './spec/neo4j-wrapper'

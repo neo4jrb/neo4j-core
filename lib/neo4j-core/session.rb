@@ -18,6 +18,7 @@ module Neo4j
             raise InvalidSessionType
           end
           @current = session unless @current
+          session
       end
 
       def start

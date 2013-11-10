@@ -31,8 +31,8 @@ It comes included with the Apache Lucene document database.
   s.add_development_dependency "rake", ">= 0.8.7"
   s.add_development_dependency "rspec", "~> 2.8"
 
-  s.add_dependency("httparty")
-  s.add_dependency("json")
-  s.add_dependency("neo4j-cypher")
-  s.add_dependency("neography")
+  s.add_dependency "httparty"
+  s.add_dependency "json"
+  s.add_dependency "neo4j-cypher"
+  s.add_dependency "neography"
 end

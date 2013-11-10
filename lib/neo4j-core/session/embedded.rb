@@ -3,6 +3,14 @@ module Neo4j
     class Embedded
       def initialize(path)
       end
+
+      def start
+        true
+      end
+
+      def stop
+        true
+      end
     end
   end
 end

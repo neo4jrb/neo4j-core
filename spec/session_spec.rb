@@ -7,35 +7,33 @@ module Neo4j
         expect { Session.new(:invalid_type, "invalid/valid url") }.to raise_error(Session::InvalidSessionType)
       end
     end
+  end
 
-    context "rest implementation" do
-      describe "instance methods" do
-        subject do
-          Session.new :rest, "http://localhost:7474/"
-          Session.current
-        end
-        its(:start) { should be_true }
-        its(:class) { should be Session::Rest }
-        its(:stop) { should be_true }
+  describe Session::Rest do
+    describe "instance method" do
+      subject do
+        Session.new :rest, "http://localhost:7474/"
       end
-
-      describe "class methods" do
-      end
+      its(:start) { should be_true }
+      its(:class) { should be Session::Rest }
+      its(:stop) { should be_true }
     end
 
-    context "embedded implementation" do
-      describe "instance methods" do
-        subject do
-          Session.new :embedded, Helpers::Embedded::PATH
-          Session.current
-        end
-        its(:start) { should be_true }
-        its(:class) { should be Session::Rest }
-        its(:stop) { should be_true }
-      end
+    describe "class method" do
+    end
+  end
 
-      describe "class methods" do
+  describe Session::Embedded do
+    describe "instance method" do
+      subject do
+        Session.new :embedded, Helpers::Embedded::PATH
       end
+      its(:start) { should be_true }
+      its(:class) { should be Session::Embedded }
+      its(:stop) { should be_true }
+    end
+
+    describe "class method" do
     end
   end
 end
