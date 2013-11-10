@@ -1,4 +1,7 @@
 require "neography"
+require "neo4j-core/session/rest"
+require "neo4j-core/session/embedded"
+require "neo4j-core/session/invalid_session"
 
 module Neo4j
   module Session
@@ -24,26 +27,6 @@ module Neo4j
       def stop
         @current.stop
       end
-    end
-
-    class Rest
-      def initialize(url = "http://localhost:7474")
-        @neo = Neography::Rest.new url
-      end
-
-      def start
-        true
-      end
-
-      alias :stop :start
-    end
-
-    class Embedded
-      def initialize(path)
-      end
-    end
-
-    class InvalidSessionType < StandardError
     end
   end
 end
