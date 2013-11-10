@@ -1,4 +1,4 @@
-require "neo4j-community"
+require "neo4j-community" if RUBY_PLATFORM == 'java'
 
 module Neo4j
   module Session
