@@ -5,7 +5,7 @@ require 'neo4j-core/version'
 
 Gem::Specification.new do |s|
   s.name     = "neo4j-core"
-  s.version  = Neo4j::Core::VERSION
+  s.version  = Neo4j::VERSION
   s.required_ruby_version = ">= 1.8.7"
 
   s.authors  = "Andreas Ronge"
@@ -24,12 +24,15 @@ It comes included with the Apache Lucene document database.
   s.files = Dir.glob("{bin,lib,config}/**/*") + %w(README.md Gemfile neo4j-core.gemspec)
   s.has_rdoc = true
   s.extra_rdoc_files = %w( README.md )
-  s.rdoc_options = ["--quiet", "--title", "Neo4j::Core", "--line-numbers", "--main", "README.rdoc", "--inline-source"]
+  s.rdoc_options = ["--quiet", "--title", "Neo4j", "--line-numbers", "--main", "README.rdoc", "--inline-source"]
 
-  # Not released yet
+  # Development dependencies
+  s.add_development_dependency "os"
+  s.add_development_dependency "rake", ">= 0.8.7"
+  s.add_development_dependency "rspec", "~> 2.8"
+
   s.add_dependency("httparty")
   s.add_dependency("json")
   s.add_dependency("neo4j-cypher")
-#  s.add_dependency("neo4j-community", '>=1.9.M05', '<2.0')
-#  s.add_dependency("neo4j-cypher", '~> 1.0.0')
+  s.add_dependency("neography")
 end

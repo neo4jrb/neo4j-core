@@ -1,0 +1,1 @@
+require "neo4j-core/session"
