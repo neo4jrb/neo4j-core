@@ -3,7 +3,6 @@ require "helpers/argument_helpers"
 module Neo4j
   module Node
     autoload :Rest, "neo4j-core/node/rest"
-    autoload :Embedded, "neo4j-core/node/embedded"
     extend Neo4j::ArgumentHelpers
 
     class << self

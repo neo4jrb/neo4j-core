@@ -98,22 +98,19 @@ namespace :test do
       abort("Embedded Label specs failed") unless success
     end
   end
+
+  desc "Run all the Session specs"
+  task session: ['test:validity:session', 'test:rest:session', 'test:embedded:session']
+
+  desc "Run all the Node specs"
+  task node: ['test:validity:node', 'test:rest:node', 'test:embedded:node']
+
+  desc "Run all the Label specs"
+  task label: ['test:validity:label', 'test:rest:label', 'test:embedded:label']
 end
 
 desc "Run all the neo4j-core specs"
-task test: ['test:abstract', 'test:rest', 'test:embedded']
-
-desc "Run all the Session specs"
-task session: ['rest:session', 'embedded:session']
-
-desc "Run all the Node specs"
-task node: ['rest:node', 'embedded:node']
-
-desc "Run all the Session specs"
-task label: ['rest:label', 'embedded:label']
-
-desc "Clean the server database"
-task :clean => ['neo4j:stop', 'neo4j:reset']
+task test: ['test:validity', 'test:rest', 'test:embedded']
 
 desc "Default task - testing"
 task :default => [:test]

@@ -36,17 +36,17 @@ namespace :neo4j do
 
       # Install if running with Admin Privileges
       if %x[reg query "HKU\\S-1-5-19"].size > 0 
-        %x[neo4j/bin/neo4j install]
+        puts %x[neo4j/bin/neo4j install]
         puts "Neo4j Installed as a service."
       end
 
     else
       file_name = "neo4j-#{args[:edition]}-#{args[:version]}-unix.tar.gz"
       unless File.exist?(file_name)
-        %x[wget http://dist.neo4j.org/#{file_name}]
+        puts %x[wget http://dist.neo4j.org/#{file_name}]
       end
-      %x[tar -xvzf #{file_name}]
-      %x[mv neo4j-#{args[:edition]}-#{args[:version]} neo4j]
+      puts %x[tar -xvzf #{file_name}]
+      puts %x[mv neo4j-#{args[:edition]}-#{args[:version]} neo4j]
       puts "Neo4j Installed in to neo4j directory."
     end
     puts "Type 'rake neo4j:start' to start it"
@@ -57,13 +57,13 @@ namespace :neo4j do
     puts "Starting Neo4j..."
     if OS::Underlying.windows? 
       if %x[reg query "HKU\\S-1-5-19"].size > 0 
-        %x[neo4j/bin/Neo4j.bat start]  #start service
+        puts %x[neo4j/bin/Neo4j.bat start]  #start service
       else
         puts "Starting Neo4j directly, not as a service."
-        %x[neo4j/bin/Neo4j.bat]
+        puts %x[neo4j/bin/Neo4j.bat]
       end      
     else
-      %x[neo4j/bin/neo4j start]  
+      puts %x[neo4j/bin/neo4j start]  
     end
   end
   
@@ -72,12 +72,12 @@ namespace :neo4j do
     puts "Stopping Neo4j..."
     if OS::Underlying.windows? 
       if %x[reg query "HKU\\S-1-5-19"].size > 0
-         %x[neo4j/bin/Neo4j.bat stop]  #stop service
+         puts %x[neo4j/bin/Neo4j.bat stop]  #stop service
       else
         puts "You do not have administrative rights to stop the Neo4j Service"   
       end
     else  
-      %x[neo4j/bin/neo4j stop]
+      puts %x[neo4j/bin/neo4j stop]
     end
   end
 
@@ -86,12 +86,12 @@ namespace :neo4j do
     puts "Restarting Neo4j..."
     if OS::Underlying.windows? 
       if %x[reg query "HKU\\S-1-5-19"].size > 0
-         %x[neo4j/bin/Neo4j.bat restart] 
+         puts %x[neo4j/bin/Neo4j.bat restart] 
       else
         puts "You do not have administrative rights to restart the Neo4j Service"   
       end
     else  
-      %x[neo4j/bin/neo4j restart]
+      puts %x[neo4j/bin/neo4j restart]
     end
   end
 
@@ -110,7 +110,7 @@ namespace :neo4j do
         FileUtils.rm_rf("neo4j/data/log")
         FileUtils.mkdir("neo4j/data/log")
 
-        %x[neo4j/bin/Neo4j.bat start]
+        puts %x[neo4j/bin/Neo4j.bat start]
       else
         puts "You do not have administrative rights to reset the Neo4j Service"   
       end
@@ -126,7 +126,7 @@ namespace :neo4j do
       FileUtils.mkdir("neo4j/data/log")
       
       # Start the server
-      %x[neo4j/bin/neo4j start]
+      puts %x[neo4j/bin/neo4j start]
     end
   end
 

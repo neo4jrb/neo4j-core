@@ -4,7 +4,8 @@ module Neo4j
   describe Session::Embedded, api: :embedded do
     describe "instance method" do
       before :all do
-        @session = Session.new :embedded, Helpers::Embedded.tmp_path
+        FileUtils.rm_rf Helpers::Embedded.test_path
+        @session = Session.new :embedded, Helpers::Embedded.test_path
       end
 
       describe "start" do
@@ -27,7 +28,7 @@ module Neo4j
 
       describe "running?" do
         before :all do
-          @another_session = Session.new :embedded, Helpers::Embedded.tmp_path
+          @another_session = Session.new :embedded, Helpers::Embedded.test_path
         end
 
         context "before the server has started" do

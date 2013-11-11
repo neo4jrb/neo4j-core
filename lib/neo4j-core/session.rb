@@ -7,38 +7,42 @@ module Neo4j
     class << self
       attr_accessor :current # the current session
       
-      def new(type, url=[])
+      def new(type, *args)
         session = case type
           when :rest
-            Rest.new(*url)
+            Rest.new(*args)
           when :embedded
-            Embedded.new(*url)
+            Embedded.new(*args)
           else
             raise InvalidSessionType.new(type)
           end
-          self.current = session unless current
+          @current = session unless @current
           session
       end
 
       def class
-        current.class
+        @current.class
       end
 
       def running?
-        if current
-          current.running?
+        if @current
+          @current.running?
         else
           false
         end
       end
 
       def start
-        current.start
+        if @current
+          @current.start
+        else
+          false
+        end
       end
 
       def stop
-        raise "Could not stop the current database" if !current.stop
-        self.current = nil
+        raise "Could not stop the current database" if @current && !@current.stop
+        @current = nil
       end
     end
   end
