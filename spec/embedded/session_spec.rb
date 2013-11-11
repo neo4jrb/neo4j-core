@@ -32,7 +32,6 @@ module Neo4j
 
         context "before the server has started" do
           it "should be false" do
-            p @another_session != nil
             expect(@another_session.running?).to be_false
           end
         end
