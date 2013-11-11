@@ -2,6 +2,7 @@ require "rubygems"
 require "bundler/setup"
 require "rspec"
 require "neo4j-core"
+require "byebug"
 
 require "helpers"
 

@@ -1,7 +1,7 @@
 #ignore the db
 neo4j
 #ignore the downloaded neo4js
-neo4j-*
+/neo4j-*
 # ignore netbeans specific stuff
 nbproject
 
