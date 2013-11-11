@@ -38,7 +38,7 @@ module Neo4j
 
       # Nodes
       def create_node(attributes, labels)
-        label = labels.map { |label| Label.new(label) } unless labels.empty?
+        labels = labels.map { |label| Label.new(label) }
         node = database.createNode(*labels)
       end
     end
