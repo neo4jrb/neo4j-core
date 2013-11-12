@@ -10,11 +10,17 @@ module Neo4j
         session = extract_session(args)
         labels = args
 
-        if session.is_a? Neo4j::Session::Rest
-          Rest.new(attributes, labels, session)
-        elsif session.is_a? Neo4j::Session::Embedded 
-          session.create_node(attributes, labels)
-        else
+        begin
+          session.class.create_node(attributes, labels, session)
+        rescue NoMethodError => e
+          raise Neo4j::Session::InvalidSessionType.new(session.class.to_s)
+        end
+      end
+
+      def load(id, session = Neo4j::Session.current)
+        begin
+          session.class.load(id, session)
+        rescue NoMethodError => e
           raise Neo4j::Session::InvalidSessionType.new(session.class.to_s)
         end
       end

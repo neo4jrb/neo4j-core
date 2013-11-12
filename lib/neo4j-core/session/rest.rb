@@ -16,6 +16,20 @@ module Neo4j
 
       alias :stop :start
       alias :running? :start
+
+      class << self
+        def create_node(attributes, labels, session)
+          node = session.neo.create_node(attributes)
+          raise "Could not create the node on the server" if node.nil?
+          session.neo.add_label(node, labels)
+          Neo4j::Node::Rest.new(node, session)
+        end
+
+        def load(id, session)
+          neo_node = session.neo.get_node(id)
+          Neo4j::Node::Rest.new(neo_node, session)
+        end
+      end
     end
   end
 end

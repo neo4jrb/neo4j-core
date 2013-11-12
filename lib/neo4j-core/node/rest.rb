@@ -1,28 +1,26 @@
 module Neo4j
   module Node
     class Rest
-      attr_reader :session
+      attr_reader :session, :id
 
-      def initialize(attributes, labels, session)
-        # Set the session
-        @session = session
-        # Create the node on the server
-        @node = @session.neo.create_node(attributes)
-        raise "Could not create the node on the server" if @node.nil?
-        @session.neo.add_label(@node, labels)
+      def initialize(node, session)
+        @session = session # Set the session
+        @node = node # Set the node
+        @id = node["self"].split('/').last # Set the id
       end
 
-      def method_missing(get_or_set_property, *args)
-        if match_data = /\A(\w+)\Z/.match(get_or_set_property)
-          property = match_data[0]
-          session.neo.get_node_properties(@node, [property])[property]
-        elsif match_data = /\A(\w+=)\Z/.match(get_or_set_property)
-          assert args.count == 1, "Syntax error"
-          property = match_data[0]
-          session.neo.set_node_properties(@node, property => args.first)
+      def [](property)
+        property = property.to_s
+        @session.neo.get_node_properties(@node, [property])[property]
+      end
+
+      def []=(property, value)
+        if value.nil?
+          @session.neo.remove_node_properties(@node, property.to_s)
         else
-          super
+          @session.neo.set_node_properties @node, property.to_s => value
         end
+        return
       end
     end
   end

@@ -7,8 +7,8 @@ module Neo4j
         context "using current session" do
           it "creates a node" do
             node = Node.new name: "Ujjwal", email: "ujjwalthaakar@gmail.com"
-            expect(node.name).to eq("Ujjwal")
-            expect(node.email).to eq("ujjwalthaakar@gmail.com")
+            expect(node[:name]).to eq("Ujjwal")
+            expect(node[:email]).to eq("ujjwalthaakar@gmail.com")
           end
         end
 
