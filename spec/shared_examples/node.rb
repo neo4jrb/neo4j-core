@@ -4,14 +4,14 @@ module Neo4j
       before(:each) { @node = Node.new({name: "Ujjwal", email: "ujjwalthaakar@gmail.com"}, [:User, :Programmer]) }
 
       describe "[](property)" do
-        context "property exists" do
+        context "when the property exists" do
           it "returns the value of that property" do
             expect(@node[:name]).to eq("Ujjwal")
             expect(@node[:email]).to eq("ujjwalthaakar@gmail.com")
           end
         end
 
-        context "property doesn't exist" do
+        context "when the property doesn't exist" do
           it "returns nil" do
             expect(@node[:favourite_language]).to be_nil
             expect(@node[:favourite_database]).to be_nil
@@ -20,7 +20,7 @@ module Neo4j
       end
 
       describe "[]=(property, value)" do
-        context "value is a ruby object" do
+        context "when the value is a ruby object" do
           it "sets property to value" do
             @node[:name] = "Andreas Ronge"
             expect(@node[:name]).to eq("Andreas Ronge")
@@ -30,7 +30,7 @@ module Neo4j
         end
 
         context "value is nil" do
-          context "property exists" do
+          context "when the property exists" do
             it "removes the property" do
               @node[:name] = nil
               expect(@node[:name]).to be_nil
@@ -39,7 +39,7 @@ module Neo4j
             end
           end
 
-          context "property doesn't exist" do
+          context "when the property doesn't exist" do
             it "does nothing" do
               @node[:favourite_language] = nil
               expect(@node[:favourite_language]).to be_nil
