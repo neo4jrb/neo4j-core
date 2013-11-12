@@ -20,7 +20,7 @@ module Neo4j
       class << self
         def create_node(attributes, labels, session)
           node = session.neo.create_node(attributes)
-          raise "Could not create the node on the server" if node.nil?
+          return nil if node.nil?
           session.neo.add_label(node, labels)
           Neo4j::Node::Rest.new(node, session)
         end

@@ -8,7 +8,7 @@ module Neo4j
     class << self
       def new(attributes, *args)
         session = extract_session(args)
-        labels = args
+        labels = args.flatten
 
         begin
           session.class.create_node(attributes, labels, session)
