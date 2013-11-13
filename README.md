@@ -287,70 +287,6 @@ This is implemented something like this:
 
 Both implementation use the same E2E specs.
 
-## Neo4j-wrapper API
-
-Example of mapping a Neo4j::Node java object to your own class.
-
-```ruby
-  # will use Neo4j label 'Person'
-  class Person
-    include Neo4j::NodeMixin
-  end
-
-  # find all person instances
-  Person.find_all
-```
-
-Using an index
-
-```ruby
-  # will use Neo4j label 'Person'
-  class Person
-    include Neo4j::NodeMixin
-    index :name
-  end
-
-  # find all person instances with key value = name, andreas
-  andreas = Person.create(:name => 'andreas')
-  Person.find(:name, 'andreas')  # will include andreas
-```
-
-
-Example of mapping the Baaz ruby class to Neo4j labels 'Foo', 'Bar' and 'Baaz'
-
-```ruby
-  module Foo
-    def self.mapped_label_name
-       "Foo" # specify the label for this module
-    end
-  end
-
-  module Bar
-    extend Neo4j::Wrapper::LabelIndex # to make it possible to search using this module (?)
-    index :stuff # (?)
-  end
-
-  class Baaz
-    include Foo
-    include Bar
-    include Neo4j::NodeMixin
-  end
-
-  Bar.find_nodes(...) # can find Baaz object but also other objects including the Bar mixin.
-```
-
-Example of inheritance.
-
-```ruby
-  # will only use the Vehicle label
-  class Vehicle
-    include Neo4j::NodeMixin
-  end
-
-  # will use both Car and Vehicle labels
-  class Car < Vehicle
-  end
-```
 
 ## Testing
 
@@ -364,21 +300,17 @@ The testing will be using much more mocking.
 
 ## The public API
 
-* `Neo4j::Node` The Java Neo4j Node
+* {Neo4j::Node} The Neo4j Node
 
-* {Neo4j::Relationship} The Java Relationship
+* {Neo4j::Relationship} The Relationship
 
-* {Neo4j::Database} The (default) Database
+* {Neo4j::Session} The session to the embedded or server database.
 
-* {Neo4j::Embedded::Database} - good name ?
+* `Neo4j::Cypher` Cypher Query DSL, see {Neo4j Wiki}[https://github.com/andreasronge/neo4j/wiki/Neo4j%3A%3ACore-Cypher]
 
-* {Neo4j::Server::RestDatabase}
 
-* {Neo4j::Server::CypherDatabase}
+See also the cypher DSL gem, [Neo4j Wiki](https://github.com/andreasronge/neo4j/wiki/Neo4j%3A%3ACore-Cypher)
 
-* {Neo4j::Cypher} Cypher Query DSL, see {Neo4j Wiki}[https://github.com/andreasronge/neo4j/wiki/Neo4j%3A%3ACore-Cypher]
-
-* {Neo4j::Algo} Included algorithms, like shortest path
 
 ## License
 * Neo4j.rb - MIT, see the LICENSE file http://github.com/andreasronge/neo4j-core/tree/master/LICENSE.

@@ -10,6 +10,7 @@ gem 'neo4j-cypher', '~> 1.0.1'
 
 group 'development' do
   gem 'os'
+  gem 'yard'
 #  gem 'pry'
 end
 

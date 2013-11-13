@@ -94,12 +94,12 @@ share_examples_for "Neo4j::Label" do
           Neo4j::Label.query(@label, conditions: {namqe: 'andreas'}).count.should == 0
         end
 
-        it 'does a greater than query for .gt keys' do
-          pending
-          # Not sure about this query syntax using a Hash, but this is a bit similar to mongoid API
-          # Maybe it was better like it was in the old neo4j-core API with a fluent API instead
-          result = Neo4j::Label.query(@label, conditions: {:age => {gt: 18, lt: 4}})
-        end
+        #it 'does a greater than query for .gt keys' do
+        #  pending
+        #  # Not sure about this query syntax using a Hash, but this is a bit similar to mongoid API
+        #  # Maybe it was better like it was in the old neo4j-core API with a fluent API instead
+        #  result = Neo4j::Label.query(@label, conditions: {:age => {gt: 18, lt: 4}})
+        #end
       end
 
       describe 'sort' do

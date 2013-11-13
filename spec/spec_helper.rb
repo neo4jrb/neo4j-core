@@ -6,10 +6,7 @@ require 'tmpdir'
 #require 'its'
 require 'logger'
 
-#require 'neo4j-server'
-#require 'neo4j-embedded'
 require 'neo4j-core'
-require 'neo4j-wrapper'
 
 
 Dir["#{File.dirname(__FILE__)}/shared_examples/**/*.rb"].each { |f| require f }
@@ -24,7 +21,6 @@ end
 
 def create_embedded_session
   Neo4j::Session.open(:impermanent_db, EMBEDDED_DB_PATH, auto_commit: true)
-  #Neo4j::Session.open(:embedded_db, EMBEDDED_DB_PATH)
 end
 
 def create_server_session

@@ -1,5 +1,6 @@
 module Neo4j
 
+  # A module that allows plugins to register wrappers around Neo4j::Node objects
   module Wrapper
     # Used by Neo4j::NodeMixin to wrap nodes
     def wrapper
@@ -7,12 +8,41 @@ module Neo4j
     end
   end
 
+  # The base class for both the Embedded and Server Neo4j Node
+  # Notice this class is abstract and can't be instantiated
   class Node
     include EntityEquality
     include Wrapper
     include PropertyContainer
 
-    # @abstract
+    # @return [Hash] all properties of the node
+    def props()
+      raise 'not implemented'
+    end
+
+    # Directly remove the property on the node (low level method, may need transaction)
+    def remove_property(key)
+      raise 'not implemented'
+    end
+
+    # Directly set the property on the node (low level method, may need transaction)
+    # @param [Hash, String] key
+    # @param value see Neo4j::PropertyValidator::VALID_PROPERTY_VALUE_CLASSES for valid values
+    def set_property(key, value)
+      raise 'not implemented'
+    end
+
+    # Directly get the property on the node (low level method, may need transaction)
+    # @param [Hash, String] key
+    # @return the value of the key
+    def get_property(key, value)
+      raise 'not implemented'
+    end
+
+    # Creates a relationship of given type to other_node with optionally properties
+    # @param [Symbol] type the type of the relation between the two nodes
+    # @param [Neo4j::Node] other_node the other node
+    # @param [Hash] props optionally properties for the created relationship
     def create_rel(type, other_node, props = nil)
       raise 'not implemented'
     end
@@ -36,22 +66,31 @@ module Neo4j
     # @example All outgoing relationships between me and another node of type friends
     #   node_a.rels(type: :friends, dir: :outgoing, between: node_b)
     #
-    # @abstract
-    def rels(opts = {dir: :both})
+    def rels(match = {dir: :both})
       raise 'not implemented'
     end
 
-    # @abstract
+    # Adds one or more Neo4j labels on the node
     def add_label(*labels)
       raise 'not implemented'
     end
 
-    # @abstract
+    # @return all labels on the node
+    def labels()
+      raise 'not implemented'
+    end
+
+    # Deletes this node from the database
+    def del()
+      raise 'not implemented'
+    end
+
+    # @return true if the node exists in the database
     def exist?
       raise 'not implemented'
     end
 
-    # @abstract
+    # @returns all the Neo4j labels for this node
     def labels
       raise 'not implemented'
     end
@@ -68,7 +107,6 @@ module Neo4j
     # This method should be used only in situations with an invariant as described above. In those situations, a "state-checking" method (e.g. #rel?) is not required,
     # because this method behaves correctly "out of the box."
     #
-    # @abstract
     # @param (see #rel)
     def node(specs = {})
       raise 'not implemented'
@@ -85,6 +123,11 @@ module Neo4j
       raise 'not implemented'
     end
 
+    # Same as Neo4j::Node#exist?
+    def exist?
+      raise 'not implemented'
+    end
+
     # Works like #rels method but instead returns the nodes.
     # It does try to load a Ruby wrapper around each node
     # @abstract
@@ -96,11 +139,13 @@ module Neo4j
     end
 
     class << self
+      # Creates a node
       def create(props=nil, *labels_or_db)
         session = Neo4j::Core::ArgumentHelper.session(labels_or_db)
         session.create_node(props, labels_or_db)
       end
 
+      # Loads a node from the database with given id
       def load(neo_id, session = Neo4j::Session.current)
         node = session.load_node(neo_id)
         node && node.wrapper
@@ -112,10 +157,23 @@ module Neo4j
         session.node_exist?(neo_id)
       end
 
+      # Find the node with given label and value
       def find_nodes(label, value=nil, session = Neo4j::Session.current)
         session.find_nodes(label, value)
       end
     end
+
+    def initialize
+      raise "Can't instantiate abstract class" if abstract_class?
+      puts "Instantiated!"
+    end
+
+    private
+    def abstract_class?
+      self.class == Node
+    end
+
+
   end
 
 end

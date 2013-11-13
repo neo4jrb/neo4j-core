@@ -25,6 +25,3 @@ else
   module Neo4j::Embedded
   end
 end
-
-
-#require 'neo4j-wrapper' # TODO should be move to a separate gem

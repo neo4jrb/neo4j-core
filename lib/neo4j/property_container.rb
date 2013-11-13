@@ -2,12 +2,13 @@ module Neo4j
   module PropertyContainer
     include Neo4j::PropertyValidator
 
-    # Only documentation here
+    # Returns the Neo4j Property of given key
     def [](key)
       get_property(key)
     end
 
 
+    # Sets the neo4j property
     def []=(key,value)
       validate_property(value)
 
@@ -17,8 +18,5 @@ module Neo4j
         set_property(key,value)
       end
     end
-
-
-    # TODO implement the props method as in the embedded api
   end
 end
