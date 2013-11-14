@@ -9,7 +9,10 @@ def jar_path
 end
 
 def assert_platform
-  abort("Cannot run tests for Embedded server since you're not running JRuby") if RUBY_PLATFORM != 'java'
+  if RUBY_PLATFORM != 'java'
+    puts "Cannot run tests for Embedded server since you're not running JRuby"
+    exit
+  end
 end
 
 desc "Run neo4j-core specs"
