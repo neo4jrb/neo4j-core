@@ -1,9 +1,9 @@
+require "neo4j-core/session/rest"
+require "neo4j-core/session/embedded"
+require "neo4j-core/session/invalid_session"
+
 module Neo4j
   module Session
-    autoload :Rest, "neo4j-core/session/rest"
-    autoload :Embedded, "neo4j-core/session/embedded"
-    autoload :InvalidSessionType, "neo4j-core/session/invalid_session"
-
     class << self
       attr_accessor :current # the current session
       
@@ -14,7 +14,7 @@ module Neo4j
           when :embedded
             Embedded.new(*args)
           else
-            raise InvalidSessionType.new(type)
+            raise InvalidSessionTypeError.new(type)
           end
           @current = session unless @current
           session

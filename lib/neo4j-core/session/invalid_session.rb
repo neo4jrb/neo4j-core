@@ -1,6 +1,6 @@
 module Neo4j
   module Session
-    class InvalidSessionType < StandardError
+    class InvalidSessionTypeError < StandardError
     end
   end
 end

@@ -2,7 +2,6 @@ require "rubygems"
 require "bundler/setup"
 require "rspec"
 require "neo4j-core"
-
 require "helpers"
 
 RSpec.configure do |config|

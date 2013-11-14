@@ -26,8 +26,8 @@ module Neo4j
         end
 
         def load(id, session)
-          neo_node = session.neo.get_node(id)
-          Neo4j::Node::Rest.new(neo_node, session)
+          node = session.neo.get_node(id)
+          Neo4j::Node::Rest.new(node, session)
         end
       end
     end

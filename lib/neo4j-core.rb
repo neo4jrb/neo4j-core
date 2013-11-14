@@ -1,8 +1,6 @@
-module Neo4j
-  autoload :Session, "neo4j-core/session"
-  autoload :Node, "neo4j-core/node"
-  autoload :Label, "neo4j-core/label"
-end
+require "neo4j-core/session"
+require "neo4j-core/node"
+require "neo4j-core/label"
 
 # If the platform is Java then load all java related files
 if RUBY_PLATFORM == 'java'
@@ -12,4 +10,7 @@ if RUBY_PLATFORM == 'java'
     require "neo4j-core/jars/#{jar}"
   end
   require "neo4j-core/node/embedded"
+end
+
+module Neo4j
 end

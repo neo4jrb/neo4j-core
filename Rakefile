@@ -21,7 +21,7 @@ namespace :test do
       end
     end.join(' ').strip
     success = system("rspec #{spec_files}")
-    abort("RSpec neo4j-core for abstract module implementation failed") unless success
+    abort("RSpec neo4j-core for validity module implementation failed") unless success
   end
 
   desc "Run specific validity features"

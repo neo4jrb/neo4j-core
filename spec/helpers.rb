@@ -10,18 +10,18 @@ module Helpers
       end
 
       def clean_start
-        Rake.application['neo4j:reset'].invoke
+        Rake.application['neo4j:start'].invoke
         Neo4j::Session.stop if Neo4j::Session.running?
         Neo4j::Session.new :rest
-        # Neo4j::Session.stop if Neo4j::Session.running?
-        # Neo4j::Session.new :rest
-        # query = <<-EOQ
-        # START n = node(*)
-        # MATCH n-[r?]-()
-        # WHERE ID(n) > 0
-        # DELETE n, r
-        # EOQ
-        # Neo4j::Session.current.neo.execute_query(query)
+        Neo4j::Session.stop if Neo4j::Session.running?
+        Neo4j::Session.new :rest
+        query = <<-EOQ
+        START n = node(*)
+        MATCH n-[r?]-()
+        WHERE ID(n) > 0
+        DELETE n, r
+        EOQ
+        Neo4j::Session.current.neo.execute_query(query)
       end
     end
   end
