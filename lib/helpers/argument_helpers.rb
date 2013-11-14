@@ -1,8 +1,7 @@
 module Neo4j
   module ArgumentHelpers
     def extract_session(args)
-      case args.last
-      when Session::Rest, Session::Embedded
+      if args.last.is_a?(Session::Rest) || args.last.is_a?(Session::Embedded)
         args.pop
       else
         Session.current

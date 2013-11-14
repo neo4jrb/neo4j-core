@@ -59,10 +59,6 @@ module Neo4j
       def to_s
         "REST Node[#{@id}]"
       end
-
-      def inspect
-        "shshs"
-      end
     end
   end
 end

@@ -1,16 +1,45 @@
 # Extend the Java NodeProxy
 Java::OrgNeo4jKernelImplCore::NodeProxy.class_eval do
-  def method_missing(get_or_set_property, *args)
-    if match_data = /\A(\w+)\Z/.match(get_or_set_property)
-      property = match_data[0]
+  # Properties
+  def [](property)
+    property = property.to_s
+    if hasProperty(property)
       getProperty(property)
-    elsif match_data = /\A(\w+=)\Z/.match(get_or_set_property)
-      assert args.count == 1, "Syntax error"
-      property = match_data[0]
-      value = args[0]
-      setProperty(property, value)
     else
-      super
+      nil
     end
+  end
+
+  def []=(property, value)
+    property = property.to_s
+    if value.nil?
+      if hasProperty(property)
+        removeProperty(property)
+      else
+        nil
+      end
+    else
+      setProperty(property, value)
+    end
+  end
+
+  def reset(attributes)
+    for property in getPropertyKeys
+      removeProperty(property)
+    end
+    attributes.each_pair do |property, value|
+      setProperty(property, value)
+    end
+  end
+
+  # def destroy
+  #   @session.neo.delete_node! @node
+  #   @node = @session = nil
+  # rescue NoMethodError
+  #   raise StandardError.new("Node[#{@id}] does not exist anymore!")
+  # end
+
+  def to_s
+    "Embedded Node[#{getId}]"
   end
 end

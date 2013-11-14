@@ -1,5 +1,12 @@
 module Neo4j
   shared_examples "Node" do
+    let(:api) { example.metadata[:api] }
+    let (:another_session) do
+        another_session = Session.new(api)
+        another_session.start
+        another_session
+      end
+
     describe "instance method" do
       let(:node) { Node.new({name: "Ujjwal", email: "ujjwalthaakar@gmail.com"}, :User, :Programmer) }
 
@@ -78,7 +85,6 @@ module Neo4j
         end
 
         context "using another session" do
-          let(:another_session) { Session.new example.metadata[:api] }
           let(:another_node) { Node.new({name: "Andreas Ronge", email: "andreas.ronge@gmail.com"}, another_session) }
           it "creates a node in that session" do
             expect(another_node).to be_an_instance_of(described_class)

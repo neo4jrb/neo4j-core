@@ -1,6 +1,7 @@
 module Neo4j
   shared_examples "Session" do
     describe "instance method" do
+      let(:api) { example.metadata[:api] }
       let(:session) { Session.current }
 
       describe "start" do
@@ -22,8 +23,6 @@ module Neo4j
       end
 
       describe "running?" do
-        let(:api) { example.metadata[:api] }
-        let (:another_session) { Session.new api }
 
         it "has different values in embedded mode" do
           if api == :embedded

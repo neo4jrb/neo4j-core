@@ -17,18 +17,16 @@ module Neo4j
       alias :stop :start
       alias :running? :start
 
-      class << self
-        def create_node(attributes, labels, session)
-          node = session.neo.create_node(attributes)
-          return nil if node.nil?
-          session.neo.add_label(node, labels)
-          Neo4j::Node::Rest.new(node, session)
-        end
+      def create_node(attributes, labels)
+        node = @neo.create_node(attributes)
+        return nil if node.nil?
+        @neo.add_label(node, labels)
+        Neo4j::Node::Rest.new(node, self)
+      end
 
-        def load(id, session)
-          node = session.neo.get_node(id)
-          Neo4j::Node::Rest.new(node, session)
-        end
+      def load(id)
+        node = @neo.get_node(id)
+        Neo4j::Node::Rest.new(node, self)
       end
     end
   end

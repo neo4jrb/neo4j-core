@@ -11,7 +11,7 @@ module Neo4j
         labels = args.flatten
 
         begin
-          session.class.create_node(attributes, labels, session)
+          session.create_node(attributes, labels)
         rescue NoMethodError
           raise Neo4j::Session::InvalidSessionTypeError.new(session.class)
         end
@@ -19,7 +19,7 @@ module Neo4j
 
       def load(id, session = Neo4j::Session.current)
         begin
-          session.class.load(id, session)
+          session.load(id)
         rescue NoMethodError
           raise Neo4j::Session::InvalidSessionTypeError.new(session.class)
         end

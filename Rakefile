@@ -8,6 +8,10 @@ def jar_path
   gem_root + "/lib/neo4j-community/jars"
 end
 
+def assert_platform
+  abort("Cannot run tests for Embedded server since you're not running JRuby") if RUBY_PLATFORM != 'java'
+end
+
 desc "Run neo4j-core specs"
 namespace :test do
   desc "Validity modules"
@@ -74,6 +78,7 @@ namespace :test do
 
   desc "Embedded implementation"
   task :embedded do
+    assert_platform
     success = system('rspec spec/embedded')
     abort("RSpec neo4j-core for embedded implementation failed") unless success
   end
@@ -82,18 +87,21 @@ namespace :test do
   namespace :embedded do
     desc "Run Embedded specs for Session"
     task :session do
+      assert_platform
       success = system('rspec spec/embedded/session_spec.rb')
       abort("Embedded Session specs failed") unless success
     end
 
     desc "Run Embedded specs for Node"
     task :node do
+      assert_platform
       success = system('rspec spec/embedded/node_spec.rb')
       abort("Embedded Node specs failed") unless success
     end
 
     desc "Run Embedded specs for Label"
     task :label do
+      assert_platform
       success = system('rspec spec/embedded/label_spec.rb')
       abort("Embedded Label specs failed") unless success
     end

@@ -3,11 +3,11 @@ module Neo4j
     class Embedded
       attr_accessor :auto_tx
 
-      def initialize(path="neo4j/", auto_tx = true)
+      def initialize(path = "neo4j", auto_tx = true)
         raise "Cannot start a embedded session without JRuby" if RUBY_PLATFORM != 'java'
         @db_location = path
         @running = false
-        self.auto_tx = auto_tx
+        @auto_tx = auto_tx
       end
 
       def running?
@@ -21,9 +21,8 @@ module Neo4j
       def start
         return false if @started
         @started = true
-        factory = Java::OrgNeo4jGraphdbFactory::GraphDatabaseFactory.new
-        @db = factory.newEmbeddedDatabase @db_location
-        @transaction = @db.begin_tx
+        @db = Java::OrgNeo4jGraphdbFactory::GraphDatabaseFactory.new.newEmbeddedDatabase(@db_location)
+        @transaction = @db.beginTx
         @running = true
       end
 
@@ -38,7 +37,7 @@ module Neo4j
 
       def run_transaction(&block)
         return unless block_given?
-        transaction = database.begin_tx
+        transaction = @db.beginTx
         result = yield
         transaction.success
         transaction.finish
@@ -48,17 +47,21 @@ module Neo4j
       # Nodes
       # Create a new node. If auto_tx is true then we begin a new transaction and commit it after the creation
       def create_node(attributes, labels)
-        if auto_tx
+        if @auto_tx
           run_transaction { _create_node(attributes, labels) }
         else
           _create_node(attributes, labels)
         end
       end
 
+      def load(id)
+        @db.getNodeById(id)
+      end
+
       private
         def _create_node(attributes, labels)
-          labels = labels.map { |label| Label.new(label) }
-          node = database.createNode(*labels)
+          labels = labels.map { |label| Java::OrgNeo4jGraphdb::DynamicLabel.label(label) }
+          node = @db.createNode(*labels)
           # Set properties
           attributes.each_pair do |key, value|
             node.setProperty(key, value)

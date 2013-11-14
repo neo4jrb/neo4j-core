@@ -42,7 +42,7 @@ module Helpers
   module Embedded
     class << self
       def test_path
-        File.join(Dir.tmpdir, "neo4j-core-java")
+        File.join(Dir.tmpdir, "neo4j-core-java-#{rand}")
       end
 
       def stop
@@ -52,9 +52,9 @@ module Helpers
       def clean_start
         raise "Could not stop the current database" unless Neo4j::Session.stop if Neo4j::Session.running?
         # Create a new database
-        Neo4j::Session.current = Neo4j::Session.new :embedded
+        Neo4j::Session.new :embedded, test_path
         raise "Could not start embedded database" unless Neo4j::Session.start
-        Helpers.start_server_banner("REST")
+        Helpers.start_server_banner("Embedded")
         graph_db = Neo4j::Session.current.database
         ggo = Java::OrgNeo4jTooling::GlobalGraphOperations.at(graph_db)
 
