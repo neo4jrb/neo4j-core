@@ -45,6 +45,12 @@ module Neo4j::Server
       value
     end
 
+    # (see Neo4j::Node#props=)
+    def props=(properties)
+      @session._query_or_fail("START n=node(#{neo_id}) SET n = { props }", false, {props: properties})
+      properties
+    end
+
     # (see Neo4j::Node#get_property)
     def get_property(key)
       @session._query_or_fail("START n=node(#{neo_id}) RETURN n.`#{key}`", true)

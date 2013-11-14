@@ -138,6 +138,22 @@ share_examples_for "Neo4j::Node auto tx" do
 
       end
 
+      describe 'props=' do
+        it "replace old properties with new properties" do
+          n = Neo4j::Node.create(age: 2, foo: 'bar')
+          n.props.should == {age: 2, foo: 'bar'}
+          n.props={name: 'andreas', age: 21}
+          n.props.should == {name: 'andreas', age: 21}
+        end
+
+        it 'allows update with empty hash, will remove all props' do
+          n = Neo4j::Node.create(age: 2, foo: 'bar')
+          n.props.should == {age: 2, foo: 'bar'}
+          n.props={}
+          n.props.should == {}
+        end
+      end
+
       describe 'create_rel' do
 
         it "can create a new relationship" do

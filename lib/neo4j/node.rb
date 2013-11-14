@@ -20,6 +20,12 @@ module Neo4j
       raise 'not implemented'
     end
 
+    # replace all properties with new properties
+    # @param hash a hash of properties the node should have
+    def props=(hash)
+      raise 'not implemented'
+    end
+
     # Directly remove the property on the node (low level method, may need transaction)
     def remove_property(key)
       raise 'not implemented'

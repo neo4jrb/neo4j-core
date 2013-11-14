@@ -23,6 +23,20 @@ module Neo4j::Embedded::Property
   end
   tx_methods :props
 
+
+  def props=(hash)
+    property_keys.each do |key|
+      remove_property(key)
+    end
+
+    hash.each_pair do |k,v|
+      set_property(k,v)
+    end
+    hash
+  end
+  tx_methods :props=
+
+
   def neo_id
     get_id
   end

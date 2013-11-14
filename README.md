@@ -1,10 +1,15 @@
 # Neo4j-core v3.0 [![Code Climate](https://codeclimate.com/github/andreasronge/neo4j-core.png)](https://codeclimate.com/github/andreasronge/neo4j-core) [![Build Status](https://travis-ci.org/andreasronge/neo4j-core.png)](https://travis-ci.org/andreasronge/neo4j-core)
 
+A simple Ruby wrapper around the Neo4j graph database that works with the server and embedded Neo4j API.
+This gem can be used both from JRuby and normal MRI. You may get better performance using it from JRuby and the embedded
+Neo4j, but it will probably be easier to develop (e.g. faster to run tests) on MRI and neo4j server.
+This gem is designed to work well together with the neo4j active model compliant gem (see the 3.0 branch).
+
 For the stable v2.0 version, see the v2.0 branch https://github.com/andreasronge/neo4j-core/tree/v2.x
+Do not use this gem in production.
 
 
 ## Installation
-
 
 ### Usage from Neo4j Server
 
@@ -20,87 +25,23 @@ rake neo4j:start
 ### Usage from Neo4j Embedded
 
 The Gemfile contains references to Neo4j Java libraries. Nothing is needed to be installed.
+The embedded database is only accessible from JRuby (unlike the Neo4j Server).
 
-
-## Version 3.0
-
-The neo4j-core version 3.0 uses the java Jar and/or the Neo4j Server version 2.0.0-M6+ . This mean that it should work on
-Ruby implementation and not just JRuby !
-
-It uses the new label feature in order to do mappings between `Neo4j::Node` (java objects) and your own ruby classes.
-
-The code base for the 3.0 should be smaller and simpler to maintain because there is less work to be done in the
-Ruby layer but also by removing features that are too complex or not that useful.
-
-The neo4j-wrapper source code is included in this git repo until the refactoring has stabilized.
-The old source code for neo4j-core is also included (lib.old). The old source code might later on be copied into the
- 3.0 source code (the lib folder).
-
-The neo4j-core gem will work for both the embedded Neo4j API and the server api.
-That means that neo4j.rb will work on any Ruby implementation and not just JRuby. This is under investigation !
-It's possible that some features for the Neo4j.rb 2.0 will not be available in the 3.0 version since it has to work
- with both the Neo4j server and Neo4j embedded APIs.
-
-Since neo4j-core provides one unified API to both the server end embedded neo4j database the neo4j-wrapper and neo4j
-gems will also work with server and embedded neo4j databases.
-
-New features:
-
-* neo4j-core provides the same API to both the Embedded database and the Neo4j Server
-* auto commit is each operation is now default (neo4j-core)
-
-Removed features:
-
-* auto start of the database (neo4j-core)
-* wrapping of Neo4j::Relationship java objects but there will be a work around (neo4j-wrapper)
-* traversals (the outgoing/incoming/both methods) moves to a new gem, neo4j-traversal.
-* rules will not be supported
-* versioning will not be supported, will Neo4j support it ?
-* multitenancy will not be supported, will Neo4j support it ?
-
-Changes:
-
-* `Neo4j::Node.create` now creates a node instead of `Neo4j::Node.new`
-* `Neo4j::Node#rels` different arguments, see below
-* Many Neo4j Java methods requires you to close an ResourceIterable as well as be in an transaction (even for read operations)
-In neo4j-core there are two version of these methods, one that create transaction and close the iterable for you and one raw
-where you have to do it yourself (which may give you be better performance).
-* The neo4j-core includes the neo4j-wrapper implementation.
-
-Future (when Neo4j 2.1 is released)
-* Support for fulltext search
-* Compound keys in index
-
-### Status 2013-10-04
-
-Notice v3.0 is not released and should not be used in production !
-
-* Impl. CRUD operations on nodes/relationships
-* Impl. navigation of relationships
-* Indexing via label works
-* Using 2.0.0-M6
-
-For detail status what works, see the RSpecs.
-
-
-## Neo4j-core API
-
-Example of index using labels and the auto commit.
-
+## Neo4j-core API, v3.0
 
 ### Creating a database session
 
 There are currently two available types of session, one for connecting to a neo4j server
 and one for connecting to the embedded Neo4j database (which requires JRuby).
 
-Using the Neo4j Server: `:cypher_server_db`
+Using the Neo4j Server: `:server_db`
 
 ```ruby
   # Using Neo4j Server Cypher Database
   session = Neo4j::Session.open(:server_db, "http://localhost:7474")
 ```
 
-Using the Neo4j Embedded Database, `:local_embedded_db`
+Using the Neo4j Embedded Database, `:embedded_db`
 
 ```ruby
   # Using Neo4j Embedded Database
@@ -163,8 +104,29 @@ Add index on a label
 
 Notice, nodes will be indexed based on which labels they have.
 
+Setting properties
+
+```ruby
+  node = Node.create({name: 'andreas'}, red, :green)
+  node[:name] = 'changed name' # changes immediately one property
+  node[:name] # => 'changed name'
+  node.props # => {name: 'changed name'}
+  node.props={ foo: 42}  # replace all properties
+```
+
+Notice properties are never stored in ruby objects, instead they are always fetched from the database.
 
 ### Finding Nodes
+
+Each node and relationship has a id, `neo_id`
+
+```ruby
+  node = Neo4j::Node.create
+  # load the node again from the database
+  node2 = Neo4j::Node.load(node.neo_id)
+```
+
+Finding nodes by label:
 
 ```ruby
   # Find nodes using an index, returns an Enumerable
@@ -177,25 +139,12 @@ Notice, nodes will be indexed based on which labels they have.
   node.labels # [:red]
 ```
 
-All method prefixed with `_` gives direct access to the java layer/rest layer.
-Notice, the database starts with auto commit by default.
-
 Example, Finding with order by on label :person
 
 ```ruby
   Neo4j::Label.query(:person, order: [:name, {age: :asc}])
 ```
 
-### Identity
-
-NOT WORKING YET, TODO.
-By default the identity for a node is the same as the native Neo4j id.
-You can specify your own identity of nodes.
-
-```ruby
-session = Neo4j::CypherDatabase.connect('URL')
-session.config.node_identity = '_my_id'
-```
 
 ### Transactions
 
@@ -259,8 +208,21 @@ Delete relationship
 rel = n1.rel(:outgoing, :know) # expects only one relationship
 rel.del
 ```
+### Identity
+
+NOT WORKING YET, TODO.
+By default the identity for a node is the same as the native Neo4j id.
+You can specify your own identity of nodes.
+
+```ruby
+session = Neo4j::CypherDatabase.connect('URL')
+session.config.node_identity = '_my_id'
+```
 
 ## Implementation:
+
+All method prefixed with `_` gives direct access to the java layer/rest layer.
+Notice, the database starts with auto commit by default.
 
 No state is cached in the neo4j-core (e.g. neo4j properties).
 
@@ -310,6 +272,55 @@ The testing will be using much more mocking.
 
 
 See also the cypher DSL gem, [Neo4j Wiki](https://github.com/andreasronge/neo4j/wiki/Neo4j%3A%3ACore-Cypher)
+
+## Version 3.0
+
+The neo4j-core version 3.0 uses the java Jar and/or the Neo4j Server version 2.0.0-M6+ . This mean that it should work on
+Ruby implementation and not just JRuby !
+
+It uses the new label feature in order to do mappings between `Neo4j::Node` (java objects) and your own ruby classes.
+
+The code base for the 3.0 should be smaller and simpler to maintain because there is less work to be done in the
+Ruby layer but also by removing features that are too complex or not that useful.
+
+The neo4j-wrapper source code is included in this git repo until the refactoring has stabilized.
+The old source code for neo4j-core is also included (lib.old). The old source code might later on be copied into the
+ 3.0 source code (the lib folder).
+
+The neo4j-core gem will work for both the embedded Neo4j API and the server api.
+That means that neo4j.rb will work on any Ruby implementation and not just JRuby. This is under investigation !
+It's possible that some features for the Neo4j.rb 2.0 will not be available in the 3.0 version since it has to work
+ with both the Neo4j server and Neo4j embedded APIs.
+
+Since neo4j-core provides one unified API to both the server end embedded neo4j database the neo4j-wrapper and neo4j
+gems will also work with server and embedded neo4j databases.
+
+New features:
+
+* neo4j-core provides the same API to both the Embedded database and the Neo4j Server
+* auto commit is each operation is now default (neo4j-core)
+
+Removed features:
+
+* auto start of the database (neo4j-core)
+* wrapping of Neo4j::Relationship java objects but there will be a work around (neo4j-wrapper)
+* traversals (the outgoing/incoming/both methods) moves to a new gem, neo4j-traversal.
+* rules will not be supported
+* versioning will not be supported, will Neo4j support it ?
+* multitenancy will not be supported, will Neo4j support it ?
+
+Changes:
+
+* `Neo4j::Node.create` now creates a node instead of `Neo4j::Node.new`
+* `Neo4j::Node#rels` different arguments, see below
+* Many Neo4j Java methods requires you to close an ResourceIterable as well as be in an transaction (even for read operations)
+In neo4j-core there are two version of these methods, one that create transaction and close the iterable for you and one raw
+where you have to do it yourself (which may give you be better performance).
+* The neo4j-core includes the neo4j-wrapper implementation.
+
+Future (when Neo4j 2.1 is released)
+* Support for fulltext search
+* Compound keys in index
 
 
 ## License
