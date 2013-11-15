@@ -3,6 +3,42 @@ share_examples_for "Neo4j::Node with tx" do
   let(:node_b) { Neo4j::Node.create(name: 'b') }
   let(:node_c) { Neo4j::Node.create(name: 'c') }
 
+  context 'rollback' do
+    it 'rolls back the transaction if failure is called' do
+      node = Neo4j::Transaction.run do |tx|
+        a = Neo4j::Node.create
+        tx.failure
+        a
+      end
+      node.should_not exist
+    end
+
+    it 'rolls back the transaction if an exception occurs' do
+      ids = []
+      begin
+        Neo4j::Transaction.run do |tx|
+          a = Neo4j::Node.create
+          ids << a.neo_id
+          Neo4j::Node.load(ids.first).should == a
+          raise "should rollback"
+        end
+      rescue Exception => e
+        e.to_s.should == 'should rollback'
+      end
+      Neo4j::Node.load(ids.first).should be_nil
+    end
+
+    it 'can rollback a property' do
+      node = Neo4j::Node.create(name: 'foo')
+      Neo4j::Transaction.run do |tx|
+        node[:name] = 'bar'
+        node[:name].should == 'bar'
+        tx.failure
+      end
+      node[:name].should == 'foo'
+    end
+  end
+
   context "inside a transaction" do
 
     describe 'Neo4j::Node.create' do

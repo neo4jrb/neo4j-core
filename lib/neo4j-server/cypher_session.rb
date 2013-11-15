@@ -38,9 +38,7 @@ module Neo4j::Server
     end
 
     def begin_tx
-      tx = wrap_resource(self, 'transaction', CypherTransaction, nil, :post)
-      Thread.current[:neo4j_curr_tx] = tx
-      tx
+      Thread.current[:neo4j_curr_tx] = wrap_resource(self, 'transaction', CypherTransaction, nil, :post)
     end
 
     def create_node(props=nil, labels=[])

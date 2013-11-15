@@ -158,6 +158,19 @@ Neo4j::Transaction.run do
 end
 ```
 
+Rollback occurs if an exception is thrown, or the failure method is called on the transaction.
+
+E.g.
+
+```ruby
+Neo4j::Transaction.run do |tx|
+  n = Neo4j::Node.create(name: 'kalle')
+  tx.failure # all operations inside this tx will be rollbacked
+  n[:age] = 42
+end
+
+```
+
 ### Relationship
 
 How to create a relationship between node n1 and node n2 with one property
