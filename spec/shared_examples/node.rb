@@ -2,10 +2,10 @@ module Neo4j
   shared_examples "Node" do
     let(:api) { example.metadata[:api] }
     let (:another_session) do
-        another_session = Session.new(api)
-        another_session.start
-        another_session
-      end
+      another_session = Session.new(api)
+      another_session.start
+      another_session
+    end
 
     describe "instance method" do
       let(:node) { Node.new({name: "Ujjwal", email: "ujjwalthaakar@gmail.com"}, :User, :Programmer) }
@@ -42,7 +42,7 @@ module Neo4j
               node[:name] = nil
               expect(node[:name]).to be_nil
               node[:email] = nil
-              expect(node[:name]).to be_nil
+              expect(node[:email]).to be_nil
             end
           end
 
@@ -98,12 +98,15 @@ module Neo4j
       end
 
       describe "load(id)" do
+        let(:node) { Node.new name: "Steve Wozniak", email: "steve.wozniak@apple.com" }
+        let(:same_node) { Node.load(node.id) }
+
         it "loads the node with the given neo id" do
-          node = Node.new name: "Steve Wozniak", email: "steve.wozniak@apple.com"
-          id = node.id
-          same_node = Node.load(id)
           expect(same_node).to be_an_instance_of(described_class)
           expect(node.id).to eq(same_node.id)
+        end
+
+        it "has the correct properties" do
           expect(node[:name]).to eq(same_node[:name])
           expect(node[:email]).to eq(same_node[:email])
         end
