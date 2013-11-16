@@ -84,37 +84,27 @@ module Neo4j
 
     describe "class method" do
       describe "new(name, start, end, attributes = {})" do
-        context "using current session" do
-          let(:rel) { Relationship.new :FRIEND_OF, start_node, end_node, since: 2013, random_property: "who cares?" }
-        
-          it "has the correct start node" do
-            expect(rel.start).to eq(start_node)
-          end
+        let(:rel) { Relationship.new :FRIEND_OF, start_node, end_node, since: 2013, random_property: "who cares?" }
 
-          it "has the correct end node"
-            expect(rel.end).to eq(end_node)
-          end
-
-          it "has the correct properties"
-            expect(rel[:since]).to eq(2013)
-            expect(rel[:random_property]).to eq("who cares?")
-          end
-
-          it "does not have the wrong properties" do
-            expect(rel[:invalid_property]).to be_nil
-          end
+        it "is an instance of the correct subclass" do
+          expect(rel).to be_an_instance_of(described_class)
+        end
+      
+        it "has the correct start node" do
+          expect(rel.start).to eq(start_node)
         end
 
-        context "using another session" do
-          let(:another_rel) { Relationship.new :KNOWS, start_node, end_node, since: "4/11/2013", random_property: "who cares?" }
-          it "creates a relationship in that session" do
-            expect(another_rel).to be_an_instance_of(described_class)
-          end
+        it "has the correct end node"
+          expect(rel.end).to eq(end_node)
+        end
 
-          it "has the correct properties" do
-            expect(another_rel[:since]).to eq("4/11/2013")
-            expect(another_rel[:random_property]).to eq("who cares?")
-          end
+        it "has the correct properties"
+          expect(rel[:since]).to eq(2013)
+          expect(rel[:random_property]).to eq("who cares?")
+        end
+
+        it "does not have the wrong properties" do
+          expect(rel[:invalid_property]).to be_nil
         end
       end
 
