@@ -86,6 +86,13 @@ module Neo4j
       describe "new(name, start, end, attributes = {})" do
         let(:rel) { Relationship.new :FRIEND_OF, start_node, end_node, since: 2013, random_property: "who cares?" }
 
+        it "returns nil if both nodes aren't from the same session" do
+          another_session = Session.new :rest
+          node_from_another_session = Node.new({name: "Ujjwal", email: "ujjwalthaakar@gmail.com"}, :from_another_session, another_session)
+          rel = Relationship.new :NAME, start_node, node_from_another_session
+          expect(rel).to be_nil
+        end
+
         it "is an instance of the correct subclass" do
           expect(rel).to be_an_instance_of(described_class)
         end
