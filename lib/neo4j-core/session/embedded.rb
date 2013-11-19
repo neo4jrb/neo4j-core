@@ -58,6 +58,10 @@ module Neo4j
         @db.getNodeById(id)
       end
 
+      def to_s
+        @db_location
+      end
+
       private
         def _create_node(attributes, labels)
           labels = labels.map { |label| Java::OrgNeo4jGraphdb::DynamicLabel.label(label) }

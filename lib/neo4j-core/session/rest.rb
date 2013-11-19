@@ -7,6 +7,7 @@ module Neo4j
       
       def initialize(url = "http://localhost:7474")
         @neo = Neography::Rest.new url
+        @url = url
       end
 
       # These methods make no sense for a rest server so we just return true to make our specs happy
@@ -27,6 +28,10 @@ module Neo4j
       def load(id)
         node = @neo.get_node(id)
         Neo4j::Node::Rest.new(node, self)
+      end
+
+      def to_s
+        @url
       end
     end
   end

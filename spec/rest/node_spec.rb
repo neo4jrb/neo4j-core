@@ -3,8 +3,6 @@ require "shared_examples/node"
 
 module Neo4j
   describe Node::Rest, api: :rest do
-    include_examples "Node" do
-      let (:another_session) { Session.new :rest }
-    end
+    include_examples "Node"
   end
 end

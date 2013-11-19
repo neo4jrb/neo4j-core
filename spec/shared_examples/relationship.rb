@@ -11,7 +11,7 @@ module Neo4j
     let(:end_node) { Node.new name: "Andreas Ronge", nationaility: :sweedish }
 
     describe "instance method" do
-      let(:rel) { Relationship.new :KNOWS, start_node, end_node, since: Date.parse('29/10/2013'), through: 'Gmail' }
+      let(:rel) { Relationship.new start_node, :KNOWS, end_node, since: Date.parse('29/10/2013'), through: 'Gmail' }
 
       describe "name" do
         it "returns the name of the relationship" do
@@ -64,16 +64,6 @@ module Neo4j
         end
       end
 
-      describe "reset(attributes)" do
-        it "resets the properties" do
-          node.reset favourite_language: "Ruby", favourite_database: "Neo4J"
-          expect(node[:since]).to be_nil
-          expect(node[:through]).to be_nil
-          expect(node[:favourite_language]).to eq("Ruby")
-          expect(node[:favourite_database]).to eq("Neo4J")
-        end
-      end
-
       describe "delete" do
         it "deletes the node" do
           node.delete
@@ -84,12 +74,12 @@ module Neo4j
 
     describe "class method" do
       describe "new(name, start, end, attributes = {})" do
-        let(:rel) { Relationship.new :FRIEND_OF, start_node, end_node, since: 2013, random_property: "who cares?" }
+        let(:rel) { Relationship.new start_node, :FRIEND_OF, end_node, since: 2013, random_property: "who cares?" }
 
         it "returns nil if both nodes aren't from the same session" do
           another_session = Session.new :rest
           node_from_another_session = Node.new({name: "Ujjwal", email: "ujjwalthaakar@gmail.com"}, :from_another_session, another_session)
-          rel = Relationship.new :NAME, start_node, node_from_another_session
+          rel = Relationship.new start_node, :NAME, node_from_another_session
           expect(rel).to be_nil
         end
 
@@ -116,8 +106,8 @@ module Neo4j
       end
 
       describe "load(id)" do
-        let(:rel) { Relationship.new(:CO_PROGRAMMER, start_node, end_node) }
-        let(:same_rel) { Relationship.load(rel.id) }
+        let(:rel) { Relationship.new(start_node, :CO_PROGRAMMER, end_node) }
+        let(:same_rel) { Relationship.load(rel.id, Session.current) }
         it "load the relationship with the given id" do
           expect(rel.id).to eq(same_rel.id)
         end

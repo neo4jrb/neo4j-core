@@ -23,23 +23,25 @@ Java::OrgNeo4jKernelImplCore::NodeProxy.class_eval do
     end
   end
 
-  def reset(attributes)
-    for property in getPropertyKeys
-      removeProperty(property)
-    end
-    attributes.each_pair do |property, value|
-      setProperty(property, value)
-    end
+  def destroy
+    getRelationships.map(&:delete)
   end
-
-  # def destroy
-  #   @session.neo.delete_node! @node
-  #   @node = @session = nil
-  # rescue NoMethodError
-  #   raise StandardError.new("Node[#{@id}] does not exist anymore!")
-  # end
 
   def to_s
     "Embedded Node[#{getId}]"
+  end
+
+  def create_rel_to(end_node, name, attributes = {})
+    type = Java::OrgNeo4jGraphdb::DynamicRelationshipType.withName(name)
+    rel = createRelationshipTo(end_node, type)
+    if (rel.isType(type))
+      attributes.each_pair do |key, value|
+        unless value.nil?
+          rel.setProperty(key, value)
+        end
+      end
+    else
+      nil
+    end
   end
 end
