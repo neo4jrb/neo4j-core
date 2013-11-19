@@ -2,7 +2,12 @@ module Neo4j
   shared_examples "Node" do
     let(:api) { example.metadata[:api] }
     let (:another_session) do
-      another_session = Session.new(api)
+      another_session = case api
+      when :embedded
+        Session.new(:embedded, Helpers::Embedded.test_path)
+      when :rest
+          Session.new(:rest)
+      end
       another_session.start
       another_session
     end
@@ -40,7 +45,7 @@ module Neo4j
           context "when the properties exist" do
             it "removes the properties" do
               node[:name, :email] = nil, nil
-              expect(node[:name, :email]).to be_empty
+              expect(node[:name, :email]).to eq([nil, nil])
             end
           end
 
@@ -53,13 +58,16 @@ module Neo4j
         end
       end
 
-      describe "reset(attributes)" do
-        it "resets the properties" do
-          node.reset favourite_language: "Ruby", favourite_database: "Neo4J"
-          expect(node[:name]).to be_nil
-          expect(node[:email]).to be_nil
-          expect(node[:favourite_language]).to include("Ruby")
-          expect(node[:favourite_database]).to include("Neo4J")
+      describe "props" do
+        it "should give a hash of all properties and values" do
+          expect(node.props).to eq({"name" => "Ujjwal", "email" => "ujjwalthaakar@gmail.com"})
+        end
+      end
+
+      describe "props=(attributes)" do
+        it "should reset all properties" do
+          node.props = {sex: "Male", "birthday" => "30/2/2001"}
+          expect(node.props).to eq({"sex" => "Male", "birthday" => "30/2/2001"})
         end
       end
 

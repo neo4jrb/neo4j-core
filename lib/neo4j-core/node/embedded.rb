@@ -1,26 +1,46 @@
 # Extend the Java NodeProxy
 Java::OrgNeo4jKernelImplCore::NodeProxy.class_eval do
   # Properties
-  def [](property)
-    property = property.to_s
-    if hasProperty(property)
-      getProperty(property)
-    else
-      nil
-    end
-  end
-
-  def []=(property, value)
-    property = property.to_s
-    if value.nil?
-      if hasProperty(property)
-        removeProperty(property)
+  def [](*keys)
+    keys.map!(&:to_s)
+    result = []
+    keys.each do |k|
+      result << if hasProperty(k)
+        getProperty(k)
       else
         nil
       end
-    else
-      setProperty(property, value)
     end
+    if keys.length == 1
+      result.first
+    else
+      result
+    end
+  end
+
+  def []=(*keys, values)
+    values = [values].flatten
+    keys.map!(&:to_s)
+    attributes = Hash[keys.zip values]
+    nil_values = lambda { |_, v| v.nil? }
+    keys_to_delete = attributes.select(&nil_values).keys
+    attributes.delete_if(&nil_values)
+    keys_to_delete.each { |k| removeProperty(k) if hasProperty(k) }
+    attributes.each { |k, v| setProperty(k, v) }
+  end
+
+  def props
+    result = {}
+    getPropertyKeys.each do |key|
+      result[key] = getProperty(key)
+    end
+    result
+  end
+
+  def props=(attributes)
+    getPropertyKeys.each { |key| removeProperty(key) }
+    attributes = attributes.delete_if { |_, value| value.nil? }
+    attributes.each { |key, value| setProperty(key, value) }
   end
 
   def destroy
