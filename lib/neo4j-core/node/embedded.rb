@@ -44,7 +44,7 @@ Java::OrgNeo4jKernelImplCore::NodeProxy.class_eval do
   end
 
   def destroy
-    get_relationships.map(&:delete)
+    get_relationships.each { |r| r.delete }
   end
 
   def to_s
