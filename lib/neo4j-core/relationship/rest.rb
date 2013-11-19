@@ -33,10 +33,9 @@ module Neo4j
         raise_doesnt_exist_anymore_error
       end
 
-      def []=(*keys_and_values)
-        keys, values = keys_and_values.each_slice(keys_and_values.length/2).to_a
+      def []=(*keys, values)
+        values = [values].flatten
         keys.map!(&:to_s)
-        values += [nil] * (keys.length - values.length) if keys.length > values.length
         attributes = Hash[keys.zip values]
         keys_to_delete = attributes.delete_if { |k, v| v.nil? }.keys
         begin
@@ -44,7 +43,11 @@ module Neo4j
           props = @session.neo.set_relationship_properties(@relationship, attributes)
           result = keys.map { |key| props[key] } # Return the result in the correct order
         rescue Neography::NoSuchPropertyException
-          nil
+          if keys.length == 1
+            nil
+          else
+            []
+          end
         end
       rescue NoMethodError
         raise_doesnt_exist_anymore_error

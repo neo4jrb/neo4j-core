@@ -36,20 +36,18 @@ module Neo4j
       describe "[properties] = values" do
         context "when the value is a ruby object" do
           it "sets property to value" do
-            rel[:since] = "4/11/2013"
-            expect(rel[:since]).to include("4/11/2013")
-            rel[:through] = "Google+"
-            expect(rel[:through]).to include("Google+")
+            rel[:since, :through] = "4/11/2013", "Google+"
+            expect(rel[:since, :through]).to eq(["4/11/2013", "Google+"])
+            rel[:through] = "Twitter"
+            expect(rel[:through]).to include("Twitter")
           end
         end
 
         context "value is nil" do
           context "when the property exists" do
             it "removes the property" do
-              rel[:since] = nil
-              expect(rel[:since]).to be_nil
-              rel[:through] = nil
-              expect(rel[:through]).to be_nil
+              rel[:since, :through] = nil, nil
+              expect(rel[:since, :through]).to be_empty
             end
           end
 

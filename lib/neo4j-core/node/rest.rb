@@ -14,28 +14,34 @@ module Neo4j
       end
 
       # Properties
-      def [](property)
-        property = property.to_s
+      def [](*keys)
+        keys.map!(&:to_s)
         begin
-          @session.neo.get_node_properties(@node, [property])[property]
+          props = @session.neo.get_node_properties(@node, keys)
+          result = keys.map { |key| props[key] } # Return the result in the correct order
         rescue Neography::NoSuchPropertyException
-          nil
+          if keys.length == 1
+            nil
+          else
+            []
+          end
         end
       rescue NoMethodError
         raise_doesnt_exist_anymore_error
       end
 
-      def []=(property, value)
-        if value.nil?
-          begin
-            @session.neo.remove_node_properties(@node, property.to_s)
-          rescue Neography::NoSuchPropertyException
-            return nil
-          end
-        else
-          @session.neo.set_node_properties @node, property.to_s => value
+      def []=(*keys, values)
+        values = [values].flatten
+        keys.map!(&:to_s)
+        attributes = Hash[keys.zip values]
+        keys_to_delete = attributes.delete_if { |k, v| v.nil? }.keys
+        begin
+          @session.neo.remove_node_properties(@node, keys_to_delete)
+          props = @session.neo.set_node_properties(@node, attributes)
+          result = keys.map { |key| props[key] } # Return the result in the correct order
+        rescue Neography::NoSuchPropertyException
+          nil
         end
-        value
       rescue NoMethodError
         raise_doesnt_exist_anymore_error
       end

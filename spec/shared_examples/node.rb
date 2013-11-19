@@ -10,11 +10,10 @@ module Neo4j
     describe "instance method" do
       let(:node) { Node.new({name: "Ujjwal", email: "ujjwalthaakar@gmail.com"}, :User, :Programmer) }
 
-      describe "[](property)" do
-        context "when the property exists" do
-          it "returns the value of that property" do
-            expect(node[:name]).to eq("Ujjwal")
-            expect(node[:email]).to eq("ujjwalthaakar@gmail.com")
+      describe "[properties]" do
+        context "when the properties exist" do
+          it "returns the values of those properties" do
+            expect(node[:name, :email]).to eq(["Ujjwal", "ujjwalthaakar@gmail.com"])
           end
         end
 
@@ -26,28 +25,27 @@ module Neo4j
         end
       end
 
-      describe "[]=(property, value)" do
-        context "when the value is a ruby object" do
-          it "sets property to value" do
-            node[:name] = "Andreas Ronge"
-            expect(node[:name]).to eq("Andreas Ronge")
-            node[:name] = "andreas.ronge@gmail.com"
-            expect(node[:name]).to eq("andreas.ronge@gmail.com")
+      describe "[properties] = values" do
+        context "when the values are given" do
+          it "sets properties to the values" do
+            node[:name, :email, :not_considered] = "Andreas Ronge", "andreas.ronge@gmail.com"
+            expect(node[:name, :email]).to eq(["Andreas Ronge", "andreas.ronge@gmail.com"])
+
+            node[:name, :email] = "Andreas Ronge", "andreas.ronge@gmail.com", "not considered"
+            expect(node[:name, :email]).to eq(["Andreas Ronge", "andreas.ronge@gmail.com"])
           end
         end
 
         context "value is nil" do
-          context "when the property exists" do
-            it "removes the property" do
-              node[:name] = nil
-              expect(node[:name]).to be_nil
-              node[:email] = nil
-              expect(node[:email]).to be_nil
+          context "when the properties exist" do
+            it "removes the properties" do
+              node[:name, :email] = nil, nil
+              expect(node[:name, :email]).to be_empty
             end
           end
 
           context "when the property doesn't exist" do
-            it "does nothing" do
+            it "returns nil" do
               node[:favourite_language] = nil
               expect(node[:favourite_language]).to be_nil
             end
@@ -60,8 +58,8 @@ module Neo4j
           node.reset favourite_language: "Ruby", favourite_database: "Neo4J"
           expect(node[:name]).to be_nil
           expect(node[:email]).to be_nil
-          expect(node[:favourite_language]).to eq("Ruby")
-          expect(node[:favourite_database]).to eq("Neo4J")
+          expect(node[:favourite_language]).to include("Ruby")
+          expect(node[:favourite_database]).to include("Neo4J")
         end
       end
 
@@ -79,8 +77,7 @@ module Neo4j
           it "creates a node" do
             node = Node.new name: "Ujjwal", email: "ujjwalthaakar@gmail.com"
             expect(node).to be_an_instance_of(described_class)
-            expect(node[:name]).to eq("Ujjwal")
-            expect(node[:email]).to eq("ujjwalthaakar@gmail.com")
+            expect(node[:name, :email]).to eq(["Ujjwal", "ujjwalthaakar@gmail.com"])
           end
         end
 
@@ -91,8 +88,7 @@ module Neo4j
           end
 
           it "has the correct properties" do
-            expect(another_node[:name]).to eq("Andreas Ronge")
-            expect(another_node[:email]).to eq("andreas.ronge@gmail.com")
+            expect(another_node[:name, :email]).to eq(["Andreas Ronge", "andreas.ronge@gmail.com"])
           end
         end
       end
@@ -103,12 +99,11 @@ module Neo4j
 
         it "loads the node with the given neo id" do
           expect(same_node).to be_an_instance_of(described_class)
-          expect(node.id).to eq(same_node.id)
+          expect(node).to eq(same_node)
         end
 
         it "has the correct properties" do
-          expect(node[:name]).to eq(same_node[:name])
-          expect(node[:email]).to eq(same_node[:email])
+          expect(node[:name, :email]).to eq(same_node[:name, :email])
         end
       end
     end
