@@ -21,8 +21,8 @@ module Neo4j
       def start
         return false if @started
         @started = true
-        @db = Java::OrgNeo4jGraphdbFactory::GraphDatabaseFactory.new.newEmbeddedDatabase(@db_location)
-        @transaction = @db.beginTx
+        @db = Java::OrgNeo4jGraphdbFactory::GraphDatabaseFactory.new.new_embedded_database(@db_location)
+        @transaction = @db.begin_tx
         @running = true
       end
 
@@ -37,7 +37,7 @@ module Neo4j
 
       def run_transaction(&block)
         return unless block_given?
-        transaction = @db.beginTx
+        transaction = @db.begin_tx
         result = yield
         transaction.success
         transaction.finish
@@ -55,7 +55,7 @@ module Neo4j
       end
 
       def load(id)
-        @db.getNodeById(id)
+        @db.get_node_by_id(id)
       end
 
       def to_s
@@ -65,10 +65,10 @@ module Neo4j
       private
         def _create_node(attributes, labels)
           labels = labels.map { |label| Java::OrgNeo4jGraphdb::DynamicLabel.label(label) }
-          node = @db.createNode(*labels)
+          node = @db.create_node(*labels)
           # Set properties
           attributes.each_pair do |key, value|
-            node.setProperty(key, value)
+            node.set_property(key, value)
           end
           node
         end

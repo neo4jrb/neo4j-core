@@ -17,7 +17,7 @@ module Neo4j
 
       private
         def raise_invalid_session_error(session)
-          raise Neo4j::Session::InvalidSessionTypeError.new(session.class)
+          raise Session::InvalidSessionTypeError.new(session.class)
         end
     end
   end
