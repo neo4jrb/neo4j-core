@@ -6,7 +6,7 @@ module Neo4j
       when :embedded
         Session.new(:embedded, Helpers::Embedded.test_path)
       when :rest
-          Session.new(:rest)
+        Session.new(:rest)
       end
       another_session.start
       another_session

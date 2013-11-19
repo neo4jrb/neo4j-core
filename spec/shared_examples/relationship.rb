@@ -2,7 +2,12 @@ module Neo4j
   shared_examples "Relationship" do
     let(:api) { example.metadata[:api] }
     let (:another_session) do
-      another_session = Session.new(api)
+      another_session = case api
+      when :embedded
+        Session.new(:embedded, Helpers::Embedded.test_path)
+      when :rest
+        Session.new(:rest)
+      end
       another_session.start
       another_session
     end
