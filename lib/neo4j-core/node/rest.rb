@@ -9,6 +9,10 @@ module Neo4j
         @id = node["self"].split('/').last.to_i # Set the id
       end
 
+      def ==(node)
+        @id == node.id
+      end
+
       # Properties
       def [](property)
         property = property.to_s
@@ -60,15 +64,19 @@ module Neo4j
         "REST Node[#{@id}]"
       end
 
-      def create_rel_to(end_node, name, attributes = {})
-        neo_rel = @session.neo.create_relationship(name, @node, end_node.node)
-        rel = Relationship::Rest.new(neo_rel, @session, self, @end_node, name)
-        attributes = attributes.delete_if { |key, value| value.nil? }
-        if rel.nil?
-          nil
-        else
-          rel.props = attributes
+      def create_rel_to(end_node, type, attributes = {})
+        if @session != end_node.session
+          msg = "Cannot create a relationship with a node from another session\n" +
+                "Start Node Session: #{@session.url}\n" +
+                "End Node Session: #{end_node.session.url}"
+          raise msg
         end
+        attributes = attributes.delete_if { |key, value| value.nil? }
+        neo_rel = @session.neo.create_relationship(type, @node, end_node.node, attributes)
+        return nil if neo_rel.nil?
+        rel = Relationship::Rest.new(neo_rel, @session)
+        rel.props = attributes
+        rel
       end
 
       private

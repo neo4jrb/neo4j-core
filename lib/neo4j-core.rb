@@ -1,6 +1,7 @@
 require "neo4j-core/session"
 require "neo4j-core/node"
 require "neo4j-core/label"
+require "neo4j-core/relationship"
 
 # If the platform is Java then load all java related files
 if RUBY_PLATFORM == 'java'

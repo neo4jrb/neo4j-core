@@ -3,7 +3,7 @@ require "neography"
 module Neo4j
   module Session
     class Rest
-      attr_reader :neo
+      attr_reader :neo, :url
       
       def initialize(url = "http://localhost:7474")
         @neo = Neography::Rest.new url
@@ -28,6 +28,11 @@ module Neo4j
       def load(id)
         node = @neo.get_node(id)
         Neo4j::Node::Rest.new(node, self)
+      end
+
+      def load_rel(id)
+        rel = @neo.get_relationship(id)
+        Relationship::Rest.new(rel, self)
       end
 
       def to_s

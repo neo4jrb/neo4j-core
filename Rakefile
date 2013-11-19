@@ -77,6 +77,12 @@ namespace :test do
       success = system('rspec spec/rest/label_spec.rb')
       abort("REST Label specs failed") unless success
     end
+
+    desc "Run REST specs for Relationship"
+    task :relationship do
+      success = system('rspec spec/rest/relationship_spec.rb')
+      abort("REST Relationship specs failed") unless success
+    end    
   end
 
   desc "Embedded implementation"
@@ -108,6 +114,13 @@ namespace :test do
       success = system('rspec spec/embedded/label_spec.rb')
       abort("Embedded Label specs failed") unless success
     end
+
+    desc "Run Embedded specs for Relationship"
+    task :relationship do
+      assert_platform
+      success = system('rspec spec/embedded/relationship_spec.rb')
+      abort("Embedded Relationship specs failed") unless success
+    end
   end
 
   desc "Run all the Session specs"
@@ -118,6 +131,9 @@ namespace :test do
 
   desc "Run all the Label specs"
   task label: ['test:validity:label', 'test:rest:label', 'test:embedded:label']
+
+  desc "Run all the Relationship specs"
+  task relationship: ['test:rest:relationship', 'test:embedded:relationship']
 end
 
 desc "Run all the neo4j-core specs"

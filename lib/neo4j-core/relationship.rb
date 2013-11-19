@@ -1,3 +1,5 @@
+require "neo4j-core/relationship/rest"
+
 module Neo4j
   module Relationship
     class << self

@@ -1,19 +1,20 @@
 module Neo4j
   module Relationship
     class Rest
-      attr_reader :session, :id, :start, :end, :nodes
+      attr_reader :session, :id, :start, :end, :nodes, :type
       
-      def initialize(relationship, session, start_node, end_node, name)
-        if start_node.session != end_node.session
-          raise "Cannot create relationship between nodes from different sessions: #{start_node.sessions} and #{end_node.sessions}"
-        end
+      def initialize(relationship, session)
         @relationship = relationship
         @session = session
-        @id = node["self"].split('/').last.to_i # Set the id
-        @start = start_node
-        @end = end_node
+        @id = @relationship["self"].split('/').last.to_i # Set the id
+        @start = @session.load(@relationship["start"])
+        @end = @session.load(@relationship["end"])
         @nodes = [@start, @end]
-        @name  = name.to_s
+        @type  = @relationship["type"]
+      end
+
+      def ==(rel)
+        @id == rel.id
       end
 
       def [](*keys)
@@ -22,17 +23,25 @@ module Neo4j
           props = @session.neo.get_relationship_properties(@relationship, keys)
           result = keys.map { |key| props[key] } # Return the result in the correct order
         rescue Neography::NoSuchPropertyException
-          nil
+          if keys.length == 1
+            nil
+          else
+            []
+          end
         end
       rescue NoMethodError
         raise_doesnt_exist_anymore_error
       end
 
-      def []=(*keys, *values)
+      def []=(*keys_and_values)
+        keys, values = keys_and_values.each_slice(keys_and_values.length/2).to_a
         keys.map!(&:to_s)
         values += [nil] * (keys.length - values.length) if keys.length > values.length
+        attributes = Hash[keys.zip values]
+        keys_to_delete = attributes.delete_if { |k, v| v.nil? }.keys
         begin
-          @session.neo.set_relationship_properties(@relationship, Hash[keys.zip values])
+          @session.neo.remove_relationship_properties(@relationship, keys_to_delete)
+          props = @session.neo.set_relationship_properties(@relationship, attributes)
           result = keys.map { |key| props[key] } # Return the result in the correct order
         rescue Neography::NoSuchPropertyException
           nil
@@ -66,7 +75,7 @@ module Neo4j
 
       def delete
         session.neo.delete_relationship(@relationship)
-        @relationship = @session = @start = @end = @nodes = nil
+        @relationship = @session = @start = @end = @nodes = @type = nil
       rescue NoMethodError
         raise_doesnt_exist_anymore_error
       end
