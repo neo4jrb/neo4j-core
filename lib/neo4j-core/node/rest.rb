@@ -63,7 +63,7 @@ module Neo4j
 
       def delete
         @session.neo.delete_node @node
-        @session = nil
+        @node = @session = nil
       rescue NoMethodError => e
         raise_doesnt_exist_anymore_error(e)
       end

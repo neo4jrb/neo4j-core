@@ -33,7 +33,7 @@ module Neo4j
 
         context "when the properties doesn't exist" do
           it "returns a empty array" do
-            expect(rel[:favourite_language, :favourite_database]).to be_empty
+            expect(rel[:favourite_language, :favourite_database]).to eq([nil, nil])
           end
         end
       end
@@ -52,7 +52,7 @@ module Neo4j
           context "when the property exists" do
             it "removes the property" do
               rel[:since, :through] = nil, nil
-              expect(rel[:since, :through]).to be_empty
+              expect(rel[:since, :through]).to eq([nil, nil])
             end
           end
 
@@ -65,11 +65,50 @@ module Neo4j
         end
       end
 
+      describe "props" do
+        it "should give a hash of all properties and values" do
+          expect(rel.props).to eq({"since" => "2013-10-29", "through" => "Gmail"})
+        end
+      end
+
+      describe "props=(attributes)" do
+        it "should reset all properties" do
+          rel.props = {sex: "Male", "birthday" => "30/2/2001"}
+          expect(rel.props).to eq({"sex" => "Male", "birthday" => "30/2/2001"})
+        end
+      end
+
+      describe "other_node(node)" do
+        it "gives the other node" do
+          expect(rel.other_node(start_node)).to eq(end_node)
+          expect(rel.other_node(end_node)).to eq(start_node)
+        end
+      end
+
+      describe "nodes" do
+        it "returns an array of the relationship's nodes" do
+          expect(rel.nodes).to include(start_node)
+          expect(rel.nodes).to include(end_node)
+        end
+      end
+
       describe "delete" do
         let(:rel) { Relationship.new start_node, :RANDOM, end_node, since: Date.parse("29/10/2013"), through: "Gmail" }
         it "deletes the node" do
           rel.delete
-          expect { rel[:since] }.to raise_error(StandardError)
+          expect { rel[:since] }.to raise_error
+        end
+      end
+
+      describe "destroy" do
+        let(:start_node) { Node.new name: "Ujjwal Thaakar", age: 21 }
+        let(:end_node) { Node.new name: "Andreas Ronge", nationaility: :sweedish }
+        let(:rel) { Relationship.new start_node, :RANDOM, end_node, since: Date.parse("29/10/2013"), through: "Gmail" }
+        it "deletes the relationship and the nodes attached to it" do
+          rel.destroy
+          expect { rel[:since] }.to raise_error
+          expect { start_node[:anything] }.to raise_error
+          expect { end_node[:anything] }.to raise_error
         end
       end
     end
