@@ -73,7 +73,7 @@ module PropertyContainer
     private
       def _raise_doesnt_exist_anymore_error(e)
         if @session.nil?
-          raise StandardError.new("Node[#{@id}] does not exist anymore!") 
+          raise StandardError.new("#{self} does not exist anymore!") 
         else
           raise e
         end

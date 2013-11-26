@@ -61,7 +61,8 @@ module Neo4j
 
         def _destroy
           _delete
-          @nodes.each {|node| node.delete }
+          @start.delete
+          @end.delete
         end
     end
   end
