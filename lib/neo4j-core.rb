@@ -1,7 +1,9 @@
 require "neo4j-core/session"
 require "neo4j-core/node"
+require "neo4j-core/node/rest"
 require "neo4j-core/label"
 require "neo4j-core/relationship"
+require "neo4j-core/relationship/rest"
 
 # If the platform is Java then load all java related files
 if RUBY_PLATFORM == 'java'
@@ -11,8 +13,6 @@ if RUBY_PLATFORM == 'java'
     require "neo4j-core/jars/#{jar}"
   end
   require "neo4j-core/node/embedded"
-else
-  require "byebug"
 end
 
 module Neo4j

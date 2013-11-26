@@ -1,5 +1,3 @@
-require "neo4j-core/relationship/rest"
-
 module Neo4j
   module Relationship
     class << self
@@ -11,12 +9,12 @@ module Neo4j
         begin
           session.load_rel(id)
         rescue NoMethodError
-          raise_invalid_session_error(session)
+          _raise_invalid_session_error(session)
         end
       end
 
       private
-        def raise_invalid_session_error(session)
+        def _raise_invalid_session_error(session)
           raise Session::InvalidSessionTypeError.new(session.class)
         end
     end

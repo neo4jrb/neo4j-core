@@ -1,5 +1,4 @@
 require "helpers/argument_helpers"
-require "neo4j-core/node/rest"
 
 module Neo4j
   module Node
@@ -13,7 +12,7 @@ module Neo4j
         begin
           session.create_node(attributes, labels)
         rescue NoMethodError
-          raise_invalid_session_error(session)
+          _raise_invalid_session_error(session)
         end
       end
 
@@ -21,12 +20,12 @@ module Neo4j
         begin
           session.load(id)
         rescue NoMethodError
-          raise_invalid_session_error(session)
+          _raise_invalid_session_error(session)
         end
       end
 
       private
-        def raise_invalid_session_error(session)
+        def _raise_invalid_session_error(session)
           raise Neo4j::Session::InvalidSessionTypeError.new(session.class)
         end
     end
