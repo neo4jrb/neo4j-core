@@ -28,6 +28,12 @@ module Neo4j
             expect(node[:favourite_database]).to be_nil
           end
         end
+
+        context "existing and non existing properties" do
+          it "returns correct values for existing properties and nil otherwise" do
+            expect(node[:name, :favourite_language, :email, :favourite_database]).to eq(["Ujjwal", nil, "ujjwalthaakar@gmail.com", nil])
+          end
+        end
       end
 
       describe "[properties] = values" do

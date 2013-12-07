@@ -18,10 +18,9 @@ module Neo4j
 
       def create_rel_to(end_node, type, attributes = {})
         if @session != end_node.session
-          msg = "Cannot create a relationship with a node from another session\n" +
+          raise "Cannot create a relationship with a node from another session\n" +
                 "Start Node Session: #{@session.url}\n" +
                 "End Node Session: #{end_node.session.url}"
-          raise msg
         end
         attributes = attributes.delete_if { |key, value| value.nil? }
         neo_rel = @session.neo.create_relationship(type, @node, end_node.node, attributes)
