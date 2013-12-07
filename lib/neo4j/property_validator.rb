@@ -1,6 +1,6 @@
 module Neo4j
   module PropertyValidator
-
+    require 'set'
     class InvalidPropertyException < Exception
 
     end
