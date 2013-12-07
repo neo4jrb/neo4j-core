@@ -23,9 +23,8 @@ module Neo4j
       values = [values].flatten
       keys.map!(&:to_s)
       properties = props
-      keys.zip(values).each { |k, v| properties[k] = v }
-      # Reset all the properties - write simple inefficient code until it proves inefficient
-      props = properties
+      Hash[keys.zip(values)].each { |k, v| properties[k] = v unless k.nil? }
+      self.props = properties # Reset all the properties - write simple inefficient code until it proves inefficient
     rescue NoMethodError => e
       _raise_doesnt_exist_anymore_error(e)
     end
@@ -37,7 +36,7 @@ module Neo4j
     end
 
     def props=(attributes)
-      attributes = attributes.delete_if { |_, value| value.nil? }
+      attributes.delete_if { |_, value| value.nil? }
       _reset_properties(attributes)
     rescue NoMethodError => e
       _raise_doesnt_exist_anymore_error(e)

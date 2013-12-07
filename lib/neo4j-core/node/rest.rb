@@ -37,16 +37,8 @@ module Neo4j
           @session.neo.get_node_properties(@node, *keys)
         end
 
-        def _set_properties(keys)
-          @session.neo.set_node_properties(@node, keys)
-        end
-
         def _reset_properties(attributes)
           @session.neo.reset_node_properties(@node, attributes)
-        end
-
-        def _remove_properties(keys_to_delete)
-          @session.neo.remove_node_properties(@node, keys_to_delete)
         end
 
         def _set_private_vars_to_nil
