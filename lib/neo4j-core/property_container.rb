@@ -20,7 +20,7 @@ module Neo4j
     end
 
     def []=(*keys, values)
-      values = [values].flatten
+      values = [values].flatten(1)
       keys.map!(&:to_s)
       properties = props
       Hash[keys.zip(values)].each { |k, v| properties[k] = v unless k.nil? }
