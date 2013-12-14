@@ -4,7 +4,7 @@ module Neo4j
     let (:another_session) do
       another_session = case api
       when :embedded
-        Session.new(:embedded, Helpers::Embedded.test_path)
+        Session.new(:embedded, Helpers::Embedded.test_path+'_another')
       when :rest
         Session.new(:rest)
       end
@@ -106,9 +106,26 @@ module Neo4j
         let(:rel) { Relationship.new start_node, :RANDOM, end_node, since: Date.parse("29/10/2013"), through: "Gmail" }
         it "deletes the relationship and the nodes attached to it" do
           rel.destroy
-          expect { rel[:since] }.to raise_error
-          expect { start_node[:anything] }.to raise_error
-          expect { end_node[:anything] }.to raise_error
+          # Why a deleted relationship raises error while nodes return nil is not clear.
+          # The Neo4J documentations says the the behaviour is unspecified!
+          expect {rel[:since]}.to raise_error
+          expect(start_node[:anything]).to be_nil
+          expect(end_node[:anything]).to be_nil
+        end
+      end
+
+      describe "other_node(node)" do
+        it "returns the other node" do
+          expect(rel.other_node(start_node)).to eq(end_node)
+          expect(rel.other_node(end_node)).to eq(start_node)
+          node = Node.new name: "Sachin Tendulkar", awards: ["Bharat Ratna", "Wisden Cricketer of the Year"]
+          expect(rel.other_node(node)).to be_nil
+        end
+      end
+
+      describe "type" do
+        it "returns the type of the relationship" do
+          expect(rel.type).to eq("KNOWS")
         end
       end
     end
@@ -117,9 +134,8 @@ module Neo4j
       let(:rel) { Relationship.new start_node, :FRIEND_OF, end_node, since: 2013, random_property: "who cares?" }
       describe "new(type, start, end, attributes = {})" do
         it "returns nil if both nodes aren't from the same session" do
-          another_session = Session.new :rest
           node_from_another_session = Node.new({name: "Ujjwal", email: "ujjwalthaakar@gmail.com"}, :from_another_session, another_session)
-          expect {Relationship.new start_node, :NAME, node_from_another_session}.to raise_error
+          expect(Relationship.new start_node, :NAME, node_from_another_session).to be_nil
         end
 
         it "is an instance of the correct subclass" do

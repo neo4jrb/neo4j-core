@@ -3,7 +3,7 @@ require "neo4j-core/property_container"
 module Neo4j
   module Node
     class Rest
-      include PropertyContainer
+      include PropertyContainer::Rest
       attr_reader :session, :id, :node
 
       def initialize(node, session)
@@ -17,17 +17,11 @@ module Neo4j
       end
 
       def create_rel_to(end_node, type, attributes = {})
-        if @session != end_node.session
-          raise "Cannot create a relationship with a node from another session\n" +
-                "Start Node Session: #{@session.url}\n" +
-                "End Node Session: #{end_node.session.url}"
-        end
-        attributes = attributes.delete_if { |key, value| value.nil? }
+        return nil if @session.url != end_node.session.url
+        attributes.delete_if { |key, value| value.nil? }
         neo_rel = @session.neo.create_relationship(type, @node, end_node.node, attributes)
         return nil if neo_rel.nil?
         rel = Relationship::Rest.new(neo_rel, @session)
-        rel.props = attributes
-        rel
       rescue NoMethodError => e
         _raise_doesnt_exist_anymore_error(e)
       end

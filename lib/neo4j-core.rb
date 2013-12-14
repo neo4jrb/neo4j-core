@@ -13,6 +13,7 @@ if RUBY_PLATFORM == 'java'
     require "neo4j-core/jars/#{jar}"
   end
   require "neo4j-core/node/embedded"
+  require "neo4j-core/relationship/embedded"
 end
 
 module Neo4j

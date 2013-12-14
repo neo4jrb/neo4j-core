@@ -3,8 +3,8 @@ require "neo4j-core/property_container"
 module Neo4j
   module Relationship
     class Rest
+      include PropertyContainer::Rest
       attr_reader :session, :id, :start, :end, :nodes, :type
-      include PropertyContainer
       
       def initialize(relationship, session)
         @relationship = relationship
@@ -32,6 +32,10 @@ module Neo4j
 
       def to_s
         "REST Relationship[#{@id}]"
+      end
+
+      def type
+        @relationship["type"]
       end
 
       private

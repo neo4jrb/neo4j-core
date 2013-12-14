@@ -58,18 +58,19 @@ module Neo4j
         @db.get_node_by_id(id)
       end
 
+      def load_rel(id)
+        @db.get_relationship_by_id(id)
+      end
+
       def to_s
         @db_location
       end
 
       private
         def _create_node(attributes, labels)
-          labels = labels.map { |label| Java::OrgNeo4jGraphdb::DynamicLabel.label(label) }
+          labels.map! { |label| Java::OrgNeo4jGraphdb::DynamicLabel.label(label) }
           node = @db.create_node(*labels)
-          # Set properties
-          attributes.each_pair do |key, value|
-            node.set_property(key, value)
-          end
+          node.props = attributes
           node
         end
     end
