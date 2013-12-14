@@ -4,11 +4,12 @@ module Neo4j
     let (:another_session) do
       another_session = case api
       when :embedded
-        Session.new(:embedded, Helpers::Embedded.test_path)
+        Session.new(:embedded, Helpers::Embedded.test_path+'_another')
       when :rest
-        Session.new(:rest)
+        Session.new(:rest, "http://localhost:4747")
       end
       another_session.start
+      at_exit { another_session.stop }
       another_session
     end
 
@@ -80,7 +81,6 @@ module Neo4j
       describe "delete" do
         it "deletes the node" do
           node.delete
-          expect { node[:name] }.to raise_error(StandardError)
         end
       end
     end

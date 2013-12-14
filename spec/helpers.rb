@@ -15,6 +15,7 @@ module Helpers
     class << self
       def stop
         Rake.application['neo4j:stop'].invoke
+        %x[another_neo4j/bin/neo4j stop]
         Neo4j::Session.stop
       end
 
@@ -23,6 +24,7 @@ module Helpers
           @started_server = true
           at_exit { stop }
           Rake.application['neo4j:reset'].invoke
+          %x[another_neo4j/bin/neo4j start]
           sleep(1) # give the server some time to breath otherwise it doesn't respond
           Helpers.start_server_banner("REST")
         end
@@ -46,11 +48,15 @@ module Helpers
       end
 
       def stop
-        Neo4j::Session.stop if Neo4j::Session.running?
+        if Neo4j::Session.running?
+          Neo4j::Session.stop 
+        else
+          true
+        end
       end
 
       def clean_start
-        raise "Could not stop the current database" unless Neo4j::Session.stop if Neo4j::Session.running?
+        raise "Could not stop the current database: #{Neo4j::Session.running?}" unless stop
         # Create a new database
         Neo4j::Session.new :embedded, test_path
         raise "Could not start embedded database" unless Neo4j::Session.start

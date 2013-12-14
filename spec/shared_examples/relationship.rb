@@ -6,7 +6,7 @@ module Neo4j
       when :embedded
         Session.new(:embedded, Helpers::Embedded.test_path+'_another')
       when :rest
-        Session.new(:rest)
+        Session.new(:rest, "http://localhost:4747")
       end
       another_session.start
       another_session
@@ -92,11 +92,12 @@ module Neo4j
         end
       end
 
+      # Calling deleted objects has undefined behaviour so we can't really test it assertively.
+      # We might get a nil or an exception so all we can test is that the methods execute successfully.
       describe "delete" do
         let(:rel) { Relationship.new start_node, :RANDOM, end_node, since: Date.parse("29/10/2013"), through: "Gmail" }
         it "deletes the node" do
           rel.delete
-          expect { rel[:since] }.to raise_error
         end
       end
 
@@ -106,11 +107,6 @@ module Neo4j
         let(:rel) { Relationship.new start_node, :RANDOM, end_node, since: Date.parse("29/10/2013"), through: "Gmail" }
         it "deletes the relationship and the nodes attached to it" do
           rel.destroy
-          # Why a deleted relationship raises error while nodes return nil is not clear.
-          # The Neo4J documentations says the the behaviour is unspecified!
-          expect {rel[:since]}.to raise_error
-          expect(start_node[:anything]).to be_nil
-          expect(end_node[:anything]).to be_nil
         end
       end
 

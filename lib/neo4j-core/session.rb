@@ -41,8 +41,13 @@ module Neo4j
       end
 
       def stop
-        raise "Could not stop the current database" if @current && !@current.stop
-        @current = nil
+        if @current
+          result = @current.stop
+          @current = nil
+          result
+        else
+          true
+        end
       end
     end
   end
