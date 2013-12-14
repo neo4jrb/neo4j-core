@@ -5,9 +5,10 @@ module Helpers
   class << self
     def start_server_banner(server_type)
       puts
-      puts '#'*26
-      puts "Started #{server_type} Server"
-      puts '#'*26
+      msg = "Started #{server_type} Server"
+      puts '#'*msg.length
+      puts msg
+      puts '#'*msg.length
     end
   end
 
