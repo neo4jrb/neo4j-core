@@ -48,10 +48,10 @@ namespace :neo4j do
       puts %x[tar -xvzf #{file_name}]
       puts %x[mv neo4j-#{args[:edition]}-#{args[:version]} neo4j]
       puts "Neo4j Installed in to neo4j directory."
+      # Make a duplicate database
+      puts %x[mkdir another_neo4j]
+      puts %x[cp -r neo4j/* another_neo4j]
     end
-    # Make a duplicate database
-    puts %x[mkdir another_neo4j]
-    puts %x[cp -r neo4j/ another_neo4j/]
     # Replace default port 7474 with 4747 and HTTPS port 7473 with 4746
     replace = File.read("another_neo4j/conf/neo4j-server.properties").gsub(/7474/, "4747").sub(/7473/, "4746")
     File.open("another_neo4j/conf/neo4j-server.properties", "w") { |file| file.puts replace }

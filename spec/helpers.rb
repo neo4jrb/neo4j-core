@@ -16,7 +16,7 @@ module Helpers
     class << self
       def stop
         Rake.application['neo4j:stop'].invoke
-        %x[another_neo4j/bin/neo4j stop]
+        puts %x[another_neo4j/bin/neo4j stop]
         Neo4j::Session.stop
       end
 
@@ -25,7 +25,7 @@ module Helpers
           @started_server = true
           at_exit { stop }
           Rake.application['neo4j:reset'].invoke
-          %x[another_neo4j/bin/neo4j start]
+          puts %x[another_neo4j/bin/neo4j start]
           sleep(1) # give the server some time to breath otherwise it doesn't respond
           Helpers.start_server_banner("REST")
         end
