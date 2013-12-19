@@ -17,6 +17,7 @@ module Neo4j::Server
     def initialize(data_url)
       Neo4j::Session.register(self)
       initialize_resource(data_url)
+      Neo4j::Session._notify_listeners(:session_available, self)
     end
 
     def to_s

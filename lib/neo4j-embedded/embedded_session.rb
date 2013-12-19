@@ -31,6 +31,7 @@ module Neo4j::Embedded
       puts "Start embedded Neo4j db at #{db_location}"
       factory = Java::OrgNeo4jGraphdbFactory::GraphDatabaseFactory.new
       @graph_db = factory.newEmbeddedDatabase(db_location)
+      Neo4j::Session._notify_listeners(:session_available, self)
     end
 
     def factory_class
@@ -143,6 +144,7 @@ module Neo4j::Embedded
       raise Error.new("Embedded Neo4j db is already running") if running?
       #puts "Start test impermanent embedded Neo4j db at #{db_location}"
       @graph_db = Java::OrgNeo4jTest::TestGraphDatabaseFactory.new.newImpermanentDatabase()
+      Neo4j::Session._notify_listeners(:session_available, self)
     end
   end
 

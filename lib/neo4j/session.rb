@@ -106,6 +106,19 @@ module Neo4j
         @@current_session = session
       end
 
+      def add_listener(&listener)
+        self._listeners << listener
+      end
+
+      def _listeners
+        @@listeners ||= []
+        @@listeners
+      end
+
+      def _notify_listeners(event, data)
+        _listeners.each {|li| li.call(event, data)}
+      end
+
       def register(session)
         set_current(session) unless @@current_session
         @@current_session
