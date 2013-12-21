@@ -16,5 +16,6 @@ if RUBY_PLATFORM == 'java'
   require "neo4j-core/relationship/embedded"
 end
 
+# @author Ujjwal Thaakar
 module Neo4j
 end

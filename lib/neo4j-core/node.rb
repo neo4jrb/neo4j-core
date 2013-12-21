@@ -7,19 +7,12 @@ module Neo4j
     class << self
       # Creates a new Node and immediately persists it to the database. All subsequent changes are immediately persisted.
       #
-      # == Parameters:
-      # attributes::
-      #   The properties to initialize the node with.
-      # *args::
-      #   Other optional arguments to be passed based.
-      #   Labels::
-      #     A list of labels or an array of labels. Labels can be strings or symbols.
-      #   Session::
-      #     An optional session can be provided as the last value to indicate the database where to create the node.
-      #     If none is provided then the current session is assumed.
+      # @param attributes [Hash] The properties to initialize the node with.
+      # @param labels [Array] An optional list of labels or an array of labels. Labels can be strings or symbols.
+      # @param session [Session] An optional session can be provided as the last value to indicate the database where to create the node.
+      #   If none is provided then the current session is assumed.
       #
-      # == Returns:
-      # A new node.
+      # @return [Node] A new node.
       #
       def new(attributes, *args)
         session = extract_session(args)
@@ -34,14 +27,10 @@ module Neo4j
 
       # Loads an existing node with the given id
       #
-      # == Parameters:
-      # id::
-      #   The id of the node to be loaded and returned.
-      # session::
-      #   An otpional session from where to load the node (defaults to the current session).
+      # @param id [Integer] The id of the node to be loaded and returned.
+      # @param session [Session] An optional session from where to load the node.
       #
-      # == Returns:
-      # An existing node with the given id and specified session. It returns nil if the node is not found.
+      # @return [Node] An existing node with the given id and specified session. It returns nil if the node is not found.
       #
       def load(id, session = Neo4j::Session.current)
         begin
