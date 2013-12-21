@@ -5,7 +5,7 @@ require "neo4j-core/session/invalid_session"
 module Neo4j
   module Session
     class << self
-      attr_accessor :current # the current session
+      attr_accessor :current # the current default session running
       
       def new(type, *args)
         session = case type

@@ -83,6 +83,14 @@ module Neo4j
           node.delete
         end
       end
+
+      describe "destroy" do
+        let(:end_node) { Node.new name: "Andreas Ronge", nationaility: :sweedish }
+        let(:rel) { Relationship.new node, :RANDOM, end_node, since: Date.parse("29/10/2013"), through: "Gmail" }
+        it "deletes the node and it's relationships" do
+          node.destroy
+        end
+      end
     end
 
     describe "class method" do
