@@ -9,6 +9,10 @@ require 'logger'
 require 'neo4j-core'
 
 
+if RUBY_PLATFORM == 'java'
+  require "neo4j-embedded/embedded_impermanent_session"
+end
+
 Dir["#{File.dirname(__FILE__)}/shared_examples/**/*.rb"].each { |f| require f }
 
 EMBEDDED_DB_PATH = File.join(Dir.tmpdir, "neo4j-core-java")

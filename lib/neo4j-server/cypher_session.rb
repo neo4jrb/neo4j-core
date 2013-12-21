@@ -81,7 +81,7 @@ module Neo4j::Server
       data_resource = JSON.parse(response.body)
 
       property_keys = data_resource.map do |row|
-        row['property-keys'].map(&:to_sym)
+        row['property_keys'].map(&:to_sym)
       end
 
       {

@@ -48,7 +48,7 @@ module Neo4j::Server
         cr.set_data(first_result['data'], first_result['columns'])
       else
         first_error = response['errors'].first
-        cr.set_error(first_error['message'], first_error['status'], first_error['code'])
+        cr.set_error(first_error['message'], first_error['code'], first_error['code'])
       end
       cr
     end

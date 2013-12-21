@@ -30,6 +30,8 @@ It comes included with the Apache Lucene document database.
   s.add_dependency("httparty")
   s.add_dependency("json")
   s.add_dependency("neo4j-cypher")
-#  s.add_dependency("neo4j-community", '>=1.9.M05', '<2.0')
-#  s.add_dependency("neo4j-cypher", '~> 1.0.0')
+
+  if RUBY_PLATFORM =~ /java/
+    s.add_dependency("neo4j-community", '~> 2.0.0')
+  end
 end

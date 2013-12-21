@@ -56,10 +56,7 @@ module Neo4j::Embedded
           tx_methods :exist?
 
           def labels
-            iterator = _labels.iterator
-            iterator.to_a.map{|x| x.name.to_sym}
-          ensure
-            iterator && iterator.close
+            _labels.iterator.map{|x| x.name.to_sym}
           end
           tx_methods :labels
 

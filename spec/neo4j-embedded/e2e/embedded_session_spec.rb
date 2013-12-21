@@ -86,7 +86,10 @@ module Neo4j::Embedded
       end
 
       it "returns a raw Neo4j Iterator" do
-        r = session._query('START n=node(0) RETURN n')
+        result = session.query("CREATE (n) RETURN ID(n) AS id")
+        id = result.first[:id]
+
+        r = session._query("START n=node(#{id}) RETURN n")
         all = r.to_a # only allowed to traverse once
         all.count.should == 1
         all.first.should include(:n)

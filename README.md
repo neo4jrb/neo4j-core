@@ -18,7 +18,7 @@ You need to install the Neo4j server. This can be done by included Rake file.
 Example
 
 ```
-rake neo4j:install[community-2.0.0,M06]
+rake neo4j:install[community-2.0.0]
 rake neo4j:start
 ```
 

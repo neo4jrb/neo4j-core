@@ -33,8 +33,7 @@ module Neo4j::Server
       r.error?.should be_true
 
       r.error_msg.should =~ /Invalid input/
-      r.error_status.should == 'STATEMENT_SYNTAX_ERROR'
-      r.error_code.should be_a(Fixnum)
+      r.error_status.should =~ /Syntax/
     end
 
     it 'can commit' do
