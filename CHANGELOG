@@ -1,3 +1,9 @@
+* Support for Neo4j 2.0.0 and the neo4j-community jar, removed includedd JAR files
+* Simple Event support, notifying listener when database is started/usable
+* Fix requirement for standalone neo4j-core Gem (#34, Kevin Hall)
+
+== 3.0.0.alpha.1
+* First test
 
 == 2.3.0 / 2013-06-18
 * Use 1.9 Neo4j Jars, (#29, Jannis)
