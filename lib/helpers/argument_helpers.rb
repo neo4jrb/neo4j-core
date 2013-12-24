@@ -1,11 +1,11 @@
 module Neo4j
-  # Helpers for processing method arguments
+  # Helpers for processing method arguments.
   module ArgumentHelpers
-    # Extracts a session from the array of arguments if one exists at the end
+    # Extracts a session from the array of arguments if one exists at the end.
     #
-    # @param args [Array] An array of arguments of any type
+    # @param args [Array] an array of arguments of any type.
     #
-    # @return [Session] A session if the last argument is a valid session and pops it out of args.
+    # @return [Session] a session if the last argument is a valid session and pops it out of args.
     #   Otherwise it returns the current session.
     #
     def extract_session(args)
