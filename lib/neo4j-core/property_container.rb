@@ -1,11 +1,24 @@
 module Neo4j
+  # A module to contain REST and Embedded implementation for a property container namely nodes and relationships
+  # @author Ujjwal Thaakar
   module PropertyContainer
+    # Server implementation for a property container
     module Rest
+      # Compares to anothe property container
+      #
+      # @param other [PropertyContainer] the other property container being compared to
+      #
+      # @return [Boolean] wether both are the same entities based on their ids and sessions
       def ==(other)
-        @id == other.id
+        @id == other.id && @session == other.session
       end
 
-      # Properties
+      # Fetch one or more properties e.g. node[:property, :another_Property]. Non existent keys return nil.
+      #
+      # @param keys [Array<String, Symbol>] the properties to return
+      #
+      # @return [Array<String>, String] an array of the values of the properties, sorted in the same order they were queried.
+      #   In case only a single property is fetche e.g. node[ :property] it returns a String containing the corresponding value.
       def [](*keys)
         keys.map!(&:to_s)
         properties = props # Fetch all properties as this is more efficient than firing a HTTP request for every key
@@ -21,6 +34,12 @@ module Neo4j
         _raise_doesnt_exist_anymore_error(e)
       end
 
+      # Set one or more properties e.g. node[:property, :another_property] = 5, "Neo4J". nil keys are ignored.
+      #
+      # @param keys [Array<String, Symbol>] the properties to set.
+      # @param values [Array<Numeric, String, Symbol, Array<Numeric, String, Symbol>>] the value to assign to the properties in the order specified.
+      #
+      # @return [void]
       def []=(*keys, values)
         # Flattent the values to 1 level. This creates an arrray of values in the case only a single value is provided.
         values = [values].flatten(1)
@@ -32,19 +51,29 @@ module Neo4j
         _raise_doesnt_exist_anymore_error(e)
       end
 
+      # Return all properties of the property container.
+      #
+      # @return [Hash] a hash of all properties and their values.
       def props
         _get_properties || {}
       rescue NoMethodError => e
         _raise_doesnt_exist_anymore_error(e)
       end
 
+      # Reset all properties of the property container.
+      #
+      # @param attributes [Hash] a hash of the key-value pairs to set.
+      #
+      # @return [void]
       def props=(attributes)
         attributes.delete_if { |key, value| key.nil? || value.nil? } # Remove keys-value pairs where either is nil
         _reset_properties(attributes)
+        return
       rescue NoMethodError => e
         _raise_doesnt_exist_anymore_error(e)
       end
 
+      # Delete this entity.
       def delete
         _delete
         _set_private_vars_to_nil
@@ -52,6 +81,8 @@ module Neo4j
         _raise_doesnt_exist_anymore_error(e)
       end
 
+      # Destroy this entity i.e. delete it and it's associated entities e.g. relationships of a node
+      # and in case of relationships, both its nodes.
       def destroy
         _destroy # Delete the entity after deleting connected entities
         _set_private_vars_to_nil
@@ -79,11 +110,18 @@ module Neo4j
         alias :_destroy :_abstract
     end
 
+    # Embedded implementation for a property container
     module Embedded
+      def self.included(klazz)
+        raise "Cannot include PropertyContainer::Embedded without JRuby" unless RUBY_PLATFORM == 'java'
+      end
+
+      # @return [Integer] the id of the entity.
       def id
         get_id
       end
 
+      # (see #==)
       def ==(other)
         id == other.id
       end
