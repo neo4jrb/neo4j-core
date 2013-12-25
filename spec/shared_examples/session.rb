@@ -22,11 +22,14 @@ share_examples_for "Neo4j::Session" do
 
     describe 'query' do
       it 'returns data as arrays of hashs' do
-        result = session.query("CREATE (n) RETURN ID(n) AS id")
-        result.first[:id].should be_a(Fixnum)
+        result = session.query("CREATE (n {mydata: 'Hello'}) RETURN ID(n) AS id")
+        id = result.first[:id]
+        result = session.query("START n=node(#{id}) RETURN n.mydata as mydata")
+        result.first[:mydata].should == "Hello"
       end
 
       it 'allows parameters for the query' do
+        # TODO not safe to rely on that there is a node with id 0
         result = session.query("START n=node({a_parameter}) RETURN ID(n)", a_parameter: 0)
         result.to_a.count.should == 1
         result.first.should == {:'ID(n)' => 0}

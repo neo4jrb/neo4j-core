@@ -1,3 +1,6 @@
+* Fix for cypher query where the column values was wrong
+
+== 3.0.0.alpha.2
 * Support for Neo4j 2.0.0 and the neo4j-community jar, removed includedd JAR files
 * Simple Event support, notifying listener when database is started/usable
 * Fix requirement for standalone neo4j-core Gem (#34, Kevin Hall)

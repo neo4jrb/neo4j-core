@@ -15,8 +15,19 @@ Do not use this gem in production.
 
 You need to install the Neo4j server. This can be done by included Rake file.
 
-Example
 
+Install the gem:
+```
+gem install neo4j-core --pre
+```
+
+Create a Rakefile with the following content:
+
+```
+require 'neo4j/tasks/neo4j_server'
+```
+
+Install and start neo4j:
 ```
 rake neo4j:install[community-2.0.0]
 rake neo4j:start
@@ -35,8 +46,10 @@ There are currently two available types of session, one for connecting to a neo4
 and one for connecting to the embedded Neo4j database (which requires JRuby).
 
 Using the Neo4j Server: `:server_db`
+Open a IRB/Pry session:
 
 ```ruby
+  require 'neo4j-core'
   # Using Neo4j Server Cypher Database
   session = Neo4j::Session.open(:server_db, "http://localhost:7474")
 ```

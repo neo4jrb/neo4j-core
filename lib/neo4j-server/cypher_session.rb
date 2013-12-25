@@ -28,7 +28,7 @@ module Neo4j::Server
       response = HTTParty.get(data_url)
       expect_response_code(response,200)
       data_resource = JSON.parse(response.body)
-      raise "!!!!NO data_resource for #{response.body}" unless data_resource
+      raise "No data_resource for #{response.body}" unless data_resource
       # store the resource data
       init_resource_data(data_resource, data_url)
     end

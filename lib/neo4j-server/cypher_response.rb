@@ -29,7 +29,7 @@ module Neo4j::Server
       def each()
         data.each do |row|
           row.each_with_index do |row, i|
-            yield columns[i].to_sym => row[i]
+            yield columns[i].to_sym => row
           end
         end
       end
