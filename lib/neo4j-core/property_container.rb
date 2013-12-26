@@ -116,7 +116,7 @@ module Neo4j
         raise "Cannot include PropertyContainer::Embedded without JRuby" unless RUBY_PLATFORM == 'java'
       end
 
-      # @return [Integer] the id of the entity.
+      # @return [FixNum] the id of the entity.
       def id
         get_id
       end
