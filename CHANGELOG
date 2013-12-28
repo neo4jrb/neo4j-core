@@ -1,3 +1,6 @@
+== 3.0.0.alpha.4
+* Fix for cypher query, the wrapper hook method must be called to make neo4j gem happy
+
 == 3.0.0.alpha.3
 * Fix for cypher query where the column values was wrong
 
