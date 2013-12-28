@@ -119,7 +119,7 @@ module Neo4j::Embedded
     end
 
     def search_result_to_enumerable(result)
-      result.map {|column| column['n']}
+      result.map {|column| column['n'].wrapper}
     end
 
     def create_node(properties = nil, labels=[])

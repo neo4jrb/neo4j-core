@@ -1,5 +1,4 @@
 module Neo4j::Core
-# wrapps Neo4j ResourceIterator, automatically close it
 
   module ArgumentHelper
 
