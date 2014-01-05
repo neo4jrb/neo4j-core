@@ -9,7 +9,7 @@ module Neo4j::Embedded
     end
 
     def each(&block)
-      @node._rels(@match).each {|r| block.call(r)}
+      @node._rels(@match).each {|r| block.call(r.wrapper)}
     end
     tx_methods :each
 
@@ -70,7 +70,7 @@ module Neo4j::Embedded
           tx_methods :del
 
           def create_rel(type, other_node, props = nil)
-            rel = create_relationship_to(other_node, ToJava.type_to_java(type))
+            rel = create_relationship_to(other_node.neo4j_obj, ToJava.type_to_java(type))
             props.each_pair { |k, v| rel[k] = v } if props
             rel
           end
@@ -87,7 +87,7 @@ module Neo4j::Embedded
 
           def node(match={})
             rel = _rel(match)
-            rel && rel.other_node(self)
+            rel && rel.other_node(self).wrapper
           end
           tx_methods :node
 
@@ -148,8 +148,8 @@ module Neo4j::Embedded
           def class
             Neo4j::Node
           end
-          #include Neo4j::Core::Label
-          include Neo4j::Wrapper
+
+          include Neo4j::Node::Wrapper
         end
       end
     end

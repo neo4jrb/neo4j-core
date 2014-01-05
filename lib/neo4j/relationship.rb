@@ -10,8 +10,17 @@ module Neo4j
   # i.e. start_node, end_node and other_node are guaranteed to always return valid, non-nil nodes.
   class Relationship
 
+    # A module that allows plugins to register wrappers around Neo4j::Node objects
+    module Wrapper
+      # Used by Neo4j::NodeMixin to wrap nodes
+      def wrapper
+        self
+      end
+    end
+
     include PropertyContainer
     include EntityEquality
+    include Wrapper
 
     # @abstract
     def start_node
@@ -65,6 +74,11 @@ module Neo4j
     # @return [Neo4j::Node] the other node wrapper
     # @see #_other_node
     def other_node(node)
+      _other_node(node.neo4j_obj).wrapper
+    end
+
+    # Same as #other_node but can return a none wrapped node
+    def _other_node(node)
       if node == start_node
         return end_node
       elsif node == end_node
@@ -73,6 +87,7 @@ module Neo4j
         raise "Node #{node.inspect} is neither start nor end node"
       end
     end
+
 
     class << self
       def load(neo_id, session = Neo4j::Session.current)

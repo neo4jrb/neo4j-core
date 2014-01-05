@@ -6,9 +6,10 @@ module Neo4j::Embedded
         java_clazz.class_eval do
           include Neo4j::Embedded::Property
           include Neo4j::EntityEquality
+          include Neo4j::Relationship::Wrapper
           extend Neo4j::Core::TxMethods
 
-          alias_method :other_node, :getOtherNode
+          alias_method :_other_node, :getOtherNode
 
           def exist?
             !!graph_database.get_relationship_by_id(neo_id)
@@ -18,7 +19,7 @@ module Neo4j::Embedded
           tx_methods :exist?
 
           def start_node
-            getStartNode
+            getStartNode.wrapper
           end
           tx_methods :start_node
 
@@ -27,8 +28,12 @@ module Neo4j::Embedded
           end
           tx_methods :del
 
+          def other_node(n)
+            _other_node(n.neo4j_obj).wrapper
+          end
+
           def end_node
-            getEndNode
+            getEndNode.wrapper
           end
           tx_methods :end_node
 

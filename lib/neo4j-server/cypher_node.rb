@@ -132,7 +132,7 @@ module Neo4j::Server
       r.data.map do |rel|
         next if r.uncommited? ? rel['row'].first.nil? : rel.first.nil?
         id = r.uncommited? ? rel['row'].first : rel.first
-        clazz.new(@session, id)
+        clazz.new(@session, id).wrapper
       end.compact
     end
 

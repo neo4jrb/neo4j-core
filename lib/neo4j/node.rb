@@ -1,16 +1,21 @@
 module Neo4j
 
-  # A module that allows plugins to register wrappers around Neo4j::Node objects
-  module Wrapper
-    # Used by Neo4j::NodeMixin to wrap nodes
-    def wrapper
-      self
-    end
-  end
-
   # The base class for both the Embedded and Server Neo4j Node
   # Notice this class is abstract and can't be instantiated
   class Node
+
+    # A module that allows plugins to register wrappers around Neo4j::Node objects
+    module Wrapper
+      # Used by Neo4j::NodeMixin to wrap nodes
+      def wrapper
+        self
+      end
+
+      def neo4j_obj
+        self
+      end
+    end
+
     include EntityEquality
     include Wrapper
     include PropertyContainer
@@ -120,6 +125,10 @@ module Neo4j
 
     # Same as #node but returns the relationship. Notice it may raise an exception if there are more then one relationship matching.
     def rel(spec = {})
+      raise 'not implemented'
+    end
+
+    def _rel(spec = {})
       raise 'not implemented'
     end
 
