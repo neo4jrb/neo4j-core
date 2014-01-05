@@ -1,3 +1,6 @@
+== 3.0.0.alpha.5
+* Better support for wrapping nodes, see Neo4j::Node::Wrapper
+
 == 3.0.0.alpha.4
 * Fix for cypher query, the wrapper hook method must be called to make neo4j gem happy
 
