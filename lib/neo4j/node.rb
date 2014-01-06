@@ -162,8 +162,14 @@ module Neo4j
 
       # Loads a node from the database with given id
       def load(neo_id, session = Neo4j::Session.current)
-        node = session.load_node(neo_id)
+        node = _load(neo_id, session)
         node && node.wrapper
+      end
+
+      # Same as #load but does not try to return a wrapped node
+      # @return [Neo4j::Node] an unwrapped node
+      def _load(neo_id, session = Neo4j::Session.current)
+        session.load_node(neo_id)
       end
 
       # Checks if the given entity node or entity id (Neo4j::Node#neo_id) exists in the database.

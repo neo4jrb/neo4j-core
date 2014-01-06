@@ -47,6 +47,16 @@ share_examples_for "Neo4j::Relationship" do
 
   end
 
+  describe 'other_node' do
+    let(:rel_a) { node_a.create_rel(:best_friend, node_b) }
+
+    it 'returns the other node' do
+      rel_a.other_node(node_a).should == node_b
+      rel_a.other_node(node_b).should == node_a
+    end
+
+  end
+
   describe 'start_node' do
     let(:rel_a) { node_a.create_rel(:best_friend, node_b) }
 

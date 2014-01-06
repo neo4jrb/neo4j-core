@@ -29,16 +29,16 @@ module Neo4j::Server
       end
     end
 
-    def start_node
+    def _start_node
       load_resource
       id = resource_url_id(resource_url(:start))
-      Neo4j::Node.load(id)
+      Neo4j::Node._load(id)
     end
 
-    def end_node
+    def _end_node
       load_resource
       id = resource_url_id(resource_url(:end))
-      Neo4j::Node.load(id)
+      Neo4j::Node._load(id)
     end
 
     def get_property(key)

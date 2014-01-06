@@ -22,13 +22,27 @@ module Neo4j
     include EntityEquality
     include Wrapper
 
-    # @abstract
+    # Returns the start node of this relationship.
+    # @return [Neo4j::Node,Object] the node or wrapped node
     def start_node
+      _start_node.wrapper
+    end
+
+    # Same as #start_node but does not wrap the node
+    # @returns [Neo4j::Node]
+    def _start_node
       raise 'not implemented'
     end
 
-    # @abstract
+    # Returns the end node of this relationship.
+    # @return [Neo4j::Node,Object] the node or wrapped node
     def end_node
+      _end_node.wrapper
+    end
+
+    # Same as #end_node but does not wrap the node
+    # @returns [Neo4j::Node]
+    def _end_node
       raise 'not implemented'
     end
 
@@ -79,10 +93,12 @@ module Neo4j
 
     # Same as #other_node but can return a none wrapped node
     def _other_node(node)
-      if node == start_node
-        return end_node
-      elsif node == end_node
-        return start_node
+      s = _start_node
+      e = _end_node
+      if node == _start_node
+        return _end_node
+      elsif node == _end_node
+        return _start_node
       else
         raise "Node #{node.inspect} is neither start nor end node"
       end

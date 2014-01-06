@@ -19,9 +19,13 @@ module Neo4j::Embedded
           tx_methods :exist?
 
           def start_node
-            getStartNode.wrapper
+            _start_node.wrapper
           end
           tx_methods :start_node
+
+          def _start_node
+            getStartNode
+          end
 
           def del
             delete
@@ -31,11 +35,16 @@ module Neo4j::Embedded
           def other_node(n)
             _other_node(n.neo4j_obj).wrapper
           end
+          tx_methods :other_node
 
           def end_node
-            getEndNode.wrapper
+            _end_node.wrapper
           end
           tx_methods :end_node
+
+          def _end_node
+            getEndNode
+          end
 
         end
       end
