@@ -1,3 +1,7 @@
+
+== 3.0.0.alpha.6
+* Fixes for wrapper method on nodes needed by the neo4j 3.0 gem
+	
 == 3.0.0.alpha.5
 * Better support for wrapping nodes, see Neo4j::Node::Wrapper
 
