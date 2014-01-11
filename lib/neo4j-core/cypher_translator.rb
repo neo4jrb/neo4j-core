@@ -4,7 +4,7 @@ module Neo4j::Core
     def escape_value(value)
       case value
         when String
-          "'#{value}'" # TODO escape ' and "
+          "'#{value.gsub("'", %q(\\\'))}'"
         else
           value
       end
