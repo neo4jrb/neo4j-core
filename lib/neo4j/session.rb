@@ -2,6 +2,7 @@ module Neo4j
   class Session
 
     @@current_session = nil
+    @@all_sessions = {}
     @@factories = {}
 
     # @abstract
@@ -91,15 +92,26 @@ module Neo4j
       # Creates a new session
       # @param db_type the type of database, e.g. :embedded_db, or :server_db
       def open(db_type, *params)
+        register(create_session(db_type, params))
+      end
+
+      def open_named(db_type, name, default = nil, *params)
+        register(create_session(db_type, params), name, default)
+      end
+
+      def create_session(db_type, params)
         unless (@@factories[db_type])
           raise "Can't connect to database '#{db_type}', available #{@@factories.keys.join(',')}"
         end
-        session = @@factories[db_type].call(*params)
-        register(session)
+        @@factories[db_type].call(*params)
       end
 
       def current
         @@current_session
+      end
+
+      def named(name)
+        @@all_sessions[name] || raise("No session named #{name}.")
       end
 
       def set_current(session)
@@ -119,8 +131,13 @@ module Neo4j
         _listeners.each {|li| li.call(event, data)}
       end
 
-      def register(session)
-        set_current(session) unless @@current_session
+      def register(session, name = nil, default = nil)
+        if default == true
+          set_current(session)
+        elsif default.nil?
+          set_current(session) unless @@current_session
+        end
+        @@all_sessions[name] = session if name
         @@current_session
       end
 

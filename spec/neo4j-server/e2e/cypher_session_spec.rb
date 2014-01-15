@@ -9,6 +9,10 @@ module Neo4j::Server
       create_server_session
     end
 
+    def open_named_session(name, default = nil)
+      create_named_server_session(name, default)
+    end
+
     it_behaves_like "Neo4j::Session"
 
 
