@@ -10,12 +10,6 @@ module Neo4j::Embedded
       session
     end
 
-    def open_named_session(name, default = nil)
-      session = create_named_embedded_session(name, default)
-      session.start
-      session
-    end
-
     after(:all) do
       Neo4j::Session.current && Neo4j::Session.current.close
     end

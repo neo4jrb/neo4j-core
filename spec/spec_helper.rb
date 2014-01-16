@@ -27,10 +27,6 @@ def create_embedded_session
   Neo4j::Session.open(:impermanent_db, EMBEDDED_DB_PATH, auto_commit: true)
 end
 
-def create_named_embedded_session(name, default = nil)
-  Neo4j::Session.open_named(:impermanent_db, name, default, EMBEDDED_DB_PATH, auto_commit: true)
-end
-
 def create_server_session
   Neo4j::Session.open(:server_db, "http://localhost:7474")
 end

@@ -15,28 +15,6 @@ share_examples_for "Neo4j::Session" do
       session = open_session
       session.should be_a_kind_of(Neo4j::Session)
     end
-
-    it 'stores a named session' do
-      name = :test
-      test = open_named_session(name)
-      Neo4j::Session.named(name).should == test
-    end
-
-    it 'does not override the current session when default = false' do
-      default = open_session
-      Neo4j::Session.current.should == default
-      name = :test
-      open_named_session(name)
-      Neo4j::Session.current.should == default
-    end
-
-    it 'makes the new session current when default = true' do
-      default = open_session
-      Neo4j::Session.current.should == default
-      name = :test
-      test = open_named_session(name, true)
-      Neo4j::Session.current.should == test
-    end
   end
 
   describe 'with a open session' do
