@@ -96,6 +96,7 @@ module Neo4j
       end
 
       def open_named(db_type, name, default = nil, *params)
+        raise "Multiple sessions is currently only supported for Neo4j Server connections." unless db_type == :server_db
         register(create_session(db_type, params), name, default)
       end
 
