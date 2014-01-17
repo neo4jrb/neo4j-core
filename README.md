@@ -73,8 +73,21 @@ The default session is used by all operation unless specified as the last argume
 For example create a node with a different session:
 
 ```ruby
-my_session = Neo4j::Session.open(:server_db, "http://localhost:7474")
+my_session = Neo4j::Session.create_session(:server_db, "http://localhost:7474")
 Neo4j::Node.create(name: 'kalle', my_session)
+```
+
+When using the Neo4j Server: `:server_db`, mutliple sessions are supported. They
+can be created using the open_named method. This method takes two extra parameters,
+the second prameter is the session name, and the third parameter is whether the new session should over-ride
+the default session (becoming the session returned by calling `Neo4j::Session.current`).
+Valid options are true (always become current), false (never become current) and nil (become current if no
+existing current session).
+
+```ruby
+Neo4j::Session.open_named(:server_db, :test, true, "https://localhost:7474")
+session = Neo4j::Session.named :test # Returns the session named :test.
+session = Neo4j::Session.current # Returns the session named :test, because the 'default' flag was set to true.
 ```
 
 

@@ -9,8 +9,39 @@ module Neo4j::Server
       create_server_session
     end
 
+    def open_named_session(name, default = nil)
+      create_named_server_session(name, default)
+    end
+
     it_behaves_like "Neo4j::Session"
 
+    describe 'named sessions' do
+
+      before { Neo4j::Session.current && Neo4j::Session.current.close}
+      after { Neo4j::Session.current && Neo4j::Session.current.close}
+
+      it 'stores a named session' do
+        name = :test
+        test = open_named_session(name)
+        Neo4j::Session.named(name).should == test
+      end
+
+      it 'does not override the current session when default = false' do
+        default = open_session
+        Neo4j::Session.current.should == default
+        name = :test
+        open_named_session(name)
+        Neo4j::Session.current.should == default
+      end
+
+      it 'makes the new session current when default = true' do
+        default = open_session
+        Neo4j::Session.current.should == default
+        name = :test
+        test = open_named_session(name, true)
+        Neo4j::Session.current.should == test
+      end
+    end
 
     describe '_query' do
 

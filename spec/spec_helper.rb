@@ -31,6 +31,10 @@ def create_server_session
   Neo4j::Session.open(:server_db, "http://localhost:7474")
 end
 
+def create_named_server_session(name, default = nil)
+  Neo4j::Session.open_named(:server_db, name, default, "http://localhost:7474")
+end
+
 def session
   Neo4j::Session.current
 end

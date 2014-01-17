@@ -15,7 +15,6 @@ share_examples_for "Neo4j::Session" do
       session = open_session
       session.should be_a_kind_of(Neo4j::Session)
     end
-
   end
 
   describe 'with a open session' do
