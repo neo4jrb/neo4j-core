@@ -105,12 +105,12 @@ share_examples_for "Neo4j::Node auto tx" do
 
         it "can write and read Fixnum" do
           node[:foo] = 42
-          node[:foo].should == 42
+          node[:foo].should eq(42)
         end
 
         it "can write and read Float" do
           node[:foo] = 1.23
-          node[:foo].should == 1.23
+          node[:foo].should eq(1.23)
         end
 
         it "can write and read Boolean" do
@@ -170,6 +170,15 @@ share_examples_for "Neo4j::Node auto tx" do
           a = Neo4j::Node.create(old: 'a')
           a.update_props({old: 'b'})
           a[:old].should == 'b'
+        end
+
+        it 'can set boolean value' do
+          a = Neo4j::Node.create(old: false)
+          a[:old].should eq(false)
+          a.update_props({old: true})
+          a[:old].should eq(true)
+          a.update_props({old: false})
+          a[:old].should eq(false)
         end
 
         it 'replace escape properties' do

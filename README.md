@@ -138,6 +138,7 @@ Setting properties
   node[:name] # => 'changed name'
   node.props # => {name: 'changed name'}
   node.props={ foo: 42}  # replace all properties
+  node.update_props( bar: 42) # keeps old properties (unlike #props=) update with given hash
 ```
 
 Notice properties are never stored in ruby objects, instead they are always fetched from the database.
@@ -205,7 +206,12 @@ How to create a relationship between node n1 and node n2 with one property
 n1 = Neo4j::Node.create
 n2 = Neo4j::Node.create
 rel = n1.create_rel(:knows, n2, since: 1994)
+
+# Alternative
+Neo4j::Relationship.create(:knows, n1, n2, since: 1994)
 ```
+
+Setting properties on relationships works like setting properties on nodes.
 
 Finding relationships
 
@@ -247,15 +253,22 @@ Delete relationship
 rel = n1.rel(:outgoing, :know) # expects only one relationship
 rel.del
 ```
-### Identity
 
-NOT WORKING YET, TODO.
-By default the identity for a node is the same as the native Neo4j id.
-You can specify your own identity of nodes.
+
+### Cypher
+
+Example
 
 ```ruby
-session = Neo4j::CypherDatabase.connect('URL')
-session.config.node_identity = '_my_id'
+session = Neo4j::Session.current
+
+session.query("CREATE (n {mydata: 'Hello'}) RETURN ID(n) AS id")
+
+# Parameters
+session.query("START n=node({a_parameter}) RETURN ID(n)", a_parameter: 0)
+
+# DSL
+session.query(a_parameter: 0) { node("{a_parameter}").neo_id.as(:foo) }
 ```
 
 ## Implementation:
@@ -295,7 +308,7 @@ The testing will be using much more mocking.
 
 * The `unit` rspec folder only contains testing for one Ruby module. All other modules should be mocked.
 * The `integration` rspec folder contains testing for two or more modules but mocks the neo4j database access.
-* The `e2e` rspec folder for use the real database (or Neo4j's ImpermanentDatabase (todo))
+* The `e2e` rspec folder for use the real database (or Neo4j's ImpermanentDatabase)
 * The `shared_examples` common specs for different types of databases
 
 

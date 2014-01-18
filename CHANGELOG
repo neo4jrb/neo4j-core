@@ -1,3 +1,7 @@
+== 3.0.0.alpha.7
+* Support for named sessions (#40, alex)
+* Added method #update_props for Relationship and Node
+* Added Neo4j::Relationship.create method
 
 == 3.0.0.alpha.6
 * Fixes for wrapper method on nodes needed by the neo4j 3.0 gem
