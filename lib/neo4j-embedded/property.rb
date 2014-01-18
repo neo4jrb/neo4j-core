@@ -28,14 +28,22 @@ module Neo4j::Embedded::Property
     property_keys.each do |key|
       remove_property(key)
     end
+    _update_props(hash)
+    hash
+  end
+  tx_methods :props=
 
+  def _update_props(hash)
     hash.each_pair do |k,v|
       set_property(k,v)
     end
     hash
   end
-  tx_methods :props=
 
+  def update_props(hash)
+    _update_props(hash)
+  end
+  tx_methods :update_props
 
   def neo_id
     get_id

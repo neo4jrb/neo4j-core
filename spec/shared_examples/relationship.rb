@@ -76,4 +76,39 @@ share_examples_for "Neo4j::Relationship" do
     end
   end
 
+  describe 'update_props' do
+    let(:n1) { Neo4j::Node.create }
+    let(:n2) { Neo4j::Node.create }
+
+    it 'keeps old properties' do
+      a = n1.create_rel(:knows, n2, {old: 'a'})
+      a.update_props({})
+      a[:old].should == 'a'
+
+      a.update_props({new: 'b', name: 'foo'})
+      a[:old].should == 'a'
+      a[:new].should == 'b'
+      a[:name].should == 'foo'
+    end
+
+    it 'replace old properties' do
+      a = n1.create_rel(:knows, n2, old: 'a')
+      a.update_props({old: 'b'})
+      a[:old].should == 'b'
+    end
+
+    it 'replace escape properties' do
+      a = n1.create_rel(:knows, n2)
+      a.update_props(old: "\"'")
+      a[:old].should == "\"'"
+    end
+
+    it 'allows strange property names' do
+      a = n1.create_rel(:knows, n2)
+      a.update_props({"1" => 2, " ha " => "ho"})
+      a.props.should == {:"1"=>2, :" ha "=>"ho"}
+    end
+
+  end
+
 end

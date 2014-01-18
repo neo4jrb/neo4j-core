@@ -14,3 +14,4 @@ describe Neo4j::Server::CypherNode, api: :server do
   it_behaves_like "Neo4j::Node with tx"
 
 end
+

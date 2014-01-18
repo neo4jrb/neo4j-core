@@ -22,6 +22,42 @@ module Neo4j
     include EntityEquality
     include Wrapper
 
+    # @return [Hash] all properties of the relationship
+    def props()
+      raise 'not implemented'
+    end
+
+    # replace all properties with new properties
+    # @param [Hash] hash a hash of properties the relationship should have
+    def props=(hash)
+      raise 'not implemented'
+    end
+
+    # Updates the properties, keeps old properties
+    # @param [Hash] hash hash of properties that should be updated on the relationship
+    def update_props(hash)
+      raise 'not implemented'
+    end
+
+    # Directly remove the property on the relationship (low level method, may need transaction)
+    def remove_property(key)
+      raise 'not implemented'
+    end
+
+    # Directly set the property on the relationship (low level method, may need transaction)
+    # @param [Hash, String] key
+    # @param value see Neo4j::PropertyValidator::VALID_PROPERTY_VALUE_CLASSES for valid values
+    def set_property(key, value)
+      raise 'not implemented'
+    end
+
+    # Directly get the property on the relationship (low level method, may need transaction)
+    # @param [Hash, String] key
+    # @return the value of the key
+    def get_property(key, value)
+      raise 'not implemented'
+    end
+
     # Returns the start node of this relationship.
     # @return [Neo4j::Node,Object] the node or wrapped node
     def start_node

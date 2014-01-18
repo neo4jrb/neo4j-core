@@ -51,6 +51,16 @@ module Neo4j::Server
       properties
     end
 
+    # (see Neo4j::Node#update_props)
+    def update_props(properties)
+      return if properties.empty?
+      q = "START n=node(#{neo_id}) SET " + properties.keys.map do |k|
+        "n.`#{k}`= #{escape_value(properties[k])}"
+      end.join(',')
+      @session._query_or_fail(q)
+      properties
+    end
+
     # (see Neo4j::Node#get_property)
     def get_property(key)
       @session._query_or_fail("START n=node(#{neo_id}) RETURN n.`#{key}`", true)

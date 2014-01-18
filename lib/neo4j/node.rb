@@ -26,8 +26,14 @@ module Neo4j
     end
 
     # replace all properties with new properties
-    # @param hash a hash of properties the node should have
+    # @param [Hash] hash a hash of properties the node should have
     def props=(hash)
+      raise 'not implemented'
+    end
+
+    # Updates the properties, keeps old properties
+    # @param [Hash] hash hash of properties that should be updated on the node
+    def update_props(hash)
       raise 'not implemented'
     end
 

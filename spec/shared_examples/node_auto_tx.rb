@@ -154,6 +154,38 @@ share_examples_for "Neo4j::Node auto tx" do
         end
       end
 
+      describe 'update_props' do
+        it 'keeps old properties' do
+          a = Neo4j::Node.create(old: 'a')
+          a.update_props({})
+          a[:old].should == 'a'
+
+          a.update_props({new: 'b', name: 'foo'})
+          a[:old].should == 'a'
+          a[:new].should == 'b'
+          a[:name].should == 'foo'
+        end
+
+        it 'replace old properties' do
+          a = Neo4j::Node.create(old: 'a')
+          a.update_props({old: 'b'})
+          a[:old].should == 'b'
+        end
+
+        it 'replace escape properties' do
+          a = Neo4j::Node.create
+          a.update_props(old: "\"'")
+          a[:old].should == "\"'"
+        end
+
+        it 'allows strange property names' do
+          a = Neo4j::Node.create
+          a.update_props({"1" => 2, " ha " => "ho"})
+          a.props.should == {:"1"=>2, :" ha "=>"ho"}
+        end
+
+      end
+
       describe 'create_rel' do
 
         it "can create a new relationship" do

@@ -2,6 +2,7 @@ module Neo4j::Server
 
   class CypherRelationship < Neo4j::Relationship
     include Neo4j::Server::Resource
+    include Neo4j::Core::CypherTranslator
 
     def initialize(session, id)
       @session = session
@@ -59,6 +60,29 @@ module Neo4j::Server
       r = @session._query_internal{rel(id)[key]=:NULL}
       expect_response_code(r.response, 200)
     end
+
+    # (see Neo4j::Relationship#props)
+    def props
+      props = @session._query_or_fail("START n=relationship(#{neo_id}) RETURN n", true)['data']
+      props.keys.inject({}){|hash,key| hash[key.to_sym] = props[key]; hash}
+    end
+
+    # (see Neo4j::Relationship#props=)
+    def props=(properties)
+      @session._query_or_fail("START n=relationship(#{neo_id}) SET n = { props }", false, {props: properties})
+      properties
+    end
+
+    # (see Neo4j::Relationship#update_props)
+    def update_props(properties)
+      return if properties.empty?
+      q = "START n=relationship(#{neo_id}) SET " + properties.keys.map do |k|
+        "n.`#{k}`= #{escape_value(properties[k])}"
+      end.join(',')
+      @session._query_or_fail(q)
+      properties
+    end
+
 
     def del
       id = neo_id

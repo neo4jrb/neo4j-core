@@ -5,3 +5,4 @@ describe Neo4j::Node do
     expect{Neo4j::Node.new}.to raise_error
   end
 end
+
