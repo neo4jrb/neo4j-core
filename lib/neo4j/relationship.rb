@@ -16,6 +16,11 @@ module Neo4j
       def wrapper
         self
       end
+
+      def neo4j_obj
+        self
+      end
+
     end
 
     include PropertyContainer
@@ -142,6 +147,10 @@ module Neo4j
 
 
     class << self
+      def create(rel_type, from_node, other_node, props = {})
+        from_node.neo4j_obj.create_rel(rel_type, other_node, props)
+      end
+
       def load(neo_id, session = Neo4j::Session.current)
         session.load_relationship(neo_id)
       end

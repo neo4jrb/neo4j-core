@@ -16,6 +16,26 @@ share_examples_for "Neo4j::Relationship" do
     end
   end
 
+  describe 'classmethod: create' do
+    it 'creates a relationship' do
+      a = Neo4j::Node.create
+      b = Neo4j::Node.create
+      r = Neo4j::Relationship.create(:knows, a, b)
+      r.should_not be_nil
+      a.rel(dir: :outgoing, type: :knows).should eq(r)
+      b.rel(dir: :incoming, type: :knows).should eq(r)
+    end
+
+    it 'can create and set properties' do
+      a = Neo4j::Node.create
+      b = Neo4j::Node.create
+      r = Neo4j::Relationship.create(:knows, a, b, {name: 'a', age: 42})
+      a.rel(dir: :outgoing, type: :knows)[:name].should eq('a')
+      b.rel(dir: :incoming, type: :knows)[:age].should eq(42)
+
+    end
+  end
+
   describe 'exist?' do
     it 'is true if it exists' do
       rel = node_a.create_rel(:best_friend, node_b)
