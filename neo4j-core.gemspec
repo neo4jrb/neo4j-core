@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.summary = "A graph database for JRuby"
   s.description = <<-EOF
 You can think of Neo4j as a high-performance graph engine with all the features of a mature and robust database.
-The programmer works with an object-oriented, flexible network structure rather than with strict and static tables 
+The programmer works with an object-oriented, flexible network structure rather than with strict and static tables
 yet enjoys all the benefits of a fully transactional, enterprise-strength database.
 It comes included with the Apache Lucene document database.
   EOF
@@ -29,6 +29,7 @@ It comes included with the Apache Lucene document database.
   # Not released yet
   s.add_dependency("httparty")
   s.add_dependency("json")
+  s.add_dependency("os")
   s.add_dependency("neo4j-cypher")
 
   if RUBY_PLATFORM =~ /java/
