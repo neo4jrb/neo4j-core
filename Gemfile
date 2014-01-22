@@ -9,7 +9,6 @@ gem 'neo4j-cypher', '~> 1.0.1'
 #gem 'neo4j-enterprise', '>= 1.8.1', '< 2.0', :require => false
 
 group 'development' do
-  gem 'os'
   gem 'yard'
 #  gem 'pry'
 end
