@@ -1,3 +1,7 @@
+== 3.0.0.alpha.8
+* Support for Schema Constraints (#44)
+* Fix for Rake Neo4j task (#43)
+
 == 3.0.0.alpha.7
 * Support for named sessions (#40, alex)
 * Added method #update_props for Relationship and Node
