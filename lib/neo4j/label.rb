@@ -22,6 +22,39 @@ module Neo4j
       raise 'not implemented'
     end
 
+    # Creates a neo4j constraint on a property
+    # See http://docs.neo4j.org/chunked/stable/query-constraints.html
+    # @example
+    #   label = Neo4j::Label.create(:person, session)
+    #   label.create_constraint(:name, {type: :unique}, session)
+    #
+    def create_constraint(property, constraints, session = Neo4j::Session.current)
+      cypher = case constraints[:type]
+        when :unique
+          "CREATE CONSTRAINT ON (n:`#{name}`) ASSERT n.`#{property}` IS UNIQUE"
+        else
+          raise "Not supported constrain #{constraints.inspect} for property #{property} (expected :type => :unique)"
+      end
+      session._query_or_fail(cypher)
+    end
+
+    # Drops a neo4j constraint on a property
+    # See http://docs.neo4j.org/chunked/stable/query-constraints.html
+    # @example
+    #   label = Neo4j::Label.create(:person, session)
+    #   label.create_constraint(:name, {type: :unique}, session)
+    #   label.drop_constraint(:name, {type: :unique}, session)
+    #
+    def drop_constraint(property, constraint, session = Neo4j::Session.current)
+      cypher = case constraint[:type]
+                 when :unique
+                   "DROP CONSTRAINT ON (n:`#{name}`) ASSERT n.`#{property}` IS UNIQUE"
+                 else
+                   raise "Not supported constrain #{constraint.inspect}"
+               end
+      session._query_or_fail(cypher)
+    end
+
     class << self
       include Neo4j::Core::CypherTranslator
 

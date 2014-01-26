@@ -120,6 +120,16 @@ Add index on a label
   red.indexes # => {:property_keys => [[:age]]}
 ```
 
+Constraints
+
+Only unique constraint and single property is supported (yet).
+
+```ruby
+label = Neo4j::Label.create(:person)
+label.create_constraint(:name, type: :unique)
+label.drop_constraint(:name, type: :unique)
+```
+
 ### Creating Nodes
 
 ```ruby

@@ -1,5 +1,5 @@
 module Neo4j::Server
-  class CypherLabel
+  class CypherLabel < Neo4j::Label
     extend Forwardable
     def_delegator :@session, :query_cypher_for
     attr_reader :name
