@@ -2,7 +2,7 @@ module Neo4j::Server
 
   # Plugin
   Neo4j::Session.register_db(:server_db) do |endpoint_url|
-    response = HTTParty.get(endpoint_url)
+    response = HTTParty.get(endpoint_url || 'http://localhost:7474')
     raise "Server not available on #{endpoint_url} (response code #{response.code})" unless response.code == 200
     root_data = JSON.parse(response.body)
     Neo4j::Server::CypherSession.new(root_data['data'])
