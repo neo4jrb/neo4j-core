@@ -86,7 +86,13 @@ module Neo4j
       def condition_to_cypher(query)
         conditions = query[:conditions]
         " WHERE " + conditions.keys.map do |k|
-          "n.#{k}=#{escape_value(conditions[k])}"
+          value = conditions[k]
+          if value.is_a? Regexp
+            pattern = (value.casefold? ? "(?i)" : "") + value.source
+            "n.#{k}=~#{escape_value(pattern.gsub(/\\/, '\\\\\\'))}"           
+          else 
+            "n.#{k}=#{escape_value(conditions[k])}"
+          end
         end.join(" AND ")
       end
 

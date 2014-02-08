@@ -79,6 +79,12 @@ share_examples_for "Neo4j::Label" do
           result.count.should == 2
         end
 
+        it 'supports regex condition' do
+          result = Neo4j::Label.query(@label, conditions: {name: /AND.*/i})
+          result.should include(@andreas1, @andreas2)
+          result.count.should == 2
+        end
+
         it 'returns all nodes if no conditions' do
           result = Neo4j::Label.query(@label, {})
           result.should include(@kalle, @andreas2, @andreas1, @zebbe)
