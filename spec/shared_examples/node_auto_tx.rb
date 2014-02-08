@@ -172,6 +172,14 @@ share_examples_for "Neo4j::Node auto tx" do
           a[:old].should == 'b'
         end
 
+        it 'removes properties with nil values' do
+          pending "Failing test for https://github.com/andreasronge/neo4j/issues/319"
+          a = Neo4j::Node.create(old: 'a', new: 'b')
+          a.props.should == {old: 'a', new: 'b'}
+          a.update_props(old: nil)
+          a.props.should == {new: 'b'}
+        end
+
         it 'can set boolean value' do
           a = Neo4j::Node.create(old: false)
           a[:old].should eq(false)
