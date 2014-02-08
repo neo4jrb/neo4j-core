@@ -183,6 +183,16 @@ Example, Finding with order by on label :person
 ```
 
 
+Conditions:
+
+ ```ruby
+   # exact search
+   Neo4j::Label.query(:person, conditions: {name: 'andreas'}
+
+   # regular expression
+   Neo4j::Label.query(:person, conditions: {name: /AND.*/i})
+ ```
+
 ### Transactions
 
 By default each Neo4j operation is wrapped in an transaction.
