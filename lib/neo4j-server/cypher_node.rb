@@ -51,10 +51,22 @@ module Neo4j::Server
       properties
     end
 
+    def remove_properties(properties)
+      q = "START n=node(#{neo_id}) REMOVE " + properties.map do |k|
+        "n.`#{k}`"
+      end.join(', ')
+      @session._query_or_fail(q)
+    end
+
     # (see Neo4j::Node#update_props)
     def update_props(properties)
       return if properties.empty?
-      q = "START n=node(#{neo_id}) SET " + properties.keys.map do |k|
+
+      removed_keys = properties.keys.select{|k| properties[k].nil?}
+      remove_properties(removed_keys) unless removed_keys.empty?
+      properties_to_set = properties.keys - removed_keys
+      return if properties_to_set.empty?
+      q = "START n=node(#{neo_id}) SET " + properties_to_set.map do |k|
         "n.`#{k}`= #{escape_value(properties[k])}"
       end.join(',')
       @session._query_or_fail(q)

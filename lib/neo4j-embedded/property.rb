@@ -35,7 +35,11 @@ module Neo4j::Embedded::Property
 
   def _update_props(hash)
     hash.each_pair do |k,v|
-      set_property(k,v)
+      if v.nil?
+        remove_property(k)
+      else
+        set_property(k,v)
+      end
     end
     hash
   end

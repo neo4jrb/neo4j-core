@@ -173,7 +173,7 @@ share_examples_for "Neo4j::Node auto tx" do
         end
 
         it 'removes properties with nil values' do
-          pending "Failing test for https://github.com/andreasronge/neo4j/issues/319"
+          #pending "Failing test for https://github.com/andreasronge/neo4j/issues/319"
           a = Neo4j::Node.create(old: 'a', new: 'b')
           a.props.should == {old: 'a', new: 'b'}
           a.update_props(old: nil)
