@@ -193,6 +193,13 @@ share_examples_for "Neo4j::Node auto tx" do
           a.props.should == {:"1"=>2, :" ha "=>"ho"}
         end
 
+        it 'removes nil and updates non-nil properties' do
+          a = Neo4j::Node.create(foo: 'a')
+          a.update_props({foo: nil, bar: 'b'})
+          a[:foo].should be_nil
+          a[:bar].should == 'b'          
+        end
+
       end
 
       describe 'create_rel' do

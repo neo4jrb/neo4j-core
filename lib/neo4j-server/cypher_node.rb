@@ -54,9 +54,20 @@ module Neo4j::Server
     # (see Neo4j::Node#update_props)
     def update_props(properties)
       return if properties.empty?
-      q = "START n=node(#{neo_id}) SET " + properties.keys.map do |k|
+
+      nil_properties = properties.reject { |k, v| !v.nil? }
+      update_properties = properties.reject { |k, v| v.nil? }
+
+      q = "START n=node(#{neo_id}) "
+
+      q += "SET " + update_properties.keys.map do |k|
         "n.`#{k}`= #{escape_value(properties[k])}"
-      end.join(',')
+      end.join(',') unless update_properties.empty?
+
+      q += " REMOVE " + nil_properties.keys.map do |k|
+        "n.`#{k}`"
+      end.join(',') unless nil_properties.empty?
+
       @session._query_or_fail(q)
       properties
     end
