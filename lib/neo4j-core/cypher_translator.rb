@@ -37,7 +37,10 @@ module Neo4j::Core
     # Cypher Helper
     def cypher_prop_list(props)
       return "" unless props
-      list = props.keys.map{|k| "#{k} : #{escape_value(props[k])}"}.join(',')
+
+      properties_to_set = props.reject {|k,v| v.nil? }
+
+      list = properties_to_set.map{|k,v| "#{k} : #{escape_value(v)}"}.join(',')
       "{#{list}}"
     end
 
