@@ -36,7 +36,7 @@ module Neo4j::Server
 
         # So we have to do this workaround
         params.each_pair do |k,v|
-          statement[:statement].gsub!("{ #{k} }", escape_value(v))
+          statement[:statement].gsub!("{ #{k} }", "#{escape_value(v)}")
         end
       end
       response = HTTParty.post(@exec_url, headers: resource_headers, body: body.to_json)
