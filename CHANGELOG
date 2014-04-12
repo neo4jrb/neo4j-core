@@ -1,3 +1,8 @@
+== 3.0.0.alpha.10
+* Fix of data url in cypher session (#55)
+* add escape sequence sanitization to cypher translator (#53)
+* Handle update_props with nil value (#46)
+
 == 3.0.0.alpha.9
 * Support for RegExp search (#45)
 
