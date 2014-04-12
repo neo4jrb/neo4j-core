@@ -33,20 +33,22 @@ share_examples_for "Neo4j::Node auto tx" do
       end
 
 
-      describe 'broken escape sequence create(name: "ka\putt")' do
+      unless defined? JRUBY_VERSION
+        # not needed in jruby, see https://github.com/andreasronge/neo4j-core/pull/53
+        describe 'broken escape sequence create(name: "ka\putt")' do
 
-        subject do
-          Neo4j::Node.create(name: 'ka\putt')
-        end
-        its(:exist?) { should be_true }
-        its(:neo_id) { should be_a(Fixnum) }
-        its(:props) { should == { name: 'kaputt'} }
+          subject do
+            Neo4j::Node.create(name: 'ka\putt')
+          end
+          its(:exist?) { should be_true }
+          its(:neo_id) { should be_a(Fixnum) }
+          its(:props) { should == { name: 'kaputt'} }
 
-        it 'read the properties using []' do
-          subject[:name].should == 'kaputt'
+          it 'read the properties using []' do
+            subject[:name].should == 'kaputt'
+          end
         end
       end
-
 
       describe 'load' do
         it "can load a node if it exists" do

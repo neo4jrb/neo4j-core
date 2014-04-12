@@ -50,23 +50,23 @@ module Neo4j
     # Returns an enumerable of hash values, column => value
     #
     # @example Using the Cypher DSL
-    #  q = Neo4j.query("START n=node({param}) RETURN n", :param => 0)
+    #  q = session.query("START n=node({param}) RETURN n", :param => 0)
     #  q.first[:n] #=> the node
     #  q.columns.first => :n
     #
     # @example Using the Cypher DSL
-    #  q = Neo4j.query{ match node(3) <=> node(:x); ret :x}
+    #  q = session.query{ match node(3) <=> node(:x); ret :x}
     #  q.first[:n] #=> the @node
     #  q.columns.first => :n
     #
     # @example Using the Cypher DSL and one parameter (n=Neo4j.ref_node)
-    #  q = Neo4j.query(Neo4j.ref_node){|n| n <=> node(:x); :x}
+    #  q = session.query(Neo4j.ref_node){|n| n <=> node(:x); :x}
     #  q.first[:n] #=> the @node
     #  q.columns.first => :n
     #
     # @example Using an array of nodes
     #  # same as - two_nodes=node(Neo4j.ref_node.neo_id, node_b.neo_id), b = node(b.neo_id)
-    #  q = Neo4j.query([Neo4j.ref_node, node_b], node_c){|two_nodes, b| two_nodes <=> b; b}
+    #  q = session.query([Neo4j.ref_node, node_b], node_c){|two_nodes, b| two_nodes <=> b; b}
     #
     # @see Cypher
     # @see http://docs.neo4j.org/chunked/milestone/cypher-query-lang.html The Cypher Query Language Documentation
