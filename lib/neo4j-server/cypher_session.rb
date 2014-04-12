@@ -5,7 +5,9 @@ module Neo4j::Server
     response = HTTParty.get(endpoint_url || 'http://localhost:7474')
     raise "Server not available on #{endpoint_url} (response code #{response.code})" unless response.code == 200
     root_data = JSON.parse(response.body)
-    Neo4j::Server::CypherSession.new(root_data['data'])
+    data_url = root_data['data']
+    data_url << '/' unless data_url.end_with?('/') 
+    Neo4j::Server::CypherSession.new(data_url)
   end
 
   class CypherSession < Neo4j::Session
