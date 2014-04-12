@@ -10,6 +10,57 @@ module Neo4j::Server
       CypherSession.any_instance.stub(:initialize_resource).and_return(nil)
       CypherSession.new('http://foo.bar')
     end
+
+    class TestResponse
+      attr_reader :body
+      def initialize(body)
+        @body = body.to_json
+      end
+
+      def code
+        200
+      end
+
+      def request
+        return Struct.new(:path).new('bla')
+      end
+    end
+
+    describe 'create_session' do
+      let(:root_resource_with_slash) do
+        {
+            "management"=>"http://localhost:7474/db/manage/",
+            "data"=>"http://localhost:7474/db/data/"
+        }
+      end
+
+      let(:root_resource_with_no_slash) do
+        {
+            "management"=>"http://localhost:7474/db/manage",
+            "data"=>"http://localhost:7474/db/data"
+        }
+      end
+
+      let(:data_resource) do
+        {}
+      end
+
+      it 'allow root resource with urls ending with slash' do
+          HTTParty.should_receive(:get).with('http://localhost:7474').and_return(TestResponse.new(root_resource_with_slash))
+          HTTParty.should_receive(:get).with("http://localhost:7474/db/data/").and_return(TestResponse.new(data_resource))
+          session = Neo4j::Session.create_session(:server_db)
+          expect(session.resource_url).to eq('http://localhost:7474/db/data/')
+      end
+
+      it 'allow root resource with urls NOT ending with slash' do
+        HTTParty.should_receive(:get).with('http://localhost:7474').and_return(TestResponse.new(root_resource_with_no_slash))
+        HTTParty.should_receive(:get).with("http://localhost:7474/db/data/").and_return(TestResponse.new(data_resource))
+        session = Neo4j::Session.create_session(:server_db)
+        expect(session.resource_url).to eq('http://localhost:7474/db/data/')
+      end
+
+    end
+
     describe 'instance methods' do
 
       describe 'load_node' do

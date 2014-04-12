@@ -100,7 +100,7 @@ module Neo4j
         register(create_session(db_type, params), name, default)
       end
 
-      def create_session(db_type, params)
+      def create_session(db_type, params = {})
         unless (@@factories[db_type])
           raise "Can't connect to database '#{db_type}', available #{@@factories.keys.join(',')}"
         end
