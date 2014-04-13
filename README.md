@@ -11,9 +11,14 @@ Do not use this gem in production.
 
 ## Installation
 
+You can use this gem in two different ways:
+
+* embedded - talking directly to the database using the Neo4j Java API (only JRuby)
+* server   - talking to the Neo4j Server via HTTP (Both JRuby and MRI)
+
 ### Usage from Neo4j Server
 
-You need to install the Neo4j server. This can be done by included Rake file.
+You need to install the Neo4j server. This can be done by using a Rake task.
 
 
 Install the gem:
@@ -27,20 +32,22 @@ Create a Rakefile with the following content:
 require 'neo4j/tasks/neo4j_server'
 ```
 
-Install and start neo4j:
+Install and start neo4j by typing:
 ```
-rake neo4j:install[community-2.0.0]
+rake neo4j:install[community-2.0.1]
 rake neo4j:start
 ```
+
 
 ### Usage from Neo4j Embedded
 
 The Gemfile contains references to Neo4j Java libraries. Nothing is needed to be installed.
 The embedded database is only accessible from JRuby (unlike the Neo4j Server).
+No need to start the server since it is embedded.
 
 ## Neo4j-core API, v3.0
 
-### Creating a database session
+### Database Session
 
 There are currently two available types of session, one for connecting to a neo4j server
 and one for connecting to the embedded Neo4j database (which requires JRuby).
@@ -51,7 +58,7 @@ Open a IRB/Pry session:
 ```ruby
   require 'neo4j-core'
   # Using Neo4j Server Cypher Database
-  session = Neo4j::Session.open(:server_db, "http://localhost:7474")
+  session = Neo4j::Session.open(:server_db)
 ```
 
 Using the Neo4j Embedded Database, `:embedded_db`
@@ -62,12 +69,21 @@ Using the Neo4j Embedded Database, `:embedded_db`
   session.start
 ```
 
+To stop the database (only supported via the embedded database) use
+```
+session.shutdown
+session.running? #=> false
+session.close # make the session not current/default
+```
+
 When a session has been created it will be stored in the `Neo4j::Session` object.
 Example, get the default session
 
 ```ruby
 session = Neo4j::Session.current
 ```
+
+### Multiple Sessions
 
 The default session is used by all operation unless specified as the last argument.
 For example create a node with a different session:
@@ -77,9 +93,9 @@ my_session = Neo4j::Session.create_session(:server_db, "http://localhost:7474")
 Neo4j::Node.create(name: 'kalle', my_session)
 ```
 
-When using the Neo4j Server: `:server_db`, mutliple sessions are supported. They
+When using the Neo4j Server: `:server_db`, multiple sessions are supported. They
 can be created using the open_named method. This method takes two extra parameters,
-the second prameter is the session name, and the third parameter is whether the new session should over-ride
+the second parameter is the session name, and the third parameter is whether the new session should over-ride
 the default session (becoming the session returned by calling `Neo4j::Session.current`).
 Valid options are true (always become current), false (never become current) and nil (become current if no
 existing current session).
