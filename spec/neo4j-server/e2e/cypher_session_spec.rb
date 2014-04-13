@@ -46,15 +46,21 @@ module Neo4j::Server
     describe '_query' do
 
       it 'returns a result containing data,columns and error?' do
-        result = session._query("START n=node(0) RETURN ID(n)")
-        result.data.should == [[0]]
+        result = session.query("CREATE (n) RETURN ID(n) AS id")
+        id = result.first[:id];
+
+        result = session._query("START n=node(#{id}) RETURN ID(n)")
+        result.data.should == [[id]]
         result.columns.should == ['ID(n)']
         result.error?.should be_false
       end
 
       it "allows you to specify parameters" do
-        result = session._query("START n=node({myparam}) RETURN ID(n)", myparam: 0)
-        result.data.should == [[0]]
+        result = session.query("CREATE (n) RETURN ID(n) AS id")
+        id = result.first[:id];
+
+        result = session._query("START n=node({myparam}) RETURN ID(n)", myparam: id)
+        result.data.should == [[id]]
         result.columns.should == ['ID(n)']
         result.error?.should be_false
       end
