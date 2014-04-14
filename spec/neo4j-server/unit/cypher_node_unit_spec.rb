@@ -92,6 +92,13 @@ module Neo4j::Server
           session.should_receive(:_query).with('START n=node(42) SET n.`name` = { value }', {value: 'andreas'}).and_return(response)
           node['name'] = 'andreas'
         end
+
+        it 'removed property if setting it to a nil value' do
+          node = CypherNode.new(session, 42)
+          response = double("cypher response", error?: false)
+          session.should_receive(:_query).with('START n=node(42) REMOVE n.`name`',nil).and_return(response)
+          node['name'] = nil
+        end
       end
 
       describe '[]' do
