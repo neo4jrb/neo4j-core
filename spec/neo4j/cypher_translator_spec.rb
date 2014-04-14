@@ -5,7 +5,7 @@ describe 'CypherTranslator' do
 
   context '#sanitize_escape_sequences' do
     context 'with valid strings' do
-      [ 
+      [
         'a\\\\p',
         'a\b',
         'a\tb',
@@ -36,6 +36,13 @@ describe 'CypherTranslator' do
       end
     end
 
+  end
+
+  context "#cyper_prop_list" do
+    it "drops nil properties" do
+      items = klass.cypher_prop_list({one: 1, two: 2, three: nil})
+      items.should == "{one : 1,two : 2}"
+    end
   end
 
 end
