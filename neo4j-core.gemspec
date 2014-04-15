@@ -12,7 +12,9 @@ Gem::Specification.new do |s|
   s.email    = 'andreas.ronge@gmail.com'
   s.homepage = "http://github.com/andreasronge/neo4j-core/tree"
   s.rubyforge_project = 'neo4j-core'
-  s.summary = "A graph database for JRuby"
+  s.summary = "A graph database for Ruby"
+  s.license = 'MIT'
+
   s.description = <<-EOF
 You can think of Neo4j as a high-performance graph engine with all the features of a mature and robust database.
 The programmer works with an object-oriented, flexible network structure rather than with strict and static tables
