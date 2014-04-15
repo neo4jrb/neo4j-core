@@ -20,6 +20,19 @@ share_examples_for "Neo4j::Session" do
   describe 'with a open session' do
 
     describe 'query' do
+      it 'returns a result that can be translated into Neo4j::Node array' do
+        n1 = Neo4j::Node.create(:name => 'my node')
+        result = session.query("START n=node(#{n1.neo_id}) RETURN ID(n)")
+        nodes = result.map do |key_values|
+          node_id = key_values.values[0]
+          Neo4j::Node.load(node_id)
+        end
+
+        n2 = nodes[0]
+        expect(n1.neo_id).to eq(n2.neo_id)
+        expect(n2[:name]).to eq('my node')
+      end
+
       it 'returns data as arrays of hashs' do
         result = session.query("CREATE (n {mydata: 'Hello'}) RETURN ID(n) AS id")
         id = result.first[:id]

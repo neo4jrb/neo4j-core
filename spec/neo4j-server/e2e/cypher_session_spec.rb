@@ -44,23 +44,21 @@ module Neo4j::Server
     end
 
     describe '_query' do
+      let(:a_node_id) do
+        result = session.query("CREATE (n) RETURN ID(n) AS id")
+        result.first[:id];
+      end
 
       it 'returns a result containing data,columns and error?' do
-        result = session.query("CREATE (n) RETURN ID(n) AS id")
-        id = result.first[:id];
-
-        result = session._query("START n=node(#{id}) RETURN ID(n)")
-        result.data.should == [[id]]
+        result = session._query("START n=node(#{a_node_id}) RETURN ID(n)")
+        result.data.should == [[a_node_id]]
         result.columns.should == ['ID(n)']
         result.error?.should be_false
       end
 
       it "allows you to specify parameters" do
-        result = session.query("CREATE (n) RETURN ID(n) AS id")
-        id = result.first[:id];
-
-        result = session._query("START n=node({myparam}) RETURN ID(n)", myparam: id)
-        result.data.should == [[id]]
+        result = session._query("START n=node({myparam}) RETURN ID(n)", myparam: a_node_id)
+        result.data.should == [[a_node_id]]
         result.columns.should == ['ID(n)']
         result.error?.should be_false
       end

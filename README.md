@@ -16,6 +16,14 @@ You can use this gem in two different ways:
 * embedded - talking directly to the database using the Neo4j Java API (only JRuby)
 * server   - talking to the Neo4j Server via HTTP (Both JRuby and MRI)
 
+### Embedded or Server Neo4j ?
+
+I suggest you start using the Neo4j server instead of Neo4j embedded because it is easier to use for development.
+If you later get performance problem (e.g. too many HTTP requests hitting the Neo4j Server)
+you can try the embedded neo4j with almost no changes in your code base.
+The embedded neo4j via JRuby also gives you direct access to the Neo4j Java API (e.g. the Neo4j Traversal API)
+which can be used to do more powerful and efficient traversals.
+
 ### Usage from Neo4j Server
 
 You need to install the Neo4j server. This can be done by using a Rake task.
@@ -306,6 +314,27 @@ session.query("START n=node({a_parameter}) RETURN ID(n)", a_parameter: 0)
 # DSL
 session.query(a_parameter: 0) { node("{a_parameter}").neo_id.as(:foo) }
 ```
+
+The `query` method returns an Enumeration of Hash values.
+
+Example of loading Neo4j::Nodes from a cypher query
+
+```ruby
+result = session.query("START n=node(*) RETURN ID(n)")
+nodes = result.map do |key_values|
+  # just one column is returned in this example - :'ID(n)'
+  node_id = key_values.values[0]
+  Neo4j::Node.load(node_id)
+end
+```
+
+Example, using the name of the column
+
+```ruby
+result = session.query("START n=node(0) RETURN ID(n) as mykey")
+Neo4j::Node.load(result.first[:mykey])
+```
+
 
 ## Implementation:
 
