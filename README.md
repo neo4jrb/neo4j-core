@@ -42,7 +42,7 @@ require 'neo4j/tasks/neo4j_server'
 
 Install and start neo4j by typing:
 ```
-rake neo4j:install[community-2.0.1]
+rake neo4j:install[community-2.0.2]
 rake neo4j:start
 ```
 
