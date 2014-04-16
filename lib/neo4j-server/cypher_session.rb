@@ -2,11 +2,12 @@ module Neo4j::Server
 
   # Plugin
   Neo4j::Session.register_db(:server_db) do |*url_params|
-    if url_params.empty? then
-      response = HTTParty.get('http://localhost:7474')
-    else
-      response = HTTParty.get(*url_params)
-    end
+    include HttpHelper
+    
+    HttpHelper.remember_auth(*url_params)
+
+    endpoint_url = url_params.first || 'http://localhost:7474'
+    response = HttpHelper.get(endpoint_url)
     
     raise "Server not available on #{url_params} (response code #{response.code})" unless response.code == 200
     root_data = JSON.parse(response.body)
@@ -18,6 +19,7 @@ module Neo4j::Server
   class CypherSession < Neo4j::Session
     include Resource
     include Neo4j::Core::CypherTranslator
+    include HttpHelper
 
     alias_method :super_query, :query
 
@@ -32,7 +34,7 @@ module Neo4j::Server
     end
 
     def initialize_resource(data_url)
-      response = HTTParty.get(data_url)
+      response = HttpHelper.get(data_url)
       expect_response_code(response,200)
       data_resource = JSON.parse(response.body)
       raise "No data_resource for #{response.body}" unless data_resource
@@ -83,7 +85,7 @@ module Neo4j::Server
     end
 
     def indexes(label)
-      response = HTTParty.get("#{@resource_url}schema/index/#{label}")
+      response = HttpHelper.get("#{@resource_url}schema/index/#{label}")
       expect_response_code(response, 200)
       data_resource = JSON.parse(response.body)
 
@@ -140,7 +142,7 @@ module Neo4j::Server
       else
         url = resource_url('cypher')
         q = params.nil? ? {query: q} : {query: q, params: params}
-        response = HTTParty.post(url, headers: resource_headers, body: q.to_json)
+        response = HttpHelper.post(url, headers: resource_headers, body: q.to_json)
         CypherResponse.create_with_no_tx(response)
       end
     end

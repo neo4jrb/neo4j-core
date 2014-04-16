@@ -60,10 +60,12 @@ module Neo4j::Server
       end
 
       it 'creates session with basic auth params' do
-        params = ['http://localhost:7474', basic_auth: { username: 'username', password: 'password'}]
+        auth = {basic_auth: { username: 'username', password: 'password'}}
+        params = ['http://localhost:7474', auth]
         HTTParty.should_receive(:get).with(*params)
           .and_return(TestResponse.new(root_resource_with_slash))
-        HTTParty.should_receive(:get).with("http://localhost:7474/db/data/").and_return(TestResponse.new(data_resource))
+        HTTParty.should_receive(:get).with("http://localhost:7474/db/data/", auth)
+          .and_return(TestResponse.new(data_resource))
           
         session = Neo4j::Session.create_session(:server_db, params)
       end
