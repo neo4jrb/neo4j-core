@@ -1,9 +1,14 @@
 module Neo4j::Server
 
   # Plugin
-  Neo4j::Session.register_db(:server_db) do |endpoint_url|
-    response = HTTParty.get(endpoint_url || 'http://localhost:7474')
-    raise "Server not available on #{endpoint_url} (response code #{response.code})" unless response.code == 200
+  Neo4j::Session.register_db(:server_db) do |*url_params|
+    if url_params.empty? then
+      response = HTTParty.get('http://localhost:7474')
+    else
+      response = HTTParty.get(*url_params)
+    end
+    
+    raise "Server not available on #{url_params} (response code #{response.code})" unless response.code == 200
     root_data = JSON.parse(response.body)
     data_url = root_data['data']
     data_url << '/' unless data_url.end_with?('/') 
