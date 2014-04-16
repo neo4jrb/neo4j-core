@@ -14,7 +14,8 @@ module Neo4j::Server
       end
     end
 
-    def initialize(db, response, url)
+    def initialize(db, response, url, endpoint)
+      @endpoint = endpoint
       @commit_url = response['commit']
       @exec_url = response.headers['location']
       init_resource_data(response, url)
@@ -39,7 +40,7 @@ module Neo4j::Server
           statement[:statement].gsub!("{ #{k} }", "#{escape_value(v)}")
         end
       end
-      response = HTTParty.post(@exec_url, headers: resource_headers, body: body.to_json)
+      response = @endpoint.post(@exec_url, headers: resource_headers, body: body.to_json)
 
       first_result = response['results'][0]
       cr = CypherResponse.new(response, true)
@@ -68,9 +69,9 @@ module Neo4j::Server
     def finish
       Neo4j::Transaction.unregister(self)
       if failure?
-        response = HTTParty.delete(@exec_url, headers: resource_headers)
+        response = @endpoint.delete(@exec_url, headers: resource_headers)
       else
-        response = HTTParty.post(@commit_url, headers: resource_headers)
+        response = @endpoint.post(@commit_url, headers: resource_headers)
       end
       expect_response_code(response,200)
       response

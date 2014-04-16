@@ -69,6 +69,12 @@ Open a IRB/Pry session:
   session = Neo4j::Session.open(:server_db)
 ```
 
+Basic Authentication:
+
+```ruby
+  Neo4j::Session.open(:server_db, 'http://my.server', basic_auth: { username: 'username', password: 'password')
+```
+
 Using the Neo4j Embedded Database, `:embedded_db`
 
 ```ruby
