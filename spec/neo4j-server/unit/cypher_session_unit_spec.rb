@@ -70,6 +70,22 @@ module Neo4j::Server
         session = Neo4j::Session.create_session(:server_db, params)
       end
 
+      it 'does work with two sessions' do
+        auth = {basic_auth: { username: 'username', password: 'password'}}
+        params = ['http://localhost:7474', auth]
+
+        HTTParty.should_receive(:get).with(*params)
+        .and_return(TestResponse.new(root_resource_with_slash))
+        HTTParty.should_receive(:get).with("http://localhost:7474/db/data/", auth)
+        .and_return(TestResponse.new(data_resource))
+
+        Neo4j::Session.create_session(:server_db, params)
+
+        HTTParty.should_receive(:get).with('http://localhost:7474').and_return(TestResponse.new(root_resource_with_no_slash))
+        HTTParty.should_receive(:get).with("http://localhost:7474/db/data/").and_return(TestResponse.new(data_resource))
+        Neo4j::Session.create_session(:server_db)
+      end
+
     end
 
     describe 'instance methods' do
