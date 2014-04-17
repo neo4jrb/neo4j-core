@@ -1,15 +1,15 @@
 module Neo4j::Server
 
   # Plugin
-  Neo4j::Session.register_db(:server_db) do |*url_params|
+  Neo4j::Session.register_db(:server_db) do |*url_opts|
     include HttpHelper
     
-    HttpHelper.remember_auth(*url_params)
+    HttpHelper.remember_auth(*url_opts)
 
-    endpoint_url = url_params.first || 'http://localhost:7474'
+    endpoint_url = url_opts.first || 'http://localhost:7474'
     response = HttpHelper.get(endpoint_url)
+    raise "Server not available on #{url_opts} (response code #{response.code})" unless response.code == 200
     
-    raise "Server not available on #{url_params} (response code #{response.code})" unless response.code == 200
     root_data = JSON.parse(response.body)
     data_url = root_data['data']
     data_url << '/' unless data_url.end_with?('/') 

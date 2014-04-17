@@ -1,14 +1,20 @@
 module Neo4j::Server
   module HttpHelper
-    def self.remember_auth(*url_params)
+    def self.remember_auth(*options)
       @auth
-      @auth = url_params.last[:basic_auth] if url_params.length == 2
+      if options.length == 2 # contains url + auth params
+        @auth = options.last if options.last[:basic_auth]
+      end
     end
 
-    ["get", "post", "delete"].each do |verb|
-      define_singleton_method verb do |*params|
-        params.push(basic_auth: @auth) unless @auth.nil?
-        HTTParty.send(verb, *params)
+    ["get", "post"].each do |verb|
+      define_singleton_method verb do |url, *params|
+        unless @auth.nil?
+          params.push({}) if params.empty?
+          params.last.merge!(@auth)
+        end
+
+        HTTParty.send(verb, url, *params)
       end
     end
   end
