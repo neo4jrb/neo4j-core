@@ -16,10 +16,10 @@ module Neo4j
       end
 
 
-      def wrap_resource(db, rel, resource_class, args=nil, verb=:get, payload=nil)
+      def wrap_resource(db, rel, resource_class, args=nil, verb=:get, payload=nil, endpoint)
         url = resource_url(rel, args)
-        response = HTTParty.send(verb, url, headers: {'Content-Type' => 'application/json'}, body: payload)
-        response.code == 404 ? nil : resource_class.new(db, response, url)
+        response = endpoint.send(verb, url, headers: {'Content-Type' => 'application/json'}, body: payload)
+        response.code == 404 ? nil : resource_class.new(db, response, url, endpoint)
       end
 
       def resource_url(rel=nil, args=nil)
