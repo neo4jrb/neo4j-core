@@ -1,7 +1,6 @@
 module Neo4j::Server
   module HttpHelper
     def self.remember_auth(*options)
-      @auth
       if options.length == 2 # contains url + auth params
         @auth = options.last if options.last[:basic_auth]
       end
