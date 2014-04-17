@@ -6,7 +6,7 @@ module Neo4j::Server
       end
     end
 
-    ["get", "post"].each do |verb|
+    ["get", "post", "delete"].each do |verb|
       define_method verb do |url, *params|
         unless @auth.nil?
           params.push({}) if params.empty?
