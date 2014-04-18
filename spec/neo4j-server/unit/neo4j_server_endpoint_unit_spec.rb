@@ -12,18 +12,18 @@ module Neo4j::Server
 
     describe "for requests WITHOUT basic auth" do
       before(:each) do
-        @endpoint = Neo4jServerEndpoint.new(nil, nil)
+        @endpoint = Neo4jServerEndpoint.new()
       end
 
       it "should allow HTTP requests WITHOUT params" do
-        HTTParty.should_receive(:get).with(url).and_return(response)
+        HTTParty.should_receive(:get).with(url, {}).and_return(response)
         expect(@endpoint.get(url)).to eq(response)
 
-        HTTParty.should_receive(:post).with(url).and_return(response)
-        expect(@endpoint.post(url)).to eq(response)
+        HTTParty.should_receive(:post).with(url, {}).and_return(response)
+        expect(@endpoint.post(url, {})).to eq(response)
 
-        HTTParty.should_receive(:delete).with(url).and_return(response)
-        expect(@endpoint.delete(url)).to eq(response)
+        HTTParty.should_receive(:delete).with(url, {}).and_return(response)
+        expect(@endpoint.delete(url, {})).to eq(response)
       end
 
       it "should allow HTTP requests WITH params" do
@@ -43,7 +43,7 @@ module Neo4j::Server
     describe "for requests with basic auth" do
       before(:each) do
         @basic_auth = { basic_auth: { username: "U", password: "P"} }
-        @endpoint = Neo4jServerEndpoint.new(nil, @basic_auth)
+        @endpoint = Neo4jServerEndpoint.new(@basic_auth)
       end
       
       it "should allow HTTP requests WITHOUT other params" do

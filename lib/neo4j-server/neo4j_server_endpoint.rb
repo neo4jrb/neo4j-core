@@ -1,20 +1,24 @@
 module Neo4j::Server
   class Neo4jServerEndpoint
-    def initialize(url, params = nil)
-      unless params.nil?
-        @auth = params if params[:basic_auth]
-      end
+    def initialize(params = {})
+      @params = params
     end
 
-    ["get", "post", "delete"].each do |verb|
-      define_method verb do |url, *params|
-        unless @auth.nil?
-          params.push({}) if params.empty?
-          params.last.merge!(@auth)
-        end
-
-        HTTParty.send(verb, url, *params)
-      end
+    def merged_options(options)
+      options.merge!(@params)
     end
+
+    def get(url, options={})
+      HTTParty.get(url, merged_options(options))
+    end
+
+    def post(url, options={})
+      HTTParty.post(url, merged_options(options))
+    end
+
+    def delete(url, options={})
+      HTTParty.delete(url, merged_options(options))
+    end
+
   end
 end

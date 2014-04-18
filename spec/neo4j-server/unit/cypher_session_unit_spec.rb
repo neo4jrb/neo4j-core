@@ -4,7 +4,7 @@ module Neo4j::Server
   describe CypherSession do
     
     before(:each) do
-      @endpoint = Neo4jServerEndpoint.new(nil, nil)
+      @endpoint = Neo4jServerEndpoint.new()
     end
 
     let(:cypher_response) do
@@ -51,7 +51,7 @@ module Neo4j::Server
       end
 
       it 'allow root resource with urls ending with slash' do
-        Neo4jServerEndpoint.should_receive(:new).with(nil, nil).and_return(@endpoint)
+        Neo4jServerEndpoint.should_receive(:new).with({}).and_return(@endpoint)
         
         @endpoint.should_receive(:get).with('http://localhost:7474').and_return(TestResponse.new(root_resource_with_slash))
         @endpoint.should_receive(:get).with("http://localhost:7474/db/data/").and_return(TestResponse.new(data_resource))
@@ -61,7 +61,7 @@ module Neo4j::Server
       end
 
       it 'allow root resource with urls NOT ending with slash' do
-        Neo4jServerEndpoint.should_receive(:new).with(nil, nil).and_return(@endpoint)
+        Neo4jServerEndpoint.should_receive(:new).with({}).and_return(@endpoint)
         
         @endpoint.should_receive(:get).with('http://localhost:7474').and_return(TestResponse.new(root_resource_with_no_slash))
         @endpoint.should_receive(:get).with("http://localhost:7474/db/data/").and_return(TestResponse.new(data_resource))
@@ -75,7 +75,7 @@ module Neo4j::Server
         auth = {basic_auth: { username: 'username', password: 'password'}}
         params = [base_url, auth]
 
-        Neo4jServerEndpoint.should_receive(:new).with(*params).and_return(@endpoint)
+        Neo4jServerEndpoint.should_receive(:new).with(auth).and_return(@endpoint)
         
         @endpoint.should_receive(:get).with(base_url)
           .and_return(TestResponse.new(root_resource_with_slash))
@@ -90,7 +90,7 @@ module Neo4j::Server
         auth = {basic_auth: { username: 'username', password: 'password'}}
         params = [base_url, auth]
 
-        Neo4jServerEndpoint.should_receive(:new).with(*params).and_return(@endpoint)
+        Neo4jServerEndpoint.should_receive(:new).with(auth).and_return(@endpoint)
         @endpoint.should_receive(:get).with(base_url)
           .and_return(TestResponse.new(root_resource_with_slash))
         @endpoint.should_receive(:get).with("http://localhost:7474/db/data/")
@@ -98,7 +98,7 @@ module Neo4j::Server
 
         Neo4j::Session.create_session(:server_db, params)
 
-        Neo4jServerEndpoint.should_receive(:new).with(nil, nil).and_return(@endpoint)
+        Neo4jServerEndpoint.should_receive(:new).with({}).and_return(@endpoint)
         @endpoint.should_receive(:get).with('http://localhost:7474')
           .and_return(TestResponse.new(root_resource_with_no_slash))
         @endpoint.should_receive(:get).with("http://localhost:7474/db/data/")

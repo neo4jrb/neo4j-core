@@ -89,7 +89,8 @@ module Neo4j
     end
 
     class << self
-      # Creates a new session
+      # Creates a new session to Neo4j
+      # @see also Neo4j::Server::CypherSession#open for :server_db params
       # @param db_type the type of database, e.g. :embedded_db, or :server_db
       def open(db_type, *params)
         register(create_session(db_type, params))

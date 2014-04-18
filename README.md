@@ -69,11 +69,18 @@ Open a IRB/Pry session:
   session = Neo4j::Session.open(:server_db)
 ```
 
-Basic Authentication:
+### Session Configuration
+
+Example, Basic Authentication:
 
 ```ruby
-  Neo4j::Session.open(:server_db, 'http://my.server', basic_auth: { username: 'username', password: 'password')
+  Neo4j::Session.open(:server_db, 'http://my.server', basic_auth: { username: 'username', password: 'password'})
 ```
+
+The last option hash is passed on to HTTParty. See here for more available options:
+http://rdoc.info/github/jnunemaker/httparty/HTTParty/ClassMethods
+
+### Embedded Session
 
 Using the Neo4j Embedded Database, `:embedded_db`
 
@@ -89,6 +96,8 @@ session.shutdown
 session.running? #=> false
 session.close # make the session not current/default
 ```
+
+### Session.current
 
 When a session has been created it will be stored in the `Neo4j::Session` object.
 Example, get the default session

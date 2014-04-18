@@ -11,11 +11,17 @@ module Neo4j::Server
     
     alias_method :super_query, :query
 
-    def self.open(url = nil, params = nil)
-      endpoint = Neo4jServerEndpoint.new(url, params)
 
-      endpoint_url = url || 'http://localhost:7474'
-      response = endpoint.get(endpoint_url)
+    # Opens a session to the database
+    # @see Neo4j::Session#open
+    #
+    # @param url - defaults to 'http://localhost:7474' if not given
+    # @params - see https://github.com/jnunemaker/httparty/blob/master/lib/httparty.rb for supported
+    # HTTParty options
+    def self.open(endpoint_url=nil, params = {})
+      endpoint = Neo4jServerEndpoint.new(params)
+      url = endpoint_url || 'http://localhost:7474'
+      response = endpoint.get(url)
       raise "Server not available on #{url} (response code #{response.code})" unless response.code == 200
       
       root_data = JSON.parse(response.body)
