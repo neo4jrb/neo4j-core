@@ -1,3 +1,7 @@
+== 3.0.0.alpha.11
+* Added Basic Auth (HTTParty config) configuration on session (#58)
+* Drop nil value on create (#56)
+
 == 3.0.0.alpha.10
 * Fix of data url in cypher session (#55)
 * add escape sequence sanitization to cypher translator (#53)
