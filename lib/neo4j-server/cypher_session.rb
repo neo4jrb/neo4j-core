@@ -113,9 +113,11 @@ module Neo4j::Server
     end
 
     def find_nodes(label_name, key, value)
+      value = "'#{value}'" if value.is_a? String
+      
       response = _query_or_fail <<-CYPHER
         MATCH (n:`#{label_name}`)
-        WHERE n.#{key} = '#{value}'
+        WHERE n.#{key} = #{value}
         RETURN ID(n)
       CYPHER
       search_result_to_enumerable(response)
