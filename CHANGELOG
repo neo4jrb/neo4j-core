@@ -1,3 +1,6 @@
+== 3.0.0.alpha.12
+* Fixing find_nodes to not quote numeric values (#48)
+
 == 3.0.0.alpha.11
 * Added Basic Auth (HTTParty config) configuration on session (#58)
 * Drop nil value on create (#56)
