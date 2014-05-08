@@ -68,6 +68,21 @@ share_examples_for "Neo4j::Session" do
       it 'raise Neo4j::Session::CypherError for invalid cypher query' do
         expect { session.query("QTART n=node(0) RETURN ID(n)") }.to raise_error(Neo4j::Session::CypherError)
       end
+
+      it 'organize results in rows' do
+        n = Neo4j::Node.create(name: 'n')
+        x1 = Neo4j::Node.create(name: 'x1')
+        x2 = Neo4j::Node.create(name: 'x2')
+        n.create_rel(:friends, x1)
+        n.create_rel(:friends, x2)
+
+        r = session.query("START n=node(#{n.neo_id}) MATCH (n)-->(x) RETURN n.name as N, x.name as X").to_a
+
+        expect(r.size).to eq(2)
+        expect(r[0][:N]).to eq('n')
+        expect(r[1][:N]).to eq('n')
+        expect(r.map{|row| row[:X] }).to match_array(%w[x1 x2])
+      end
     end
 
   end

@@ -1,3 +1,5 @@
+* Session#query returns a hash for all values in a row (#61, @fiddur)
+
 == 3.0.0.alpha.12
 * Fixing find_nodes to not quote numeric values (#48)
 
