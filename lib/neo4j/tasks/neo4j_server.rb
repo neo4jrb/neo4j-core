@@ -59,7 +59,7 @@ namespace :neo4j do
       end
 
     else
-      %x[tar -xvzf #{downloaded_file}]
+      %x[tar -xvf #{downloaded_file}]
       %x[mv neo4j-#{file} neo4j]
       %x[rm #{downloaded_file}]
       puts "Neo4j Installed in to neo4j directory."
