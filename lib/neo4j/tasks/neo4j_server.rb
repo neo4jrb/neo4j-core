@@ -1,28 +1,42 @@
 # borrowed from architect4r
 require 'os'
+require 'httparty'
 
 namespace :neo4j do
+
+  def download_neo4j(file)
+    if OS::Underlying.windows? then
+      file_name = "neo4j.zip"
+      download_url = "http://dist.neo4j.org/neo4j-#{file}-windows.zip"
+    else
+      file_name = "neo4j-unix.tar.gz"
+      download_url = "http://dist.neo4j.org/neo4j-#{file}-unix.tar.gz"
+    end
+
+    unless File.exist?(file_name)
+      df = File.open(file_name, 'wb')
+      begin
+        df << HTTParty.get(download_url)
+      ensure
+        df.close()
+      end
+    end
+    file_name
+  end
+
   desc "Install Neo4j"
   task :install, :edition, :version do |t, args|
     args.with_defaults(:edition => "community")
 
     file = args[:version] ? "#{args[:edition]}-#{args[:version]}" : "#{args[:edition]}"
     puts "Installing Neo4j-#{file}"
+
+    downloaded_file = download_neo4j file
     
     if OS::Underlying.windows?
-      # Download Neo4j
-      unless File.exist?('neo4j.zip')
-        df = File.open('neo4j.zip', 'wb')
-        begin
-          df << HTTParty.get("http://dist.neo4j.org/neo4j-#{file}-windows.zip")
-        ensure
-          df.close()
-        end
-      end
-
       # Extract and move to neo4j directory
       unless File.exist?('neo4j')
-        Zip::ZipFile.open('neo4j.zip') do |zip_file|
+        Zip::ZipFile.open(downloaded_file) do |zip_file|
           zip_file.each do |f|
            f_path=File.join(".", f.name)
            FileUtils.mkdir_p(File.dirname(f_path))
@@ -43,11 +57,9 @@ namespace :neo4j do
       end
 
     else
-      # E.g. http://dist.neo4j.org/neo4j-community-2.0.0-unix.tar.gz
-      %x[wget http://dist.neo4j.org/neo4j-#{file}-unix.tar.gz]
-      %x[tar -xvzf neo4j-#{file}-unix.tar.gz]
+      %x[tar -xvzf #{downloaded_file}]
       %x[mv neo4j-#{file} neo4j]
-      %x[rm neo4j-#{file}-unix.tar.gz]
+      %x[rm #{downloaded_file}]
       puts "Neo4j Installed in to neo4j directory."
     end
     puts "Type 'rake neo4j:start' to start it"
