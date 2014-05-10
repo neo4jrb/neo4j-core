@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'neo4j-cypher', '~> 1.0.1'
-
+gem 'zip'
 
 #gem 'neo4j-advanced',   '>= 1.8.1', '< 2.0', :require => false
 #gem 'neo4j-enterprise', '>= 1.8.1', '< 2.0', :require => false

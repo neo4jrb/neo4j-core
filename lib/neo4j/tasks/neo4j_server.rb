@@ -1,6 +1,7 @@
 # borrowed from architect4r
 require 'os'
 require 'httparty'
+require 'zip'
 
 namespace :neo4j do
 
@@ -48,6 +49,7 @@ namespace :neo4j do
           end
         end
         FileUtils.mv "neo4j-#{file}", "neo4j"
+        FileUtils.rm downloaded_file
      end
 
       # Install if running with Admin Privileges
