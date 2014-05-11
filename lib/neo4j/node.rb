@@ -92,6 +92,17 @@ module Neo4j
       raise 'not implemented'
     end
 
+    # Sets label on the node. Any old labels will be removed
+    def set_label(*labels)
+      raise 'not implemented'
+    end
+
+    # Delete given labels
+    def delete_label(*labels)
+      raise 'not implemented'
+    end
+
+    #
     # @return all labels on the node
     def labels()
       raise 'not implemented'

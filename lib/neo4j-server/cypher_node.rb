@@ -84,6 +84,11 @@ module Neo4j::Server
       r.map(&:to_sym)
     end
 
+    def add_label(*labels)
+      label_list = ':' + labels.map{|label| "`#{label}`"}.join(':')
+      @session._query_or_fail("START n=node(#{neo_id}) SET n #{label_list}")
+    end
+
     # (see Neo4j::Node#del)
     def del
       @session._query_or_fail("START n = node(#{neo_id}) MATCH n-[r]-() DELETE r")
