@@ -1,4 +1,7 @@
 module Neo4j
+  # A label is a named graph construct that is used to group nodes.
+  # See Neo4j::Node how to create and delete nodes
+  # @see http://docs.neo4j.org/chunked/milestone/graphdb-neo4j-labels.html
   class Label
 
     # @abstract

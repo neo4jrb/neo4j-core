@@ -97,8 +97,8 @@ module Neo4j
       raise 'not implemented'
     end
 
-    # Delete given labels
-    def delete_label(*labels)
+    # Removes given labels
+    def remove_label(*labels)
       raise 'not implemented'
     end
 

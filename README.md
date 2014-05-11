@@ -55,6 +55,16 @@ No need to start the server since it is embedded.
 
 ## Neo4j-core API, v3.0
 
+### API Documentation
+
+* [Neo4j::Node](http://www.rubydoc.info/github/andreasronge/neo4j-core/Neo4j/Node)
+* [Neo4j::Relationship](http://www.rubydoc.info/github/andreasronge/neo4j-core/Neo4j/Relationship)
+* [Neo4j::Session](http://www.rubydoc.info/github/andreasronge/neo4j-core/Neo4j/Session)
+* [Neo4j::Label](http://www.rubydoc.info/github/andreasronge/neo4j-core/Neo4j/Label)
+
+See also [Neo4j Docs](http://docs.neo4j.org/)
+
+
 ### Database Session
 
 There are currently two available types of session, one for connecting to a neo4j server

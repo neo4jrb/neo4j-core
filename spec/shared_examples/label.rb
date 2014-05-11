@@ -10,6 +10,74 @@ share_examples_for "Neo4j::Label" do
     @green = Neo4j::Node.create({}, @label2)
   end
 
+  describe 'Neo4j::Node' do
+    describe 'add_labels' do
+      it 'can add labels' do
+        node = Neo4j::Node.create
+        node.add_label(:new_label)
+        node.labels.should include(:new_label)
+      end
+
+      it 'escapes label names' do
+        node = Neo4j::Node.create
+        node.add_label(":bla")
+        node.labels.should include(:':bla')
+      end
+
+      it 'can set several labels in one go' do
+        node = Neo4j::Node.create
+        node.add_label(:one, :two, :three)
+        node.labels.should include(:one, :two, :three)
+      end
+    end
+
+
+    describe 'set_label' do
+      it 'replace old labels with new ones' do
+        node = Neo4j::Node.create({}, :one, :two)
+        node.set_label(:three)
+        node.labels.should == [:three]
+      end
+
+      it 'can allows setting several labels in one go' do
+        node = Neo4j::Node.create({}, :one, :two)
+        node.set_label(:two, :three, :four)
+        node.labels.should =~ [:two, :three, :four]
+      end
+
+      it 'can remove all labels' do
+        node = Neo4j::Node.create({}, :one, :two)
+        node.set_label
+        node.labels.should == []
+      end
+
+      it "does not change lables if there is no change" do
+        node = Neo4j::Node.create({}, :one, :two)
+        node.set_label(:one, :two)
+        node.labels.should =~ [:one, :two]
+      end
+
+      it "can set labels without removing any labels" do
+        node = Neo4j::Node.create()
+        node.set_label(:one, :two)
+        node.labels.should =~ [:one, :two]
+      end
+    end
+
+    describe 'remove_label' do
+      it 'delete given label' do
+        node = Neo4j::Node.create({}, :one, :two)
+        node.remove_label(:two)
+        node.labels.should == [:one]
+      end
+
+      it 'can delete all labels' do
+        node = Neo4j::Node.create({}, :one, :two)
+        node.remove_label(:two, :one)
+        node.labels.should == []
+      end
+    end
+  end
 
   describe "class methods" do
     describe 'create' do

@@ -62,24 +62,38 @@ module Neo4j::Embedded
 
           alias_method :_labels, :getLabels
 
-          def add_label(*labels)
-            labels.each{|label_name| _add_label(label_name) }
-          end
-          tx_methods :add_label
-
-          def _add_label(label_name)
-            label = Java::OrgNeo4jGraphdb.DynamicLabel.label(label_name)
-            addLabel(label)
+          def _java_label(label_name)
+            Java::OrgNeo4jGraphdb.DynamicLabel.label(label_name)
           end
 
 
-          def delete_label(*labels)
-            labels.each do |label_name|
-              label = Java::OrgNeo4jGraphdb.DynamicLabel.label(label_name)
-              removeLabel(label)
+          def _add_label(*label_name)
+            label_name.each do |name|
+              addLabel(_java_label(name))
             end
           end
-          tx_methods :delete_label
+
+          alias_method :add_label, :_add_label
+          tx_methods :add_label
+
+          def _remove_label(*label_name)
+            label_name.each do |name|
+              removeLabel(_java_label(name))
+            end
+          end
+
+          alias_method :remove_label, :_remove_label
+          tx_methods :remove_label
+
+          def set_label(*label_names)
+            label_as_symbols = label_names.map(&:to_sym)
+            to_keep = labels & label_as_symbols
+            to_remove = labels - to_keep
+            _remove_label(*to_remove)
+            to_add = label_as_symbols - to_keep
+            _add_label(*to_add)
+          end
+          tx_methods :set_label
 
           def del
             _rels.each { |r| r.del }

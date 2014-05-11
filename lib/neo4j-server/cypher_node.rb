@@ -84,9 +84,32 @@ module Neo4j::Server
       r.map(&:to_sym)
     end
 
+    def _cypher_label_list(labels)
+      ':' + labels.map{|label| "`#{label}`"}.join(':')
+    end
+
     def add_label(*labels)
-      label_list = ':' + labels.map{|label| "`#{label}`"}.join(':')
-      @session._query_or_fail("START n=node(#{neo_id}) SET n #{label_list}")
+      @session._query_or_fail("START n=node(#{neo_id}) SET n #{_cypher_label_list(labels)}")
+    end
+
+    def remove_label(*labels)
+      @session._query_or_fail("START n=node(#{neo_id}) REMOVE n #{_cypher_label_list(labels)}")
+    end
+
+    def set_label(*label_names)
+      label_as_symbols = label_names.map(&:to_sym)
+      to_keep = labels & label_as_symbols
+      to_remove = labels - to_keep
+      to_set = label_as_symbols - to_keep
+
+      # no change ?
+      return if to_set.empty? && to_remove.empty?
+
+      q = "START n=node(#{neo_id})"
+      q += " SET n #{_cypher_label_list(to_set)}" unless to_set.empty?
+      q += " REMOVE n #{_cypher_label_list(to_remove)}" unless to_remove.empty?
+
+      @session._query_or_fail(q)
     end
 
     # (see Neo4j::Node#del)
