@@ -4,59 +4,41 @@ describe "Neo4j::Embedded::EmbeddedLabel", api: :embedded do
 
   it_behaves_like "Neo4j::Label"
 
-  describe 'query' do
-    before(:all) do
-      r = Random.new
-      @label = ("R3" + r.rand(0..1000000).to_s).to_sym
-      @kalle = Neo4j::Node.create({name: 'kalle', age: 4}, @label)
-      @andreas2 = Neo4j::Node.create({name: 'andreas', age: 2}, @label)
-      @andreas1 = Neo4j::Node.create({name: 'andreas', age: 1}, @label)
-      @zebbe = Neo4j::Node.create({name: 'zebbe', age: 3}, @label)
+  # TODO, DRY move this to Neo4j::Label so it can be reused for server_db specs
+  describe 'add_labels' do
+    it 'can add labels' do
+      node = Neo4j::Node.create
+      node.add_label(:new_label)
+      node.labels.should include(:new_label)
     end
 
-    describe 'sort' do
-      it 'sorts with: order: :name' do
-        result = Neo4j::Label.query(@label, order: :name)
-        result.count.should == 4
-        result.to_a.map{|n| n[:name]}.should == %w[andreas andreas kalle zebbe]
-      end
-
-      it 'sorts with: order: [:name, :age]' do
-        result = Neo4j::Label.query(@label, order: [:name, :age])
-        result.count.should == 4
-        result.map{|n| n[:name]}.should == %w[andreas andreas kalle zebbe]
-        result.map{|n| n[:age]}.should == [1,2,4,3]
-      end
-
-      it 'sorts with: order: [:name, :age]' do
-        result = Neo4j::Label.query(@label, order: [:name, :age])
-        result.count.should == 4
-        result.map{|n| n[:name]}.should == %w[andreas andreas kalle zebbe]
-        result.map{|n| n[:age]}.should == [1,2,4,3]
-      end
-
-      it 'sorts with order: {name: :desc}' do
-        result = Neo4j::Label.query(@label, order: {name: :desc})
-        result.map{|n| n[:name]}.should == %w[zebbe kalle andreas andreas]
-
-        result = Neo4j::Label.query(@label, order: {name: :asc})
-        result.map{|n| n[:name]}.should == %w[andreas andreas kalle zebbe]
-      end
-
-      it 'sorts with order: [:name, {age: :desc}]' do
-        result = Neo4j::Label.query(@label, order: [:name, {age: :desc}])
-        result.map{|n| n[:name]}.should == %w[andreas andreas kalle zebbe]
-        result.map{|n| n[:age]}.should == [2,1,4,3]
-
-        result = Neo4j::Label.query(@label, order: [:name, {age: :asc}])
-        result.map{|n| n[:name]}.should == %w[andreas andreas kalle zebbe]
-        result.map{|n| n[:age]}.should == [1,2,4,3]
-      end
-
+    it 'escapes label names' do
+      node = Neo4j::Node.create
+      node.add_label(":bla")
+      node.labels.should include(:':bla')
     end
 
-
+    it 'can set several labels in one go' do
+      node = Neo4j::Node.create
+      node.add_label(:one, :two, :three)
+      node.labels.should include(:one, :two, :three)
+    end
   end
 
+
+  describe 'delete_label' do
+    it 'delete given label' do
+      node = Neo4j::Node.create({}, :one, :two)
+      node.delete_label(:two)
+      node.labels.should == [:one]
+    end
+
+    it 'can delete all labels' do
+      node = Neo4j::Node.create({}, :one, :two)
+      node.delete_label(:two, :one)
+      node.labels.should == []
+    end
+
+  end
 
 end
