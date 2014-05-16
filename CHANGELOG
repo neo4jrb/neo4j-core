@@ -1,3 +1,6 @@
+== 3.0.0.alpha.13
+* Fixing the neo4j:install rake task for systems without wget and Windows (#64, @ausmarton)
+* Support for adding labels on existing nodes closes (#63)
 * Session#query returns a hash for all values in a row (#61, @fiddur)
 
 == 3.0.0.alpha.12
