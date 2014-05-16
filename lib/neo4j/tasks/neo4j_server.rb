@@ -25,7 +25,7 @@ namespace :neo4j do
     file_name
   end
 
-  desc "Install Neo4j"
+  desc "Install Neo4j, example neo4j:install[community,2.0.3]"
   task :install, :edition, :version do |t, args|
     args.with_defaults(:edition => "community")
 

@@ -19,12 +19,5 @@ task 'spec-core' do
   abort("RSpec neo4j-core failed") unless success
 end
 
-task :rm_server_db do
-  FileUtils.rm_rf('./neo4j/data')
-  FileUtils.mkdir_p('./neo4j/data')
-end
-
-desc 'stop, clean db, start'
-task :clean_db => ['neo4j:stop', 'rm_server_db', 'neo4j:start']
 
 task :default => ['spec-core']
