@@ -217,6 +217,20 @@ share_examples_for "Neo4j::Label" do
 
       end
 
+      describe 'limit' do
+        it 'limits number of results returned' do
+          result = Neo4j::Label.query(@label, limit: 2)
+          result.count.should == 2
+        end
+
+        it 'limits number of results returned when combined with sort' do
+          result = Neo4j::Label.query(@label, {order: :name, limit: 3})
+          result.to_a.map{|n| n[:name]}.should == %w[andreas andreas kalle]
+          result.count.should == 3
+        end
+      end
+
+
     end
 
   end
