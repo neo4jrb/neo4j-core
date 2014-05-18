@@ -3,6 +3,7 @@ module Neo4j
   # See Neo4j::Node how to create and delete nodes
   # @see http://docs.neo4j.org/chunked/milestone/graphdb-neo4j-labels.html
   class Label
+    class InvalidQueryError < StandardError; end
 
     # @abstract
     def name
@@ -66,8 +67,8 @@ module Neo4j
       end
 
       def query(label_name, query, session = Neo4j::Session.current)
-        cypher = "MATCH (n:`#{label_name}`)"
-        cypher += condition_to_cypher(query) if query[:conditions] && !query[:conditions].empty?
+        cypher = cypher_match(label_name, query)
+        cypher += cypher_where(query) if query[:conditions] && !query[:conditions].empty?
         cypher += session.query_default_return
         cypher += order_to_cypher(query) if query[:order]
         cypher += " LIMIT " + query[:limit].to_s if query[:limit] && query[:limit].is_a?(Integer)
@@ -87,17 +88,44 @@ module Neo4j
 
       private
 
-      def condition_to_cypher(query)
+      def cypher_match(label_name, query)
+        parts = ["MATCH (n:`#{label_name}`)"]
+
+        # TODO: Injection vulnerability?
+        case query[:matches]
+        when Array
+          parts += query[:matches]
+        when String
+          parts << query[:matches]
+        when NilClass
+        else
+          raise InvalidQueryError, "Invalid value for 'matches' query key"
+        end
+
+        parts.join(',')
+      end
+
+      def cypher_where(query)
         conditions = query[:conditions]
-        " WHERE " + conditions.keys.map do |k|
-          value = conditions[k]
-          if value.is_a? Regexp
+
+        neo_id = conditions.delete(:neo_id)
+        conditions['id(n)'] = neo_id if neo_id
+
+        parts = conditions.map do |key, value|
+          operator, value_string = case value
+          when Regexp
             pattern = (value.casefold? ? "(?i)" : "") + value.source
-            "n.#{k}=~#{escape_value(pattern.gsub(/\\/, '\\\\\\'))}"           
-          else 
-            "n.#{k}=#{escape_value(conditions[k])}"
+            ['=~', escape_value(pattern.gsub(/\\/, '\\\\\\'))]
+          else
+            ['=', escape_value(value)]
           end
-        end.join(" AND ")
+
+          k = key.to_s.dup
+          k = "n.#{k}" unless k.match(/[\(\.]/)
+          k + operator + value_string.to_s
+        end
+
+        " WHERE " + parts.join(" AND ")
       end
 
       def order_to_cypher(query)
@@ -129,3 +157,5 @@ module Neo4j
   end
 
 end
+
+
