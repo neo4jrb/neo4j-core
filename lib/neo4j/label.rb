@@ -66,11 +66,14 @@ module Neo4j
       end
 
       def query(label_name, query, session = Neo4j::Session.current)
-        cypher = "MATCH (n:`#{label_name}`)"
-        cypher += condition_to_cypher(query) if query[:conditions] && !query[:conditions].empty?
+        extract_relationship_conditions!(query)
+
+        cypher = cypher_match(label_name, query)
+        cypher += cypher_where(query) if query[:conditions] && !query[:conditions].empty?
         cypher += session.query_default_return
         cypher += order_to_cypher(query) if query[:order]
         cypher += " LIMIT " + query[:limit].to_s if query[:limit] && query[:limit].is_a?(Integer)
+        puts 'cypher', cypher.inspect
 
         response = session._query_or_fail(cypher)
         session.search_result_to_enumerable(response) # TODO make it work in Embedded and refactor
@@ -87,17 +90,51 @@ module Neo4j
 
       private
 
-      def condition_to_cypher(query)
-        conditions = query[:conditions]
-        " WHERE " + conditions.keys.map do |k|
-          value = conditions[k]
-          if value.is_a? Regexp
-            pattern = (value.casefold? ? "(?i)" : "") + value.source
-            "n.#{k}=~#{escape_value(pattern.gsub(/\\/, '\\\\\\'))}"           
-          else 
-            "n.#{k}=#{escape_value(conditions[k])}"
+      "MATCH (n:`User`),n--(n1:`Post`) WHERE id(n1)=5"
+      def extract_relationship_conditions!(query)
+        node_num = 1
+        if query[:conditions]
+          query[:conditions].dup.each do |key, value|
+            if value.respond_to?(:id) && value.id.is_a?(Integer)
+              query[:matches] ||= []
+              n_string = "n#{node_num}"
+              query[:matches] << "n--(#{n_string})"
+              query[:conditions]["id(#{n_string})"] = value.id
+              query[:conditions].delete(key)
+            end
           end
-        end.join(" AND ")
+        end
+      end
+
+      def cypher_match(label_name, query)
+        parts = ["MATCH (n:`#{label_name}`)"]
+        # TODO: Injection vulnerability?
+        parts += query[:matches] if query[:matches] && !query[:matches].empty?
+
+        parts.join(',')
+      end
+
+      def cypher_where(query)
+        conditions = query[:conditions]
+
+        neo_id = conditions.delete(:neo_id)
+        conditions['id(n)'] = neo_id if neo_id
+
+        parts = conditions.map do |key, value|
+          operator, value_string = case value
+          when Regexp
+            pattern = (value.casefold? ? "(?i)" : "") + value.source
+            ['=~', escape_value(pattern.gsub(/\\/, '\\\\\\'))]
+          else
+            ['=', escape_value(value)]
+          end
+
+          k = key.to_s.dup
+          k = "n.#{k}" unless k.match(/[\(\.]/)
+          k + operator + value_string.to_s
+        end
+
+        " WHERE " + parts.join(" AND ")
       end
 
       def order_to_cypher(query)
@@ -129,3 +166,5 @@ module Neo4j
   end
 
 end
+
+
