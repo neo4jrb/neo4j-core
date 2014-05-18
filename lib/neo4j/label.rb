@@ -70,6 +70,7 @@ module Neo4j
         cypher += condition_to_cypher(query) if query[:conditions] && !query[:conditions].empty?
         cypher += session.query_default_return
         cypher += order_to_cypher(query) if query[:order]
+        cypher += " LIMIT " + query[:limit].to_s if query[:limit] && query[:limit].is_a?(Integer)
 
         response = session._query_or_fail(cypher)
         session.search_result_to_enumerable(response) # TODO make it work in Embedded and refactor
