@@ -66,8 +66,6 @@ module Neo4j
       end
 
       def query(label_name, query, session = Neo4j::Session.current)
-        extract_relationship_conditions!(query)
-
         cypher = cypher_match(label_name, query)
         cypher += cypher_where(query) if query[:conditions] && !query[:conditions].empty?
         cypher += session.query_default_return
@@ -88,22 +86,6 @@ module Neo4j
       end
 
       private
-
-      "MATCH (n:`User`),n--(n1:`Post`) WHERE id(n1)=5"
-      def extract_relationship_conditions!(query)
-        node_num = 1
-        if query[:conditions]
-          query[:conditions].dup.each do |key, value|
-            if value.respond_to?(:id) && value.id.is_a?(Integer)
-              query[:matches] ||= []
-              n_string = "n#{node_num}"
-              query[:matches] << "n--(#{n_string})"
-              query[:conditions]["id(#{n_string})"] = value.id
-              query[:conditions].delete(key)
-            end
-          end
-        end
-      end
 
       def cypher_match(label_name, query)
         parts = ["MATCH (n:`#{label_name}`)"]

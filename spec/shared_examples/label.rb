@@ -176,6 +176,42 @@ share_examples_for "Neo4j::Label" do
         #end
       end
 
+      describe 'finds with :matches' do
+        before(:all) do
+          r = Random.new
+          @label = ("R3" + r.rand(0..1000000).to_s).to_sym
+          @kalle = Neo4j::Node.create({name: 'kalle', age: 4}, @label)
+          @andreas2 = Neo4j::Node.create({name: 'andreas', age: 2}, @label)
+          @andreas1 = Neo4j::Node.create({name: 'andreas', age: 1}, @label)
+        end
+
+        subject { Neo4j::Label.query(@label, matches: [match], conditions: {name: 'kalle'}) }
+
+        let(:match) { 'n-[:friend]-o' }
+        context 'no relationship' do
+          its(:count) { should == 0 }
+        end
+
+        context 'a relationship' do
+          before(:each) do
+            Neo4j::Relationship.create(:friend, @kalle, @andreas2)
+          end
+
+          it { should include(@kalle) }
+
+          context 'correct direction' do
+            let(:match) { 'n-[:friend]->o' }
+            it { should include(@kalle) }
+          end
+
+          context 'correct direction' do
+            let(:match) { 'n<-[:friend]-o' }
+            its(:count) { should == 0 }
+          end
+
+        end
+      end
+
       describe 'sort' do
         it 'sorts with: order: :name' do
           result = Neo4j::Label.query(@label, order: :name)
@@ -269,3 +305,4 @@ share_examples_for "Neo4j::Label" do
     end
   end
 end
+
