@@ -3,6 +3,7 @@ module Neo4j
   # See Neo4j::Node how to create and delete nodes
   # @see http://docs.neo4j.org/chunked/milestone/graphdb-neo4j-labels.html
   class Label
+    class InvalidQueryError < StandardError; end
 
     # @abstract
     def name
@@ -89,8 +90,17 @@ module Neo4j
 
       def cypher_match(label_name, query)
         parts = ["MATCH (n:`#{label_name}`)"]
+
         # TODO: Injection vulnerability?
-        parts += query[:matches] if query[:matches] && !query[:matches].empty?
+        case query[:matches]
+        when Array
+          parts += query[:matches]
+        when String
+          parts << query[:matches]
+        when NilClass
+        else
+          raise InvalidQueryError, "Invalid value for 'matches' query key"
+        end
 
         parts.join(',')
       end
