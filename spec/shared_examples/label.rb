@@ -204,7 +204,7 @@ share_examples_for "Neo4j::Label" do
             it { should include(@kalle) }
           end
 
-          context 'correct direction' do
+          context 'incorrect direction' do
             let(:match) { 'n<-[:friend]-o' }
             its(:count) { should == 0 }
           end
