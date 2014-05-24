@@ -231,7 +231,6 @@ Example, Finding with order by on label :person
   Neo4j::Label.query(:person, order: [:name, {age: :asc}])
 ```
 
-
 Conditions:
 
  ```ruby
@@ -241,6 +240,9 @@ Conditions:
    # regular expression
    Neo4j::Label.query(:person, conditions: {name: /AND.*/i})
  ```
+
+Notice the `Neo4j::Label.query` method does return an Enumerable of Neo4j::Node object (or wrapped object) unlike the `Neo4j::Session.query` method.
+See [Neo4j::Label.query](http://www.rubydoc.info/github/andreasronge/neo4j-core/Neo4j/Label#query-class_method) for the full specification.
 
 ### Transactions
 
@@ -346,6 +348,7 @@ Example of loading Neo4j::Nodes from a cypher query
 
 ```ruby
 result = session.query("START n=node(*) RETURN ID(n)")
+# Notice that the Neo4j::Label.query method does this wrapping for you.
 nodes = result.map do |key_values|
   # just one column is returned in this example - :'ID(n)'
   node_id = key_values.values[0]

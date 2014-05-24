@@ -44,7 +44,9 @@ describe Neo4j::Label do
 
     describe 'query' do
       let(:session) do
-        double('mock session', query_default_return: ' RETURN ID(n)', search_result_to_enumerable: nil)
+        double('mock session', search_result_to_enumerable: nil).tap do |obj|
+          obj.stub(:query_default_return) {|as| " RETURN ID(#{as})"}
+        end
       end
 
       before do
@@ -53,7 +55,7 @@ describe Neo4j::Label do
 
       def expects_cypher(cypher)
         session.should_receive(:_query_or_fail).with(cypher)
-        query = eval(self.class.description);
+        query = eval("[#{self.class.description}]");
         Neo4j::Label.query(*query)
       end
 
@@ -63,31 +65,66 @@ describe Neo4j::Label do
         end
       end
 
-      describe "[:person, matches: 'n-[:friends]->o']" do
+      describe ":person, as: :x, matches: 'x-[:friends]->o'" do
+        it_generates "MATCH (x:`person`),x-[:friends]->o RETURN ID(x)"
+      end
+
+      describe ":person, matches: 'n-[:friends]->o', where: 'o.age=42'" do
+        it_generates "MATCH (n:`person`),n-[:friends]->o WHERE o.age=42 RETURN ID(n)"
+      end
+
+      describe ":person, matches: 'n-[:friends]->o', where: ['o.age=42', 'n.age=1']" do
+        it_generates "MATCH (n:`person`),n-[:friends]->o WHERE o.age=42 AND n.age=1 RETURN ID(n)"
+      end
+
+      describe ":person, as: :x, matches: 'x-[:friends]->o', where: 'x.age=42'" do
+        it_generates "MATCH (x:`person`),x-[:friends]->o WHERE x.age=42 RETURN ID(x)"
+      end
+
+      describe ":person, matches: 'n-[:friends]->o'" do
         it_generates "MATCH (n:`person`),n-[:friends]->o RETURN ID(n)"
       end
 
-      describe "[:person, matches: 'n-[:friends]->o', conditions: {age:100}]" do
+      describe ":person, matches: 'n-[:friends]->o', conditions: {age:100}" do
         it_generates "MATCH (n:`person`),n-[:friends]->o WHERE n.age=100 RETURN ID(n)"
       end
 
-      describe ":person, where: 'n.age=42'" do
-        it 'generates correct cypher'
-      end
-
-      describe ':person, limit ...'
-
-      describe ":person, as: x, where: 'x.age=42'" do
-        # avoid hard coding the magical n symbol
-        it 'generates correct cypher' do
-          pending 'generates MATCH (x:`person`) WHERE x.age=42 RETURN ID(x)'
-        end
-      end
-
-      describe "[:person, matches: ['n-[:friends]->o','n--m']]" do
+      describe ":person, matches: ['n-[:friends]->o','n--m']" do
         it_generates "MATCH (n:`person`),n-[:friends]->o,n--m RETURN ID(n)"
       end
 
+      describe ":person, limit: 50" do
+        it_generates "MATCH (n:`person`) RETURN ID(n) LIMIT 50"
+      end
+
+      describe ":person, as: :foo, limit: 50" do
+        # silly but possible
+        it_generates "MATCH (foo:`person`) RETURN ID(foo) LIMIT 50"
+      end
+
+      describe ":person, order: :name" do
+        it_generates "MATCH (n:`person`) RETURN ID(n) ORDER BY n.`name`"
+      end
+
+      describe ":person, order: {name: :desc}" do
+        it_generates "MATCH (n:`person`) RETURN ID(n) ORDER BY n.`name` DESC"
+      end
+
+      describe ":person, order: [{name: :desc}, :age]" do
+        it_generates "MATCH (n:`person`) RETURN ID(n) ORDER BY n.`name` DESC, n.`age`"
+      end
+
+      describe ":person, conditions: {name: 'jimmy', age: 42}" do
+        it_generates "MATCH (n:`person`) WHERE n.name='jimmy' AND n.age=42 RETURN ID(n)"
+      end
+
+      describe ":person, conditions: {name: 'jimmy', age: 42}" do
+        it_generates "MATCH (n:`person`) WHERE n.name='jimmy' AND n.age=42 RETURN ID(n)"
+      end
+
+      describe ':person, return: :name' do
+        it 'generates "MATCH (n:`person`) RETURN n.name"'
+      end
     end
 
   end

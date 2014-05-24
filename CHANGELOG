@@ -1,3 +1,5 @@
+* Impl. Neo4j::Label.query with :match and :where clauses (thanks @cheerfulstoic, #71)
+
 == 3.0.0.alpha.13
 * Fixing the neo4j:install rake task for systems without wget and Windows (#64, @ausmarton)
 * Support for adding labels on existing nodes closes (#63)

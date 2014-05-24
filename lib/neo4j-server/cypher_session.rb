@@ -142,8 +142,8 @@ module Neo4j::Server
       single_row ? response.first_data : response
     end
 
-    def query_default_return
-      " RETURN ID(n)"
+    def query_default_return(as)
+      " RETURN ID(#{as})"
     end
 
     def _query(q, params=nil)

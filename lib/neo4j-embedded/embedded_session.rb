@@ -109,8 +109,8 @@ module Neo4j::Embedded
       Neo4j::Cypher::ResultWrapper.new(result)
     end
 
-    def query_default_return
-      " RETURN n"
+    def query_default_return(as)
+      " RETURN #{as}"
     end
 
     def _query_or_fail(q)
