@@ -76,6 +76,7 @@ module Neo4j
       # @option query [Hash] :conditions key and value of properties which the label nodes must match
       # @option query [String, Array] :match the cypher match clause
       # @option query [String, Array] :where the cypher where clause
+      # @option query [String, Array, Symbol] :return the cypher where clause
       # @option query [String,Symbol,Array<Hash>] :order the order
       # @option query [Fixnum] :limit limits the return
       # @return [Enumerable<Neo4j::Node>] the result, can also be wrapped in your own model ruby classes.
@@ -88,9 +89,9 @@ module Neo4j
       #   Neo4j::Label.query(:person, order: {name: :desc}) # => "MATCH (n:`person`) RETURN ID(n) ORDER BY n.`name` DESC"
       #   Neo4j::Label.query(:person, order: [{name: :desc}, :age]) # => MATCH (n:`person`) RETURN ID(n) ORDER BY n.`name` DESC, n.`age`"
       #
-      # @example matches, notice :n is the default value which can be overridden by :as parameter
-      #   Neo4j::Label.query(:person, matches: 'n-[:friends]->o') # =>  "MATCH (n:`person`),n-[:friends]->o"
-      #   Neo4j::Label.query(:person, matches: ['n-[:friends]->o','n--m']) # => "MATCH (n:`person`),n-[:friends]->o,n--m RETURN ID(n)"
+      # @example match, notice :n is the default value which can be overridden by :as parameter
+      #   Neo4j::Label.query(:person, match: 'n-[:friends]->o') # =>  "MATCH (n:`person`),n-[:friends]->o"
+      #   Neo4j::Label.query(:person, match: ['n-[:friends]->o','n--m']) # => "MATCH (n:`person`),n-[:friends]->o,n--m RETURN ID(n)"
       #
       # @example using limit
       #   Neo4j::Label.query(:person, limit: 50) #  # => "MATCH (n:`person`),n-[:friends]->o RETURN ID(n) LIMIT 50"
@@ -102,7 +103,8 @@ module Neo4j
         cypher = cypher_match(label_name, query, as)
         cypher += cypher_where(query[:conditions], as) if query[:conditions] && !query[:conditions].empty?
         cypher += cypher_where(query[:where], as) if query[:where] && !query[:where].empty?
-        cypher += session.query_default_return(as)
+        cypher += cypher_return(query[:return],as) if query[:return]
+        cypher += session.query_default_return(as) unless query[:return]
         cypher += order_to_cypher(query, as) if query[:order]
         cypher += " LIMIT " + query[:limit].to_s if query[:limit] && query[:limit].is_a?(Integer)
 
@@ -123,18 +125,30 @@ module Neo4j
 
       private
 
+      def cypher_return(ret, as)
+        case ret
+          when Array
+            " RETURN #{ret.map{|r| "#{as}.`#{r}`"}.join(',')}"
+          when String
+            " RETURN #{ret}"
+          else Symbol
+          " RETURN #{as}.`#{ret}`"
+        end
+
+      end
+
       def cypher_match(label_name, query, as)
         parts = ["MATCH (#{as}:`#{label_name}`)"]
 
         # TODO: Injection vulnerability?
-        case query[:matches]
+        case query[:match]
         when Array
-          parts += query[:matches]
+          parts += query[:match]
         when String
-          parts << query[:matches]
+          parts << query[:match]
         when NilClass
         else
-          raise InvalidQueryError, "Invalid value for 'matches' query key"
+          raise InvalidQueryError, "Invalid value for 'match' query key"
         end
 
         parts.join(',')

@@ -40,7 +40,7 @@ describe Neo4j::Label do
 
   describe 'class methods' do
     # Exampel
-    # Neo4j::Label.query(:person, matches: 'n-[friends]->o', where)
+    # Neo4j::Label.query(:person, match: 'n-[friends]->o', where)
 
     describe 'query' do
       let(:session) do
@@ -65,31 +65,31 @@ describe Neo4j::Label do
         end
       end
 
-      describe ":person, as: :x, matches: 'x-[:friends]->o'" do
+      describe ":person, as: :x, match: 'x-[:friends]->o'" do
         it_generates "MATCH (x:`person`),x-[:friends]->o RETURN ID(x)"
       end
 
-      describe ":person, matches: 'n-[:friends]->o', where: 'o.age=42'" do
+      describe ":person, match: 'n-[:friends]->o', where: 'o.age=42'" do
         it_generates "MATCH (n:`person`),n-[:friends]->o WHERE o.age=42 RETURN ID(n)"
       end
 
-      describe ":person, matches: 'n-[:friends]->o', where: ['o.age=42', 'n.age=1']" do
+      describe ":person, match: 'n-[:friends]->o', where: ['o.age=42', 'n.age=1']" do
         it_generates "MATCH (n:`person`),n-[:friends]->o WHERE o.age=42 AND n.age=1 RETURN ID(n)"
       end
 
-      describe ":person, as: :x, matches: 'x-[:friends]->o', where: 'x.age=42'" do
+      describe ":person, as: :x, match: 'x-[:friends]->o', where: 'x.age=42'" do
         it_generates "MATCH (x:`person`),x-[:friends]->o WHERE x.age=42 RETURN ID(x)"
       end
 
-      describe ":person, matches: 'n-[:friends]->o'" do
+      describe ":person, match: 'n-[:friends]->o'" do
         it_generates "MATCH (n:`person`),n-[:friends]->o RETURN ID(n)"
       end
 
-      describe ":person, matches: 'n-[:friends]->o', conditions: {age:100}" do
+      describe ":person, match: 'n-[:friends]->o', conditions: {age:100}" do
         it_generates "MATCH (n:`person`),n-[:friends]->o WHERE n.age=100 RETURN ID(n)"
       end
 
-      describe ":person, matches: ['n-[:friends]->o','n--m']" do
+      describe ":person, match: ['n-[:friends]->o','n--m']" do
         it_generates "MATCH (n:`person`),n-[:friends]->o,n--m RETURN ID(n)"
       end
 
@@ -122,9 +122,39 @@ describe Neo4j::Label do
         it_generates "MATCH (n:`person`) WHERE n.name='jimmy' AND n.age=42 RETURN ID(n)"
       end
 
-      describe ':person, return: :name' do
-        it 'generates "MATCH (n:`person`) RETURN n.name"'
+      describe ':person, return: "what ever"' do
+        it_generates "MATCH (n:`person`) RETURN what ever"
       end
+
+      describe ':person, return: :name' do
+        it_generates "MATCH (n:`person`) RETURN n.`name`"
+      end
+
+      describe ':person, return: [:name,:age]' do
+        it_generates "MATCH (n:`person`) RETURN n.`name`,n.`age`"
+      end
+
+      describe ':person, return: [:name,:age]' do
+        it_generates "MATCH (n:`person`) RETURN n.`name`,n.`age`"
+      end
+
+      describe ':person, match: "n--o", return: {count: :o}' do
+        # TODO
+        #it_generates "MATCH (n:`person`), n--o RETURN count(o)"
+      end
+
+      describe ':person, match: "n--o", return: {node: :o}]' do
+        # TODO
+        # column o should be wrapped as nodes, need another test for this
+        #it_generates "MATCH (n:`person`), n--o RETURN ID(o)"
+      end
+
+      describe ':person, match: "n--o", return: [:n, {node: :o}]' do
+        # TODO
+        # {node: :o} says that the result column o should be wrap as nodes
+        #it_generates "MATCH (n:`person`) RETURN ID(n), ID(o)"
+      end
+
     end
 
   end
