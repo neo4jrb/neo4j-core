@@ -176,7 +176,7 @@ share_examples_for "Neo4j::Label" do
         #end
       end
 
-      describe 'finds with :matches' do
+      describe 'finds with :match' do
         before(:all) do
           r = Random.new
           @label = ("R3" + r.rand(0..1000000).to_s).to_sym
@@ -185,9 +185,9 @@ share_examples_for "Neo4j::Label" do
           @andreas1 = Neo4j::Node.create({name: 'andreas', age: 1}, @label)
         end
 
-        subject { Neo4j::Label.query(@label, matches: matches, conditions: {name: 'kalle'}) }
+        subject { Neo4j::Label.query(@label, match: match, conditions: {name: 'kalle'}) }
 
-        let(:matches) { ['n-[:friend]-o'] }
+        let(:match) { ['n-[:friend]-o'] }
         context 'no relationship' do
           its(:count) { should == 0 }
         end
@@ -200,29 +200,29 @@ share_examples_for "Neo4j::Label" do
           it { should include(@kalle) }
 
           context 'correct direction' do
-            let(:matches) { ['n-[:friend]->o'] }
+            let(:match) { ['n-[:friend]->o'] }
             it { should include(@kalle) }
           end
 
           context 'incorrect direction' do
-            let(:matches) { ['n<-[:friend]-o'] }
+            let(:match) { ['n<-[:friend]-o'] }
             its(:count) { should == 0 }
           end
 
           describe 'with string input' do
             context 'correct direction' do
-              let(:matches) { 'n-[:friend]->o' }
+              let(:match) { 'n-[:friend]->o' }
               it { should include(@kalle) }
             end
 
             context 'incorrect direction' do
-              let(:matches) { 'n<-[:friend]-o' }
+              let(:match) { 'n<-[:friend]-o' }
               its(:count) { should == 0 }
             end
           end
 
           context 'integer input' do
-            let(:matches) { 1 }
+            let(:match) { 1 }
             it 'raises error' do
               expect { subject }.to raise_error(Neo4j::Label::InvalidQueryError)
             end
