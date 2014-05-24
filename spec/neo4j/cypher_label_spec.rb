@@ -35,6 +35,55 @@ describe Neo4j::Label do
 
   end
 
+  # Exampel
+  # Neo4j::Label.query(:person, matches: 'n-[friends]->o', where)
+
+  describe 'query' do
+    let(:session) do
+      double('mock session', query_default_return: ' RETURN ID(n)', search_result_to_enumerable: nil)
+    end
+
+    before do
+      Neo4j::Session.stub(:current){ session }
+    end
+
+    def expects_cypher(cypher)
+      session.should_receive(:_query_or_fail).with(cypher)
+    end
+
+    describe "(:person, matches: 'n-[:friends]->o)'" do
+      it 'generates correct cypher' do
+        expects_cypher("MATCH (n:`person`),n-[:friends]->o RETURN ID(n)")
+        Neo4j::Label.query(:person, matches: 'n-[:friends]->o')
+      end
+    end
+
+    describe ":person, matches: 'n-[:friends]->o', conditions: {age:100}" do
+      it 'generates correct cypher' do
+        expects_cypher("MATCH (n:`person`),n-[:friends]->o WHERE n.age=100 RETURN ID(n)")
+        Neo4j::Label.query(:person, matches: 'n-[:friends]->o', conditions: {age:100})
+      end
+    end
+
+    describe ":person, where: 'n.age=42'" do
+        it 'generates correct cypher'
+    end
+
+    describe ":person, :x, where: 'x.age=42'" do
+      # avoid hard coding the magical n symbol
+      it 'generates correct cypher' do
+        pending 'generates MATCH (x:`person`) WHERE x.age=42 RETURN ID(x)'
+      end
+    end
+
+    describe "(:person, matches: ['n-[:friends]->o)', 'n--x']" do
+      it 'generates correct cypher' do
+        expects_cypher("MATCH (n:`person`),n-[:friends]->o,n--m RETURN ID(n)")
+        Neo4j::Label.query(:person, matches: ['n-[:friends]->o','n--m'])
+      end
+    end
+
+  end
 end
 
 
