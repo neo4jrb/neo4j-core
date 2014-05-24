@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'CypherTranslator' do
+describe Neo4j::Core::CypherTranslator do
   let(:klass) { Class.new.extend Neo4j::Core::CypherTranslator }
 
   context '#sanitize_escape_sequences' do
