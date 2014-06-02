@@ -59,7 +59,7 @@ module Neo4j
     # @option q [String, Array] :match the cypher match clause
     # @option q [String, Array] :where the cypher where clause
     # @option q [String, Array, Symbol] :return the cypher where clause
-    # @option q [String, Array, Symbol] :map_return mapping of the returned values, e.g. :id_to_node, :id_to_rel, or :value
+    # @option q [String, Hash, Symbol] :map_return mapping of the returned values, e.g. :id_to_node, :id_to_rel, or :value
     # @option q [Hash<Symbol, Proc>] :map_return_procs custom mapping functions of :map_return types
     # @option q [String,Symbol,Array<Hash>] :order the order
     # @option q [Fixnum] :limit enables the return of only subsets of the total result.
@@ -85,8 +85,8 @@ module Neo4j
     #
     # @example map_return
     #   Neo4j::Session.query("START n=node(42) RETURN n.name", map_return: :value) #=> an Enumerable of names
-    #   Neo4j::Session.query("START n=node(42) MATCH n-[r]->[x] RETURN n.name, ID(r), ID(x)", map_return: [:value, :id_to_rel, :id_to_node]) #=> an Enumerable of an Hash with name property, Neo4j::Relationship and Neo4j::Node
-    #   Neo4j::Session.query("START n=node(42) MATCH n-[r]->[x] RETURN n.name, r, x", map_return: [:value, :to_rel, :to_node]) #=> same as above, but for the embedded database
+    #   Neo4j::Session.query("START n=node(42) MATCH n-[r]->[x] RETURN n.name as N, ID(r) as R, ID(x) as X", map_return: {N: :value, R: :id_to_rel, X: :id_to_node}]) #=> an Enumerable of an Hash with name property, Neo4j::Relationship and Neo4j::Node
+    #   Neo4j::Session.query("START n=node(42) MATCH n-[r]->[x] RETURN n.name as N, r, x", map_return: {N: :value, r: :to_rel, x: :to_node}) #=> same as above, but for the embedded database
     #
     # @example map_return_procs, custom mapping function
     #   Neo4j::Session.query(label: :person, map_return: :age_times_two, map_return_procs: {age_times_two: ->(row){(row[:age] || 0) * 2}})
