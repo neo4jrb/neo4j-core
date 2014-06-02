@@ -108,10 +108,13 @@ module Neo4j
         cypher += order_to_cypher(query, as) if query[:order]
         cypher += " LIMIT " + query[:limit].to_s if query[:limit] && query[:limit].is_a?(Integer)
 
-        response = session._query_or_fail(cypher)
-        session.search_result_to_enumerable(response) # TODO make it work in Embedded and refactor
+        cypher_query(cypher, session)
       end
 
+      def cypher_query(query, session = Neo4j::Session.current)
+        response = session._query_or_fail(query)
+        session.search_result_to_enumerable(response) # TODO make it work in Embedded and refactor
+      end
 
       # @return [Enumerable<Neo4j::Node>] all nodes having given label. Nodes can be wrapped in your own model ruby classes.
       def find_all_nodes(label_name, session = Neo4j::Session.current)
