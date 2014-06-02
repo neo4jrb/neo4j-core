@@ -118,7 +118,7 @@ module Neo4j
       raise 'not implemented'
     end
 
-    # @returns all the Neo4j labels for this node
+    # @return all the Neo4j labels for this node
     def labels
       raise 'not implemented'
     end

@@ -47,38 +47,66 @@ module Neo4j
     end
 
     # Executes a Cypher Query
-    # Returns an enumerable of hash values, column => value
+    # Returns an enumerable of hash values where each hash corresponds to a row unless <tt>return</tt> or <tt>map_return</tt>
+    # is not an array. The search result can be mapped to Neo4j::Node or Neo4j::Relationship is your own Ruby wrapper class
+    # by specifying a map_return parameter.
     #
-    # @example Using the Cypher DSL
-    #  q = session.query("START n=node({param}) RETURN n", :param => 0)
-    #  q.first[:n] #=> the node
-    #  q.columns.first => :n
+    # @param [Hash, String] q the cypher query, as a pure string query or a hash which will generate a cypher string.
+    # @option q [Hash] :params cypher parameters
+    # @option q [Symbol,Hash] :label the label to match. You can specify several labels by using a hash of variable names and labels.
+    # @option q [Symbol] :conditions key and value of properties which the label nodes must match
+    # @option q [Hash] :conditions key and value of properties which the label nodes must match
+    # @option q [String, Array] :match the cypher match clause
+    # @option q [String, Array] :where the cypher where clause
+    # @option q [String, Array, Symbol] :return the cypher where clause
+    # @option q [String, Array, Symbol] :map_return mapping of the returned values, e.g. :id_to_node, :id_to_rel, or :value
+    # @option q [Hash<Symbol, Proc>] :map_return_procs custom mapping functions of :map_return types
+    # @option q [String,Symbol,Array<Hash>] :order the order
+    # @option q [Fixnum] :limit enables the return of only subsets of the total result.
+    # @option q [Fixnum] :skip enables the return of only subsets of the total result.
+    # @return [Enumerable] the result, an enumerable of Neo4j::Node objects unless a pure cypher string is given or return/map_returns is specified, see examples.
+    # @raise CypherError if invalid cypher
+    # @example Cypher String and parameters
+    #   Neo4j::Session.query("START n=node({p}) RETURN ID(n)", params: {p: 42})
     #
-    # @example Using the Cypher DSL
-    #  q = session.query{ match node(3) <=> node(:x); ret :x}
-    #  q.first[:n] #=> the @node
-    #  q.columns.first => :n
+    # @example label
+    #   # If there is no :return parameter it will try to return Neo4j::Node objects
+    #   # Default parameter is :n in the generated cypher
+    #   Neo4j::Session.query(label: :person) # => MATCH (n:`person`) RETURN ID(n) # or RETURN n for embedded
     #
-    # @example Using the Cypher DSL and one parameter (n=Neo4j.ref_node)
-    #  q = session.query(Neo4j.ref_node){|n| n <=> node(:x); :x}
-    #  q.first[:n] #=> the @node
-    #  q.columns.first => :n
+    # @example to_s
+    #   # What Cypher is returned ? check with to_s
+    #   Neo4j::Session.query(label: :person).to_s # =>
     #
-    # @example Using an array of nodes
-    #  # same as - two_nodes=node(Neo4j.ref_node.neo_id, node_b.neo_id), b = node(b.neo_id)
-    #  q = session.query([Neo4j.ref_node, node_b], node_c){|two_nodes, b| two_nodes <=> b; b}
+    # @example return
+    #   Neo4j::Session.query(label: :person, return: :age)  # returns age properties
+    #   Neo4j::Session.query(label: :person, return: [:name, :age]) # returns a hash of name and age properties
+    #   Neo4j::Session.query(label: :person, return: 'count(n) AS c')
     #
-    # @see Cypher
+    # @example map_return
+    #   Neo4j::Session.query("START n=node(42) RETURN n.name", map_return: :value) #=> an Enumerable of names
+    #   Neo4j::Session.query("START n=node(42) MATCH n-[r]->[x] RETURN n.name, ID(r), ID(x)", map_return: [:value, :id_to_rel, :id_to_node]) #=> an Enumerable of an Hash with name property, Neo4j::Relationship and Neo4j::Node
+    #   Neo4j::Session.query("START n=node(42) MATCH n-[r]->[x] RETURN n.name, r, x", map_return: [:value, :to_rel, :to_node]) #=> same as above, but for the embedded database
+    #
+    # @example map_return_procs, custom mapping function
+    #   Neo4j::Session.query(label: :person, map_return: :age_times_two, map_return_procs: {age_times_two: ->(row){(row[:age] || 0) * 2}})
+    #
+    # @example match
+    #   Neo4j::Session.query(label: :person, match: 'n--m')
+    #
+    # @example where
+    #   Neo4j::Session.query(label: :person, where: 'n.age > 40')
+    #   Neo4j::Session.query(label: :person, where: 'n.age > {age}', params: {age: 40})
+    #
+    # @example condition
+    #   Neo4j::Session.query(label: :person, conditions: {age: 42})
+    #   Neo4j::Session.query(label: :person, conditions: {name: /foo?bar.*/})
+    #
     # @see http://docs.neo4j.org/chunked/milestone/cypher-query-lang.html The Cypher Query Language Documentation
-    # @note Returns a read-once only forward iterable.
-    # @param params parameter for the query_dsl block
-    # @return [Neo4j::Cypher::ResultWrapper] a forward read once only Enumerable, containing hash values.
+    # @note Returns a read-once only forward iterable for the embedded database.
     #
-    # @abstract
-    def query(*params, &query_dsl)
-      cypher_params = params.pop if params.last.is_a?(Hash)
-      q = query_dsl ? Neo4j::Cypher.query(*params, &query_dsl).to_s : params[0]
-      _query(q, cypher_params)
+    def query(q)
+      raise 'not implemented, abstract'
     end
 
     # Same as #query but does not accept an DSL and returns the raw result from the database.
@@ -92,7 +120,7 @@ module Neo4j
       # Creates a new session to Neo4j
       # @see also Neo4j::Server::CypherSession#open for :server_db params
       # @param db_type the type of database, e.g. :embedded_db, or :server_db
-      def open(db_type, *params)
+      def open(db_type=:server_db, *params)
         register(create_session(db_type, params))
       end
 
@@ -110,6 +138,11 @@ module Neo4j
 
       def current
         @@current_session
+      end
+
+      # @see Neo4j::Session#query
+      def query(*params)
+        current.query(*params)
       end
 
       def named(name)

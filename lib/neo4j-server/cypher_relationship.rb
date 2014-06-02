@@ -25,8 +25,7 @@ module Neo4j::Server
     def load_resource
       id = neo_id
       unless @resource_data
-        r = @session._query_internal{ rel(id) }
-        @resource_data = r.first_data
+        @resource_data = @session._query_or_fail("START n=relationship(#{id}) RETURN n", true) # r.first_data
       end
     end
 
@@ -44,21 +43,17 @@ module Neo4j::Server
 
     def get_property(key)
       id = neo_id
-      r = @session._query_internal{rel(id)[key]}
-      expect_response_code(r.response, 200)
-      r.first_data
+      @session._query_or_fail("START n=relationship(#{id}) RETURN n.`#{key}`", true)
     end
 
     def set_property(key,value)
       id = neo_id
-      r = @session._query_internal{rel(id)[key]=value}
-      expect_response_code(r.response, 200)
+      @session._query_or_fail("START n=relationship(#{id}) SET n.`#{key}` = {value}", false, {value: value})
     end
 
     def remove_property(key)
       id = neo_id
-      r = @session._query_internal{rel(id)[key]=:NULL}
-      expect_response_code(r.response, 200)
+      @session._query_or_fail("START n=relationship(#{id}) REMOVE n.`#{key}`")
     end
 
     # (see Neo4j::Relationship#props)
@@ -86,12 +81,12 @@ module Neo4j::Server
 
     def del
       id = neo_id
-      @session._query_internal{rel(id).del}.raise_unless_response_code(200)
+      @session._query("START n=relationship(#{id}) DELETE n").raise_unless_response_code(200)
     end
 
     def exist?
       id = neo_id
-      response = @session._query_internal{rel(id)}
+      response = @session._query("START n=relationship(#{id}) RETURN n")
 
       if (!response.error?)
         return true

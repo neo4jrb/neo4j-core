@@ -79,6 +79,18 @@ module Neo4j::Embedded
       end
     end
 
+    describe 'label' do
+      it 'by default map the result to single column of nodes' do
+        @jimmy = Neo4j::Node.create({name: 'jimmy', age: 42}, :person)
+        # result = session.query(label: :person) # same as (label: :person, map_return: :id_to_node)
+        # result.should include(@jimmy)
+        result = session.query(label: :person, return: [:name, :age]).to_a
+        result.first.should have_key(:name)
+        result.first.should have_key(:age)
+
+      end
+    end
+
     describe '_query' do
       before(:all) do
         Neo4j::Session.current || create_embedded_session
@@ -92,24 +104,10 @@ module Neo4j::Embedded
         r = session._query("START n=node(#{id}) RETURN n")
         all = r.to_a # only allowed to traverse once
         all.count.should == 1
-        all.first.should include(:n)
+        all.first.should include('n')
       end
     end
 
-    #describe 'create_node' do
-    #  before(:each) do
-    #    @session = EmbeddedDatabase.connect(EMBEDDED_DB_PATH)
-    #    @session.start
-    #  end
-    #
-    #  it 'can create a node' do
-    #    tx = Neo4j::Transaction.run do
-    #      n = Neo4j::Node.create name: 'jimmy'
-    #      n[:kalle] = 'foo'
-    #      n[:kalle].should == 'foo'
-    #    end
-    #  end
-    #end
   end
 
 end

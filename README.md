@@ -202,7 +202,7 @@ Setting properties
 
 Notice properties are never stored in ruby objects, instead they are always fetched from the database.
 
-### Finding Nodes
+### Finding Nodes by Label
 
 Each node and relationship has a id, `neo_id`
 
@@ -225,24 +225,69 @@ Finding nodes by label:
   node.labels # [:red]
 ```
 
-Example, Finding with order by on label :person
+### Cypher Queries
+
+Full documentation, see [Neo4j::Session#query](http://www.rubydoc.info/github/andreasronge/neo4j-core/Neo4j/Session#query-instance_method) or RSpecs.
+
+Examples using queries as strings:
 
 ```ruby
-  Neo4j::Label.query(:person, order: [:name, {age: :asc}])
+# same as Neo4j::Session.current.query
+Neo4j::Session.query("CREATE (n {mydata: 'Hello'}) RETURN ID(n) AS id")
+
+# With cypher parameters
+Neo4j::Session.query("START n=node({a_parameter}) RETURN ID(n)", a_parameter: 0)
 ```
 
-Conditions:
+By default queries with strings as shown above will return an Enumerable of hash where each column is a key in the hash. See below how to
+do a different mapping.
 
- ```ruby
-   # exact search
-   Neo4j::Label.query(:person, conditions: {name: 'andreas'}
+Example of label queries
 
-   # regular expression
-   Neo4j::Label.query(:person, conditions: {name: /AND.*/i})
- ```
+```ruby
+Neo4j::Session.query(label: :person) # returns an Enumerable of Neo4j::Node by default
+Neo4j::Session.query(label: :person, return: [:name, :age]) # Returns an enumerable of hash with name and age properties
+Neo4j::Session.query(label: :person, return: :name) # Returns an enumerable of name properties
+Neo4j::Session.query(label: :person, conditions: {name:/kalle.*/}) # regexp search on the name property of nodes with label person
+Neo4j::Session.query(label: :person, order: [{name: :desc}, :age], limit: 4, skip: 5) # sorting and skip and limit the result
+Neo4j::Session.query(label: :person, match: 'n-[:friends]->o', where: ['o.age=42', 'n.age=1']) # cypher variable n will be used for the label
+```
 
-Notice the `Neo4j::Label.query` method does return an Enumerable of Neo4j::Node object (or wrapped object) unlike the `Neo4j::Session.query` method.
-See [Neo4j::Label.query](http://www.rubydoc.info/github/andreasronge/neo4j-core/Neo4j/Label#query-class_method) for the full specification.
+All these label queries above will return an Enumerable of Neo4j::Node objects, unless a `return` condition is specified, see above.
+
+The cypher result can be mapped by using  `map_return` can have the following values: `value`, `id_to_node`, `to_node`, `id_to_rel`, `to_rel`.
+
+Examples
+
+```ruby
+# without mapping
+Neo4j::Session.query("START n=node(42) RETURN n.name, n.age").to_a #=> [{:'n.name' => 'jimmy', :'n.age' => 42}]
+
+# with mapping
+Neo4j::Session.query("START n=node(42) RETURN n.name", map_return: :value).to_a #=> ['jimmy']
+
+# Label query with return without mapping
+Neo4j::Session.query(label: :person, return: 'ID(n)').to_a #=> [{:"ID(n)" => 42}, {:"ID(n)"=>53}, ...]
+
+# map label queries, override the default of returning an enumerable of hash
+Neo4j::Session.query(label: :person, return: 'ID(n)', map_return: :value).to_a #=> [42, 53, ...]
+
+# map to a Neo4j::Relationship objects
+Neo4j::Session.query("START n=relationship(43) RETURN ID(n)", map_return: :id_to_rel).to_a # => [a Neo4j::Relationship object]
+
+# map to Neo4j::Node using the embedded database (directly loading the Neo4j::Node, only possible for embedded db), same for to_node
+Neo4j::Session.query("START n=relationship(43) RETURN n", map_return: :to_rel).to_a # => [a Neo4j::Relationship object]
+
+# map several columns, both nodes and relationships. Works also with label queries
+Neo4j::Session.query("START a=node(#{a.neo_id}) MATCH (a)-[r]-(b) RETURN ID(a) as A, ID(r) as R", map_return: {A: :id_to_node, R: :id_to_rel}).to_a
+# => [{A: a Neo4j::Node object, R: a Neo4j::Relationship object} ...}
+
+```
+
+
+It is also possible to create your own mapping types by using `map_return_procs` (see RSpecs).
+
+
 
 ### Transactions
 
@@ -268,6 +313,8 @@ Neo4j::Transaction.run do |tx|
 end
 
 ```
+
+This feature is experimental, since it has not been tested enough.
 
 ### Relationship
 
@@ -326,43 +373,6 @@ rel.del
 ```
 
 
-### Cypher
-
-Example
-
-```ruby
-session = Neo4j::Session.current
-
-session.query("CREATE (n {mydata: 'Hello'}) RETURN ID(n) AS id")
-
-# Parameters
-session.query("START n=node({a_parameter}) RETURN ID(n)", a_parameter: 0)
-
-# DSL
-session.query(a_parameter: 0) { node("{a_parameter}").neo_id.as(:foo) }
-```
-
-The `query` method returns an Enumeration of Hash values.
-
-Example of loading Neo4j::Nodes from a cypher query
-
-```ruby
-result = session.query("START n=node(*) RETURN ID(n)")
-# Notice that the Neo4j::Label.query method does this wrapping for you.
-nodes = result.map do |key_values|
-  # just one column is returned in this example - :'ID(n)'
-  node_id = key_values.values[0]
-  Neo4j::Node.load(node_id)
-end
-```
-
-Example, using the name of the column
-
-```ruby
-result = session.query("START n=node(0) RETURN ID(n) as mykey")
-Neo4j::Node.load(result.first[:mykey])
-```
-
 
 ## Implementation:
 
@@ -412,8 +422,6 @@ The testing will be using much more mocking.
 * {Neo4j::Relationship} The Relationship
 
 * {Neo4j::Session} The session to the embedded or server database.
-
-* `Neo4j::Cypher` Cypher Query DSL, see {Neo4j Wiki}[https://github.com/andreasronge/neo4j/wiki/Neo4j%3A%3ACore-Cypher]
 
 
 See also the cypher DSL gem, [Neo4j Wiki](https://github.com/andreasronge/neo4j/wiki/Neo4j%3A%3ACore-Cypher)

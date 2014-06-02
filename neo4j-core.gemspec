@@ -33,7 +33,6 @@ It comes included with the Apache Lucene document database.
   s.add_dependency("json")
   s.add_dependency("os")  # for Rake task
   s.add_dependency("zip") # for Rake task
-  s.add_dependency("neo4j-cypher")
 
   if RUBY_PLATFORM =~ /java/
     s.add_dependency("neo4j-community", '~> 2.0.0')

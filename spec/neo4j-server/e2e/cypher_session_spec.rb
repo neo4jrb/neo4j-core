@@ -17,8 +17,8 @@ module Neo4j::Server
 
     describe 'named sessions' do
 
-      before { Neo4j::Session.current && Neo4j::Session.current.close}
-      after { Neo4j::Session.current && Neo4j::Session.current.close}
+      before { Neo4j::Session.current && Neo4j::Session.current.close }
+      after { Neo4j::Session.current && Neo4j::Session.current.close }
 
       it 'stores a named session' do
         name = :test
@@ -29,7 +29,7 @@ module Neo4j::Server
       it 'does not override the current session when default = false' do
         default = open_session
         Neo4j::Session.current.should == default
-        name = :test
+        name = :tesr
         open_named_session(name)
         Neo4j::Session.current.should == default
       end
@@ -72,36 +72,6 @@ module Neo4j::Server
       end
     end
 
-    describe 'find_nodes' do
-      before do
-        session.query("CREATE (n:label { name : 'test', id: 2, version: 1.1 })")
-      end
-
-      after do
-        session.query("MATCH (n:`label`) DELETE n")
-      end
-
-      def verify(node)
-        node[:id].should == 2
-        node[:name].should == "test"
-        node[:version].should == 1.1
-      end
-
-      it 'allows finding nodes by a key with a Fixnum value' do
-        node = session.find_nodes(:label, :id, 2).first
-        verify node
-      end
-
-      it 'allows finding nodes by a key with a String value' do
-        node = session.find_nodes(:label, :name, "test").first
-        verify node
-      end
-
-      it 'allows finding nodes by a key with a Float value' do
-        node = session.find_nodes(:label, :version, 1.1).first
-        verify node
-      end
-    end
   end
 
 end

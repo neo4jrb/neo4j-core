@@ -36,6 +36,7 @@ module Neo4j::Server
       Neo4j::Session.register(self)
       initialize_resource(data_url)
       Neo4j::Session._notify_listeners(:session_available, self)
+      @query_builder = Neo4j::Core::QueryBuilder.new
     end
 
     def to_s
@@ -109,7 +110,7 @@ module Neo4j::Server
 
     def find_all_nodes(label_name)
       response = _query_or_fail("MATCH (n:`#{label_name}`) RETURN ID(n)")
-      search_result_to_enumerable(response)
+      search_result_to_enumerable_first_column(response)
     end
 
     def find_nodes(label_name, key, value)
@@ -120,30 +121,26 @@ module Neo4j::Server
         WHERE n.#{key} = #{value}
         RETURN ID(n)
       CYPHER
-      search_result_to_enumerable(response)
+      search_result_to_enumerable_first_column(response)
     end
 
-    def query(*params, &query_dsl)
-      result = super
+    def query(*params)
+      query_hash = @query_builder.to_query_hash(params, :id_to_node)
+      cypher = @query_builder.to_cypher(query_hash)
+
+      result = _query(cypher, query_hash[:params])
       if result.error?
         raise Neo4j::Session::CypherError.new(result.error_msg, result.error_code, result.error_status)
       end
-      result.to_hash_enumeration
-    end
 
-    # TODO remove this function and do not use cypher DSL internally
-    def _query_internal(*params, &query_dsl)
-      super_query(*params, &query_dsl)
+      map_return_procs = @query_builder.to_map_return_procs(query_hash)
+      result.to_hash_enumeration(map_return_procs, cypher)
     end
 
     def _query_or_fail(q, single_row = false, params=nil)
       response = _query(q, params)
       response.raise_error if response.error?
       single_row ? response.first_data : response
-    end
-
-    def query_default_return(as)
-      " RETURN ID(#{as})"
     end
 
     def _query(q, params=nil)
@@ -158,9 +155,8 @@ module Neo4j::Server
       end
     end
 
-    def search_result_to_enumerable(response)
+    def search_result_to_enumerable_first_column(response)
       return [] unless response.data
-
       Enumerator.new do |yielder|
         response.data.each do |data|
           yielder << CypherNode.new(self, data[0]).wrapper
@@ -169,7 +165,39 @@ module Neo4j::Server
     end
 
 
+    def map_column(key, map, data)
+      case map[key]
+        when :node
+          CypherNode.new(self, data).wrapper
+        when :rel, :relationship
+          CypherRelationship.new(self, data)
+        else
+          data
+      end
+    end
 
 
+    def search_result_to_enumerable(response, ret, map)
+      return [] unless response.data
+
+      if (ret.size == 1)
+        Enumerator.new do |yielder|
+          response.data.each do |data|
+            yielder << map_column(key, map, data[0])
+          end
+        end
+
+      else
+        Enumerator.new do |yielder|
+          response.data.each do |data|
+            hash = {}
+            ret.each_with_index do |key, i|
+              hash[key] = map_column(key, map, data[i])
+            end
+            yielder << hash
+          end
+        end
+      end
+    end
   end
 end

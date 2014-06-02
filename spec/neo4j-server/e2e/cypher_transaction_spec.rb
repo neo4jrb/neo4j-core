@@ -20,13 +20,12 @@ module Neo4j::Server
     end
 
     it "can run a valid query" do
-      result = session.query("CREATE (n) RETURN ID(n) AS id")
-      id = result.first[:id];
+      result = session.query("CREATE (n) RETURN ID(n) AS id", map_return: :value)
+      id = result.to_a.first;
 
       tx = session.begin_tx
 
       q = tx._query("START n=node(#{id}) RETURN ID(n)")
-      q.response.code.should == 200
       q.response['results'].should == [{"columns"=>["ID(n)"], "data"=>[{"row"=>[id]}]}]
     end
 

@@ -27,6 +27,10 @@ module Neo4j::Embedded
             getStartNode
           end
 
+          def rel_type
+            getType().name().to_sym
+          end
+
           def del
             delete
           end

@@ -22,23 +22,57 @@ module Neo4j::Server
       def_delegator :@response, :data
       def_delegator :@response, :columns
 
-      def initialize(response)
+      def initialize(response, map_return_procs, query)
         @response = response
+        @map_return_procs = map_return_procs
+        @query = query
       end
 
-      def each()
+      def to_s
+        @query
+      end
+
+      def each_no_mapping
         data.each do |row|
           hash = {}
           row.each_with_index do |row, i|
-            hash[columns[i].to_sym] = row
+            key = columns[i].to_sym
+            hash[key] = row
           end
           yield hash
         end
       end
+
+      def each_multi_column_mapping
+        data.each do |row|
+          hash = {}
+          row.each_with_index do |row, i|
+            key = columns[i].to_sym
+            proc = @map_return_procs[key]
+            hash[key] = proc ? proc.call(row) : row
+          end
+          yield hash
+        end
+      end
+
+      def each_single_column_mapping
+        data.each do |row|
+          result = @map_return_procs.call(row.first)
+          yield result
+        end
+      end
+
+      def each(&block)
+        case @map_return_procs
+          when NilClass then each_no_mapping &block
+          when Hash then each_multi_column_mapping &block
+          else each_single_column_mapping &block
+        end
+      end
     end
 
-    def to_hash_enumeration
-      HashEnumeration.new(self)
+    def to_hash_enumeration(map_return_procs={}, cypher='')
+      HashEnumeration.new(self, map_return_procs, cypher)
     end
 
     def initialize(response, uncommited = false)
