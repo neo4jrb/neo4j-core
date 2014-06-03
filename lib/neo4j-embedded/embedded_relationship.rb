@@ -18,6 +18,10 @@ module Neo4j::Embedded
           end
           tx_methods :exist?
 
+          def inspect
+            "EmbeddedRelationship neo_id: #{neo_id}"
+          end
+
           def start_node
             _start_node.wrapper
           end

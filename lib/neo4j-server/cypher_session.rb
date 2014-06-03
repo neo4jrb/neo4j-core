@@ -15,9 +15,8 @@ module Neo4j::Server
     # Opens a session to the database
     # @see Neo4j::Session#open
     #
-    # @param url - defaults to 'http://localhost:7474' if not given
-    # @params - see https://github.com/jnunemaker/httparty/blob/master/lib/httparty.rb for supported
-    # HTTParty options
+    # @param [String] endpoint_url - the url to the neo4j server, defaults to 'http://localhost:7474'
+    # @param [Hash] params - see https://github.com/jnunemaker/httparty/blob/master/lib/httparty.rb for supported HTTParty options
     def self.open(endpoint_url=nil, params = {})
       endpoint = Neo4jServerEndpoint.new(params)
       url = endpoint_url || 'http://localhost:7474'
@@ -40,7 +39,15 @@ module Neo4j::Server
     end
 
     def to_s
-      "CypherSession #{@resource_url}"
+      "#{self.class} url: '#{@resource_url}'"
+    end
+
+    def inspect
+      "#{to_s} version: '#{version}'"
+    end
+
+    def version
+      resource_data ? resource_data['neo4j_version'] : ''
     end
 
     def initialize_resource(data_url)

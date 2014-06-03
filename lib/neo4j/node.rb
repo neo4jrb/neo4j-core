@@ -20,20 +20,20 @@ module Neo4j
     include Wrapper
     include PropertyContainer
 
-    # @return [Hash] all properties of the node
+    # @return [Hash<Symbol, Object>] all properties of the node
     def props()
       raise 'not implemented'
     end
 
     # replace all properties with new properties
-    # @param [Hash] hash a hash of properties the node should have
-    def props=(hash)
+    # @param [Hash<Symbol, Object>] properties a hash of properties the node should have
+    def props=(properties)
       raise 'not implemented'
     end
 
     # Updates the properties, keeps old properties
-    # @param [Hash] hash hash of properties that should be updated on the node
-    def update_props(hash)
+    # @param [Hash<Symbol, Object>] properties hash of properties that should be updated on the node
+    def update_props(properties)
       raise 'not implemented'
     end
 
@@ -43,14 +43,14 @@ module Neo4j
     end
 
     # Directly set the property on the node (low level method, may need transaction)
-    # @param [Hash, String] key
+    # @param [Symbol, String] key
     # @param value see Neo4j::PropertyValidator::VALID_PROPERTY_VALUE_CLASSES for valid values
     def set_property(key, value)
       raise 'not implemented'
     end
 
     # Directly get the property on the node (low level method, may need transaction)
-    # @param [Hash, String] key
+    # @param [Symbol, String] key
     # @return the value of the key
     def get_property(key, value)
       raise 'not implemented'
@@ -59,7 +59,7 @@ module Neo4j
     # Creates a relationship of given type to other_node with optionally properties
     # @param [Symbol] type the type of the relation between the two nodes
     # @param [Neo4j::Node] other_node the other node
-    # @param [Hash] props optionally properties for the created relationship
+    # @param [Hash<Symbol, Object>] props optionally properties for the created relationship
     def create_rel(type, other_node, props = nil)
       raise 'not implemented'
     end
@@ -68,11 +68,11 @@ module Neo4j
     # Returns an enumeration of relationships.
     # It always returns relationships of depth one.
     #
-    # @param [Hash] opts the options to create a message with.
-    # @option opts [Symbol] :dir dir the direction of the relationship, allowed values: :both, :incoming, :outgoing.
-    # @option opts [Symbol] :type the type of relationship to navigate
-    # @option opts [Symbol] :between return all the relationships between this and given node
-    # @return [Enumerable] of Neo4j::Relationship objects
+    # @param [Hash] match the options to create a message with.
+    # @option match [Symbol] :dir dir the direction of the relationship, allowed values: :both, :incoming, :outgoing.
+    # @option match [Symbol] :type the type of relationship to navigate
+    # @option match [Symbol] :between return all the relationships between this and given node
+    # @return [Enumerable<Neo4j::Relationship>] of Neo4j::Relationship objects
     #
     # @example Return both incoming and outgoing relationships of any type
     #   node_a.rels
@@ -88,11 +88,13 @@ module Neo4j
     end
 
     # Adds one or more Neo4j labels on the node
+    # @param [Array<Symbol>] labels one or more labels to add
     def add_label(*labels)
       raise 'not implemented'
     end
 
     # Sets label on the node. Any old labels will be removed
+    # @param [Array<Symbol>] labels one or more labels to set
     def set_label(*labels)
       raise 'not implemented'
     end
@@ -103,7 +105,7 @@ module Neo4j
     end
 
     #
-    # @return all labels on the node
+    # @return [Array<Symbol>]all labels on the node
     def labels()
       raise 'not implemented'
     end
@@ -150,12 +152,12 @@ module Neo4j
     end
 
     # Returns true or false if there is one or more relationships
-    # Same as `!! #rel()`
+    # @return [Boolean]
     def rel?(spec = {})
       raise 'not implemented'
     end
 
-    # Same as Neo4j::Node#exist?
+    # @return [Boolean] true if the node exists
     def exist?
       raise 'not implemented'
     end
@@ -164,8 +166,8 @@ module Neo4j
     # It does try to load a Ruby wrapper around each node
     # @abstract
     # @param (see #rels)
-    # @return [Enumerable] an Enumeration of either Neo4j::Node objects or wrapped Neo4j::Node objects
-    # @notice it's possible that the same node is returned more then once because of several relationship reaching to the same node, see #outgoing for alternative
+    # @return [Enumerable<Neo4j::Node>] an Enumeration of either Neo4j::Node objects or wrapped Neo4j::Node objects
+    # @note it's possible that the same node is returned more than once because of several relationship reaching to the same node, see #outgoing for alternative
     def nodes(specs = {})
       #rels(specs).map{|n| n.other_node(self)}
     end

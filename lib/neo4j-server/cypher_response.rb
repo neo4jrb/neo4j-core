@@ -32,6 +32,10 @@ module Neo4j::Server
         @query
       end
 
+      def inspect
+        "Enumerable query: '#{@query}'"
+      end
+
       def each_no_mapping
         data.each do |row|
           hash = {}

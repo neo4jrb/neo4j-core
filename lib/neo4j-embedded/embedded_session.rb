@@ -24,6 +24,10 @@ module Neo4j::Embedded
       @query_builder = Neo4j::Core::QueryBuilder.new
     end
 
+    def inspect
+      "#{self.class} db_location: '#{@db_location}', running: #{running?}"
+    end
+
     def start
       raise Error.new("Embedded Neo4j db is already running") if running?
       puts "Start embedded Neo4j db at #{db_location}"

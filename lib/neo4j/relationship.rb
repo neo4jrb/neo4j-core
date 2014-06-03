@@ -27,20 +27,20 @@ module Neo4j
     include EntityEquality
     include Wrapper
 
-    # @return [Hash] all properties of the relationship
+    # @return [Hash<Symbol,Object>] all properties of the relationship
     def props()
       raise 'not implemented'
     end
 
     # replace all properties with new properties
-    # @param [Hash] hash a hash of properties the relationship should have
-    def props=(hash)
+    # @param [Hash] properties a hash of properties the relationship should have
+    def props=(properties)
       raise 'not implemented'
     end
 
     # Updates the properties, keeps old properties
-    # @param [Hash] hash hash of properties that should be updated on the relationship
-    def update_props(hash)
+    # @param [Hash<Symbol,Object>] properties hash of properties that should be updated on the relationship
+    def update_props(properties)
       raise 'not implemented'
     end
 
@@ -70,7 +70,7 @@ module Neo4j
     end
 
     # Same as #start_node but does not wrap the node
-    # @returns [Neo4j::Node]
+    # @return [Neo4j::Node]
     def _start_node
       raise 'not implemented'
     end
@@ -82,7 +82,7 @@ module Neo4j
     end
 
     # Same as #end_node but does not wrap the node
-    # @returns [Neo4j::Node]
+    # @return [Neo4j::Node]
     def _end_node
       raise 'not implemented'
     end

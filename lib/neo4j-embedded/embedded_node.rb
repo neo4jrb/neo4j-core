@@ -8,6 +8,10 @@ module Neo4j::Embedded
       @match = match
     end
 
+    def inspect
+      "Enumerable<Neo4j::Relationship>"
+    end
+
     def each(&block)
       @node._rels(@match).each {|r| block.call(r.wrapper)}
     end
@@ -26,6 +30,10 @@ module Neo4j::Embedded
     def initialize(node, match)
       @node = node
       @match = match
+    end
+
+    def inspect
+      "Enumerable<Neo4j::Node>"
     end
 
     def each(&block)
@@ -47,6 +55,10 @@ module Neo4j::Embedded
           include Neo4j::Embedded::Property
           include Neo4j::EntityEquality
           extend Neo4j::Core::TxMethods
+
+          def inspect
+            "EmbeddedNode neo_id: #{neo_id}"
+          end
 
           def exist?
             !!graph_database.get_node_by_id(neo_id)

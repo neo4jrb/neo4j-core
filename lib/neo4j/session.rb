@@ -46,8 +46,8 @@ module Neo4j
       end
     end
 
-    # Executes a Cypher Query
-    # Returns an enumerable of hash values where each hash corresponds to a row unless <tt>return</tt> or <tt>map_return</tt>
+    # Executes a Cypher Query.
+    # Returns an enumerable of hash values where each hash corresponds to a row unless +return+ or +map_return+
     # is not an array. The search result can be mapped to Neo4j::Node or Neo4j::Relationship is your own Ruby wrapper class
     # by specifying a map_return parameter.
     #
@@ -83,10 +83,15 @@ module Neo4j
     #   Neo4j::Session.query(label: :person, return: [:name, :age]) # returns a hash of name and age properties
     #   Neo4j::Session.query(label: :person, return: 'count(n) AS c')
     #
-    # @example map_return
-    #   Neo4j::Session.query("START n=node(42) RETURN n.name", map_return: :value) #=> an Enumerable of names
-    #   Neo4j::Session.query("START n=node(42) MATCH n-[r]->[x] RETURN n.name as N, ID(r) as R, ID(x) as X", map_return: {N: :value, R: :id_to_rel, X: :id_to_node}]) #=> an Enumerable of an Hash with name property, Neo4j::Relationship and Neo4j::Node
-    #   Neo4j::Session.query("START n=node(42) MATCH n-[r]->[x] RETURN n.name as N, r, x", map_return: {N: :value, r: :to_rel, x: :to_node}) #=> same as above, but for the embedded database
+    # @example map_return - an Enumerable of names (String)
+    #   Neo4j::Session.query("START n=node(42) RETURN n.name", map_return: :value)
+    #
+    # @example map_return - Enumerable of an Hash with name property, Neo4j::Relationship and Neo4j::Node as values
+    #   Neo4j::Session.query("START n=node(42) MATCH n-[r]->[x] RETURN n.name as N, ID(r) as R, ID(x) as X",
+    #      map_return: {N: :value, R: :id_to_rel, X: :id_to_node})
+    #
+    # @example map_return, only for embedded_db, to_rel, and to_node allows direct mapping to Neo4j::Node and Neo4j::Relationship without ID(n)
+    #   Neo4j::Session.query("START n=node(42) MATCH n-[r]->[x] RETURN n.name as N, r, x", map_return: {N: :value, r: :to_rel, x: :to_node})
     #
     # @example map_return_procs, custom mapping function
     #   Neo4j::Session.query(label: :person, map_return: :age_times_two, map_return_procs: {age_times_two: ->(row){(row[:age] || 0) * 2}})
@@ -180,8 +185,12 @@ module Neo4j
         @@current_session = nil if @@current_session == session
       end
 
+      def inspect
+         "Neo4j::Session available: #{@@factories && @@factories.keys}"
+      end
+
       def register_db(db, &session_factory)
-        raise "Factory for #{db} already exists" if @@factories[db]
+        puts "replace factory for #{db}" if @@factories[db]
         @@factories[db] = session_factory
       end
     end

@@ -1,4 +1,6 @@
-* Impl. Neo4j::Label.query with :match and :where clauses (thanks @cheerfulstoic, #71)
+== 3.0.0.alpha.14
+* Improved and moved Neo4j::Label.query to Neo4j::Session.query (thanks Brian Underwood, Mark Bao)
+* Implemented inspect method for some neo4j-server classes to make PRY/IRB happy.
 
 == 3.0.0.alpha.13
 * Fixing the neo4j:install rake task for systems without wget and Windows (#64, @ausmarton)
