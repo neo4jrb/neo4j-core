@@ -35,6 +35,6 @@ It comes included with the Apache Lucene document database.
   s.add_dependency("zip") # for Rake task
 
   if RUBY_PLATFORM =~ /java/
-    s.add_dependency("neo4j-community", '~> 2.0.0')
+    s.add_dependency("neo4j-community", '~> 2.1.1')
   end
 end
