@@ -151,10 +151,32 @@ module Neo4j
         from_node.neo4j_obj.create_rel(rel_type, other_node, props)
       end
 
-      def load(neo_id, session = Neo4j::Session.current)
-        session.load_relationship(neo_id)
+      # Loads a relationship from the database with given id
+      # If rel_type is set, Cypher will filter results accordingly
+      def load(neo_id, rel_type=nil, session = Neo4j::Session.current)
+        rel = _load(neo_id, rel_type, session)
+        rel && rel.wrapper
       end
 
+      # Same as #load but does not try to return a wrapped rel
+      # @return [Neo4j::Relationship] an unwrapped node
+      def _load(neo_id, rel_type=nil, session = Neo4j::Session.current)
+        session.load_relationship(neo_id, rel_type)
+      end
+
+      # Checks if the given entity rel or entity id (Neo4j::Relationship#neo_id) exists in the database.
+      # @return [true, false] if exist
+      def exist?(entity_or_entity_id, rel_type=nil, session = Neo4j::Session.current)
+        session.node_exist?(neo_id, rel_type)
+      end
+
+      def find_all_rels(rel_type, session = Neo4j::Session.current)
+        session.find_all_rels(rel_type)
+      end
+
+      def find_rels(rel_type, key, value, session = Neo4j::Session.current)
+        session.find_rels(rel_type, key, value)
+      end
     end
   end
 end

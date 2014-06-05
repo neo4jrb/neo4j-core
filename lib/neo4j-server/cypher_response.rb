@@ -97,6 +97,12 @@ module Neo4j::Server
       !!@error
     end
 
+    def empty?
+      error_status == 'EntityNotFoundException' ||
+      error_msg =~ /not found/ || # Ugly that the Neo4j API gives us this error message
+      (data && data.empty?)
+    end
+
     def uncommited?
       @uncommited
     end

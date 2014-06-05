@@ -120,10 +120,12 @@ module Neo4j::Server
 
     # (see Neo4j::Node#exist?)
     def exist?
-      response = @session._query("START n=node(#{neo_id}) RETURN ID(n)")
-      if (!response.error?)
+      c = Neo4j::Core::CypherQuery.new(neo_id: neo_id)
+      c.returns :n, :id
+      response = @session._query(c.to_s)
+      if (!response.error? && !response.empty?)
         return true
-      elsif (response.error_status == 'EntityNotFoundException')
+      elsif (response.empty?)
         return false
       else
         response.raise_error
@@ -133,46 +135,44 @@ module Neo4j::Server
 
     # (see Neo4j::Node#node)
     def node(match={})
-      result = match(CypherNode, "ID(p)", match)
+      query = Neo4j::Core::CypherQuery.new(match).returns(:p, :id)
+      result = match(CypherNode, query)
       raise "Expected to only find one relationship from node #{neo_id} matching #{match.inspect} but found #{result.count}" if result.count > 1
       result.first
     end
 
     # (see Neo4j::Node#rel)
     def rel(match={})
-      result = match(CypherRelationship, "ID(r)", match)
+      query = Neo4j::Core::CypherQuery.new(match).returns(:r, :id)
+      result = match(CypherRelationship, query)
       raise "Expected to only find one relationship from node #{neo_id} matching #{match.inspect} but found #{result.count}" if result.count > 1
       result.first
     end
 
     # (see Neo4j::Node#rel?)
     def rel?(match={})
-      result = match(CypherRelationship, "ID(r)", match)
+      query = Neo4j::Core::CypherQuery.new(match).returns(:r, :id)
+      result = match(CypherRelationship, query)
       !!result.first
     end
 
     # (see Neo4j::Node#nodes)
     def nodes(match={})
-      match(CypherNode, "ID(p)", match)
+      query = Neo4j::Core::CypherQuery.new(match).returns(:p, :id)
+      match(CypherNode, query)
     end
-
 
     # (see Neo4j::Node#rels)
     def rels(match = {dir: :both})
-      match(CypherRelationship, "ID(r)", match)
+      query = Neo4j::Core::CypherQuery.new(match).returns(:r, :id)
+      match(CypherRelationship, query)
     end
 
     # @private
-    def match(clazz, returns, match={})
-      to_dir = {outgoing: ->(rel) {"-#{rel}->"},
-                incoming: ->(rel) {"<-#{rel}-"},
-                both:     ->(rel) {"-#{rel}-"} }
+    def match(clazz, query)
+      query.id(:n, neo_id)
 
-      cypher_rel = match[:type] ? "[r:`#{match[:type]}`]" : '[r]'
-      between_id = match[:between] ? ",p=node(#{match[:between].neo_id}) " : ""
-      dir_func = to_dir[match[:dir] || :both]
-      cypher = "START n=node(#{neo_id}) #{between_id} MATCH (n)#{dir_func.call(cypher_rel)}(p) RETURN #{returns}"
-      r = @session._query(cypher)
+      r = @session._query(query.to_s)
       r.raise_error if r.error?
       _map_result(r, clazz)
     end

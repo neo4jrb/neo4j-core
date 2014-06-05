@@ -180,21 +180,23 @@ module Neo4j
       end
 
       # Loads a node from the database with given id
-      def load(neo_id, session = Neo4j::Session.current)
-        node = _load(neo_id, session)
+      # If label is set, Cypher will filter results accordingly
+      def load(neo_id, label=nil, session = Neo4j::Session.current)
+        node = _load(neo_id, label, session)
         node && node.wrapper
       end
 
       # Same as #load but does not try to return a wrapped node
       # @return [Neo4j::Node] an unwrapped node
-      def _load(neo_id, session = Neo4j::Session.current)
-        session.load_node(neo_id)
+      def _load(neo_id, label=nil, session = Neo4j::Session.current)
+        session.load_node(neo_id, label)
       end
 
       # Checks if the given entity node or entity id (Neo4j::Node#neo_id) exists in the database.
+      # If label is set, Cypher will filter results accordingly
       # @return [true, false] if exist
-      def exist?(entity_or_entity_id, session = Neo4j::Session.current)
-        session.node_exist?(neo_id)
+      def exist?(entity_or_entity_id, label=nil, session = Neo4j::Session.current)
+        session.node_exist?(neo_id, label)
       end
 
       # Find the node with given label and value

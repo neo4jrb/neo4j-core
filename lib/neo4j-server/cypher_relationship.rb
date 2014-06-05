@@ -97,5 +97,18 @@ module Neo4j::Server
       end
     end
 
+    def rel_type
+      cypher = CypherQuery.new(neo_id: neo_id)
+      cypher.returns :n, :type
+      @session._query_or_fail(cypher.to_s, true).to_sym
+    end
+
+    def match(klass, match={}, session=Neo4j::Session.current)
+      cypher = CypherQuery.new(match.merge(rel_type: klass))
+      cypher.returns :r, :id
+
+      response = session._query_or_fail(cypher.to_s)
+      session.search_result_to_enumerable_first_column(response) # TODO make it work in Embedded and refactor
+    end
   end
 end
