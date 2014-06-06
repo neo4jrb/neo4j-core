@@ -6,6 +6,8 @@ require 'neo4j/property_container'
 require 'neo4j-core/helpers'
 require 'neo4j-core/cypher_translator'
 require 'neo4j-core/query_builder'
+require 'neo4j-core/cypher_query'
+require 'neo4j-core/cypher_query/query_element'
 
 require 'neo4j/entity_equality'
 require 'neo4j/node'

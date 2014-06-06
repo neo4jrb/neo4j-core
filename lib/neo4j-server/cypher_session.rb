@@ -75,11 +75,33 @@ module Neo4j::Server
       CypherNode.new(self, cypher_response)
     end
 
-    def load_node(neo_id)
-      cypher_response = _query("START n=node(#{neo_id}) RETURN n")
-      if (!cypher_response.error?)
+    def load_node(neo_id, label=nil)
+      cypher_query = Neo4j::Core::CypherQuery.new(neo_id: neo_id, neo_labels: label)
+      cypher_query.returns :n, true
+
+      cypher_response = _query cypher_query.to_s
+      if (!cypher_response.error? && !cypher_response.empty?)
         CypherNode.new(self, neo_id)
-      elsif (cypher_response.error_status == 'EntityNotFoundException')
+      elsif (cypher_response.empty?)
+        return nil
+      else
+        cypher_response.raise_error
+      end
+    end
+
+    def create_rel(type, start_node, end_node, props = nil)
+      q = "START a=node(#{start_node.neo_id}), b=node(#{end_node.neo_id}) CREATE (a)-[r:`#{type}` #{cypher_prop_list(props)}]->(b) RETURN ID(r)"
+      id = _query_or_fail(q, true)
+      CypherRelationship.new(self, id)
+    end
+
+    def load_relationship(neo_id, rel_type=nil)
+      cypher_query = Neo4j::Core::CypherQuery.new(rel_type: rel_type, neo_id: neo_id)
+
+      cypher_response = _query cypher_query.to_s
+      if (!cypher_response.error? && !cypher_response.empty?)
+        CypherRelationship.new(self, neo_id)
+      elsif (cypher_response.empty?)
         return nil
       else
         cypher_response.raise_error
@@ -122,11 +144,26 @@ module Neo4j::Server
 
     def find_nodes(label_name, key, value)
       value = "'#{value}'" if value.is_a? String
-      
+
       response = _query_or_fail <<-CYPHER
         MATCH (n:`#{label_name}`)
         WHERE n.#{key} = #{value}
         RETURN ID(n)
+      CYPHER
+      search_result_to_enumerable_first_column(response)
+    end
+
+    def find_all_rels(rel_type)
+      response = _query_or_fail("MATCH (a)-[r:`#{rel_type}`]->(b) RETURN ID(r)")
+      search_result_to_enumerable_first_column(response)
+    end
+
+    def find_rels(rel_type, key, value)
+      value = "'#{value}'" if value.is_a? String
+      response = _query_or_fail <<-CYPHER
+        MATCH (a)-[r:`#{rel_type}`]->(b)
+        WHERE r.#{key} = #{value}
+        RETURN ID(r)
       CYPHER
       search_result_to_enumerable_first_column(response)
     end
@@ -170,7 +207,6 @@ module Neo4j::Server
         end
       end
     end
-
 
     def map_column(key, map, data)
       case map[key]
