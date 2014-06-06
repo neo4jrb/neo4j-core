@@ -119,7 +119,7 @@ module Neo4j::Core
           returns.map{|fn| "#{fn}(#{var_name})"}.join(',')
         when Symbol
           "#{returns}(#{var_name})"
-        when Boolean
+        when true
           var_name
         else
           returns
