@@ -1,4 +1,4 @@
-share_examples_for "Neo4j::Session" do
+RSpec.shared_examples "Neo4j::Session" do
 
   describe 'open and close' do
     before { Neo4j::Session.current && Neo4j::Session.current.close}
@@ -95,7 +95,7 @@ share_examples_for "Neo4j::Session" do
         end
 
         #it 'does a greater than query for .gt keys' do
-        #  pending
+        #  skip
         #  # Not sure about this query syntax using a Hash, but this is a bit similar to mongoid API
         #  # Maybe it was better like it was in the old neo4j-core API with a fluent API instead
         #  result = Neo4j::Session.query(label: @label, conditions: {:age => {gt: 18, lt: 4}})

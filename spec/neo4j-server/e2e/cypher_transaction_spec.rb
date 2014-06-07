@@ -33,7 +33,7 @@ module Neo4j::Server
     it "sets the response error fields if not a valid query" do
       tx = session.begin_tx
       r = tx._query("START n=fs(0) RRETURN ID(n)")
-      r.error?.should be_true
+      r.error?.should be true
 
       r.error_msg.should =~ /Invalid input/
       r.error_status.should =~ /Syntax/

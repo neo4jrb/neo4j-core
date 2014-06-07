@@ -39,21 +39,21 @@ module Neo4j::Embedded
 
       it 'starts the database' do
         session.start
-        session.running?.should be_true
+        session.running?.should be true
       end
 
       it "raise an error if session already was started" do
         session.start
-        session.running?.should be_true
+        session.running?.should be true
         expect{ session.start }.to raise_error
       end
 
       it 'is allowed to start the session after it has been shutdown' do
         session.start
         session.shutdown
-        session.running?.should be_false
+        session.running?.should be false
         session.start
-        session.running?.should be_true
+        session.running?.should be true
       end
     end
 
@@ -65,17 +65,17 @@ module Neo4j::Embedded
 
       it 'starts the database' do
         session.start
-        session.running?.should be_true
+        session.running?.should be true
         session.shutdown
-        session.running?.should be_false
+        session.running?.should be false
       end
 
       it 'ok to shutdown twice' do
         session.start
         session.shutdown
-        session.running?.should be_false
+        session.running?.should be false
         session.shutdown
-        session.running?.should be_false
+        session.running?.should be false
       end
     end
 

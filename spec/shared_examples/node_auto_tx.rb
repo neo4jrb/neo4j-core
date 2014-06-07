@@ -1,4 +1,4 @@
-share_examples_for "Neo4j::Node auto tx" do
+RSpec.shared_examples "Neo4j::Node auto tx" do
   let(:node_a) { Neo4j::Node.create(name: 'a') }
   let(:node_b) { Neo4j::Node.create(name: 'b') }
   let(:node_c) { Neo4j::Node.create(name: 'c') }
@@ -12,7 +12,7 @@ share_examples_for "Neo4j::Node auto tx" do
         subject do
           Neo4j::Node.create
         end
-        its(:exist?) { should be_true }
+        its(:exist?) { should be true }
         its(:neo_id) { should be_a(Fixnum) }
         its(:props) { should == {} }
       end
@@ -22,7 +22,7 @@ share_examples_for "Neo4j::Node auto tx" do
         subject do
           Neo4j::Node.create(name: 'kalle', age: 42)
         end
-        its(:exist?) { should be_true }
+        its(:exist?) { should be true }
         its(:neo_id) { should be_a(Fixnum) }
         its(:props) { should == { name: 'kalle', age: 42} }
 
@@ -51,7 +51,7 @@ share_examples_for "Neo4j::Node auto tx" do
           subject do
             Neo4j::Node.create(name: 'ka\putt')
           end
-          its(:exist?) { should be_true }
+          its(:exist?) { should be true }
           its(:neo_id) { should be_a(Fixnum) }
           its(:props) { should == { name: 'kaputt'} }
 
@@ -144,8 +144,8 @@ share_examples_for "Neo4j::Node auto tx" do
         it "can write and read Boolean" do
           node[:foo] = false
           node[:bar] = true
-          node[:foo].should be_false
-          node[:bar].should be_true
+          node[:foo].should be false
+          node[:bar].should be true
         end
 
         it "raise exception for illegal values" do
@@ -201,7 +201,7 @@ share_examples_for "Neo4j::Node auto tx" do
         end
 
         it 'removes properties with nil values' do
-          #pending "Failing test for https://github.com/andreasronge/neo4j/issues/319"
+          #skip "Failing test for https://github.com/andreasronge/neo4j/issues/319"
           a = Neo4j::Node.create(old: 'a', new: 'b')
           a.props.should == {old: 'a', new: 'b'}
           a.update_props(old: nil)
@@ -236,7 +236,7 @@ share_examples_for "Neo4j::Node auto tx" do
         it "can create a new relationship" do
           rel = node_a.create_rel(:best_friend, node_b)
           rel.neo_id.should be_a_kind_of(Fixnum)
-          rel.exist?.should be_true
+          rel.exist?.should be true
         end
 
 
@@ -249,7 +249,7 @@ share_examples_for "Neo4j::Node auto tx" do
         it "can create a new relationship with properties" do
           rel = node_a.create_rel(:best_friend, node_b, since: 2001)
           rel[:since].should == 2001
-          rel.exist?.should be_true
+          rel.exist?.should be true
         end
 
       end
@@ -257,18 +257,18 @@ share_examples_for "Neo4j::Node auto tx" do
       describe 'rel?' do
         it "returns true relationship if there is only one" do
           node_a.create_rel(:knows, node_b)
-          node_a.rel(type: :knows, dir: :outgoing).should be_true
-          node_a.rel(type: :knows, dir: :incoming).should be_false
-          node_a.rel(type: :knows).should be_true
+          node_a.rel?(type: :knows, dir: :outgoing).should be true
+          node_a.rel?(type: :knows, dir: :incoming).should be false
+          node_a.rel?(type: :knows).should be true
         end
 
         it 'returns true if there is more then one matching relationship' do
           node_a.create_rel(:knows, node_b)
           node_a.create_rel(:knows, node_b)
-          node_a.rel?(type: :knows).should be_true
-          node_a.rel?(dir: :outgoing, type: :knows).should be_true
-          node_a.rel?(dir: :both, type: :knows).should be_true
-          node_a.rel?(dir: :incoming, type: :knows).should be_false
+          node_a.rel?(type: :knows).should be true
+          node_a.rel?(dir: :outgoing, type: :knows).should be true
+          node_a.rel?(dir: :both, type: :knows).should be true
+          node_a.rel?(dir: :incoming, type: :knows).should be false
         end
 
       end

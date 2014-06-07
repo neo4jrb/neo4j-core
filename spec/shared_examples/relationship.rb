@@ -1,4 +1,4 @@
-share_examples_for "Neo4j::Relationship" do
+RSpec.shared_examples "Neo4j::Relationship" do
 
   let(:node_a) { Neo4j::Node.create(name: 'a') }
   let(:node_b) { Neo4j::Node.create(name: 'b') }
@@ -39,7 +39,7 @@ share_examples_for "Neo4j::Relationship" do
   describe 'exist?' do
     it 'is true if it exists' do
       rel = node_a.create_rel(:best_friend, node_b)
-      rel.exist?.should be_true
+      rel.exist?.should be true
     end
   end
 
@@ -90,9 +90,9 @@ share_examples_for "Neo4j::Relationship" do
     let(:rel_a) { node_a.create_rel(:best_friend, node_b) }
 
     it 'does not exist after del' do
-      rel_a.exist?.should be_true
+      rel_a.exist?.should be true
       rel_a.del
-      rel_a.exist?.should be_false
+      rel_a.exist?.should be false
     end
   end
 

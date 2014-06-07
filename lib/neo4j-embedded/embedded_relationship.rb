@@ -14,7 +14,7 @@ module Neo4j::Embedded
           def exist?
             !!graph_database.get_relationship_by_id(neo_id)
           rescue Java::OrgNeo4jGraphdb.NotFoundException
-            nil
+            false
           end
           tx_methods :exist?
 
