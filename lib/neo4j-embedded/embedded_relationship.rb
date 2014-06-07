@@ -32,8 +32,13 @@ module Neo4j::Embedded
           end
 
           def rel_type
+            @_rel_type ||= _rel_type
+          end
+
+          def _rel_type
             getType().name().to_sym
           end
+          tx_methods :rel_type
 
           def del
             delete
