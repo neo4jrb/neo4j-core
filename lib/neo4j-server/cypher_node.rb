@@ -25,7 +25,7 @@ module Neo4j::Server
     def create_rel(type, other_node, props = nil)
       q = "START a=node(#{neo_id}), b=node(#{other_node.neo_id}) CREATE (a)-[r:`#{type}` #{cypher_prop_list(props)}]->(b) RETURN ID(r)"
       id = @session._query_or_fail(q, true)
-      CypherRelationship.new(@session, id)
+      CypherRelationship.new(@session, id, type)
     end
 
     # (see Neo4j::Node#props)
@@ -140,14 +140,14 @@ module Neo4j::Server
 
     # (see Neo4j::Node#rel)
     def rel(match={})
-      result = match(CypherRelationship, "ID(r)", match)
+      result = match(CypherRelationship, "ID(r), TYPE(r)", match)
       raise "Expected to only find one relationship from node #{neo_id} matching #{match.inspect} but found #{result.count}" if result.count > 1
       result.first
     end
 
     # (see Neo4j::Node#rel?)
     def rel?(match={})
-      result = match(CypherRelationship, "ID(r)", match)
+      result = match(CypherRelationship, "ID(r), TYPE(r)", match)
       !!result.first
     end
 
@@ -159,7 +159,7 @@ module Neo4j::Server
 
     # (see Neo4j::Node#rels)
     def rels(match = {dir: :both})
-      match(CypherRelationship, "ID(r)", match)
+      match(CypherRelationship, "ID(r), TYPE(r)", match)
     end
 
     # @private
@@ -181,8 +181,8 @@ module Neo4j::Server
     def _map_result(r, clazz)
       r.data.map do |rel|
         next if r.uncommited? ? rel['row'].first.nil? : rel.first.nil?
-        id = r.uncommited? ? rel['row'].first : rel.first
-        clazz.new(@session, id).wrapper
+        row = r.uncommited? ? rel['row'] : rel
+        clazz.new(@session, *row).wrapper
       end.compact
     end
 

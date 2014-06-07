@@ -1,3 +1,5 @@
+* Impl rel_type for Neo4j::Relationship
+
 == 3.0.0.alpha.15
 * Prepared for RSpec 3.x
 * Bumped neo4j-community to 2.1.1

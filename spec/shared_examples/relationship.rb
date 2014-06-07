@@ -36,6 +36,15 @@ RSpec.shared_examples "Neo4j::Relationship" do
     end
   end
 
+  describe 'rel_type' do
+    it 'returns the type' do
+      a = Neo4j::Node.create
+      b = Neo4j::Node.create
+      rel = a.create_rel(:knows, b)
+      expect(rel.rel_type).to be(:knows)
+    end
+  end
+
   describe 'exist?' do
     it 'is true if it exists' do
       rel = node_a.create_rel(:best_friend, node_b)

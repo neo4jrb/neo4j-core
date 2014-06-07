@@ -4,9 +4,10 @@ module Neo4j::Server
     include Neo4j::Server::Resource
     include Neo4j::Core::CypherTranslator
 
-    def initialize(session, id)
+    def initialize(session, id, rel_type)
       @session = session
       @id = id
+      @rel_type = rel_type
     end
 
     def ==(o)
@@ -78,6 +79,9 @@ module Neo4j::Server
       properties
     end
 
+    def rel_type
+      @rel_type.to_sym
+    end
 
     def del
       id = neo_id
