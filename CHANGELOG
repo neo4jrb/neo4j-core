@@ -1,3 +1,4 @@
+== 3.0.0.alpha.16
 * Impl rel_type for Neo4j::Relationship
 
 == 3.0.0.alpha.15
