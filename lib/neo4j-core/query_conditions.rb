@@ -59,7 +59,13 @@ module Neo4j::Core
         end
 
         def from_field_and_value(field, value)
-          "#{self.field(field)}='#{value}'"
+          if value.is_a?(Hash)
+            value.map do |k, v|
+              field.to_s + '.' + from_field_and_value(k, v)
+            end.join(' AND ')
+          else
+            "#{self.field(field)} = #{value.inspect}"
+          end
         end
 
         def condition_string(conditions)
@@ -97,6 +103,10 @@ module Neo4j::Core
               else
                 [nil, attributes_string(label)]
               end
+            when Class
+              defined?(label::CYPHER_LABEL) ? label::CYPHER_LABEL : label.name
+            else
+              raise ArgumentError, "Invalid label type: #{label.inspect}"
             end
 
             label_string = ":#{label_string}" if label_string

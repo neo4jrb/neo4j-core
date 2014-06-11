@@ -2,6 +2,13 @@ require 'spec_helper'
 
 describe Neo4j::Core::Query do
 
+  class Person
+  end
+
+  class Note
+    CYPHER_LABEL = 'GreatNote' 
+  end
+
   def expects_cypher(cypher)
     query = eval("Neo4j::Core::Query.new#{self.class.description}")
     query.to_cypher.should == cypher
@@ -13,36 +20,74 @@ describe Neo4j::Core::Query do
     end
   end
 
-  describe ".match('n')"do
+  # MATCH
+
+  describe ".match('n')" do
     it_generates "MATCH n"
   end
 
-  describe ".match(:n)"do
+  describe ".match(:n)" do
     it_generates "MATCH n"
   end
 
-  describe ".match(n: 'Person')"do
+  describe ".match(n: Person)" do
     it_generates "MATCH n:Person"
   end
 
-  describe ".match(n: 'Person {name: \"Brian\"}')"do
+  describe ".match(n: Note)" do
+    it_generates "MATCH n:GreatNote"
+  end
+
+  describe ".match(n: 'Person')" do
+    it_generates "MATCH n:Person"
+  end
+
+  describe ".match(n: 'Person {name: \"Brian\"}')" do
     it_generates "MATCH n:Person {name: \"Brian\"}"
   end
 
-  describe ".match(n: {Person: {name: 'Brian', age: 33}})"do
+  describe ".match(n: {Person: {name: 'Brian', age: 33}})" do
     it_generates "MATCH n:Person {name: \"Brian\", age: 33}"
   end
 
-  describe ".match(n: {name: 'Brian', age: 33})"do
+  describe ".match(n: {name: 'Brian', age: 33})" do
     it_generates "MATCH n {name: \"Brian\", age: 33}"
   end
 
-  describe ".match('n--o')"do
+  describe ".match('n--o')" do
     it_generates "MATCH n--o"
   end
 
-  describe ".match('n--o').match('o--p')"do
+  describe ".match('n--o').match('o--p')" do
     it_generates "MATCH n--o, o--p"
+  end
+
+  # WHERE
+
+  describe ".where('q.age > 30')" do
+    it_generates "WHERE q.age > 30"
+  end
+
+  describe ".where('q.age' => 30)" do
+    it_generates "WHERE q.age = 30"
+  end
+
+  describe ".where(q: {age: 30, name: 'Brian'})" do
+    it_generates "WHERE q.age = 30 AND q.name = \"Brian\""
+  end
+
+  describe ".where(q: {age: 30, name: 'Brian'}).where('r.grade = 80')" do
+    it_generates "WHERE q.age = 30 AND q.name = \"Brian\" AND r.grade = 80"
+  end
+
+
+  # COMBINATIONS
+  describe ".match(q: Person).where('q.age > 30')" do
+    it_generates "MATCH q:Person WHERE q.age > 30"
+  end
+
+  describe ".where('q.age > 30').match(q: Person)" do
+    it_generates "MATCH q:Person WHERE q.age > 30"
   end
 
 
