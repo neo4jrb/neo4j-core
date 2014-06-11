@@ -20,6 +20,17 @@ describe Neo4j::Core::Query do
     end
   end
 
+  # START
+
+  describe ".start('r=node:nodes(name = \"Brian\")')" do
+    it_generates "START r=node:nodes(name = \"Brian\")"
+  end
+
+  describe ".start(r: 'node:nodes(name = \"Brian\")')" do
+    it_generates "START r = node:nodes(name = \"Brian\")"
+  end
+
+
   # MATCH
 
   describe ".match('n')" do
@@ -79,6 +90,25 @@ describe Neo4j::Core::Query do
   describe ".where(q: {age: 30, name: 'Brian'}).where('r.grade = 80')" do
     it_generates "WHERE q.age = 30 AND q.name = \"Brian\" AND r.grade = 80"
   end
+
+  # RETURN
+
+  describe ".return('q')" do
+    it_generates "RETURN q"
+  end
+
+  describe ".return(:q)" do
+    it_generates "RETURN q"
+  end
+
+  describe ".return('q.name, q.age')" do
+    it_generates "RETURN q.name, q.age"
+  end
+
+  describe ".return(q: [:name, :age], r: :grade)" do
+    it_generates "RETURN q.name, q.age, r.grade"
+  end
+
 
 
   # COMBINATIONS

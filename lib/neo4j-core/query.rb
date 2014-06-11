@@ -9,6 +9,10 @@ module Neo4j::Core
       @conditions = []
     end
 
+    def start(*args)
+      build_deeper_query(StartCondition, *args)
+    end
+
     def match(*args)
       build_deeper_query(MatchCondition, *args)
     end
@@ -32,7 +36,7 @@ module Neo4j::Core
     def to_cypher
       conditions_by_class = @conditions.group_by(&:class)
 
-      [MatchCondition, WhereCondition, ReturnCondition, OrderCondition, LimitCondition].map do |condition_class|
+      [StartCondition, MatchCondition, WhereCondition, ReturnCondition, OrderCondition, LimitCondition].map do |condition_class|
         conditions = conditions_by_class[condition_class]
 
         condition_class.to_cypher(conditions) if conditions

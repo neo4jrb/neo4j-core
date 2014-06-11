@@ -36,16 +36,35 @@ module Neo4j::Core
           end.flatten.map {|value| self.new(value) }
         end
 
-        def field(value)
-          if [:id, :neo_id].include?(value.to_sym)
-            'ID(n)'
+        def to_cypher(conditions)
+          "#{@keyword} #{condition_string(conditions)}"
+        end
+      end
+    end
+
+    class StartCondition < Condition
+      @keyword = 'START'
+
+      class << self
+        def from_string(value)
+          value
+        end
+
+        def from_symbol(value)
+          from_string(value.to_s)
+        end
+
+        def from_field_and_value(field, label)
+          case label
+          when String, Symbol
+            "#{field} = #{label}"
           else
-            value
+            raise "Need better error"
           end
         end
 
-        def to_cypher(conditions)
-          "#{@keyword} #{condition_string(conditions)}"
+        def condition_string(conditions)
+          conditions.map(&:value).join(', ')
         end
       end
     end
@@ -64,7 +83,7 @@ module Neo4j::Core
               field.to_s + '.' + from_field_and_value(k, v)
             end.join(' AND ')
           else
-            "#{self.field(field)} = #{value.inspect}"
+            "#{field} = #{value.inspect}"
           end
         end
 
@@ -112,7 +131,7 @@ module Neo4j::Core
             label_string = ":#{label_string}" if label_string
             attributes_string = " {#{attributes_string}}" if attributes_string
 
-            "#{self.field(field)}#{label_string}#{attributes_string}"
+            "#{field}#{label_string}#{attributes_string}"
         end
 
         def condition_string(conditions)
@@ -134,7 +153,7 @@ module Neo4j::Core
 
       class << self
         def from_string(value)
-          self.field(value)
+          value
         end
 
         def from_symbol(value)
@@ -142,7 +161,7 @@ module Neo4j::Core
         end
 
         def from_field_and_value(field, label)
-          "#{self.field(field)} #{label.upcase}"
+          "#{field} #{label.upcase}"
         end
 
         def condition_string(conditions)
@@ -175,6 +194,23 @@ module Neo4j::Core
       class << self
         def from_string(value)
           value
+        end
+
+        def from_symbol(value)
+          from_string(value.to_s)
+        end
+
+        def from_field_and_value(field, label)
+          case label
+          when Array
+            label.map do |v|
+              from_field_and_value(field, v)
+            end.join(', ')
+          when String, Symbol
+            "#{field}.#{label}"
+          else
+            raise "Need better error"
+          end
         end
 
         def condition_string(conditions)
