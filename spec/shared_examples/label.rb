@@ -1,4 +1,4 @@
-share_examples_for "Neo4j::Label" do
+shared_examples "Neo4j::Label" do
 
   before(:all) do
     r = Random.new
