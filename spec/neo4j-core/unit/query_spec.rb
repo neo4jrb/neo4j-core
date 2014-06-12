@@ -2,6 +2,22 @@ require 'spec_helper'
 
 describe Neo4j::Core::Query do
 
+  describe 'options' do
+    let(:query) { Neo4j::Core::Query.new(parser: 2.0) }
+
+    it 'should generate a per-query cypher parser version' do
+      query.to_cypher.should == 'CYPHER 2.0'
+    end
+
+    describe 'subsequent call' do
+      let(:query) { super().match('q:Person') }
+
+      it 'should combine the parser version with the rest of the query' do
+        query.to_cypher.should == 'CYPHER 2.0 MATCH q:Person'
+      end
+    end
+  end
+
   class Person
   end
 
@@ -42,27 +58,35 @@ describe Neo4j::Core::Query do
   end
 
   describe ".match(n: Person)" do
-    it_generates "MATCH n:Person"
+    it_generates "MATCH (n:Person)"
   end
 
   describe ".match(n: Note)" do
-    it_generates "MATCH n:GreatNote"
+    it_generates "MATCH (n:GreatNote)"
   end
 
   describe ".match(n: 'Person')" do
-    it_generates "MATCH n:Person"
+    it_generates "MATCH (n:Person)"
+  end
+
+  describe ".match(n: ':Person')" do
+    it_generates "MATCH (n:Person)"
+  end
+
+  describe ".match(n: ' :Person')" do
+    it_generates "MATCH (n:Person)"
   end
 
   describe ".match(n: 'Person {name: \"Brian\"}')" do
-    it_generates "MATCH n:Person {name: \"Brian\"}"
-  end
-
-  describe ".match(n: {Person: {name: 'Brian', age: 33}})" do
-    it_generates "MATCH n:Person {name: \"Brian\", age: 33}"
+    it_generates "MATCH (n:Person {name: \"Brian\"})"
   end
 
   describe ".match(n: {name: 'Brian', age: 33})" do
-    it_generates "MATCH n {name: \"Brian\", age: 33}"
+    it_generates "MATCH (n {name: \"Brian\", age: 33})"
+  end
+
+  describe ".match(n: {Person: {name: 'Brian', age: 33}})" do
+    it_generates "MATCH (n:Person {name: \"Brian\", age: 33})"
   end
 
   describe ".match('n--o')" do
@@ -109,15 +133,59 @@ describe Neo4j::Core::Query do
     it_generates "RETURN q.name, q.age, r.grade"
   end
 
+  # LIMIT
 
+  describe ".limit(3)" do
+    it_generates "LIMIT 3"
+  end
+
+  describe ".limit('3')" do
+    it_generates "LIMIT 3"
+  end
+
+  # SKIP
+
+  describe ".skip(5)" do
+    it_generates "SKIP 5"
+  end
+
+  describe ".skip('5')" do
+    it_generates "SKIP 5"
+  end
+
+  describe ".offset(6)" do
+    it_generates "SKIP 6"
+  end
+
+  # CREATE
+
+  describe ".create(':Person')" do
+    it_generates "CREATE (:Person)"
+  end
+
+  describe ".create(age: 41, height: 70)" do
+    it_generates "CREATE ( {age: 41, height: 70})"
+  end
+
+  describe ".create(Person: {age: 41, height: 70})" do
+    it_generates "CREATE (:Person {age: 41, height: 70})"
+  end
+
+  describe ".create(q: {Person: {age: 41, height: 70}})" do
+    it_generates "CREATE (q:Person {age: 41, height: 70})"
+  end
 
   # COMBINATIONS
   describe ".match(q: Person).where('q.age > 30')" do
-    it_generates "MATCH q:Person WHERE q.age > 30"
+    it_generates "MATCH (q:Person) WHERE q.age > 30"
   end
 
   describe ".where('q.age > 30').match(q: Person)" do
-    it_generates "MATCH q:Person WHERE q.age > 30"
+    it_generates "MATCH (q:Person) WHERE q.age > 30"
+  end
+
+  describe ".where('q.age > 30').start('n').match(q: Person)" do
+    it_generates "START n MATCH (q:Person) WHERE q.age > 30"
   end
 
 

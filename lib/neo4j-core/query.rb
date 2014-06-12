@@ -29,18 +29,32 @@ module Neo4j::Core
       build_deeper_query(LimitCondition, *args)
     end
 
+    def skip(*args)
+      build_deeper_query(SkipCondition, *args)
+    end
+    alias_method :offset, :skip
+
     def return(*args)
       build_deeper_query(ReturnCondition, *args)
+    end
+
+    def create(*args)
+      build_deeper_query(CreateCondition, *args)
     end
 
     def to_cypher
       conditions_by_class = @conditions.group_by(&:class)
 
-      [StartCondition, MatchCondition, WhereCondition, ReturnCondition, OrderCondition, LimitCondition].map do |condition_class|
-        conditions = conditions_by_class[condition_class]
+      condition_string =
+        [CreateCondition, StartCondition, MatchCondition, WhereCondition, ReturnCondition, OrderCondition, LimitCondition, SkipCondition].map do |condition_class|
+          conditions = conditions_by_class[condition_class]
 
-        condition_class.to_cypher(conditions) if conditions
-      end.compact.join ' '
+          condition_class.to_cypher(conditions) if conditions
+        end.compact.join(' ')
+
+      condition_string = "CYPHER #{@options[:parser]} #{condition_string}" if @options[:parser]
+
+      condition_string.strip
     end
 
     protected
