@@ -1,7 +1,7 @@
 module Neo4j::Core
-  module QueryConditions
+  module QueryClauses
 
-    class Condition
+    class Clause
       attr_reader :value
 
       def initialize(value)
@@ -10,7 +10,7 @@ module Neo4j::Core
 
       class << self
         def from_args(args)
-          args.map do |arg|
+          args.flatten.map do |arg|
             if arg.is_a?(String)
               self.from_string arg
 
@@ -29,11 +29,6 @@ module Neo4j::Core
                 end
               else
                 raise ArgumentError, "Invalid argument"
-              end
-
-            elsif arg.is_a?(Array) && self.respond_to?(:from_string)
-              arg.map do |value|
-                self.from_args value
               end
 
             else
@@ -83,8 +78,8 @@ module Neo4j::Core
           "(#{var}#{format_label(label_string)}#{attributes_string})"
         end
 
-        def to_cypher(conditions)
-          "#{@keyword} #{condition_string(conditions)}"
+        def to_cypher(clauses)
+          "#{@keyword} #{clause_string(clauses)}"
         end
 
         private
@@ -105,7 +100,7 @@ module Neo4j::Core
       end
     end
 
-    class StartCondition < Condition
+    class StartClause < Clause
       @keyword = 'START'
 
       class << self
@@ -122,13 +117,13 @@ module Neo4j::Core
           end
         end
 
-        def condition_string(conditions)
-          conditions.map(&:value).join(', ')
+        def clause_string(clauses)
+          clauses.map(&:value).join(', ')
         end
       end
     end
 
-    class WhereCondition < Condition
+    class WhereClause < Clause
       @keyword = 'WHERE'
 
       class << self
@@ -142,14 +137,14 @@ module Neo4j::Core
           end
         end
 
-        def condition_string(conditions)
-          conditions.map(&:value).join(' AND ')
+        def clause_string(clauses)
+          clauses.map(&:value).join(' AND ')
         end
       end
     end
 
 
-    class MatchCondition < Condition
+    class MatchClause < Clause
       @keyword = 'MATCH'
 
       def value
@@ -165,13 +160,35 @@ module Neo4j::Core
           self.node_from_key_and_value(key, value)
         end
 
-        def condition_string(conditions)
-          conditions.map(&:value).join(', ')
+        def clause_string(clauses)
+          clauses.map(&:value).join(', ')
         end
       end
     end
 
-    class CreateCondition < Condition
+    class WithClause < Clause
+      @keyword = 'WITH'
+
+      def value
+        "#{@value}"
+      end
+
+      class << self
+        def from_symbol(value)
+          from_string(value.to_s)
+        end
+
+        def from_key_and_value(key, value)
+          "#{value} AS #{key}"
+        end
+
+        def clause_string(clauses)
+          clauses.map(&:value).join(', ')
+        end
+      end
+    end
+
+    class CreateClause < Clause
       @keyword = 'CREATE'
 
       def value
@@ -201,13 +218,13 @@ module Neo4j::Core
           self.node_from_key_and_value(key, value, prefer: :label)
         end
 
-        def condition_string(conditions)
-          conditions.map(&:value).join(', ')
+        def clause_string(clauses)
+          clauses.map(&:value).join(', ')
         end
       end
     end
 
-    class OrderCondition < Condition
+    class OrderClause < Clause
       @keyword = 'ORDER BY'
 
       class << self
@@ -219,13 +236,13 @@ module Neo4j::Core
           "#{key} #{value.upcase}"
         end
 
-        def condition_string(conditions)
-          conditions.map(&:value).join(', ')
+        def clause_string(clauses)
+          clauses.map(&:value).join(', ')
         end
       end
     end
 
-    class LimitCondition < Condition
+    class LimitClause < Clause
       @keyword = 'LIMIT'
 
       class << self
@@ -237,13 +254,13 @@ module Neo4j::Core
           value
         end
 
-        def condition_string(conditions)
-          conditions.last.value
+        def clause_string(clauses)
+          clauses.last.value
         end
       end
     end
 
-    class SkipCondition < Condition
+    class SkipClause < Clause
       @keyword = 'SKIP'
 
       class << self
@@ -255,13 +272,13 @@ module Neo4j::Core
           value
         end
 
-        def condition_string(conditions)
-          conditions.last.value
+        def clause_string(clauses)
+          clauses.last.value
         end
       end
     end
 
-    class ReturnCondition < Condition
+    class ReturnClause < Clause
       @keyword = 'RETURN'
 
       class << self
@@ -282,8 +299,8 @@ module Neo4j::Core
           end
         end
 
-        def condition_string(conditions)
-          conditions.map(&:value).join(', ')
+        def clause_string(clauses)
+          clauses.map(&:value).join(', ')
         end
       end
     end

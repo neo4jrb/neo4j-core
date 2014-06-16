@@ -157,6 +157,24 @@ describe Neo4j::Core::Query do
     it_generates "SKIP 6"
   end
 
+  # WITH
+
+  describe ".with('n.age AS age')" do
+    it_generates "WITH n.age AS age"
+  end
+
+  describe ".with('n.age AS age', 'count(n) as c')" do
+    it_generates "WITH n.age AS age, count(n) as c"
+  end
+
+  describe ".with(['n.age AS age', 'count(n) as c'])" do
+    it_generates "WITH n.age AS age, count(n) as c"
+  end
+
+  describe ".with(age: 'n.age')" do
+    it_generates "WITH n.age AS age"
+  end
+
   # CREATE
 
   describe ".create(':Person')" do
@@ -188,6 +206,19 @@ describe Neo4j::Core::Query do
     it_generates "START n MATCH (q:Person) WHERE q.age > 30"
   end
 
+  # WITHS
+
+  describe ".match(q: Person).with('count(q) AS count')" do
+    it_generates "MATCH (q:Person) WITH count(q) AS count"
+  end
+
+  describe ".match(q: Person).with('count(q) AS count').where('count > 2')" do
+    it_generates "MATCH (q:Person) WITH count(q) AS count WHERE count > 2"
+  end
+
+  describe ".match(q: Person).with(count: 'count(q)').where('count > 2').with(new_count: 'count + 5')" do
+    it_generates "MATCH (q:Person) WITH count(q) AS count WHERE count > 2 WITH count + 5 AS new_count"
+  end
 
 end
 
