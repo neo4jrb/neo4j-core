@@ -185,6 +185,16 @@ module Neo4j::Core
       end
     end
 
+    class UsingClause < Clause
+      @keyword = 'USING'
+
+      class << self
+        def clause_string(clauses)
+          clauses.map(&:value).join(" #{@keyword} ")
+        end
+      end
+    end
+
     class CreateClause < Clause
       @keyword = 'CREATE'
 

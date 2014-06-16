@@ -107,6 +107,21 @@ describe Neo4j::Core::Query do
     it_generates "MATCH m--n, o--p OPTIONAL MATCH n--o"
   end
 
+  # USING
+
+  describe ".using('INDEX m:German(surname)')" do
+    it_generates "USING INDEX m:German(surname)"
+  end
+
+  describe ".using('SCAN m:German')" do
+    it_generates "USING SCAN m:German"
+  end
+
+  describe ".using('INDEX m:German(surname)').using('SCAN m:German')" do
+    it_generates "USING INDEX m:German(surname) USING SCAN m:German"
+  end
+
+
   # WHERE
 
   describe ".where('q.age > 30')" do
