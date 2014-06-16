@@ -9,42 +9,20 @@ module Neo4j::Core
       @clauses = []
     end
 
-    def start(*args)
-      build_deeper_query(StartClause, *args)
+    %w[start match where with order limit skip set return create].each do |clause|
+      clause_class = "#{clause.capitalize}Clause"
+      module_eval(%Q{
+        def #{clause}(*args)
+          build_deeper_query(#{clause_class}, args)
+        end}, __FILE__, __LINE__)
     end
 
-    def match(*args)
-      build_deeper_query(MatchClause, *args)
-    end
-
-    def where(*args)
-      build_deeper_query(WhereClause, *args)
-    end
-
-    def with(*args)
-      build_deeper_query(WithClause, *args)
-    end
-
-    def order(*args)
-      build_deeper_query(OrderClause, *args)
-    end
-
-    def limit(*args)
-      build_deeper_query(LimitClause, *args)
-    end
-
-    def skip(*args)
-      build_deeper_query(SkipClause, *args)
-    end
     alias_method :offset, :skip
 
-    def return(*args)
-      build_deeper_query(ReturnClause, *args)
+    def set_props(*args)
+      build_deeper_query(SetClause, args, set_props: true)
     end
 
-    def create(*args)
-      build_deeper_query(CreateClause, *args)
-    end
 
     def to_cypher
       cypher_string = clauses_partitioned_by_withs.map do |with_clauses, clauses|
@@ -52,7 +30,7 @@ module Neo4j::Core
 
         cypher_parts = []
         cypher_parts << WithClause.to_cypher(with_clauses) unless with_clauses.empty?
-        cypher_parts += [CreateClause, StartClause, MatchClause, WhereClause, ReturnClause, OrderClause, LimitClause, SkipClause].map do |clause_class|
+        cypher_parts += [CreateClause, StartClause, MatchClause, WhereClause, SetClause, ReturnClause, OrderClause, LimitClause, SkipClause].map do |clause_class|
           clauses = clauses_by_class[clause_class]
 
           clause_class.to_cypher(clauses) if clauses
@@ -74,9 +52,9 @@ module Neo4j::Core
 
     private
 
-    def build_deeper_query(clause_class, *args)
+    def build_deeper_query(clause_class, args, options = {})
       self.dup.tap do |new_query|
-        new_query.add_clauses clause_class.from_args(args)
+        new_query.add_clauses clause_class.from_args(args, options)
       end
     end
 

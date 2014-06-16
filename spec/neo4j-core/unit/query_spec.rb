@@ -143,6 +143,10 @@ describe Neo4j::Core::Query do
     it_generates "LIMIT 3"
   end
 
+  describe ".limit(3).limit(5)" do
+    it_generates "LIMIT 5"
+  end
+
   # SKIP
 
   describe ".skip(5)" do
@@ -193,6 +197,25 @@ describe Neo4j::Core::Query do
     it_generates "CREATE (q:Person {age: 41, height: 70})"
   end
 
+  # SET
+
+  describe ".set('n = {name: \"Brian\"}')" do
+    it_generates "SET n = {name: \"Brian\"}"
+  end
+
+  describe ".set(n: {name: 'Brian', age: 30})" do
+    it_generates "SET n = {name: \"Brian\", age: 30}"
+  end
+
+  describe ".set_props(n: {name: 'Brian', age: 30})" do
+    it_generates "SET n.name = \"Brian\", n.age = 30"
+  end
+
+
+
+
+
+
   # COMBINATIONS
   describe ".match(q: Person).where('q.age > 30')" do
     it_generates "MATCH (q:Person) WHERE q.age > 30"
@@ -204,6 +227,10 @@ describe Neo4j::Core::Query do
 
   describe ".where('q.age > 30').start('n').match(q: Person)" do
     it_generates "START n MATCH (q:Person) WHERE q.age > 30"
+  end
+
+  describe ".match(q: {age: 30}).set(q: {age: 31})" do
+    it_generates "MATCH (q {age: 30}) SET q = {age: 31}"
   end
 
   # WITHS
