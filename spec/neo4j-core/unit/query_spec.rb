@@ -97,6 +97,16 @@ describe Neo4j::Core::Query do
     it_generates "MATCH n--o, o--p"
   end
 
+  # OPTIONAL MATCH
+
+  describe ".optional_match(n: Person)" do
+    it_generates "OPTIONAL MATCH (n:Person)"
+  end
+
+  describe ".match('m--n').optional_match('n--o').match('o--p')" do
+    it_generates "MATCH m--n, o--p OPTIONAL MATCH n--o"
+  end
+
   # WHERE
 
   describe ".where('q.age > 30')" do

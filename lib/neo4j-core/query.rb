@@ -9,8 +9,8 @@ module Neo4j::Core
       @clauses = []
     end
 
-    %w[start match where with order limit skip set return create].each do |clause|
-      clause_class = "#{clause.capitalize}Clause"
+    %w[start match optional_match where with order limit skip set return create].each do |clause|
+      clause_class = clause.split('_').map {|c| c.capitalize }.join + 'Clause'
       module_eval(%Q{
         def #{clause}(*args)
           build_deeper_query(#{clause_class}, args)
@@ -31,7 +31,7 @@ module Neo4j::Core
 
         cypher_parts = []
         cypher_parts << WithClause.to_cypher(with_clauses) unless with_clauses.empty?
-        cypher_parts += [CreateClause, StartClause, MatchClause, WhereClause, SetClause, ReturnClause, OrderClause, LimitClause, SkipClause].map do |clause_class|
+        cypher_parts += [CreateClause, StartClause, MatchClause, OptionalMatchClause, WhereClause, SetClause, ReturnClause, OrderClause, LimitClause, SkipClause].map do |clause_class|
           clauses = clauses_by_class[clause_class]
 
           clause_class.to_cypher(clauses) if clauses

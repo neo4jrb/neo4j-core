@@ -163,6 +163,10 @@ module Neo4j::Core
       end
     end
 
+    class OptionalMatchClause < MatchClause
+      @keyword = 'OPTIONAL MATCH'
+    end
+
     class WithClause < Clause
       @keyword = 'WITH'
 
