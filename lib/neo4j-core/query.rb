@@ -18,6 +18,7 @@ module Neo4j::Core
     end
 
     alias_method :offset, :skip
+    alias_method :order_by, :order
 
     def set_props(*args)
       build_deeper_query(SetClause, args, set_props: true)

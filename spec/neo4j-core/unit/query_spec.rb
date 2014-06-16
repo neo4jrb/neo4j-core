@@ -133,6 +133,33 @@ describe Neo4j::Core::Query do
     it_generates "RETURN q.name, q.age, r.grade"
   end
 
+  # ORDER BY
+
+  describe ".order('q.name')" do
+    it_generates "ORDER BY q.name"
+  end
+
+  describe ".order_by('q.name')" do
+    it_generates "ORDER BY q.name"
+  end
+
+  describe ".order('q.age', 'q.name DESC')" do
+    it_generates "ORDER BY q.age, q.name DESC"
+  end
+
+  describe ".order(q: :age)" do
+    it_generates "ORDER BY q.age"
+  end
+
+  describe ".order(q: {age: :asc, name: :desc})" do
+    it_generates "ORDER BY q.age ASC, q.name DESC"
+  end
+
+  describe ".order(q: [:age, 'name desc'])" do
+    it_generates "ORDER BY q.age, q.name desc"
+  end
+
+
   # LIMIT
 
   describe ".limit(3)" do

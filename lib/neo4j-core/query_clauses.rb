@@ -221,7 +221,18 @@ module Neo4j::Core
       end
 
       def from_key_and_value(key, value)
-        "#{key} #{value.upcase}"
+        case value
+        when String, Symbol
+          "#{key}.#{value}"
+        when Array
+          value.map do |v|
+            "#{key}.#{v}"
+          end
+        when Hash
+          value.map do |k, v|
+            "#{key}.#{k} #{v.upcase}"
+          end
+        end
       end
 
       class << self
