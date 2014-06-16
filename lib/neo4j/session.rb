@@ -145,9 +145,14 @@ module Neo4j
         @@current_session
       end
 
+      def current!
+        raise "No session, please create a session first with Neo4j::Session.open(:server_db) or :embedded_db" unless current
+        current
+      end
+
       # @see Neo4j::Session#query
       def query(*params)
-        current.query(*params)
+        current!.query(*params)
       end
 
       def named(name)

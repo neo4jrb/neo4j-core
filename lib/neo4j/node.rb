@@ -180,25 +180,25 @@ module Neo4j
       end
 
       # Loads a node from the database with given id
-      def load(neo_id, session = Neo4j::Session.current)
+      def load(neo_id, session = Neo4j::Session.current!)
         node = _load(neo_id, session)
         node && node.wrapper
       end
 
       # Same as #load but does not try to return a wrapped node
       # @return [Neo4j::Node] an unwrapped node
-      def _load(neo_id, session = Neo4j::Session.current)
+      def _load(neo_id, session = Neo4j::Session.current!)
         session.load_node(neo_id)
       end
 
       # Checks if the given entity node or entity id (Neo4j::Node#neo_id) exists in the database.
       # @return [true, false] if exist
-      def exist?(entity_or_entity_id, session = Neo4j::Session.current)
+      def exist?(entity_or_entity_id, session = Neo4j::Session.current!)
         session.node_exist?(neo_id)
       end
 
       # Find the node with given label and value
-      def find_nodes(label, value=nil, session = Neo4j::Session.current)
+      def find_nodes(label, value=nil, session = Neo4j::Session.current!)
         session.find_nodes(label, value)
       end
     end

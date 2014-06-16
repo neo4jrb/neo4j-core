@@ -15,13 +15,44 @@ namespace :neo4j do
     end
 
     unless File.exist?(file_name)
+      # check if file is available
+      status = HTTParty.head(download_url).code
+      raise "#{file} is not available to download, try a different version" if status < 200 || status >= 300
+
       df = File.open(file_name, 'wb')
+
+
+      success = false
       begin
         df << HTTParty.get(download_url)
+        success = true
       ensure
         df.close()
+        File.delete(file_name) unless success
       end
     end
+
+
+
+    # # http://download.neo4j.org/artifact?edition=community&version=2.1.2&distribution=tarball&dlid=3462770&_ga=1.110610309.1220184053.1399636580
+    #
+    # parsed_url = URI.parse(download_url)
+    #
+    # puts "parsed_url.host #{parsed_url.host} port #{parsed_url.port} uri: #{parsed_url.request_uri}"
+    # Net::HTTP.start(parsed_url.host, parsed_url.port) do |http|
+    #   request = Net::HTTP::Get.new parsed_url.request_uri
+    #   http.request request do |response|
+    #     File.open 'large_file.tar.gz', 'wb' do |io|
+    #       response.read_body do |chunk|
+    #         io.write chunk
+    #       end
+    #     end
+    #   end
+    # end
+    #
+    # puts "DOWN LOAD URL #{download_url}, exist #{file_name} : #{File.exist?(file_name)}"
+    #
+
     file_name
   end
 
