@@ -320,6 +320,27 @@ module Neo4j::Core
       end
     end
 
+    class UnwindClause < Clause
+      @keyword = 'UNWIND'
+
+      def from_key_and_value(key, value)
+        case value
+        when String, Symbol
+          "#{value} AS #{key}"
+        when Array
+          "#{value.inspect} AS #{key}"
+        else
+          raise "Need better error" # TODO
+        end
+      end
+
+      class << self
+        def clause_string(clauses)
+          clauses.map(&:value).join(' UNWIND ')
+        end
+      end
+    end
+
     class ReturnClause < Clause
       @keyword = 'RETURN'
 

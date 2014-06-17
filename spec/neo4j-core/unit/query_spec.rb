@@ -140,6 +140,29 @@ describe Neo4j::Core::Query do
     it_generates "WHERE q.age = 30 AND q.name = \"Brian\" AND r.grade = 80"
   end
 
+  # UNWIND
+
+  describe ".unwind('val AS x')" do
+    it_generates "UNWIND val AS x"
+  end
+
+  describe ".unwind(x: :val)" do
+    it_generates "UNWIND val AS x"
+  end
+
+  describe ".unwind(x: 'val')" do
+    it_generates "UNWIND val AS x"
+  end
+
+  describe ".unwind(x: [1,3,5])" do
+    it_generates "UNWIND [1, 3, 5] AS x"
+  end
+
+  describe ".unwind(x: [1,3,5]).unwind('val as y')" do
+    it_generates "UNWIND [1, 3, 5] AS x UNWIND val as y"
+  end
+
+
   # RETURN
 
   describe ".return('q')" do
