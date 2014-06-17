@@ -244,6 +244,10 @@ module Neo4j::Core
       end
     end
 
+    class CreateUniqueClause < CreateClause
+      @keyword = 'CREATE UNIQUE'
+    end
+
     class OrderClause < Clause
       @keyword = 'ORDER BY'
 
