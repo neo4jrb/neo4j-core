@@ -248,6 +248,24 @@ module Neo4j::Core
       @keyword = 'CREATE UNIQUE'
     end
 
+    class MergeClause < CreateClause
+      @keyword = 'MERGE'
+    end
+
+    class DeleteClause < Clause
+      @keyword = 'DELETE'
+
+      def from_symbol(value)
+        from_string(value.to_s)
+      end
+
+      class << self
+        def clause_string(clauses)
+          clauses.map(&:value).join(', ')
+        end
+      end
+    end
+
     class OrderClause < Clause
       @keyword = 'ORDER BY'
 

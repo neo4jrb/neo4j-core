@@ -258,40 +258,46 @@ describe Neo4j::Core::Query do
     it_generates "WITH n.age AS age"
   end
 
-  # CREATE
+  # CREATE, CREATE UNIQUE, and MERGE
 
-  describe ".create(':Person')" do
-    it_generates "CREATE (:Person)"
+  {
+    create: 'CREATE',
+    create_unique: 'CREATE UNIQUE',
+    merge: 'MERGE'
+  }.each do |method, clause|
+    describe ".#{method}(':Person')" do
+      it_generates "#{clause} (:Person)"
+    end
+
+    describe ".#{method}(age: 41, height: 70)" do
+      it_generates "#{clause} ( {age: 41, height: 70})"
+    end
+
+    describe ".#{method}(Person: {age: 41, height: 70})" do
+      it_generates "#{clause} (:Person {age: 41, height: 70})"
+    end
+
+    describe ".#{method}(q: {Person: {age: 41, height: 70}})" do
+      it_generates "#{clause} (q:Person {age: 41, height: 70})"
+    end
   end
 
-  describe ".create(age: 41, height: 70)" do
-    it_generates "CREATE ( {age: 41, height: 70})"
+  # DELETE
+
+  describe ".delete('n')" do
+    it_generates "DELETE n"
   end
 
-  describe ".create(Person: {age: 41, height: 70})" do
-    it_generates "CREATE (:Person {age: 41, height: 70})"
+  describe ".delete(:n)" do
+    it_generates "DELETE n"
   end
 
-  describe ".create(q: {Person: {age: 41, height: 70}})" do
-    it_generates "CREATE (q:Person {age: 41, height: 70})"
+  describe ".delete('n', :o)" do
+    it_generates "DELETE n, o"
   end
 
-  # CREATE UNIQUE
-
-  describe ".create_unique(':Person')" do
-    it_generates "CREATE UNIQUE (:Person)"
-  end
-
-  describe ".create_unique(age: 41, height: 70)" do
-    it_generates "CREATE UNIQUE ( {age: 41, height: 70})"
-  end
-
-  describe ".create_unique(Person: {age: 41, height: 70})" do
-    it_generates "CREATE UNIQUE (:Person {age: 41, height: 70})"
-  end
-
-  describe ".create_unique(q: {Person: {age: 41, height: 70}})" do
-    it_generates "CREATE UNIQUE (q:Person {age: 41, height: 70})"
+  describe ".delete(['n', :o])" do
+    it_generates "DELETE n, o"
   end
 
   # SET
@@ -308,7 +314,11 @@ describe Neo4j::Core::Query do
     it_generates "SET n.name = \"Brian\", n.age = 30"
   end
 
+  # REMOVE
 
+  # FOREACH ?
+
+  # UNION
 
 
 
