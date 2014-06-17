@@ -232,6 +232,10 @@ describe Neo4j::Core::Query do
     it_generates "SKIP 5"
   end
 
+  describe ".skip(5).skip(10)" do
+    it_generates "SKIP 10"
+  end
+
   describe ".offset(6)" do
     it_generates "SKIP 6"
   end
