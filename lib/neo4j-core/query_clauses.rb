@@ -1,6 +1,15 @@
 module Neo4j::Core
   module QueryClauses
 
+    class ArgError < StandardError
+      attr_reader :arg_part
+      def initialize(arg_part = nil)
+        super
+        @arg_part = arg_part
+      end
+    end
+
+
     class Clause
       def initialize(arg, options = {})
         @arg = arg
@@ -25,12 +34,18 @@ module Neo4j::Core
               self.from_key_and_value key, value
             end
           else
-            raise ArgumentError, "Invalid argument for #{'blah'} (#{@arg.inspect})"
+            raise ArgError.new
           end
 
         else
-          raise ArgumentError, "Invalid argument for #{'blah'} (#{@arg.inspect})"
+          raise ArgError.new
         end
+
+      rescue ArgError => arg_error
+        message = "Invalid argument for #{self.class.keyword}.  Full arguments: #{@arg.inspect}"
+        message += " | Invalid part: #{arg_error.arg_part.inspect}" if arg_error.arg_part
+
+        raise ArgumentError, message
       end
 
       def from_string(value)
@@ -68,13 +83,15 @@ module Neo4j::Core
           var = key
           label_string = defined?(value::CYPHER_LABEL) ? value::CYPHER_LABEL : value.name
         else
-          raise ArgumentError, "Invalid value type: #{value.inspect}"
+          raise ArgError.new(value)
         end
 
         "(#{var}#{format_label(label_string)}#{attributes_string})"
       end
 
       class << self
+        attr_reader :keyword
+
         def from_args(args, options = {})
           args.flatten.map {|arg| self.new(arg, options) }
         end
@@ -113,7 +130,7 @@ module Neo4j::Core
         when String, Symbol
           "#{key} = #{value}"
         else
-          raise "Need better error"
+          raise ArgError.new(value)
         end
       end
 
@@ -309,7 +326,7 @@ module Neo4j::Core
             "#{key} = {#{attribute_string}}"
           end
         else
-          raise "Need better error" # TODO
+          raise ArgError.new(value)
         end
       end
 
@@ -330,7 +347,7 @@ module Neo4j::Core
         when Array
           "#{value.inspect} AS #{key}"
         else
-          raise "Need better error" # TODO
+          raise ArgError.new(value)
         end
       end
 
@@ -357,7 +374,7 @@ module Neo4j::Core
         when String, Symbol
           "#{key}.#{value}"
         else
-          raise "Need better error" # TODO
+          raise ArgError.new(value)
         end
       end
 
