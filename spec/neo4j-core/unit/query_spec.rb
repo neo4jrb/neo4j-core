@@ -316,7 +316,31 @@ describe Neo4j::Core::Query do
 
   # REMOVE
 
-  # FOREACH ?
+  describe ".remove('n.prop')" do
+    it_generates "REMOVE n.prop"
+  end
+
+  describe ".remove('n:American')" do
+    it_generates "REMOVE n:American"
+  end
+
+  describe ".remove(n: 'prop')" do
+    it_generates "REMOVE n.prop"
+  end
+
+  describe ".remove(n: :American)" do
+    it_generates "REMOVE n:American"
+  end
+
+  describe ".remove(n: :American, o: 'prop')" do
+    it_generates "REMOVE n:American, o.prop"
+  end
+
+  describe ".remove(n: ':prop')" do
+    it_generates "REMOVE n:prop"
+  end
+
+  # FOREACH
 
   # UNION
 

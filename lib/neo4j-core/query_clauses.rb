@@ -359,6 +359,30 @@ module Neo4j::Core
       end
     end
 
+    class RemoveClause < Clause
+      @keyword = 'REMOVE'
+
+      def from_key_and_value(key, value)
+        case value
+        when /^:/
+          "#{key}:#{value[1..-1]}"
+        when String
+          "#{key}.#{value}"
+        when Symbol
+          "#{key}:#{value}"
+        else
+          raise ArgError.new(value)
+        end
+
+      end
+
+      class << self
+        def clause_string(clauses)
+          clauses.map(&:value).join(', ')
+        end
+      end
+    end
+
     class UnwindClause < Clause
       @keyword = 'UNWIND'
 
