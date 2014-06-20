@@ -38,224 +38,253 @@ describe Neo4j::Core::Query do
 
   # START
 
-  describe ".start('r=node:nodes(name = \"Brian\")')" do
-    it_generates "START r=node:nodes(name = \"Brian\")"
-  end
+  describe '#start' do
+    describe ".start('r=node:nodes(name = \"Brian\")')" do
+      it_generates "START r=node:nodes(name = \"Brian\")"
+    end
 
-  describe ".start(r: 'node:nodes(name = \"Brian\")')" do
-    it_generates "START r = node:nodes(name = \"Brian\")"
+    describe ".start(r: 'node:nodes(name = \"Brian\")')" do
+      it_generates "START r = node:nodes(name = \"Brian\")"
+    end
   end
 
 
   # MATCH
 
-  describe ".match('n')" do
-    it_generates "MATCH n"
-  end
+  describe '#match' do
+    it 'is a test!' do
+      1.should == 1
+    end
+    describe ".match('n')" do
+      it_generates "MATCH n"
+    end
 
-  describe ".match(:n)" do
-    it_generates "MATCH n"
-  end
+    describe ".match(:n)" do
+      it_generates "MATCH n"
+    end
 
-  describe ".match(n: Person)" do
-    it_generates "MATCH (n:Person)"
-  end
+    describe ".match(n: Person)" do
+      it_generates "MATCH (n:Person)"
+    end
 
-  describe ".match(n: Note)" do
-    it_generates "MATCH (n:GreatNote)"
-  end
+    describe ".match(n: Note)" do
+      it_generates "MATCH (n:GreatNote)"
+    end
 
-  describe ".match(n: 'Person')" do
-    it_generates "MATCH (n:Person)"
-  end
+    describe ".match(n: 'Person')" do
+      it_generates "MATCH (n:Person)"
+    end
 
-  describe ".match(n: ':Person')" do
-    it_generates "MATCH (n:Person)"
-  end
+    describe ".match(n: ':Person')" do
+      it_generates "MATCH (n:Person)"
+    end
 
-  describe ".match(n: ' :Person')" do
-    it_generates "MATCH (n:Person)"
-  end
+    describe ".match(n: :Person)" do
+      it_generates "MATCH (n:Person)"
+    end
 
-  describe ".match(n: 'Person {name: \"Brian\"}')" do
-    it_generates "MATCH (n:Person {name: \"Brian\"})"
-  end
+    describe ".match(n: ' :Person')" do
+      it_generates "MATCH (n:Person)"
+    end
 
-  describe ".match(n: {name: 'Brian', age: 33})" do
-    it_generates "MATCH (n {name: \"Brian\", age: 33})"
-  end
+    describe ".match(n: 'Person {name: \"Brian\"}')" do
+      it_generates "MATCH (n:Person {name: \"Brian\"})"
+    end
 
-  describe ".match(n: {Person: {name: 'Brian', age: 33}})" do
-    it_generates "MATCH (n:Person {name: \"Brian\", age: 33})"
-  end
+    describe ".match(n: {name: 'Brian', age: 33})" do
+      it_generates "MATCH (n {name: \"Brian\", age: 33})"
+    end
 
-  describe ".match('n--o')" do
-    it_generates "MATCH n--o"
-  end
+    describe ".match(n: {Person: {name: 'Brian', age: 33}})" do
+      it_generates "MATCH (n:Person {name: \"Brian\", age: 33})"
+    end
 
-  describe ".match('n--o').match('o--p')" do
-    it_generates "MATCH n--o, o--p"
+    describe ".match('n--o')" do
+      it_generates "MATCH n--o"
+    end
+
+    describe ".match('n--o').match('o--p')" do
+      it_generates "MATCH n--o, o--p"
+    end
   end
 
   # OPTIONAL MATCH
 
-  describe ".optional_match(n: Person)" do
-    it_generates "OPTIONAL MATCH (n:Person)"
-  end
+  describe '#optional_match' do
+    describe ".optional_match(n: Person)" do
+      it_generates "OPTIONAL MATCH (n:Person)"
+    end
 
-  describe ".match('m--n').optional_match('n--o').match('o--p')" do
-    it_generates "MATCH m--n, o--p OPTIONAL MATCH n--o"
+    describe ".match('m--n').optional_match('n--o').match('o--p')" do
+      it_generates "MATCH m--n, o--p OPTIONAL MATCH n--o"
+    end
   end
 
   # USING
 
-  describe ".using('INDEX m:German(surname)')" do
-    it_generates "USING INDEX m:German(surname)"
-  end
+  describe '#using' do
+    describe ".using('INDEX m:German(surname)')" do
+      it_generates "USING INDEX m:German(surname)"
+    end
 
-  describe ".using('SCAN m:German')" do
-    it_generates "USING SCAN m:German"
-  end
+    describe ".using('SCAN m:German')" do
+      it_generates "USING SCAN m:German"
+    end
 
-  describe ".using('INDEX m:German(surname)').using('SCAN m:German')" do
-    it_generates "USING INDEX m:German(surname) USING SCAN m:German"
+    describe ".using('INDEX m:German(surname)').using('SCAN m:German')" do
+      it_generates "USING INDEX m:German(surname) USING SCAN m:German"
+    end
   end
 
 
   # WHERE
 
-  describe ".where('q.age > 30')" do
-    it_generates "WHERE q.age > 30"
-  end
+  describe '#where' do
+    describe ".where('q.age > 30')" do
+      it_generates "WHERE q.age > 30"
+    end
 
-  describe ".where('q.age' => 30)" do
-    it_generates "WHERE q.age = 30"
-  end
+    describe ".where('q.age' => 30)" do
+      it_generates "WHERE q.age = 30"
+    end
 
-  describe ".where(q: {age: 30, name: 'Brian'})" do
-    it_generates "WHERE q.age = 30 AND q.name = \"Brian\""
-  end
+    describe ".where(q: {age: 30, name: 'Brian'})" do
+      it_generates "WHERE q.age = 30 AND q.name = \"Brian\""
+    end
 
-  describe ".where(q: {age: 30, name: 'Brian'}).where('r.grade = 80')" do
-    it_generates "WHERE q.age = 30 AND q.name = \"Brian\" AND r.grade = 80"
+    describe ".where(q: {age: 30, name: 'Brian'}).where('r.grade = 80')" do
+      it_generates "WHERE q.age = 30 AND q.name = \"Brian\" AND r.grade = 80"
+    end
   end
 
   # UNWIND
 
-  describe ".unwind('val AS x')" do
-    it_generates "UNWIND val AS x"
-  end
+  describe '#unwind' do
+    describe ".unwind('val AS x')" do
+      it_generates "UNWIND val AS x"
+    end
 
-  describe ".unwind(x: :val)" do
-    it_generates "UNWIND val AS x"
-  end
+    describe ".unwind(x: :val)" do
+      it_generates "UNWIND val AS x"
+    end
 
-  describe ".unwind(x: 'val')" do
-    it_generates "UNWIND val AS x"
-  end
+    describe ".unwind(x: 'val')" do
+      it_generates "UNWIND val AS x"
+    end
 
-  describe ".unwind(x: [1,3,5])" do
-    it_generates "UNWIND [1, 3, 5] AS x"
-  end
+    describe ".unwind(x: [1,3,5])" do
+      it_generates "UNWIND [1, 3, 5] AS x"
+    end
 
-  describe ".unwind(x: [1,3,5]).unwind('val as y')" do
-    it_generates "UNWIND [1, 3, 5] AS x UNWIND val as y"
+    describe ".unwind(x: [1,3,5]).unwind('val as y')" do
+      it_generates "UNWIND [1, 3, 5] AS x UNWIND val as y"
+    end
   end
 
 
   # RETURN
 
-  describe ".return('q')" do
-    it_generates "RETURN q"
-  end
+  describe '#return' do
+    describe ".return('q')" do
+      it_generates "RETURN q"
+    end
 
-  describe ".return(:q)" do
-    it_generates "RETURN q"
-  end
+    describe ".return(:q)" do
+      it_generates "RETURN q"
+    end
 
-  describe ".return('q.name, q.age')" do
-    it_generates "RETURN q.name, q.age"
-  end
+    describe ".return('q.name, q.age')" do
+      it_generates "RETURN q.name, q.age"
+    end
 
-  describe ".return(q: [:name, :age], r: :grade)" do
-    it_generates "RETURN q.name, q.age, r.grade"
+    describe ".return(q: [:name, :age], r: :grade)" do
+      it_generates "RETURN q.name, q.age, r.grade"
+    end
   end
 
   # ORDER BY
 
-  describe ".order('q.name')" do
-    it_generates "ORDER BY q.name"
-  end
+  describe '#order' do
+    describe ".order('q.name')" do
+      it_generates "ORDER BY q.name"
+    end
 
-  describe ".order_by('q.name')" do
-    it_generates "ORDER BY q.name"
-  end
+    describe ".order_by('q.name')" do
+      it_generates "ORDER BY q.name"
+    end
 
-  describe ".order('q.age', 'q.name DESC')" do
-    it_generates "ORDER BY q.age, q.name DESC"
-  end
+    describe ".order('q.age', 'q.name DESC')" do
+      it_generates "ORDER BY q.age, q.name DESC"
+    end
 
-  describe ".order(q: :age)" do
-    it_generates "ORDER BY q.age"
-  end
+    describe ".order(q: :age)" do
+      it_generates "ORDER BY q.age"
+    end
 
-  describe ".order(q: {age: :asc, name: :desc})" do
-    it_generates "ORDER BY q.age ASC, q.name DESC"
-  end
+    describe ".order(q: {age: :asc, name: :desc})" do
+      it_generates "ORDER BY q.age ASC, q.name DESC"
+    end
 
-  describe ".order(q: [:age, 'name desc'])" do
-    it_generates "ORDER BY q.age, q.name desc"
+    describe ".order(q: [:age, 'name desc'])" do
+      it_generates "ORDER BY q.age, q.name desc"
+    end
   end
 
 
   # LIMIT
 
-  describe ".limit(3)" do
-    it_generates "LIMIT 3"
-  end
+  describe '#limit' do
+    describe ".limit(3)" do
+      it_generates "LIMIT 3"
+    end
 
-  describe ".limit('3')" do
-    it_generates "LIMIT 3"
-  end
+    describe ".limit('3')" do
+      it_generates "LIMIT 3"
+    end
 
-  describe ".limit(3).limit(5)" do
-    it_generates "LIMIT 5"
+    describe ".limit(3).limit(5)" do
+      it_generates "LIMIT 5"
+    end
   end
 
   # SKIP
 
-  describe ".skip(5)" do
-    it_generates "SKIP 5"
-  end
+  describe '#skip' do
+    describe ".skip(5)" do
+      it_generates "SKIP 5"
+    end
 
-  describe ".skip('5')" do
-    it_generates "SKIP 5"
-  end
+    describe ".skip('5')" do
+      it_generates "SKIP 5"
+    end
 
-  describe ".skip(5).skip(10)" do
-    it_generates "SKIP 10"
-  end
+    describe ".skip(5).skip(10)" do
+      it_generates "SKIP 10"
+    end
 
-  describe ".offset(6)" do
-    it_generates "SKIP 6"
+    describe ".offset(6)" do
+      it_generates "SKIP 6"
+    end
   end
 
   # WITH
 
-  describe ".with('n.age AS age')" do
-    it_generates "WITH n.age AS age"
-  end
+  describe '#with' do
+    describe ".with('n.age AS age')" do
+      it_generates "WITH n.age AS age"
+    end
 
-  describe ".with('n.age AS age', 'count(n) as c')" do
-    it_generates "WITH n.age AS age, count(n) as c"
-  end
+    describe ".with('n.age AS age', 'count(n) as c')" do
+      it_generates "WITH n.age AS age, count(n) as c"
+    end
 
-  describe ".with(['n.age AS age', 'count(n) as c'])" do
-    it_generates "WITH n.age AS age, count(n) as c"
-  end
+    describe ".with(['n.age AS age', 'count(n) as c'])" do
+      it_generates "WITH n.age AS age, count(n) as c"
+    end
 
-  describe ".with(age: 'n.age')" do
-    it_generates "WITH n.age AS age"
+    describe ".with(age: 'n.age')" do
+      it_generates "WITH n.age AS age"
+    end
   end
 
   # CREATE, CREATE UNIQUE, and MERGE
@@ -265,82 +294,92 @@ describe Neo4j::Core::Query do
     create_unique: 'CREATE UNIQUE',
     merge: 'MERGE'
   }.each do |method, clause|
-    describe ".#{method}(':Person')" do
-      it_generates "#{clause} (:Person)"
-    end
+    describe "##{method}" do
+      describe ".#{method}(':Person')" do
+        it_generates "#{clause} (:Person)"
+      end
 
-    describe ".#{method}(age: 41, height: 70)" do
-      it_generates "#{clause} ( {age: 41, height: 70})"
-    end
+      describe ".#{method}(age: 41, height: 70)" do
+        it_generates "#{clause} ( {age: 41, height: 70})"
+      end
 
-    describe ".#{method}(Person: {age: 41, height: 70})" do
-      it_generates "#{clause} (:Person {age: 41, height: 70})"
-    end
+      describe ".#{method}(Person: {age: 41, height: 70})" do
+        it_generates "#{clause} (:Person {age: 41, height: 70})"
+      end
 
-    describe ".#{method}(q: {Person: {age: 41, height: 70}})" do
-      it_generates "#{clause} (q:Person {age: 41, height: 70})"
+      describe ".#{method}(q: {Person: {age: 41, height: 70}})" do
+        it_generates "#{clause} (q:Person {age: 41, height: 70})"
+      end
     end
   end
 
   # DELETE
 
-  describe ".delete('n')" do
-    it_generates "DELETE n"
-  end
+  describe '#delete' do
+    describe ".delete('n')" do
+      it_generates "DELETE n"
+    end
 
-  describe ".delete(:n)" do
-    it_generates "DELETE n"
-  end
+    describe ".delete(:n)" do
+      it_generates "DELETE n"
+    end
 
-  describe ".delete('n', :o)" do
-    it_generates "DELETE n, o"
-  end
+    describe ".delete('n', :o)" do
+      it_generates "DELETE n, o"
+    end
 
-  describe ".delete(['n', :o])" do
-    it_generates "DELETE n, o"
+    describe ".delete(['n', :o])" do
+      it_generates "DELETE n, o"
+    end
   end
 
   # SET
 
-  describe ".set('n = {name: \"Brian\"}')" do
-    it_generates "SET n = {name: \"Brian\"}"
-  end
+  describe '#set' do
+    describe ".set('n = {name: \"Brian\"}')" do
+      it_generates "SET n = {name: \"Brian\"}"
+    end
 
-  describe ".set(n: {name: 'Brian', age: 30})" do
-    it_generates "SET n = {name: \"Brian\", age: 30}"
-  end
+    describe ".set(n: {name: 'Brian', age: 30})" do
+      it_generates "SET n = {name: \"Brian\", age: 30}"
+    end
 
-  describe ".set_props(n: {name: 'Brian', age: 30})" do
-    it_generates "SET n.name = \"Brian\", n.age = 30"
+    describe ".set_props(n: {name: 'Brian', age: 30})" do
+      it_generates "SET n.name = \"Brian\", n.age = 30"
+    end
   end
 
   # REMOVE
 
-  describe ".remove('n.prop')" do
-    it_generates "REMOVE n.prop"
-  end
+  describe '#remove' do
+    describe ".remove('n.prop')" do
+      it_generates "REMOVE n.prop"
+    end
 
-  describe ".remove('n:American')" do
-    it_generates "REMOVE n:American"
-  end
+    describe ".remove('n:American')" do
+      it_generates "REMOVE n:American"
+    end
 
-  describe ".remove(n: 'prop')" do
-    it_generates "REMOVE n.prop"
-  end
+    describe ".remove(n: 'prop')" do
+      it_generates "REMOVE n.prop"
+    end
 
-  describe ".remove(n: :American)" do
-    it_generates "REMOVE n:American"
-  end
+    describe ".remove(n: :American)" do
+      it_generates "REMOVE n:American"
+    end
 
-  describe ".remove(n: :American, o: 'prop')" do
-    it_generates "REMOVE n:American, o.prop"
-  end
+    describe ".remove(n: :American, o: 'prop')" do
+      it_generates "REMOVE n:American, o.prop"
+    end
 
-  describe ".remove(n: ':prop')" do
-    it_generates "REMOVE n:prop"
+    describe ".remove(n: ':prop')" do
+      it_generates "REMOVE n:prop"
+    end
   end
 
   # FOREACH
+
+
 
   # UNION
 

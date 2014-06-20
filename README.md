@@ -61,6 +61,7 @@ No need to start the server since it is embedded.
 * [Neo4j::Relationship](http://www.rubydoc.info/github/andreasronge/neo4j-core/Neo4j/Relationship)
 * [Neo4j::Session](http://www.rubydoc.info/github/andreasronge/neo4j-core/Neo4j/Session)
 * [Neo4j::Label](http://www.rubydoc.info/github/andreasronge/neo4j-core/Neo4j/Label)
+* [Neo4j::Query](Neo4j/Query.html)
 
 See also [Neo4j Docs](http://docs.neo4j.org/)
 

@@ -9,6 +9,57 @@ module Neo4j::Core
       @clauses = []
     end
 
+    # @method start *args
+    # START clause
+
+    # @method match *args
+    # MATCH clause
+
+    # @method optional_match *args
+    # OPTIONAL MATCH clause
+
+    # @method using *args
+    # USING clause
+
+    # @method where *args
+    # WHERE clause
+
+    # @method with *args
+    # WITH clause
+
+    # @method order *args
+    # ORDER BY clause
+
+    # @method limit *args
+    # LIMIT clause
+
+    # @method skip *args
+    # SKIP clause
+
+    # @method set *args
+    # SET clause
+
+    # @method remove *args
+    # REMOVE clause
+
+    # @method unwind *args
+    # UNWIND clause
+
+    # @method return *args
+    # RETURN clause
+
+    # @method create *args
+    # CREATE clause
+
+    # @method create_unique *args
+    # CREATE UNIQUE clause
+
+    # @method merge *args
+    # MERGE clause
+
+    # @method delete *args
+    # DELETE clause
+
     %w[start match optional_match using where with order limit skip set remove unwind return create create_unique merge delete].each do |clause|
       clause_class = clause.split('_').map {|c| c.capitalize }.join + 'Clause'
       module_eval(%Q{
