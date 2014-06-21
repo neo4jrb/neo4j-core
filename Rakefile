@@ -12,8 +12,7 @@ def jar_path
 end
 
 YARD::Rake::YardocTask.new do |t|
-  t.files   = ['lib/**/*.rb', 'spec/**/*_spec.rb']   # optional
-#  t.options = ['--debug'] # optional
+  t.files   = ['lib/**/*.rb', 'spec/**/*_spec.rb']
 end
 
 desc "Run neo4j-core specs"

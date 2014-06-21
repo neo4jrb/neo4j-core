@@ -9,8 +9,8 @@
         </tr>
       <% for example in object[:examples] %>
         <tr>
-          <td><pre class="code">query<%= example[:ruby] %></pre></td>
-          <td><pre class="code"><%= example[:cypher] %></pre></td>
+          <td><pre class="code">query<%= example[:ruby].gsub('\\"', '"') %>  </pre></td>
+          <td><pre class="code"><%= example[:cypher].gsub('\\"', '"') %></pre></td>
         </tr>
       <% end %>
       </table>
