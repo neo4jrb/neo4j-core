@@ -36,6 +36,39 @@ describe Neo4j::Core::Query do
     end
   end
 
+
+  describe 'clause combinations' do
+    describe ".match(q: Person).where('q.age > 30')" do
+      it_generates "MATCH (q:Person) WHERE q.age > 30"
+    end
+
+    describe ".where('q.age > 30').match(q: Person)" do
+      it_generates "MATCH (q:Person) WHERE q.age > 30"
+    end
+
+    describe ".where('q.age > 30').start('n').match(q: Person)" do
+      it_generates "START n MATCH (q:Person) WHERE q.age > 30"
+    end
+
+    describe ".match(q: {age: 30}).set(q: {age: 31})" do
+      it_generates "MATCH (q {age: 30}) SET q = {age: 31}"
+    end
+
+    # WITHS
+
+    describe ".match(q: Person).with('count(q) AS count')" do
+      it_generates "MATCH (q:Person) WITH count(q) AS count"
+    end
+
+    describe ".match(q: Person).with('count(q) AS count').where('count > 2')" do
+      it_generates "MATCH (q:Person) WITH count(q) AS count WHERE count > 2"
+    end
+
+    describe ".match(q: Person).with(count: 'count(q)').where('count > 2').with(new_count: 'count + 5')" do
+      it_generates "MATCH (q:Person) WITH count(q) AS count WHERE count > 2 WITH count + 5 AS new_count"
+    end
+  end
+
   # START
 
   describe '#start' do
@@ -47,7 +80,6 @@ describe Neo4j::Core::Query do
       it_generates "START r = node:nodes(name = \"Brian\")"
     end
   end
-
 
   # MATCH
 
@@ -287,31 +319,64 @@ describe Neo4j::Core::Query do
     end
   end
 
-  # CREATE, CREATE UNIQUE, and MERGE
 
-  {
-    create: 'CREATE',
-    create_unique: 'CREATE UNIQUE',
-    merge: 'MERGE'
-  }.each do |method, clause|
-    describe "##{method}" do
-      describe ".#{method}(':Person')" do
-        it_generates "#{clause} (:Person)"
-      end
+  # CREATE, CREATE UNIQUE, and MERGE should all work exactly thesame
 
-      describe ".#{method}(age: 41, height: 70)" do
-        it_generates "#{clause} ( {age: 41, height: 70})"
-      end
+  describe "#create" do
+    describe ".create(':Person')" do
+      it_generates "CREATE (:Person)"
+    end
 
-      describe ".#{method}(Person: {age: 41, height: 70})" do
-        it_generates "#{clause} (:Person {age: 41, height: 70})"
-      end
+    describe ".create(age: 41, height: 70)" do
+      it_generates "CREATE ( {age: 41, height: 70})"
+    end
 
-      describe ".#{method}(q: {Person: {age: 41, height: 70}})" do
-        it_generates "#{clause} (q:Person {age: 41, height: 70})"
-      end
+    describe ".create(Person: {age: 41, height: 70})" do
+      it_generates "CREATE (:Person {age: 41, height: 70})"
+    end
+
+    describe ".create(q: {Person: {age: 41, height: 70}})" do
+      it_generates "CREATE (q:Person {age: 41, height: 70})"
     end
   end
+
+  describe "#create_unique" do
+    describe ".create_unique(':Person')" do
+      it_generates "CREATE UNIQUE (:Person)"
+    end
+
+    describe ".create_unique(age: 41, height: 70)" do
+      it_generates "CREATE UNIQUE ( {age: 41, height: 70})"
+    end
+
+    describe ".create_unique(Person: {age: 41, height: 70})" do
+      it_generates "CREATE UNIQUE (:Person {age: 41, height: 70})"
+    end
+
+    describe ".create_unique(q: {Person: {age: 41, height: 70}})" do
+      it_generates "CREATE UNIQUE (q:Person {age: 41, height: 70})"
+    end
+  end
+
+  describe "#merge" do
+    describe ".merge(':Person')" do
+      it_generates "MERGE (:Person)"
+    end
+
+    describe ".merge(age: 41, height: 70)" do
+      it_generates "MERGE ( {age: 41, height: 70})"
+    end
+
+    describe ".merge(Person: {age: 41, height: 70})" do
+      it_generates "MERGE (:Person {age: 41, height: 70})"
+    end
+
+    describe ".merge(q: {Person: {age: 41, height: 70}})" do
+      it_generates "MERGE (q:Person {age: 41, height: 70})"
+    end
+  end
+
+
 
   # DELETE
 
@@ -342,6 +407,12 @@ describe Neo4j::Core::Query do
 
     describe ".set(n: {name: 'Brian', age: 30})" do
       it_generates "SET n = {name: \"Brian\", age: 30}"
+    end
+  end
+
+  describe '#set_props' do
+    describe ".set_props('n = {name: \"Brian\"}')" do
+      it_generates "SET n = {name: \"Brian\"}"
     end
 
     describe ".set_props(n: {name: 'Brian', age: 30})" do
@@ -383,39 +454,23 @@ describe Neo4j::Core::Query do
 
   # UNION
 
+  describe '#union_cypher' do
+    it "returns a cypher string with the union of the callee and argument query strings" do
+      q = Neo4j::Core::Query.new.match(o: :Person).where(o: {age: 10})
+      result = Neo4j::Core::Query.new.match(n: :Person).union_cypher(q)
 
+      result.should == "MATCH (n:Person) UNION MATCH (o:Person) WHERE o.age = 10"
+    end
 
+    it "can represent UNION ALL with an option" do
+      q = Neo4j::Core::Query.new.match(o: :Person).where(o: {age: 10})
+      result = Neo4j::Core::Query.new.match(n: :Person).union_cypher(q, all: true)
 
-  # COMBINATIONS
-  describe ".match(q: Person).where('q.age > 30')" do
-    it_generates "MATCH (q:Person) WHERE q.age > 30"
+      result.should == "MATCH (n:Person) UNION ALL MATCH (o:Person) WHERE o.age = 10"
+    end
+
   end
 
-  describe ".where('q.age > 30').match(q: Person)" do
-    it_generates "MATCH (q:Person) WHERE q.age > 30"
-  end
-
-  describe ".where('q.age > 30').start('n').match(q: Person)" do
-    it_generates "START n MATCH (q:Person) WHERE q.age > 30"
-  end
-
-  describe ".match(q: {age: 30}).set(q: {age: 31})" do
-    it_generates "MATCH (q {age: 30}) SET q = {age: 31}"
-  end
-
-  # WITHS
-
-  describe ".match(q: Person).with('count(q) AS count')" do
-    it_generates "MATCH (q:Person) WITH count(q) AS count"
-  end
-
-  describe ".match(q: Person).with('count(q) AS count').where('count > 2')" do
-    it_generates "MATCH (q:Person) WITH count(q) AS count WHERE count > 2"
-  end
-
-  describe ".match(q: Person).with(count: 'count(q)').where('count > 2').with(new_count: 'count + 5')" do
-    it_generates "MATCH (q:Person) WITH count(q) AS count WHERE count > 2 WITH count + 5 AS new_count"
-  end
 
 end
 
