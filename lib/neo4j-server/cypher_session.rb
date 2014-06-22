@@ -87,9 +87,9 @@ module Neo4j::Server
     end
 
     def load_relationship(neo_id)
-      cypher_response = _query("START r=relationship(#{neo_id}) RETURN r")
+      cypher_response = _query("START r=relationship(#{neo_id}) RETURN TYPE(r)")
       if (!cypher_response.error?)
-        CypherRelationship.new(self, neo_id)
+        CypherRelationship.new(self, neo_id, cypher_response.first_data)
       elsif (cypher_response.error_msg =~ /not found/)  # Ugly that the Neo4j API gives us this error message
         return nil
       else

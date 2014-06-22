@@ -66,7 +66,7 @@ module Neo4j::Server
           node.init_resource_data('data', 'http://bla/42')
           session.should_receive(:_query).and_return(double('response', error?: false))
 
-          node.exist?.should be_true
+          node.exist?.should be true
         end
 
         it "raise exception if unexpected response" do
@@ -81,7 +81,7 @@ module Neo4j::Server
           node = CypherNode.new(session, 42)
           response = double("response", error?: true, error_status: 'EntityNotFoundException')
           session.should_receive(:_query).with('START n=node(42) RETURN ID(n)').and_return(response)
-          node.exist?.should be_false
+          node.exist?.should be false
         end
       end
 

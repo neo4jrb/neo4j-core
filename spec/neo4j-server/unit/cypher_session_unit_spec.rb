@@ -166,7 +166,7 @@ module Neo4j::Server
         end
 
         it "create_node() generates 'CREATE (v1) RETURN v1'" do
-          session.stub(:resource_url).and_return
+          session.stub(:resource_url)
           session.should_receive(:_query).with("CREATE (n ) RETURN ID(n)", nil).and_return(cypher_response)
           session.create_node
         end
@@ -197,21 +197,21 @@ module Neo4j::Server
         end
 
         it "should produce Cypher query with String values" do
-          pending "TODO"  # TODO
+          skip "TODO"  # TODO
           cypher_query = "        MATCH (n:`label`)\n        WHERE n.key = 'value'\n        RETURN ID(n)\n"
           session.should_receive(:_query_or_fail).with(cypher_query).and_return(cypher_response)
           session.find_nodes(:label,:key,"value")
         end
 
         it "should produce Cypher query with Fixnum values" do
-          pending "TODO" # TODO
+          skip "TODO" # TODO
           cypher_query = "        MATCH (n:`label`)\n        WHERE n.key = 4\n        RETURN ID(n)\n"
           session.should_receive(:_query_or_fail).with(cypher_query).and_return(cypher_response)
           session.find_nodes(:label,:key,4)
         end
 
         it "should produce Cypher query with Float values" do
-          pending "TODO" # TODO
+          skip "TODO" # TODO
           cypher_query = "        MATCH (n:`label`)\n        WHERE n.key = 4.5\n        RETURN ID(n)\n"
           session.should_receive(:_query_or_fail).with(cypher_query).and_return(cypher_response)
           session.find_nodes(:label,:key,4.5)

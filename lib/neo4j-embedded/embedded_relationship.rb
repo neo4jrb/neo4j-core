@@ -14,7 +14,7 @@ module Neo4j::Embedded
           def exist?
             !!graph_database.get_relationship_by_id(neo_id)
           rescue Java::OrgNeo4jGraphdb.NotFoundException
-            nil
+            false
           end
           tx_methods :exist?
 
@@ -32,8 +32,13 @@ module Neo4j::Embedded
           end
 
           def rel_type
+            @_rel_type ||= _rel_type
+          end
+
+          def _rel_type
             getType().name().to_sym
           end
+          tx_methods :rel_type
 
           def del
             delete

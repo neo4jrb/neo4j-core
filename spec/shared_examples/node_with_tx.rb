@@ -1,4 +1,4 @@
-shared_examples "Neo4j::Node with tx" do
+RSpec.shared_examples "Neo4j::Node with tx" do
   let(:node_a) { Neo4j::Node.create(name: 'a') }
   let(:node_b) { Neo4j::Node.create(name: 'b') }
   let(:node_c) { Neo4j::Node.create(name: 'c') }

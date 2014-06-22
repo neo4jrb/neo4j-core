@@ -3,9 +3,8 @@ require "bundler/setup"
 require 'rspec'
 require 'fileutils'
 require 'tmpdir'
-#require 'its'
 require 'logger'
-
+require 'rspec/its'
 require 'neo4j-core'
 
 

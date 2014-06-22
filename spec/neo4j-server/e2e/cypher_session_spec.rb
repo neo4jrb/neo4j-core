@@ -53,19 +53,19 @@ module Neo4j::Server
         result = session._query("START n=node(#{a_node_id}) RETURN ID(n)")
         result.data.should == [[a_node_id]]
         result.columns.should == ['ID(n)']
-        result.error?.should be_false
+        result.error?.should be false
       end
 
       it "allows you to specify parameters" do
         result = session._query("START n=node({myparam}) RETURN ID(n)", myparam: a_node_id)
         result.data.should == [[a_node_id]]
         result.columns.should == ['ID(n)']
-        result.error?.should be_false
+        result.error?.should be false
       end
 
       it 'returns error codes if not a valid cypher query' do
         result = session._query("SSTART n=node(0) RETURN ID(n)")
-        result.error?.should be_true
+        result.error?.should be true
         result.error_msg.should =~ /Invalid input/
         result.error_status.should == 'SyntaxException'
         result.error_code.should_not be_empty
