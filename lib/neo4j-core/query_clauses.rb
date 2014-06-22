@@ -58,7 +58,7 @@ module Neo4j::Core
         var, label_string, attributes_string = nil
 
         case value
-        when String
+        when String, Symbol
           var = key
           label_string = value
         when Hash
