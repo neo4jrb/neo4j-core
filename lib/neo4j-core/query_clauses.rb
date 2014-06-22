@@ -151,7 +151,7 @@ module Neo4j::Core
             key.to_s + '.' + from_key_and_value(k, v)
           end.join(' AND ')
         when Array
-          "#{key} IN (#{value.join(', ')})"
+          "#{key} IN [#{value.join(', ')}]"
         else
           "#{key} = #{value.inspect}"
         end

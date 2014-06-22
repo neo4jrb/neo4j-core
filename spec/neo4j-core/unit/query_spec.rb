@@ -181,11 +181,11 @@ describe Neo4j::Core::Query do
     end
 
     describe ".where('q.age' => [30, 32, 34])" do
-      it_generates "WHERE q.age IN (30, 32, 34)"
+      it_generates "WHERE q.age IN [30, 32, 34]"
     end
 
     describe ".where(q: {age: [30, 32, 34]})" do
-      it_generates "WHERE q.age IN (30, 32, 34)"
+      it_generates "WHERE q.age IN [30, 32, 34]"
     end
 
     describe ".where(q: {age: 30, name: 'Brian'})" do
