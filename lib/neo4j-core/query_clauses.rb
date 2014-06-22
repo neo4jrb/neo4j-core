@@ -145,10 +145,13 @@ module Neo4j::Core
       @keyword = 'WHERE'
 
       def from_key_and_value(key, value)
-        if value.is_a?(Hash)
+        case value
+        when Hash
           value.map do |k, v|
             key.to_s + '.' + from_key_and_value(k, v)
           end.join(' AND ')
+        when Array
+          "#{key} IN (#{value.join(', ')})"
         else
           "#{key} = #{value.inspect}"
         end
