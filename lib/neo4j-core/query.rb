@@ -104,6 +104,17 @@ module Neo4j::Core
       build_deeper_query(SetClause, args, set_props: true)
     end
 
+    # Allows what's been built of the query so far to be frozen and the rest built anew.  Can be called multiple times in a string of method calls
+    # @example
+    #   # Creates a query representing the cypher: MATCH (q:Person), r:Car MATCH (p: Person)-->q
+    #   Query.new.match(q: Person).match('r:Car').break.match('(p: Person)-->q')
+    def break
+      build_deeper_query(nil)
+    end
+
+    def response
+      Neo4j::Session.current._query(self.to_cypher) # TODO: Support params
+    end
 
     # Returns a CYPHER query string from the object query representation
     # @example
@@ -111,12 +122,10 @@ module Neo4j::Core
     #
     # @return [String] Resulting cypher query string
     def to_cypher
-      cypher_string = clauses_partitioned_by_withs.map do |with_clauses, clauses|
+      cypher_string = partitioned_clauses.map do |clauses|
         clauses_by_class = clauses.group_by(&:class)
 
-        cypher_parts = []
-        cypher_parts << WithClause.to_cypher(with_clauses) unless with_clauses.empty?
-        cypher_parts += [CreateClause, CreateUniqueClause, MergeClause, StartClause, MatchClause, OptionalMatchClause, UsingClause, WhereClause, SetClause, RemoveClause, UnwindClause, DeleteClause, ReturnClause, OrderClause, LimitClause, SkipClause].map do |clause_class|
+        cypher_parts = [WithClause, CreateClause, CreateUniqueClause, MergeClause, StartClause, MatchClause, OptionalMatchClause, UsingClause, WhereClause, SetClause, RemoveClause, UnwindClause, DeleteClause, ReturnClause, OrderClause, LimitClause, SkipClause].map do |clause_class|
           clauses = clauses_by_class[clause_class]
 
           clause_class.to_cypher(clauses) if clauses
@@ -152,31 +161,29 @@ module Neo4j::Core
 
     private
 
-    def build_deeper_query(clause_class, args, options = {})
+    def build_deeper_query(clause_class, args = {}, options = {})
       self.dup.tap do |new_query|
-        new_query.add_clauses clause_class.from_args(args, options)
+        new_query.add_clauses [nil] if [nil, WithClause].include?(clause_class)
+        new_query.add_clauses clause_class.from_args(args, options) if clause_class
       end
     end
 
-    def clauses_partitioned_by_withs
-      # Each element of this array contains the with clauses and the clauses that follow them
-      partitioning = [[[], []]]
-
-      last_was_with = false
-      @clauses.each do |clause|
-        is_with = clause.is_a?(WithClause)
-
-        if is_with
-          partitioning << [[], []] if not last_was_with
-          partitioning.last.first << clause
-        else
-          partitioning.last.last  << clause
-        end
-
-        last_was_with = is_with
+    def break_deeper_query
+      self.dup.tap do |new_query|
+        new_query.add_clauses [nil]
       end
+    end
 
-      partitioning.pop if partitioning.last == [[], []]
+    def partitioned_clauses
+      partitioning = [[]]
+
+      @clauses.each do |clause|
+        if clause.nil? && partitioning.last != []
+          partitioning << []
+        else
+          partitioning.last << clause
+        end
+      end
 
       partitioning
     end

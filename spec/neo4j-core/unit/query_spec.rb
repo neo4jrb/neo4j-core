@@ -67,6 +67,20 @@ describe Neo4j::Core::Query do
     describe ".match(q: Person).with(count: 'count(q)').where('count > 2').with(new_count: 'count + 5')" do
       it_generates "MATCH (q:Person) WITH count(q) AS count WHERE count > 2 WITH count + 5 AS new_count"
     end
+
+    # breaks
+
+    describe ".match(q: Person).match('r:Car').break.match('(p: Person)-->q')" do
+      it_generates "MATCH (q:Person), r:Car MATCH (p: Person)-->q"
+    end
+
+    describe ".match(q: Person).break.match('r:Car').break.match('(p: Person)-->q')" do
+      it_generates "MATCH (q:Person) MATCH r:Car MATCH (p: Person)-->q"
+    end
+
+    describe ".match(q: Person).match('r:Car').break.break.match('(p: Person)-->q')" do
+      it_generates "MATCH (q:Person), r:Car MATCH (p: Person)-->q"
+    end
   end
 
   # START
