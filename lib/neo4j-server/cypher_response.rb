@@ -24,7 +24,7 @@ module Neo4j::Server
 
       def initialize(response, map_return_procs, query)
         @response = response
-        @map_return_procs = map_return_procs
+        @map_return_procs = map_return_procs || {}
         @query = query
       end
 
@@ -36,41 +36,23 @@ module Neo4j::Server
         "Enumerable query: '#{@query}'"
       end
 
-      def each_no_mapping
-        data.each do |row|
-          hash = {}
-          row.each_with_index do |row, i|
-            key = columns[i].to_sym
-            hash[key] = row
-          end
-          yield hash
+      def multi_column_mapping(row)
+        row.each_with_index.each_with_object({}) do |(row, i), hash|
+          key = columns[i].to_sym
+          proc = @map_return_procs[key]
+          hash[key] = proc ? proc.call(row) : row
         end
       end
 
-      def each_multi_column_mapping
-        data.each do |row|
-          hash = {}
-          row.each_with_index do |row, i|
-            key = columns[i].to_sym
-            proc = @map_return_procs[key]
-            hash[key] = proc ? proc.call(row) : row
-          end
-          yield hash
-        end
-      end
-
-      def each_single_column_mapping
-        data.each do |row|
-          result = @map_return_procs.call(row.first)
-          yield result
-        end
+      def single_column_mapping(row)
+        @map_return_procs.call(row.first)
       end
 
       def each(&block)
-        case @map_return_procs
-          when NilClass then each_no_mapping &block
-          when Hash then each_multi_column_mapping &block
-          else each_single_column_mapping &block
+        method = @map_return_procs.is_a?(Hash) ? :multi_column_mapping : :single_column_mapping
+
+        data.each do |row|
+          yield self.send(method, row)
         end
       end
     end
