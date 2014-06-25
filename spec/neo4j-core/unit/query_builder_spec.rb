@@ -15,6 +15,10 @@ describe Neo4j::Core::QueryBuilder do
     end
   end
 
+  describe "label: :person, conditions: { name: nil }" do
+    it_generates "MATCH (n:`person`) WHERE n.name='' RETURN ID(n)"
+  end
+
   describe 'q: "START n=node(0) RETURN n"'do
     it_generates "START n=node(0) RETURN n"
   end
