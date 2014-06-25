@@ -81,6 +81,8 @@ describe Neo4j::Core::Query do
     describe ".match(q: Person).match('r:Car').break.break.match('(p: Person)-->q')" do
       it_generates "MATCH (q:Person), r:Car MATCH (p: Person)-->q"
     end
+
+    # params
   end
 
   # START

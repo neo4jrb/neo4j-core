@@ -15,6 +15,7 @@ module Neo4j::Core
     def initialize(options = {})
       @options = options
       @clauses = []
+      @params
     end
 
     # @method start *args
@@ -112,8 +113,21 @@ module Neo4j::Core
       build_deeper_query(nil)
     end
 
+    # Allows for the specification of values for params specified in query
+    # @example
+    #   # Creates a query representing the cypher: MATCH (q: Person {id: {id}})
+    #   # Calls to params don't affect the cypher query generated, but the params will be
+    #   # Passed down when the query is made
+    #   Query.new.match('(q: Person {id: {id}})').params(id: 12)
+    #
+    def params(args)
+      @params = @params.merge(args)
+
+      self
+    end
+
     def response
-      Neo4j::Session.current._query(self.to_cypher) # TODO: Support params
+      Neo4j::Session.current._query(self.to_cypher, @params)
     end
 
     # Returns a CYPHER query string from the object query representation
