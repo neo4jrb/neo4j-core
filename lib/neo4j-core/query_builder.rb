@@ -151,6 +151,7 @@ module Neo4j::Core
       conditions["id(#{as})"] = neo_id if neo_id
 
       conditions.map do |key, value|
+        value = '' if value.nil?
         operator, value_string = case value
                                    when Regexp
                                      pattern = (value.casefold? ? "(?i)" : "") + value.source
