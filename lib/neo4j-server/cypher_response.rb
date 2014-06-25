@@ -62,14 +62,17 @@ module Neo4j::Server
     end
 
     def to_node_enumeration(cypher = '', session = Neo4j::Session.current)
-      map_return_proc = lambda do |value|
-        if value.is_a?(Hash)
-          CypherNode.new(session, value)
-        else
-          value
+      Enumerator.new do |yielder|
+        self.to_hash_enumeration({}, cypher).each do |row|
+          yielder << row.each_with_object({}) do |(column, value), result|
+            result[column] = if value.is_a?(Hash)
+              CypherNode.new(session, value).wrapper
+            else
+              value
+            end
+          end
         end
       end
-      HashEnumeration.new(self, map_return_proc, cypher)
     end
 
     def initialize(response, uncommited = false)
