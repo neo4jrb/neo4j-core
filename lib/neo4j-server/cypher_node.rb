@@ -3,9 +3,16 @@ module Neo4j::Server
     include Neo4j::Server::Resource
     include Neo4j::Core::CypherTranslator
 
-    def initialize(session, id)
+    def initialize(session, value)
       @session = session
-      @id = id
+
+      @id = if value.is_a?(Hash)
+        @response_hash = value
+        @props = @response_hash['data']
+        @response_hash['self'].match(/\d+$/)[0].to_i
+      else
+        value
+      end
     end
 
     def neo_id
@@ -30,8 +37,12 @@ module Neo4j::Server
 
     # (see Neo4j::Node#props)
     def props
-      props = @session._query_or_fail("START n=node(#{neo_id}) RETURN n", true)['data']
-      props.keys.inject({}){|hash,key| hash[key.to_sym] = props[key]; hash}
+      if @props
+        @props
+      else
+        props = @session._query_or_fail("START n=node(#{neo_id}) RETURN n", true)['data']
+        props.keys.inject({}){|hash,key| hash[key.to_sym] = props[key]; hash}
+      end
     end
 
     # (see Neo4j::Node#remove_property)

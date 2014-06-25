@@ -130,6 +130,51 @@ module Neo4j::Core
       Neo4j::Session.current._query(self.to_cypher, @params)
     end
 
+    include Enumerable
+
+    def each
+      self.response.to_node_enumeration.each {|object| yield object }
+    end
+
+    # Return the specified columns as an array.
+    # If one column is specified, a one-dimensional array is returned with the values of that column
+    # If two columns are specified, a n-dimensional array is returned with the values of those columns
+    #
+    # @example
+    #    Query.new.match(n: :Person).return(p: :name}.pluck(p: :name) # => Array of names
+    # @example
+    #    Query.new.match(n: :Person).return(p: :name}.pluck('p, p.name') # => Array of [node, name] pairs
+    #
+    def pluck(*columns)
+      query = self.dup
+      query.remove_clause_class(ReturnClause)
+
+      columns = columns.map do |column_definition|
+        if column_definition.is_a?(Hash)
+          column_definition.map {|k, v| "#{k}.#{v}" }
+        else
+          column_definition
+        end
+      end.flatten.map(&:to_sym)
+
+      query = self.return(columns)
+
+      case columns.size
+      when 0
+        raise ArgumentError, 'No columns specified for Query#pluck'
+      when 1
+        column = columns[0]
+        self.map {|row| row[column] }
+      else
+        self.map do |row|
+          columns.map do |column|
+            row[column]
+          end
+        end
+      end
+    end
+
+
     # Returns a CYPHER query string from the object query representation
     # @example
     #    Query.new.match(p: :Person).where(p: {age: 30})  # => "MATCH (p:Person) WHERE p.age = 30
@@ -173,6 +218,11 @@ module Neo4j::Core
       @clauses += clauses
     end
 
+    def remove_clause_class(clause_class)
+      @clauses = @clauses.reject do |clause|
+        clause.is_a?(clause_class)
+      end
+    end
     private
 
     def build_deeper_query(clause_class, args = {}, options = {})
