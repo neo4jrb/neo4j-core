@@ -157,16 +157,16 @@ module Neo4j::Core
         end
       end.flatten.map(&:to_sym)
 
-      query = self.return(columns)
+      query = query.return(columns)
 
       case columns.size
       when 0
         raise ArgumentError, 'No columns specified for Query#pluck'
       when 1
         column = columns[0]
-        self.map {|row| row[column] }
+        query.map {|row| row[column] }
       else
-        self.map do |row|
+        query.map do |row|
           columns.map do |column|
             row[column]
           end
