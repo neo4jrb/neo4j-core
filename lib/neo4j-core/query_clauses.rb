@@ -152,6 +152,8 @@ module Neo4j::Core
           end.join(' AND ')
         when Array
           "#{key} IN [#{value.join(', ')}]"
+        when NilClass
+          "#{key} IS NULL"
         else
           "#{key} = #{value.inspect}"
         end
