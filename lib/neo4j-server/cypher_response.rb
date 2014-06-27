@@ -66,7 +66,13 @@ module Neo4j::Server
         self.to_hash_enumeration({}, cypher).each do |row|
           yielder << row.each_with_object({}) do |(column, value), result|
             result[column] = if value.is_a?(Hash)
-              CypherNode.new(session, value).wrapper
+              if value['labels']
+                CypherNode.new(session, value).wrapper
+              elsif value['type']
+                CypherRelationship.new(session, value).wrapper
+              else
+                raise "Invalid response data: #{value.inspect}"
+              end
             else
               value
             end
