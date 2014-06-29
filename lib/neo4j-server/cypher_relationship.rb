@@ -18,8 +18,9 @@ module Neo4j::Server
 
         @response_hash['self'].match(/\d+$/)[0].to_i
       else
-        value
         @rel_type = rel_type
+
+        value
       end
     end
 
