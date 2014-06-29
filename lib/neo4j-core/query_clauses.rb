@@ -221,11 +221,11 @@ module Neo4j::Core
       @keyword = 'CREATE'
 
       def from_string(value)
-        "(#{value})"
+        value
       end
 
       def from_symbol(value)
-        from_string(value.to_s)
+        "(:#{value})"
       end
 
       def from_hash(hash)

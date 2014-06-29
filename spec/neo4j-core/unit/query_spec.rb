@@ -351,11 +351,14 @@ describe Neo4j::Core::Query do
     end
   end
 
-
-  # CREATE, CREATE UNIQUE, and MERGE should all work exactly thesame
+  # CREATE, CREATE UNIQUE, and MERGE should all work exactly the same
 
   describe "#create" do
-    describe ".create(':Person')" do
+    describe ".create('(:Person)')" do
+      it_generates "CREATE (:Person)"
+    end
+
+    describe ".create(:Person)" do
       it_generates "CREATE (:Person)"
     end
 
@@ -373,7 +376,11 @@ describe Neo4j::Core::Query do
   end
 
   describe "#create_unique" do
-    describe ".create_unique(':Person')" do
+    describe ".create_unique('(:Person)')" do
+      it_generates "CREATE UNIQUE (:Person)"
+    end
+
+    describe ".create_unique(:Person)" do
       it_generates "CREATE UNIQUE (:Person)"
     end
 
@@ -391,7 +398,11 @@ describe Neo4j::Core::Query do
   end
 
   describe "#merge" do
-    describe ".merge(':Person')" do
+    describe ".merge('(:Person)')" do
+      it_generates "MERGE (:Person)"
+    end
+
+    describe ".merge(:Person)" do
       it_generates "MERGE (:Person)"
     end
 
@@ -407,7 +418,6 @@ describe Neo4j::Core::Query do
       it_generates "MERGE (q:Person {age: 41, height: 70})"
     end
   end
-
 
 
   # DELETE
