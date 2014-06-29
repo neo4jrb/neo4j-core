@@ -82,12 +82,25 @@ module Neo4j::Core
     # MERGE clause
     # @return [Query]
 
+    # @method on_create_set *args
+    # ON CREATE SET clause
+    # @return [Query]
+
+    # @method on_match_set *args
+    # ON MATCH SET clause
+    # @return [Query]
+
     # @method delete *args
     # DELETE clause
     # @return [Query]
 
-    %w[start match optional_match using where with order limit skip set remove unwind return create create_unique merge delete].each do |clause|
-      clause_class = clause.split('_').map {|c| c.capitalize }.join + 'Clause'
+    METHODS = %w[with start match optional_match using where set create create_unique merge on_create_set on_match_set remove unwind delete return order limit skip]
+
+    CLAUSES = METHODS.map {|method| const_get(method.split('_').map {|c| c.capitalize }.join + 'Clause') }
+
+    METHODS.each_with_index do |clause, i|
+      clause_class = CLAUSES[i]
+
       module_eval(%Q{
         def #{clause}(*args)
           build_deeper_query(#{clause_class}, args)
@@ -184,7 +197,7 @@ module Neo4j::Core
       cypher_string = partitioned_clauses.map do |clauses|
         clauses_by_class = clauses.group_by(&:class)
 
-        cypher_parts = [WithClause, CreateClause, CreateUniqueClause, MergeClause, StartClause, MatchClause, OptionalMatchClause, UsingClause, WhereClause, SetClause, RemoveClause, UnwindClause, DeleteClause, ReturnClause, OrderClause, LimitClause, SkipClause].map do |clause_class|
+        cypher_parts = CLAUSES.map do |clause_class|
           clauses = clauses_by_class[clause_class]
 
           clause_class.to_cypher(clauses) if clauses

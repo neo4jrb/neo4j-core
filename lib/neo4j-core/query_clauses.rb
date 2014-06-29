@@ -364,6 +364,19 @@ module Neo4j::Core
       end
     end
 
+    class OnCreateSetClause < SetClause
+      @keyword = 'ON CREATE SET'
+
+      def initialize(*args)
+        super
+        @options[:set_props] = true
+      end
+    end
+
+    class OnMatchSetClause < OnCreateSetClause
+      @keyword = 'ON MATCH SET'
+    end
+
     class RemoveClause < Clause
       @keyword = 'REMOVE'
 

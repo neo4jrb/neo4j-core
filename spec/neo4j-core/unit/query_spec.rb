@@ -450,6 +450,51 @@ describe Neo4j::Core::Query do
     describe ".set_props(n: {name: 'Brian', age: 30})" do
       it_generates "SET n.name = \"Brian\", n.age = 30"
     end
+
+    describe ".set_props(n: {name: 'Brian', age: 30}, o: {age: 29})" do
+      it_generates "SET n.name = \"Brian\", n.age = 30, o.age = 29"
+    end
+
+    describe ".set_props(n: {name: 'Brian', age: 30}).set_props('o.age = 29')" do
+      it_generates "SET n.name = \"Brian\", n.age = 30, o.age = 29"
+    end
+  end
+
+  # ON CREATE and ON MATCH should behave just like set_props
+  describe "#on_create_set" do
+    describe ".on_create_set('n = {name: \"Brian\"}')" do
+      it_generates "ON CREATE SET n = {name: \"Brian\"}"
+    end
+
+    describe ".on_create_set(n: {name: 'Brian', age: 30})" do
+      it_generates "ON CREATE SET n.name = \"Brian\", n.age = 30"
+    end
+
+    describe ".on_create_set(n: {name: 'Brian', age: 30}, o: {age: 29})" do
+      it_generates "ON CREATE SET n.name = \"Brian\", n.age = 30, o.age = 29"
+    end
+
+    describe ".on_create_set(n: {name: 'Brian', age: 30}).on_create_set('o.age = 29')" do
+      it_generates "ON CREATE SET n.name = \"Brian\", n.age = 30, o.age = 29"
+    end
+  end
+
+  describe "#on_match_set" do
+    describe ".on_match_set('n = {name: \"Brian\"}')" do
+      it_generates "ON MATCH SET n = {name: \"Brian\"}"
+    end
+
+    describe ".on_match_set(n: {name: 'Brian', age: 30})" do
+      it_generates "ON MATCH SET n.name = \"Brian\", n.age = 30"
+    end
+
+    describe ".on_match_set(n: {name: 'Brian', age: 30}, o: {age: 29})" do
+      it_generates "ON MATCH SET n.name = \"Brian\", n.age = 30, o.age = 29"
+    end
+
+    describe ".on_match_set(n: {name: 'Brian', age: 30}).on_match_set('o.age = 29')" do
+      it_generates "ON MATCH SET n.name = \"Brian\", n.age = 30, o.age = 29"
+    end
   end
 
   # REMOVE
