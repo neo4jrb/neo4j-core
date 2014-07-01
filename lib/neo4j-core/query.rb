@@ -140,13 +140,33 @@ module Neo4j::Core
     end
 
     def response
-      Neo4j::Session.current._query(self.to_cypher, @params)
+      response = Neo4j::Session.current._query(self.to_cypher, @params)
+      unless response.error?
+        response
+      else
+        response.raise_error
+      end
     end
 
     include Enumerable
 
     def each
       self.response.to_node_enumeration.each {|object| yield object }
+    end
+
+    # @method to_a
+    # Class is Enumerable.  Each yield is a Hash with the key matching the variable returned and the value being the value for that key from the response
+    # @return [Array]
+    # @raise [Neo4j::Server::CypherResponse::ResponseError] Raises errors from neo4j server
+
+
+    # Executes a query without returning the result
+    # @return [Boolean] true if successful
+    # @raise [Neo4j::Server::CypherResponse::ResponseError] Raises errors from neo4j server
+    def exec
+      self.response
+
+      true
     end
 
     # Return the specified columns as an array.
