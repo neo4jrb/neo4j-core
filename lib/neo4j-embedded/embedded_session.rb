@@ -34,6 +34,7 @@ module Neo4j::Embedded
       factory = Java::OrgNeo4jGraphdbFactory::GraphDatabaseFactory.new
       @graph_db = factory.newEmbeddedDatabase(db_location)
       Neo4j::Session._notify_listeners(:session_available, self)
+      @engine = Java::OrgNeo4jCypherJavacompat::ExecutionEngine.new(@graph_db)
     end
 
     def factory_class
@@ -111,8 +112,8 @@ module Neo4j::Embedded
     # @param [String] q the cypher query as a String
     # @return (see #query)
     def _query(q, params={})
-      engine = Java::OrgNeo4jCypherJavacompat::ExecutionEngine.new(@graph_db)
-      engine.execute(q, Neo4j::Core::HashWithIndifferentAccess.new(params))
+      @engine ||= Java::OrgNeo4jCypherJavacompat::ExecutionEngine.new(@graph_db)
+      @engine.execute(q, Neo4j::Core::HashWithIndifferentAccess.new(params))
     rescue Exception => e
         raise Neo4j::Session::CypherError.new(e.message, e.class, 'cypher error')
     end
@@ -122,8 +123,8 @@ module Neo4j::Embedded
     end
 
     def _query_or_fail(q)
-      engine = Java::OrgNeo4jCypherJavacompat::ExecutionEngine.new(@graph_db)
-      engine.execute(q)
+      @engine ||= Java::OrgNeo4jCypherJavacompat::ExecutionEngine.new(@graph_db)
+      @engine.execute(q)
     end
 
     def search_result_to_enumerable(result)
