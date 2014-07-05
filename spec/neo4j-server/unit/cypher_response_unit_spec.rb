@@ -77,7 +77,6 @@ module Neo4j::Server
           ['r'])
 
         node_enumeration = response.to_node_enumeration.to_a
-        puts "node_enumeration", node_enumeration.inspect
 
         node_enumeration[0][:r].should be_a Neo4j::Server::CypherRelationship
         node_enumeration[1][:r].should be_a Neo4j::Server::CypherRelationship
