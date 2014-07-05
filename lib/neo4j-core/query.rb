@@ -13,9 +13,11 @@ module Neo4j::Core
     include Neo4j::Core::QueryClauses
 
     def initialize(options = {})
+      @session = options[:session] || Neo4j::Session.current
+
       @options = options
       @clauses = []
-      @params
+      @params = {}
     end
 
     # @method start *args
@@ -140,7 +142,7 @@ module Neo4j::Core
     end
 
     def response
-      response = Neo4j::Session.current._query(self.to_cypher, @params)
+      response = @session._query(self.to_cypher, @params)
       unless response.error?
         response
       else

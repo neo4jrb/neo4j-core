@@ -147,6 +147,10 @@ describe Neo4j::Core::Query do
       it_generates "MATCH (n:Person {name: \"Brian\", age: 33})"
     end
 
+    describe ".match(n: {Person: {name: '{param}'}})" do
+      it_generates "MATCH (n:Person {name: {param}})"
+    end
+
     describe ".match('n--o')" do
       it_generates "MATCH n--o"
     end
@@ -188,6 +192,14 @@ describe Neo4j::Core::Query do
   # WHERE
 
   describe '#where' do
+    describe ".where()" do
+      it_generates ""
+    end
+
+    describe ".where({})" do
+      it_generates ""
+    end
+
     describe ".where('q.age > 30')" do
       it_generates "WHERE q.age > 30"
     end
@@ -285,6 +297,13 @@ describe Neo4j::Core::Query do
       it_generates "ORDER BY q.age"
     end
 
+    describe ".order(q: [:age, {name: :desc}])" do
+      it_generates "ORDER BY q.age, q.name DESC"
+    end
+
+    describe ".order(q: [:age, {name: :desc, grade: :asc}])" do
+      it_generates "ORDER BY q.age, q.name DESC, q.grade ASC"
+    end
     describe ".order(q: {age: :asc, name: :desc})" do
       it_generates "ORDER BY q.age ASC, q.name DESC"
     end

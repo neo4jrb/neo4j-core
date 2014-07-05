@@ -21,11 +21,11 @@ RSpec.shared_examples "Neo4j::Session" do
 
     describe 'find_nodes' do
       before do
-        session.query("CREATE (n:label { name : 'test', id: 2, version: 1.1 })")
+        session.query.create(n: {label: {name: 'test', id: 2, version: 1.1}}).exec
       end
 
       after do
-        session.query("MATCH (n:`label`) DELETE n")
+        session.query.match(n: :label).delete(:n).exec
       end
 
       def verify(node)
@@ -68,30 +68,31 @@ RSpec.shared_examples "Neo4j::Session" do
 
       describe 'finds with :conditions' do
         it 'finds all nodes matching condition' do
-          result = Neo4j::Session.query(label: @label, conditions: {name: 'andreas'}).to_a
+          result = Neo4j::Session.query.match(n: {@label => {name: 'andreas'}}).pluck(:n)
+
           result.should =~ [@andreas1, @andreas2]
           result.count.should == 2
         end
 
         it 'supports regex condition' do
-          result = Neo4j::Session.query(label: @label, conditions: {name: /AND.*/i}).to_a
+          result = Neo4j::Session.query.match(n: @label).where(n: {name: /AND.*/i}).pluck(:n).to_a
           result.should include(@andreas1, @andreas2)
           result.count.should == 2
         end
 
         it 'returns all nodes if no conditions' do
-          result = Neo4j::Session.query(label: @label).to_a
+          result = Neo4j::Session.query.match(n: @label).pluck(:n).to_a
           result.should include(@kalle, @andreas2, @andreas1, @zebbe)
           result.count.should == 4
 
-          result = Neo4j::Session.query(label: @label, conditions: {}).to_a
+          result = Neo4j::Session.query.match(n: @label).where({}).pluck(:n).to_a
           result.should include(@kalle, @andreas2, @andreas1, @zebbe)
           result.count.should == 4
         end
 
         it 'returns a empty enumerable if not match condition' do
-          Neo4j::Session.query(label: @label, conditions: {name: 'andreas42'}).count.should == 0
-          Neo4j::Session.query(label: @label, conditions: {namqe: 'andreas'}).count.should == 0
+          Neo4j::Session.query.match(n: @label).where(n: {name: 'andreas42'}).return(:n).count.should == 0
+          Neo4j::Session.query.match(n: @label).where(n: {namqe: 'andreas'}).return(:n).count.should == 0
         end
 
         #it 'does a greater than query for .gt keys' do
@@ -111,7 +112,7 @@ RSpec.shared_examples "Neo4j::Session" do
           @andreas1 = Neo4j::Node.create({name: 'andreas', age: 1}, @label)
         end
 
-        subject { Neo4j::Session.query(label: @label, match: match, conditions: {name: 'kalle'}) }
+        subject { Neo4j::Session.query.match(n: @label).match(match).where(n: {name: 'kalle'}).pluck(:n) }
 
         let(:match) { ['n-[:friend]-o'] }
         context 'no relationship' do
@@ -150,7 +151,14 @@ RSpec.shared_examples "Neo4j::Session" do
           context 'integer input' do
             let(:match) { 1 }
             it 'raises error' do
-              expect { subject }.to raise_error(Neo4j::Core::QueryBuilder::InvalidQueryError)
+              expect { subject.response }.to raise_error(ArgumentError)
+            end
+          end
+
+          context 'invalid cypher' do
+            let(:match) { 'n-o' }
+            it 'raises error' do
+              expect { subject.response }.to raise_error(Neo4j::Server::CypherResponse::ResponseError)
             end
           end
 
@@ -159,67 +167,60 @@ RSpec.shared_examples "Neo4j::Session" do
 
       describe 'sort' do
         it 'sorts with: order: :name' do
-          result = Neo4j::Session.query(label: @label, order: :name).to_a
+          result = Neo4j::Session.query.match(n: @label).order(n: :name).pluck(:n)
           result.count.should == 4
-          result.to_a.map { |n| n[:name] }.should == %w[andreas andreas kalle zebbe]
+          result.to_a.map(&:name).should == %w[andreas andreas kalle zebbe]
         end
 
         it 'sorts with: order: [:name, :age]' do
-          result = Neo4j::Session.query(label: @label, order: [:name, :age]).to_a
+          result = Neo4j::Session.query.match(n: @label).order(n: [:name, :age]).pluck(:n)
           result.count.should == 4
-          result.map { |n| n[:name] }.should == %w[andreas andreas kalle zebbe]
-          result.map { |n| n[:age] }.should == [1, 2, 4, 3]
-        end
-
-        it 'sorts with: order: [:name, :age]' do
-          result = Neo4j::Session.query(label: @label, order: [:name, :age]).to_a
-          result.count.should == 4
-          result.map { |n| n[:name] }.should == %w[andreas andreas kalle zebbe]
-          result.map { |n| n[:age] }.should == [1, 2, 4, 3]
+          result.map(&:name).should == %w[andreas andreas kalle zebbe]
+          result.map(&:age).should == [1, 2, 4, 3]
         end
 
         it 'sorts with order: {name: :desc}' do
-          result = Neo4j::Session.query(label: @label, order: {name: :desc}).to_a
-          result.map { |n| n[:name] }.should == %w[zebbe kalle andreas andreas]
+          result = Neo4j::Session.query.match(n: @label).order(n: {name: :desc}).pluck(:n)
+          result.map(&:name).should == %w[zebbe kalle andreas andreas]
 
-          result = Neo4j::Session.query(label: @label, order: {name: :asc})
-          result.map { |n| n[:name] }.should == %w[andreas andreas kalle zebbe]
+          result = Neo4j::Session.query.match(n: @label).order(n: {name: :asc}).pluck(:n)
+          result.map(&:name).should == %w[andreas andreas kalle zebbe]
         end
 
         it 'sorts with order: [:name, {age: :desc}]' do
-          result = Neo4j::Session.query(label: @label, order: [:name, {age: :desc}]).to_a
-          result.map { |n| n[:name] }.should == %w[andreas andreas kalle zebbe]
-          result.map { |n| n[:age] }.should == [2, 1, 4, 3]
+          result = Neo4j::Session.query.match(n: @label).order(n: [:name, {age: :desc}]).pluck(:n)
+          result.map(&:name).should == %w[andreas andreas kalle zebbe]
+          result.map(&:age).should == [2, 1, 4, 3]
 
-          result = Neo4j::Session.query(label: @label, order: [:name, {age: :asc}]).to_a
-          result.map { |n| n[:name] }.should == %w[andreas andreas kalle zebbe]
-          result.map { |n| n[:age] }.should == [1, 2, 4, 3]
+          result = Neo4j::Session.query.match(n: @label).order(n: [:name, {age: :asc}]).pluck(:n)
+          result.map(&:name).should == %w[andreas andreas kalle zebbe]
+          result.map(&:age).should == [1, 2, 4, 3]
         end
 
       end
 
       describe 'limit' do
         it 'limits number of results returned' do
-          result = Neo4j::Session.query(label: @label, limit: 2).to_a
+          result = Neo4j::Session.query.match(n: @label).return(:n).limit(2).to_a
           result.count.should == 2
         end
 
         it 'limits number of results returned when combined with sort' do
-          result = Neo4j::Session.query(label: @label, order: :name, limit: 3).to_a
-          result.map { |n| n[:name] }.should == %w[andreas andreas kalle]
+          result = Neo4j::Session.query.match(n: @label).order(n: :name).limit(3).pluck(:n)
+          result.map(&:name).should == %w[andreas andreas kalle]
           result.count.should == 3
         end
       end
 
       describe 'invalid cypher' do
-        it 'raise Neo4j::Session::CypherError' do
-          expect { session.query("QTART n=node(0) RETURN ID(n)") }.to raise_error(Neo4j::Session::CypherError)
+        it 'raise Neo4j::Server::CypherResponse::ResponseError' do
+          expect { session.query.start("n=nuode(0)").return("ID(n)").response }.to raise_error(Neo4j::Server::CypherResponse::ResponseError)
         end
       end
 
       describe 'cypher parameters' do
         it 'allows {VAR_NAME}' do
-          r = session.query("START n=node({my_var}) RETURN ID(n) AS id", params: {my_var: @jimmy.neo_id})
+          r = session.query.start(n: 'node({my_var})').return("ID(n) AS id").params(my_var: @jimmy.neo_id)
           r.first[:id].should == @jimmy.neo_id
         end
       end
@@ -227,21 +228,15 @@ RSpec.shared_examples "Neo4j::Session" do
 
       describe 'find with label' do
         it 'by default map the result to single column of nodes' do
-          result = session.query(label: :person) # same as (label: :person, map_return: :id_to_node)
+          result = session.query.match(n: :person).pluck(:n)
           result.should include(@jimmy)
-        end
-      end
-
-      describe 'to_s' do
-        it "has a to_s method" do
-          session.query(label: :foobar).to_s.should start_with("MATCH (n:`foobar`) RETURN")
         end
       end
 
       describe 'find with where' do
         it 'accepts cypher parameters' do
           n = Neo4j::Node.create({name: 'kallekula'}, :person)
-          r = session.query(label: :person, where: 'n.name={a_name}', params: {a_name: 'kallekula'})
+          r = session.query.match(n: {person: {name: '{a_name}'}}).params(a_name: 'kallekula').pluck(:n)
           r.should include(n)
         end
       end
@@ -249,98 +244,34 @@ RSpec.shared_examples "Neo4j::Session" do
       describe 'return' do
         describe 'label: :person, return: [:name, :age]' do
           it 'returns two properties in a hash' do
-            result = session.query(label: :person, return: [:name, :age])
-            result.first.should have_key(:name)
-            result.first.should have_key(:age)
+            result = session.query.match(n: :person).return(n: [:name, :age])
+            result.first.should respond_to('n.name')
+            result.first.should respond_to('n.age')
           end
         end
 
         describe 'label: :person, return: :name' do
           it 'returns only the name in an Enumerable' do
-            result = session.query(label: :person, return: :name)
+            result = session.query.match(n: :person).pluck(n: :name)
             result.should include('jimmy')
           end
         end
 
         describe 'label: :person, return: "n.age as somethingelse"' do
           it 'returns only the name in an Enumerable' do
-            result = session.query(label: :person, return: "n.age as somethingelse")
-            result.first.should have_key(:somethingelse)
+            result = session.query.match(n: :person).return("n.age as somethingelse").to_a
+            result.first.should respond_to(:somethingelse)
           end
         end
 
         describe 'label: :person' do
           it "returns Neo4j::Node enumerable" do
-            result = session.query(label: :person)
+            result = session.query.match(n: :person).pluck(:n)
             result.should include(@jimmy)
           end
         end
       end
 
-      describe 'map_return' do
-        describe "START n=node(42) RETURN n.name, n.age" do
-          it 'returns an Enumerable of hashes for each row' do
-            id = @jimmy.neo_id
-            result = session.query("START n=node(#{id}) RETURN n.name, n.age").to_a
-            result.first[:'n.name'].should == 'jimmy'
-            result.first[:'n.age'].should == 42
-          end
-        end
-
-        describe 'START n=node(42) RETURN n.name", map_return: :value' do
-          it 'uses the first column value (n.name) in the Enumerable instead of a hash' do
-            result = session.query("START n=node(#{@jimmy.neo_id}) RETURN n.name", map_return: :value)
-            result.first.should == 'jimmy'
-          end
-        end
-
-
-        describe "label: :person, return: 'ID(n)', map_return: :value" do
-          it 'returns the id of the nodes in an Enumerable' do
-            result = session.query(label: :person, return: 'ID(n)', map_return: :value)
-            result.should include(@jimmy.neo_id)
-          end
-        end
-
-
-        describe 'START n=relationship(43) RETURN ID(n)", map_return: :id_to_rel' do
-          it 'can map and load Neo4j::Relationships' do
-            result = session.query("START n=relationship(#{@andreas_jimmy_rel.neo_id}) RETURN ID(n)", map_return: :id_to_rel)
-            rel = result.first
-            rel.should respond_to(:start_node)
-            rel.should respond_to(:end_node)
-#            rel.rel_type.should == :friends TODO
-            rel.should == @andreas_jimmy_rel
-          end
-        end
-
-        describe 'label: :person, return: :age, map_return: :age_times_two, map_return_procs: {age_times_two: ->(row){(row || 0) *2}}' do
-          it 'uses the age property and maps it' do
-            result = session.query(label: :person, return: :age, map_return: :age_times_two, map_return_procs: {age_times_two: ->(row){(row || 0) *2}})
-            result.to_a.should include(84,40) # age 20 and 42 times two
-          end
-        end
-
-        it 'can map several column values' do
-          a = Neo4j::Node.create({name: 'a'}, :laijban)
-          b = Neo4j::Node.create({name: 'b'}, :laijban)
-          r = a.create_rel(:knows, b)
-          result = Neo4j::Session.query("START a=node(#{a.neo_id}) MATCH (a)-[r]-(b) RETURN ID(a) as A, ID(r) as R", map_return: {A: :id_to_node, R: :id_to_rel}).first
-
-          result[:A].should == a
-          result[:R].should == r
-        end
-
-        it "can create nodes and retrieve a node" do
-          result = session.query("CREATE (n) RETURN ID(n) AS id", map_return: :value)
-          created_id = result.first
-          result = session.query("START n=node(#{created_id}) RETURN ID(n) AS id", map_return: :value)
-          retrieved_id = result.first
-          created_id.should == retrieved_id
-        end
-
-
-      end
     end
 
   end

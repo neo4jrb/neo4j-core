@@ -20,8 +20,7 @@ module Neo4j::Server
     end
 
     it "can run a valid query" do
-      result = session.query("CREATE (n) RETURN ID(n) AS id", map_return: :value)
-      id = result.to_a.first;
+      id = session.query.create("(n)").return("ID(n) AS id").first[:id]
 
       tx = session.begin_tx
 
@@ -76,7 +75,7 @@ module Neo4j::Server
       node['name'].should == 'andreas'
     end
 
-    it 'can continue operations after transaction is rolledback' do
+    it 'can continue operations after transaction is rolled back' do
       node = Neo4j::Node.create(name: 'andreas')
       Neo4j::Transaction.run do |tx|
         tx.failure

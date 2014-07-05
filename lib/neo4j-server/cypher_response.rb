@@ -21,6 +21,7 @@ module Neo4j::Server
       def_delegator :@response, :error_code
       def_delegator :@response, :data
       def_delegator :@response, :columns
+      def_delegator :@response, :struct
 
       def initialize(response, map_return_procs, query)
         @response = response
@@ -37,10 +38,12 @@ module Neo4j::Server
       end
 
       def multi_column_mapping(row)
-        row.each_with_index.each_with_object({}) do |(row, i), hash|
-          key = columns[i].to_sym
+        row.each_with_index.each_with_object(struct.new) do |(value, i), result|
+          column = columns[i]
+          key = column.to_sym
           proc = @map_return_procs[key]
-          hash[key] = proc ? proc.call(row) : row
+
+          result[key] = proc ? proc.call(value) : value
         end
       end
 
@@ -57,21 +60,22 @@ module Neo4j::Server
       end
     end
 
-    def to_hash_enumeration(map_return_procs = {}, cypher = '')
+    def to_struct_enumeration(map_return_procs = {}, cypher = '')
       HashEnumeration.new(self, map_return_procs, cypher)
     end
 
     def to_node_enumeration(cypher = '', session = Neo4j::Session.current)
       Enumerator.new do |yielder|
-        self.to_hash_enumeration({}, cypher).each do |row|
-          yielder << row.each_with_object({}) do |(column, value), result|
+        self.to_struct_enumeration({}, cypher).each do |row|
+          yielder << row.each_pair.each_with_object(@struct.new) do |(column, value), result|
+
             result[column] = if value.is_a?(Hash)
               if value['labels']
                 CypherNode.new(session, value).wrapper
               elsif value['type']
                 CypherRelationship.new(session, value).wrapper
               else
-                raise "Invalid response data: #{value.inspect}"
+                value
               end
             else
               value
@@ -80,6 +84,8 @@ module Neo4j::Server
         end
       end
     end
+
+    attr_reader :struct
 
     def initialize(response, uncommited = false)
       @response = response
@@ -110,6 +116,7 @@ module Neo4j::Server
     def set_data(data, columns)
       @data = data
       @columns = columns
+      @struct = columns.empty? ? Object.new : Struct.new(*columns.map(&:to_sym))
       self
     end
 

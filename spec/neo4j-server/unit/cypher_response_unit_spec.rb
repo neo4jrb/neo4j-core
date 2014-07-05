@@ -2,23 +2,27 @@ require 'spec_helper'
 
 module Neo4j::Server
   describe CypherResponse do
+    def hash_to_struct(response, hash)
+      response.struct.new(*hash.values)
+    end
 
-    describe '#to_hash_enumeration' do
+    describe '#to_struct_enumeration' do
       it "creates a enumerable of hash key values" do
           #result.data.should == [[0]]
           #result.columns.should == ['ID(n)']
         response = CypherResponse.new(nil,nil)
         response.set_data([[0]], ['ID(n)'])
 
-        response.to_hash_enumeration.to_a.should == [{:'ID(n)' => 0}]
+        response.to_struct_enumeration.to_a.should == [hash_to_struct(response, {:'ID(n)' => 0})]
       end
 
       it "creates an enumerable of hash key multiple values" do
         response = CypherResponse.new(nil,nil)
         response.set_data([['Romana', 126],['The Doctor',750]], ['name', 'age'])
 
-        response.to_hash_enumeration.to_a.should ==
-          [{:name => 'Romana', :age => 126},{:name => 'The Doctor', :age => 750}]
+        response.to_struct_enumeration.to_a.should ==
+          [hash_to_struct(response, {:name => 'Romana', :age => 126}),
+           hash_to_struct(response, {:name => 'The Doctor', :age => 750})]
       end
     end
 
@@ -27,7 +31,7 @@ module Neo4j::Server
         response = CypherResponse.new(nil,nil)
         response.set_data([['Billy'], ['Jimmy']], ['person.name'])
 
-        response.to_node_enumeration.to_a.should == [{:'person.name' => 'Billy'}, {:'person.name' => 'Jimmy'}]
+        response.to_node_enumeration.to_a.should == [hash_to_struct(response, {:'person.name' => 'Billy'}), hash_to_struct(response, {:'person.name' => 'Jimmy'})]
       end
 
       it 'returns hydrated CypherNode objects' do
@@ -73,6 +77,7 @@ module Neo4j::Server
           ['r'])
 
         node_enumeration = response.to_node_enumeration.to_a
+        puts "node_enumeration", node_enumeration.inspect
 
         node_enumeration[0][:r].should be_a Neo4j::Server::CypherRelationship
         node_enumeration[1][:r].should be_a Neo4j::Server::CypherRelationship

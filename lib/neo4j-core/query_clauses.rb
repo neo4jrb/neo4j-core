@@ -11,6 +11,8 @@ module Neo4j::Core
 
 
     class Clause
+      include CypherTranslator
+
       def initialize(arg, options = {})
         @arg = arg
         @options = options
@@ -93,7 +95,11 @@ module Neo4j::Core
         attr_reader :keyword
 
         def from_args(args, options = {})
-          args.flatten.map {|arg| self.new(arg, options) }
+          args.flatten.map do |arg|
+            if !arg.respond_to?(:empty?) || !arg.empty?
+              self.new(arg, options)
+            end
+          end.compact
         end
 
         def to_cypher(clauses)
@@ -111,7 +117,8 @@ module Neo4j::Core
 
       def attributes_string(attributes)
         attributes_string = attributes.map do |key, value|
-          "#{key}: #{value.inspect}"
+          v = value.to_s.match(/^{.+}$/) ? value : value.inspect
+          "#{key}: #{v}"
         end.join(', ')
 
         " {#{attributes_string}}"
@@ -154,6 +161,9 @@ module Neo4j::Core
           "#{key} IN [#{value.join(', ')}]"
         when NilClass
           "#{key} IS NULL"
+        when Regexp
+          pattern = (value.casefold? ? "(?i)" : "") + value.source
+          "#{key} =~ #{escape_value(pattern.gsub(/\\/, '\\\\\\'))}"
         else
           "#{key} = #{value.inspect}"
         end
@@ -284,7 +294,11 @@ module Neo4j::Core
           "#{key}.#{value}"
         when Array
           value.map do |v|
-            "#{key}.#{v}"
+            if v.is_a?(Hash)
+              from_key_and_value(key, v)
+            else
+              "#{key}.#{v}"
+            end
           end
         when Hash
           value.map do |k, v|

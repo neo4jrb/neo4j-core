@@ -45,8 +45,7 @@ module Neo4j::Server
 
     describe '_query' do
       let(:a_node_id) do
-        result = session.query("CREATE (n) RETURN ID(n) AS id")
-        result.first[:id];
+        session.query.create("(n)").return("ID(n) AS id").first[:id]
       end
 
       it 'returns a result containing data,columns and error?' do

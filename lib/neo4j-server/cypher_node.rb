@@ -45,6 +45,14 @@ module Neo4j::Server
       end
     end
 
+    def method_missing(method)
+      if props.has_key?(method.to_s)
+        props[method.to_s]
+      else
+        super
+      end
+    end
+
     # (see Neo4j::Node#remove_property)
     def remove_property(key)
       @session._query_or_fail("START n=node(#{neo_id}) REMOVE n.`#{key}`")

@@ -21,7 +21,6 @@ module Neo4j::Embedded
       @db_location = db_location
       @auto_commit = !!config[:auto_commit]
       Neo4j::Session.register(self)
-      @query_builder = Neo4j::Core::QueryBuilder.new
     end
 
     def inspect
@@ -85,17 +84,8 @@ module Neo4j::Embedded
       nil
     end
 
-    def query(*params)
-      query_hash = @query_builder.to_query_hash(params, :to_node)
-      cypher = @query_builder.to_cypher(query_hash)
-
-      result = _query(cypher, query_hash[:params])
-      if result.respond_to?(:error?) && result.error?
-        raise Neo4j::Session::CypherError.new(result.error_msg, result.error_code, result.error_status)
-      end
-
-      map_return_procs = @query_builder.to_map_return_procs(query_hash)
-      ResultWrapper.new(result, map_return_procs, cypher)
+    def query(options = {})
+      Neo4j::Core::Query.new(options.merge(session: self))
     end
 
     def find_all_nodes(label)
