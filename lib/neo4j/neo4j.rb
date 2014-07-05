@@ -122,8 +122,8 @@ module Neo4j
     # @param [String] q the cypher query as a String
     # @return (see #query)
     def _query(q, params={})
-      engine = Java::OrgNeo4jCypherJavacompat::ExecutionEngine.new(db)
-      result = engine.execute(q, Core::HashWithIndifferentAccess.new(params))
+      @engine ||= Java::OrgNeo4jCypherJavacompat::ExecutionEngine.new(db)
+      result = @engine.execute(q, Core::HashWithIndifferentAccess.new(params))
       Neo4j::Cypher::ResultWrapper.new(result)
     end
 
