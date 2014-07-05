@@ -31,7 +31,7 @@ describe Java::OrgNeo4jKernel::EmbeddedGraphDatabase, :type => :java_integration
         it "throws TransactionFailureException" do
           lambda do
             embedded_db.create_node.should be_kind_of(Java::OrgNeo4jGraphdb::Node)
-          end.should raise_error(NativeException) # Java::OrgNeo4jGraphdb::TransactionFailureException)
+          end.should raise_error(org.neo4j.graphdb.NotInTransactionException)
         end
       end
     end

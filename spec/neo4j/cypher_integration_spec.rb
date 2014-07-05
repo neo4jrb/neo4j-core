@@ -130,7 +130,7 @@ describe "Neo4j#query (cypher)", :type => :integration do
   
   describe "_query should take params" do
     it 'should return one node with node id passed in as colon param' do
-      r = Neo4j._query("START n=node({nodeid}) RETURN n", {nodeid: @a.neo_id})
+      r = Neo4j._query("START n=node({nodeid}) RETURN n", {"nodeid" => @a.neo_id})
       r.first[:n][:name].should == 'a'
     end
     
