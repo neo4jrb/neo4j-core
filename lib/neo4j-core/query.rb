@@ -143,7 +143,7 @@ module Neo4j::Core
 
     def response
       response = @session._query(self.to_cypher, @params)
-      unless response.error?
+      if !response.respond_to?(:error?) || !response.error?
         response
       else
         response.raise_error
@@ -153,7 +153,12 @@ module Neo4j::Core
     include Enumerable
 
     def each
-      self.response.to_node_enumeration.each {|object| yield object }
+      response = self.response
+      if response.is_a?(Neo4j::Server::CypherResponse)
+        self.response.to_node_enumeration
+      else
+        Neo4j::Embedded::ResultWrapper.new(response, {}, self.to_cypher)
+      end.each {|object| yield object }
     end
 
     # @method to_a

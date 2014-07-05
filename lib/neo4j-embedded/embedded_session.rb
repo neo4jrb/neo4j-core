@@ -105,7 +105,7 @@ module Neo4j::Embedded
       @engine ||= Java::OrgNeo4jCypherJavacompat::ExecutionEngine.new(@graph_db)
       @engine.execute(q, Neo4j::Core::HashWithIndifferentAccess.new(params))
     rescue Exception => e
-        raise Neo4j::Session::CypherError.new(e.message, e.class, 'cypher error')
+      raise Neo4j::Session::CypherError.new(e.message, e.class, 'cypher error')
     end
 
     def query_default_return(as)
