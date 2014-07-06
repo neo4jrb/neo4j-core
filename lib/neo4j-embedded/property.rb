@@ -24,6 +24,14 @@ module Neo4j::Embedded::Property
   tx_methods :props
 
 
+  def method_missing(method)
+    if props.has_key?(method.to_sym)
+      props[method.to_sym]
+    else
+      super
+    end
+  end
+
   def props=(hash)
     property_keys.each do |key|
       remove_property(key)

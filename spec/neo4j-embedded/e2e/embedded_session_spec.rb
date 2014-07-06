@@ -85,8 +85,8 @@ module Neo4j::Embedded
         # result = session.query(label: :person) # same as (label: :person, map_return: :id_to_node)
         # result.should include(@jimmy)
         result = session.query.match(n: :person).return(n: [:name, :age]).to_a
-        result.first.should respond_to(:name)
-        result.first.should respond_to(:age)
+        result.first.should respond_to('n.name')
+        result.first.should respond_to('n.age')
 
       end
     end
