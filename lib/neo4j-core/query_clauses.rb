@@ -158,7 +158,11 @@ module Neo4j::Core
         case value
         when Hash
           value.map do |k, v|
-            key.to_s + '.' + from_key_and_value(k, v)
+            if k.to_sym == :neo_id
+              "ID(#{key}) = #{v}"
+            else
+              key.to_s + '.' + from_key_and_value(k, v)
+            end
           end.join(' AND ')
         when Array
           "#{key} IN [#{value.join(', ')}]"
