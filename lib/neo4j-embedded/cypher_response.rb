@@ -57,14 +57,17 @@ module Neo4j::Embedded
         key = column.to_sym
         proc = @map_return_procs[key]
 
-        result[key] = proc ? proc.call(value) : value
+        result[key] = wrap_result(proc ? proc.call(value) : value)
       end
     end
 
     def single_column_mapping(row)
-      @map_return_procs.call(row.first)
+      wrap_result(@map_return_procs.call(row.first))
     end
 
+    def wrap_result(value)
+      value.respond_to?(:wrapper) ? value.wrapper : value
+    end
 
 
   end
