@@ -39,15 +39,15 @@ describe Neo4j::Core::Query do
 
   describe 'clause combinations' do
     describe ".match(q: Person).where('q.age > 30')" do
-      it_generates "MATCH (q:Person) WHERE q.age > 30"
+      it_generates "MATCH (q:`Person`) WHERE q.age > 30"
     end
 
     describe ".where('q.age > 30').match(q: Person)" do
-      it_generates "MATCH (q:Person) WHERE q.age > 30"
+      it_generates "MATCH (q:`Person`) WHERE q.age > 30"
     end
 
     describe ".where('q.age > 30').start('n').match(q: Person)" do
-      it_generates "START n MATCH (q:Person) WHERE q.age > 30"
+      it_generates "START n MATCH (q:`Person`) WHERE q.age > 30"
     end
 
     describe ".match(q: {age: 30}).set(q: {age: 31})" do
@@ -57,29 +57,29 @@ describe Neo4j::Core::Query do
     # WITHS
 
     describe ".match(q: Person).with('count(q) AS count')" do
-      it_generates "MATCH (q:Person) WITH count(q) AS count"
+      it_generates "MATCH (q:`Person`) WITH count(q) AS count"
     end
 
     describe ".match(q: Person).with('count(q) AS count').where('count > 2')" do
-      it_generates "MATCH (q:Person) WITH count(q) AS count WHERE count > 2"
+      it_generates "MATCH (q:`Person`) WITH count(q) AS count WHERE count > 2"
     end
 
     describe ".match(q: Person).with(count: 'count(q)').where('count > 2').with(new_count: 'count + 5')" do
-      it_generates "MATCH (q:Person) WITH count(q) AS count WHERE count > 2 WITH count + 5 AS new_count"
+      it_generates "MATCH (q:`Person`) WITH count(q) AS count WHERE count > 2 WITH count + 5 AS new_count"
     end
 
     # breaks
 
     describe ".match(q: Person).match('r:Car').break.match('(p: Person)-->q')" do
-      it_generates "MATCH (q:Person), r:Car MATCH (p: Person)-->q"
+      it_generates "MATCH (q:`Person`), r:Car MATCH (p: Person)-->q"
     end
 
     describe ".match(q: Person).break.match('r:Car').break.match('(p: Person)-->q')" do
-      it_generates "MATCH (q:Person) MATCH r:Car MATCH (p: Person)-->q"
+      it_generates "MATCH (q:`Person`) MATCH r:Car MATCH (p: Person)-->q"
     end
 
     describe ".match(q: Person).match('r:Car').break.break.match('(p: Person)-->q')" do
-      it_generates "MATCH (q:Person), r:Car MATCH (p: Person)-->q"
+      it_generates "MATCH (q:`Person`), r:Car MATCH (p: Person)-->q"
     end
 
     # params
@@ -112,15 +112,15 @@ describe Neo4j::Core::Query do
     end
 
     describe ".match(n: Person)" do
-      it_generates "MATCH (n:Person)"
+      it_generates "MATCH (n:`Person`)"
     end
 
     describe ".match(n: Note)" do
-      it_generates "MATCH (n:GreatNote)"
+      it_generates "MATCH (n:`GreatNote`)"
     end
 
     describe ".match(n: 'Person')" do
-      it_generates "MATCH (n:Person)"
+      it_generates "MATCH (n:`Person`)"
     end
 
     describe ".match(n: ':Person')" do
@@ -128,7 +128,7 @@ describe Neo4j::Core::Query do
     end
 
     describe ".match(n: :Person)" do
-      it_generates "MATCH (n:Person)"
+      it_generates "MATCH (n:`Person`)"
     end
 
     describe ".match(n: ' :Person')" do
@@ -144,11 +144,11 @@ describe Neo4j::Core::Query do
     end
 
     describe ".match(n: {Person: {name: 'Brian', age: 33}})" do
-      it_generates "MATCH (n:Person {name: \"Brian\", age: 33})"
+      it_generates "MATCH (n:`Person` {name: \"Brian\", age: 33})"
     end
 
     describe ".match(n: {Person: {name: '{param}'}})" do
-      it_generates "MATCH (n:Person {name: {param}})"
+      it_generates "MATCH (n:`Person` {name: {param}})"
     end
 
     describe ".match('n--o')" do
@@ -164,7 +164,7 @@ describe Neo4j::Core::Query do
 
   describe '#optional_match' do
     describe ".optional_match(n: Person)" do
-      it_generates "OPTIONAL MATCH (n:Person)"
+      it_generates "OPTIONAL MATCH (n:`Person`)"
     end
 
     describe ".match('m--n').optional_match('n--o').match('o--p')" do
@@ -386,11 +386,11 @@ describe Neo4j::Core::Query do
     end
 
     describe ".create(Person: {age: 41, height: 70})" do
-      it_generates "CREATE (:Person {age: 41, height: 70})"
+      it_generates "CREATE (:`Person` {age: 41, height: 70})"
     end
 
     describe ".create(q: {Person: {age: 41, height: 70}})" do
-      it_generates "CREATE (q:Person {age: 41, height: 70})"
+      it_generates "CREATE (q:`Person` {age: 41, height: 70})"
     end
   end
 
@@ -408,11 +408,11 @@ describe Neo4j::Core::Query do
     end
 
     describe ".create_unique(Person: {age: 41, height: 70})" do
-      it_generates "CREATE UNIQUE (:Person {age: 41, height: 70})"
+      it_generates "CREATE UNIQUE (:`Person` {age: 41, height: 70})"
     end
 
     describe ".create_unique(q: {Person: {age: 41, height: 70}})" do
-      it_generates "CREATE UNIQUE (q:Person {age: 41, height: 70})"
+      it_generates "CREATE UNIQUE (q:`Person` {age: 41, height: 70})"
     end
   end
 
@@ -430,11 +430,11 @@ describe Neo4j::Core::Query do
     end
 
     describe ".merge(Person: {age: 41, height: 70})" do
-      it_generates "MERGE (:Person {age: 41, height: 70})"
+      it_generates "MERGE (:`Person` {age: 41, height: 70})"
     end
 
     describe ".merge(q: {Person: {age: 41, height: 70}})" do
-      it_generates "MERGE (q:Person {age: 41, height: 70})"
+      it_generates "MERGE (q:`Person` {age: 41, height: 70})"
     end
   end
 
@@ -565,14 +565,14 @@ describe Neo4j::Core::Query do
       q = Neo4j::Core::Query.new.match(o: :Person).where(o: {age: 10})
       result = Neo4j::Core::Query.new.match(n: :Person).union_cypher(q)
 
-      result.should == "MATCH (n:Person) UNION MATCH (o:Person) WHERE o.age = 10"
+      result.should == "MATCH (n:`Person`) UNION MATCH (o:`Person`) WHERE o.age = 10"
     end
 
     it "can represent UNION ALL with an option" do
       q = Neo4j::Core::Query.new.match(o: :Person).where(o: {age: 10})
       result = Neo4j::Core::Query.new.match(n: :Person).union_cypher(q, all: true)
 
-      result.should == "MATCH (n:Person) UNION ALL MATCH (o:Person) WHERE o.age = 10"
+      result.should == "MATCH (n:`Person`) UNION ALL MATCH (o:`Person`) WHERE o.age = 10"
     end
 
   end

@@ -111,7 +111,10 @@ module Neo4j::Core
 
       def format_label(label_string)
         label_string = label_string.to_s.strip
-        label_string = ":#{label_string}" if !label_string.empty? && label_string[0] != ':'
+        if !label_string.empty? && label_string[0] != ':'
+          label_string = "`#{label_string}`" unless label_string.match(' ')
+          label_string = ":#{label_string}"
+        end
         label_string
       end
 
