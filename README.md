@@ -234,24 +234,31 @@ Examples using queries as strings:
 
 ```ruby
 # same as Neo4j::Session.current.query
-Neo4j::Session.query("CREATE (n {mydata: 'Hello'}) RETURN ID(n) AS id")
+Neo4j::Session.query.create(n: Label: {mydata: 'Hello'}).exec
 
 # With cypher parameters
-Neo4j::Session.query("START n=node({a_parameter}) RETURN ID(n)", a_parameter: 0)
+Neo4j::Session.query.start(n: "node({a_parameter})").params(a_parameter: 0).pluck("ID(n)").first
 ```
 
-By default queries with strings as shown above will return an Enumerable of hash where each column is a key in the hash. See below how to
-do a different mapping.
-
-Example of label queries
+Example of chained queries:
 
 ```ruby
-Neo4j::Session.query(label: :person) # returns an Enumerable of Neo4j::Node by default
-Neo4j::Session.query(label: :person, return: [:name, :age]) # Returns an enumerable of hash with name and age properties
-Neo4j::Session.query(label: :person, return: :name) # Returns an enumerable of name properties
-Neo4j::Session.query(label: :person, conditions: {name:/kalle.*/}) # regexp search on the name property of nodes with label person
-Neo4j::Session.query(label: :person, order: [{name: :desc}, :age], limit: 4, skip: 5) # sorting and skip and limit the result
-Neo4j::Session.query(label: :person, match: 'n-[:friends]->o', where: ['o.age=42', 'n.age=1']) # cypher variable n will be used for the label
+query = Neo4j::Session.query.match(n: :person) # Returns a Query object
+ 
+
+query.return(:n) # Also returns a Query object
+
+query.return(:n).to_a # Returns an array of result rows as Structs (i.e. [<struct n=CypherNode>, etc...])
+
+query.pluck(:n) # Returns an array of nodes
+
+query.return(n: [:name, :age]) # => [<struct name='Brian', age=33>, etc...]
+
+query.where(name: /kalle.*/)
+
+query.order(n: {name: :desc, age: :asc}).skip(5).limit(4) # sorting and skip and limit the result
+
+query.match('n-[:friends]->o').where(o: {age: 42}, n: {age: 1})
 ```
 
 All these label queries above will return an Enumerable of Neo4j::Node objects, unless a `return` condition is specified, see above.
