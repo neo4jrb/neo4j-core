@@ -146,7 +146,7 @@ module Neo4j::Core
       if !response.respond_to?(:error?) || !response.error?
         response
       else
-        response.raise_error
+        response.raise_cypher_error
       end
     end
 

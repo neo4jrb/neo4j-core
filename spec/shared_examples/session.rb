@@ -158,7 +158,7 @@ RSpec.shared_examples "Neo4j::Session" do
           context 'invalid cypher' do
             let(:match) { 'n-o' }
             it 'raises error' do
-              expect { subject.response }.to raise_error(Neo4j::Server::CypherResponse::ResponseError)
+              expect { subject.response }.to raise_error(Neo4j::Session::CypherError)
             end
           end
 
@@ -214,7 +214,7 @@ RSpec.shared_examples "Neo4j::Session" do
 
       describe 'invalid cypher' do
         it 'raise Neo4j::Server::CypherResponse::ResponseError' do
-          expect { session.query.start("n=nuode(0)").return("ID(n)").response }.to raise_error(Neo4j::Server::CypherResponse::ResponseError)
+          expect { session.query.start("n=nuode(0)").return("ID(n)").response }.to raise_error(Neo4j::Session::CypherError)
         end
       end
 
