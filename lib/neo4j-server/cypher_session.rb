@@ -130,8 +130,13 @@ module Neo4j::Server
       search_result_to_enumerable_first_column(response)
     end
 
-    def query(options = {})
-      Neo4j::Core::Query.new(options.merge(session: self))
+    def query(*args)
+      if args.map(&:class) == [String]
+        _query(args[0]).to_node_enumeration(args[0])
+      else
+        options = args[0] || {}
+        Neo4j::Core::Query.new(options.merge(session: self))
+      end
     end
 
     def _query_or_fail(q, single_row = false, params=nil)

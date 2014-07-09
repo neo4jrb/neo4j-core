@@ -272,6 +272,15 @@ RSpec.shared_examples "Neo4j::Session" do
         end
       end
 
+      describe 'query with string' do
+        it 'allows querying with cypher strings directly' do
+          n = Neo4j::Node.create({name: 'Brian', hat: 'fancy'}, :person)
+          result = session.query("MATCH (n) WHERE ID(n) = #{n.neo_id} RETURN n")
+          result.first.n[:name].should == 'Brian'
+          result.first.n[:hat].should == 'fancy'
+        end
+      end
+
     end
 
   end
