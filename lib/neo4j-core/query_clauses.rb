@@ -81,7 +81,7 @@ module Neo4j::Core
           else
             attributes_string = attributes_string(value)
           end
-        when Class
+        when Class, Module
           var = key
           label_string = defined?(value::CYPHER_LABEL) ? value::CYPHER_LABEL : value.name
         else
