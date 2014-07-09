@@ -169,32 +169,32 @@ RSpec.shared_examples "Neo4j::Session" do
         it 'sorts with: order: :name' do
           result = Neo4j::Session.query.match(n: @label).order(n: :name).pluck(:n)
           result.count.should == 4
-          result.to_a.map(&:name).should == %w[andreas andreas kalle zebbe]
+          result.to_a.map {|o| o[:name] }.should == %w[andreas andreas kalle zebbe]
         end
 
         it 'sorts with: order: [:name, :age]' do
           result = Neo4j::Session.query.match(n: @label).order(n: [:name, :age]).pluck(:n)
           result.count.should == 4
-          result.map(&:name).should == %w[andreas andreas kalle zebbe]
-          result.map(&:age).should == [1, 2, 4, 3]
+          result.map {|o| o[:name] }.should == %w[andreas andreas kalle zebbe]
+          result.map {|o| o[:age] }.should == [1, 2, 4, 3]
         end
 
         it 'sorts with order: {name: :desc}' do
           result = Neo4j::Session.query.match(n: @label).order(n: {name: :desc}).pluck(:n)
-          result.map(&:name).should == %w[zebbe kalle andreas andreas]
+          result.map {|o| o[:name] }.should == %w[zebbe kalle andreas andreas]
 
           result = Neo4j::Session.query.match(n: @label).order(n: {name: :asc}).pluck(:n)
-          result.map(&:name).should == %w[andreas andreas kalle zebbe]
+          result.map {|o| o[:name] }.should == %w[andreas andreas kalle zebbe]
         end
 
         it 'sorts with order: [:name, {age: :desc}]' do
           result = Neo4j::Session.query.match(n: @label).order(n: [:name, {age: :desc}]).pluck(:n)
-          result.map(&:name).should == %w[andreas andreas kalle zebbe]
-          result.map(&:age).should == [2, 1, 4, 3]
+          result.map {|o| o[:name] }.should == %w[andreas andreas kalle zebbe]
+          result.map {|o| o[:age] }.should == [2, 1, 4, 3]
 
           result = Neo4j::Session.query.match(n: @label).order(n: [:name, {age: :asc}]).pluck(:n)
-          result.map(&:name).should == %w[andreas andreas kalle zebbe]
-          result.map(&:age).should == [1, 2, 4, 3]
+          result.map {|o| o[:name] }.should == %w[andreas andreas kalle zebbe]
+          result.map {|o| o[:age] }.should == [1, 2, 4, 3]
         end
 
       end
@@ -207,7 +207,7 @@ RSpec.shared_examples "Neo4j::Session" do
 
         it 'limits number of results returned when combined with sort' do
           result = Neo4j::Session.query.match(n: @label).order(n: :name).limit(3).pluck(:n)
-          result.map(&:name).should == %w[andreas andreas kalle]
+          result.map {|o| o[:name] }.should == %w[andreas andreas kalle]
           result.count.should == 3
         end
       end
