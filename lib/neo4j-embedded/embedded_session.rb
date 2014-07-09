@@ -85,9 +85,16 @@ module Neo4j::Embedded
       nil
     end
 
-    def query(options = {})
-      Neo4j::Core::Query.new(options.merge(session: self))
+    def query(*args)
+      if [[String], [String, String]].include?(args.map(&:class))
+        query, params = args[0,2]
+        Neo4j::Embedded::ResultWrapper.new(_query(query, params), query)
+      else
+        options = args[0] || {}
+        Neo4j::Core::Query.new(options.merge(session: self))
+      end
     end
+
 
     def find_all_nodes(label)
       EmbeddedLabel.new(self, label).find_nodes

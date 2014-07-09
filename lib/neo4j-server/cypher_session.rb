@@ -131,8 +131,9 @@ module Neo4j::Server
     end
 
     def query(*args)
-      if args.map(&:class) == [String]
-        _query(args[0]).to_node_enumeration(args[0])
+      if [[String], [String, String]].include?(args.map(&:class))
+        query, params = args[0,2]
+        _query(query, params).to_node_enumeration(query)
       else
         options = args[0] || {}
         Neo4j::Core::Query.new(options.merge(session: self))
