@@ -1,3 +1,6 @@
+== 3.0.0.alpha.17
+* Complete rewrite of the query api (Brian Underwood#85)
+* Better performance for Embedded Db - single ExecutionEngine instance in embedded DB (#83 chris)
 * Added better error handling when trying to install Neo4j which does not exist via Rake
 * Added better error handling when user forgot to create a session
 
