@@ -82,8 +82,6 @@ module Neo4j::Embedded
     describe 'label' do
       it 'by default map the result to single column of nodes' do
         @jimmy = Neo4j::Node.create({name: 'jimmy', age: 42}, :person)
-        # result = session.query(label: :person) # same as (label: :person, map_return: :id_to_node)
-        # result.should include(@jimmy)
         result = session.query.match(n: :person).return(n: [:name, :age]).to_a
         result.first.should respond_to('n.name')
         result.first.should respond_to('n.age')

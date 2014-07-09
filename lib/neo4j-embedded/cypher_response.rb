@@ -14,11 +14,10 @@ module Neo4j::Embedded
     # @return the original result from the Neo4j Cypher Engine, once forward read only !
     attr_reader :source
 
-    def initialize(source, map_return_procs, query)
+    def initialize(source, query)
       @source = source
       @struct = Struct.new(*source.columns.to_a.map(&:to_sym))
       @unread = true
-      @map_return_procs = map_return_procs
       @query = query
     end
 
@@ -39,36 +38,15 @@ module Neo4j::Embedded
       raise ResultsAlreadyConsumedException unless @unread
 
       if block_given?
-        method = @map_return_procs.is_a?(Hash) ? :multi_column_mapping : :single_column_mapping
-
         @source.each do |row|
-          yield self.send(method, row)
+          yield(row.each_with_object(@struct.new) do |(column, value), result|
+            result[column.to_sym] = (value.respond_to?(:wrapper) ? value.wrapper : value)
+          end)
         end
       else
         Enumerator.new(self)
       end
     end
-
-
-    private
-
-    def multi_column_mapping(row)
-      row.each_with_object(@struct.new) do |(column, value), result|
-        key = column.to_sym
-        proc = @map_return_procs[key]
-
-        result[key] = wrap_result(proc ? proc.call(value) : value)
-      end
-    end
-
-    def single_column_mapping(row)
-      wrap_result(@map_return_procs.call(row.first))
-    end
-
-    def wrap_result(value)
-      value.respond_to?(:wrapper) ? value.wrapper : value
-    end
-
 
   end
 end
