@@ -248,7 +248,7 @@ query = Neo4j::Session.query.match(n: :person) # Returns a Query object
 
 query.return(:n) # Also returns a Query object
 
-query.return(:n).to_a # Returns an array of result rows as Structs (i.e. [<struct n=CypherNode>, etc...])
+query.return(:n).to_a # Returns an array of result rows as Structs (i.e. [<struct n=Node>, etc...])
 
 query.pluck(:n) # Returns an array of nodes
 
@@ -259,41 +259,10 @@ query.where(name: /kalle.*/)
 query.order(n: {name: :desc, age: :asc}).skip(5).limit(4) # sorting and skip and limit the result
 
 query.match('n-[:friends]->o').where(o: {age: 42}, n: {age: 1})
-```
 
-All these label queries above will return an Enumerable of Neo4j::Node objects, unless a `return` condition is specified, see above.
-
-The cypher result can be mapped by using  `map_return` can have the following values: `value`, `id_to_node`, `to_node`, `id_to_rel`, `to_rel`.
-
-Examples
-
-```ruby
-# without mapping
-Neo4j::Session.query("START n=node(42) RETURN n.name, n.age").to_a #=> [{:'n.name' => 'jimmy', :'n.age' => 42}]
-
-# with mapping
-Neo4j::Session.query("START n=node(42) RETURN n.name", map_return: :value).to_a #=> ['jimmy']
-
-# Label query with return without mapping
-Neo4j::Session.query(label: :person, return: 'ID(n)').to_a #=> [{:"ID(n)" => 42}, {:"ID(n)"=>53}, ...]
-
-# map label queries, override the default of returning an enumerable of hash
-Neo4j::Session.query(label: :person, return: 'ID(n)', map_return: :value).to_a #=> [42, 53, ...]
-
-# map to a Neo4j::Relationship objects
-Neo4j::Session.query("START n=relationship(43) RETURN ID(n)", map_return: :id_to_rel).to_a # => [a Neo4j::Relationship object]
-
-# map to Neo4j::Node using the embedded database (directly loading the Neo4j::Node, only possible for embedded db), same for to_node
-Neo4j::Session.query("START n=relationship(43) RETURN n", map_return: :to_rel).to_a # => [a Neo4j::Relationship object]
-
-# map several columns, both nodes and relationships. Works also with label queries
-Neo4j::Session.query("START a=node(#{a.neo_id}) MATCH (a)-[r]-(b) RETURN ID(a) as A, ID(r) as R", map_return: {A: :id_to_node, R: :id_to_rel}).to_a
-# => [{A: a Neo4j::Node object, R: a Neo4j::Relationship object} ...}
+query.match('n-[f:friends]->o').pluck(:f) # [<Relationship>, etc..]
 
 ```
-
-
-It is also possible to create your own mapping types by using `map_return_procs` (see RSpecs).
 
 
 
