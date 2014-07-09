@@ -82,11 +82,9 @@ module Neo4j::Embedded
     describe 'label' do
       it 'by default map the result to single column of nodes' do
         @jimmy = Neo4j::Node.create({name: 'jimmy', age: 42}, :person)
-        # result = session.query(label: :person) # same as (label: :person, map_return: :id_to_node)
-        # result.should include(@jimmy)
-        result = session.query(label: :person, return: [:name, :age]).to_a
-        result.first.should have_key(:name)
-        result.first.should have_key(:age)
+        result = session.query.match(n: :person).return(n: [:name, :age]).to_a
+        result.first.should respond_to('n.name')
+        result.first.should respond_to('n.age')
 
       end
     end
@@ -98,7 +96,7 @@ module Neo4j::Embedded
       end
 
       it "returns a raw Neo4j Iterator" do
-        result = session.query("CREATE (n) RETURN ID(n) AS id")
+        result = session.query.create('n').return("ID(n) AS id").to_a
         id = result.first[:id]
 
         r = session._query("START n=node(#{id}) RETURN n")

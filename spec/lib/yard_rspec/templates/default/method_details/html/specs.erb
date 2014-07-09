@@ -1,0 +1,19 @@
+<% if object[:examples] %>
+  <div class="tags">
+    <h3>Examples:</h3>
+    <ul class="specs">
+      <table>
+        <tr>
+          <th style="text-align: left">Ruby Code</th>
+          <th style="text-align: left">Generated Cypher</th>
+        </tr>
+      <% for example in object[:examples] %>
+        <tr>
+          <td><pre class="code">query<%= example[:ruby].gsub('\\"', '"') %>  </pre></td>
+          <td><pre class="code"><%= example[:cypher].gsub('\\"', '"') %></pre></td>
+        </tr>
+      <% end %>
+      </table>
+    </ul>
+  </div>
+<% end %>

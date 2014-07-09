@@ -21,10 +21,10 @@ module Neo4j::Server
       def_delegator :@response, :error_code
       def_delegator :@response, :data
       def_delegator :@response, :columns
+      def_delegator :@response, :struct
 
-      def initialize(response, map_return_procs, query)
+      def initialize(response, query)
         @response = response
-        @map_return_procs = map_return_procs || {}
         @query = query
       end
 
@@ -36,30 +36,41 @@ module Neo4j::Server
         "Enumerable query: '#{@query}'"
       end
 
-      def multi_column_mapping(row)
-        row.each_with_index.each_with_object({}) do |(row, i), hash|
-          key = columns[i].to_sym
-          proc = @map_return_procs[key]
-          hash[key] = proc ? proc.call(row) : row
-        end
-      end
-
-      def single_column_mapping(row)
-        @map_return_procs.call(row.first)
-      end
-
       def each(&block)
-        method = @map_return_procs.is_a?(Hash) ? :multi_column_mapping : :single_column_mapping
-
         data.each do |row|
-          yield self.send(method, row)
+          yield(row.each_with_index.each_with_object(struct.new) do |(value, i), result|
+            result[columns[i].to_sym] = value
+          end)
         end
       end
     end
 
-    def to_hash_enumeration(map_return_procs={}, cypher='')
-      HashEnumeration.new(self, map_return_procs, cypher)
+    def to_struct_enumeration(cypher = '')
+      HashEnumeration.new(self, cypher)
     end
+
+    def to_node_enumeration(cypher = '', session = Neo4j::Session.current)
+      Enumerator.new do |yielder|
+        self.to_struct_enumeration(cypher).each do |row|
+          yielder << row.each_pair.each_with_object(@struct.new) do |(column, value), result|
+
+            result[column] = if value.is_a?(Hash)
+              if value['labels']
+                CypherNode.new(session, value).wrapper
+              elsif value['type']
+                CypherRelationship.new(session, value).wrapper
+              else
+                value
+              end
+            else
+              value
+            end
+          end
+        end
+      end
+    end
+
+    attr_reader :struct
 
     def initialize(response, uncommited = false)
       @response = response
@@ -90,6 +101,7 @@ module Neo4j::Server
     def set_data(data, columns)
       @data = data
       @columns = columns
+      @struct = columns.empty? ? Object.new : Struct.new(*columns.map(&:to_sym))
       self
     end
 
@@ -105,6 +117,12 @@ module Neo4j::Server
       raise "Tried to raise error without an error" unless @error
       raise ResponseError.new(@error_msg, @error_status, @error_code)
     end
+
+    def raise_cypher_error
+      raise "Tried to raise error without an error" unless @error
+      raise Neo4j::Session::CypherError.new(@error_msg, @error_code, @error_status)
+    end
+
 
     def self.create_with_no_tx(response)
       case response.code

@@ -61,6 +61,7 @@ No need to start the server since it is embedded.
 * [Neo4j::Relationship](http://www.rubydoc.info/github/andreasronge/neo4j-core/Neo4j/Relationship)
 * [Neo4j::Session](http://www.rubydoc.info/github/andreasronge/neo4j-core/Neo4j/Session)
 * [Neo4j::Label](http://www.rubydoc.info/github/andreasronge/neo4j-core/Neo4j/Label)
+* [Neo4j::Query](Neo4j/Query.html)
 
 See also [Neo4j Docs](http://docs.neo4j.org/)
 
@@ -233,59 +234,35 @@ Examples using queries as strings:
 
 ```ruby
 # same as Neo4j::Session.current.query
-Neo4j::Session.query("CREATE (n {mydata: 'Hello'}) RETURN ID(n) AS id")
+Neo4j::Session.query.create(n: Label: {mydata: 'Hello'}).exec
 
 # With cypher parameters
-Neo4j::Session.query("START n=node({a_parameter}) RETURN ID(n)", a_parameter: 0)
+Neo4j::Session.query.start(n: "node({a_parameter})").params(a_parameter: 0).pluck("ID(n)").first
 ```
 
-By default queries with strings as shown above will return an Enumerable of hash where each column is a key in the hash. See below how to
-do a different mapping.
-
-Example of label queries
+Example of chained queries:
 
 ```ruby
-Neo4j::Session.query(label: :person) # returns an Enumerable of Neo4j::Node by default
-Neo4j::Session.query(label: :person, return: [:name, :age]) # Returns an enumerable of hash with name and age properties
-Neo4j::Session.query(label: :person, return: :name) # Returns an enumerable of name properties
-Neo4j::Session.query(label: :person, conditions: {name:/kalle.*/}) # regexp search on the name property of nodes with label person
-Neo4j::Session.query(label: :person, order: [{name: :desc}, :age], limit: 4, skip: 5) # sorting and skip and limit the result
-Neo4j::Session.query(label: :person, match: 'n-[:friends]->o', where: ['o.age=42', 'n.age=1']) # cypher variable n will be used for the label
-```
+query = Neo4j::Session.query.match(n: :person) # Returns a Query object
+ 
 
-All these label queries above will return an Enumerable of Neo4j::Node objects, unless a `return` condition is specified, see above.
+query.return(:n) # Also returns a Query object
 
-The cypher result can be mapped by using  `map_return` can have the following values: `value`, `id_to_node`, `to_node`, `id_to_rel`, `to_rel`.
+query.return(:n).to_a # Returns an array of result rows as Structs (i.e. [<struct n=Node>, etc...])
 
-Examples
+query.pluck(:n) # Returns an array of nodes
 
-```ruby
-# without mapping
-Neo4j::Session.query("START n=node(42) RETURN n.name, n.age").to_a #=> [{:'n.name' => 'jimmy', :'n.age' => 42}]
+query.return(n: [:name, :age]) # => [<struct name='Brian', age=33>, etc...]
 
-# with mapping
-Neo4j::Session.query("START n=node(42) RETURN n.name", map_return: :value).to_a #=> ['jimmy']
+query.where(name: /kalle.*/)
 
-# Label query with return without mapping
-Neo4j::Session.query(label: :person, return: 'ID(n)').to_a #=> [{:"ID(n)" => 42}, {:"ID(n)"=>53}, ...]
+query.order(n: {name: :desc, age: :asc}).skip(5).limit(4) # sorting and skip and limit the result
 
-# map label queries, override the default of returning an enumerable of hash
-Neo4j::Session.query(label: :person, return: 'ID(n)', map_return: :value).to_a #=> [42, 53, ...]
+query.match('n-[:friends]->o').where(o: {age: 42}, n: {age: 1})
 
-# map to a Neo4j::Relationship objects
-Neo4j::Session.query("START n=relationship(43) RETURN ID(n)", map_return: :id_to_rel).to_a # => [a Neo4j::Relationship object]
-
-# map to Neo4j::Node using the embedded database (directly loading the Neo4j::Node, only possible for embedded db), same for to_node
-Neo4j::Session.query("START n=relationship(43) RETURN n", map_return: :to_rel).to_a # => [a Neo4j::Relationship object]
-
-# map several columns, both nodes and relationships. Works also with label queries
-Neo4j::Session.query("START a=node(#{a.neo_id}) MATCH (a)-[r]-(b) RETURN ID(a) as A, ID(r) as R", map_return: {A: :id_to_node, R: :id_to_rel}).to_a
-# => [{A: a Neo4j::Node object, R: a Neo4j::Relationship object} ...}
+query.match('n-[f:friends]->o').pluck(:f) # [<Relationship>, etc..]
 
 ```
-
-
-It is also possible to create your own mapping types by using `map_return_procs` (see RSpecs).
 
 
 

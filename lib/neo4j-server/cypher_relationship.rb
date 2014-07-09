@@ -4,10 +4,24 @@ module Neo4j::Server
     include Neo4j::Server::Resource
     include Neo4j::Core::CypherTranslator
 
-    def initialize(session, id, rel_type)
+    attr_reader :start_node_neo_id, :end_node_neo_id
+
+    def initialize(session, value, rel_type = nil)
       @session = session
-      @id = id
-      @rel_type = rel_type
+
+      @id = if value.is_a?(Hash)
+        @response_hash = value
+        @rel_type = @response_hash['type']
+        @props = @response_hash['data']
+        @start_node_neo_id = @response_hash['start'].match(/\d+$/)[0].to_i
+        @end_node_neo_id = @response_hash['end'].match(/\d+$/)[0].to_i
+
+        @response_hash['self'].match(/\d+$/)[0].to_i
+      else
+        @rel_type = rel_type
+
+        value
+      end
     end
 
     def ==(o)
@@ -59,8 +73,12 @@ module Neo4j::Server
 
     # (see Neo4j::Relationship#props)
     def props
-      props = @session._query_or_fail("START n=relationship(#{neo_id}) RETURN n", true)['data']
-      props.keys.inject({}){|hash,key| hash[key.to_sym] = props[key]; hash}
+      if @props
+        @props
+      else
+        props = @session._query_or_fail("START n=relationship(#{neo_id}) RETURN n", true)['data']
+        props.keys.inject({}){|hash,key| hash[key.to_sym] = props[key]; hash}
+      end
     end
 
     # (see Neo4j::Relationship#props=)

@@ -35,7 +35,6 @@ module Neo4j::Server
       Neo4j::Session.register(self)
       initialize_resource(data_url)
       Neo4j::Session._notify_listeners(:session_available, self)
-      @query_builder = Neo4j::Core::QueryBuilder.new
     end
 
     def to_s
@@ -131,17 +130,14 @@ module Neo4j::Server
       search_result_to_enumerable_first_column(response)
     end
 
-    def query(*params)
-      query_hash = @query_builder.to_query_hash(params, :id_to_node)
-      cypher = @query_builder.to_cypher(query_hash)
-
-      result = _query(cypher, query_hash[:params])
-      if result.error?
-        raise Neo4j::Session::CypherError.new(result.error_msg, result.error_code, result.error_status)
+    def query(*args)
+      if [[String], [String, String]].include?(args.map(&:class))
+        query, params = args[0,2]
+        _query(query, params).to_node_enumeration(query)
+      else
+        options = args[0] || {}
+        Neo4j::Core::Query.new(options.merge(session: self))
       end
-
-      map_return_procs = @query_builder.to_map_return_procs(query_hash)
-      result.to_hash_enumeration(map_return_procs, cypher)
     end
 
     def _query_or_fail(q, single_row = false, params=nil)

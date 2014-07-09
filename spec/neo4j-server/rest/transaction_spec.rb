@@ -7,7 +7,7 @@ end
 tx_url = "http://localhost:7474/db/data/transaction"
 resource_headers = {'Content-Type' => 'application/json', 'Accept' => 'application/json'}
 
-describe "Transaction" do
+describe "Transaction", api: :server do
 
   describe "create" do
     after do

@@ -14,10 +14,10 @@ module Neo4j::Embedded
     # @return the original result from the Neo4j Cypher Engine, once forward read only !
     attr_reader :source
 
-    def initialize(source, map_return_procs, query)
+    def initialize(source, query)
       @source = source
+      @struct = Struct.new(*source.columns.to_a.map(&:to_sym))
       @unread = true
-      @map_return_procs = map_return_procs
       @query = query
     end
 
@@ -31,56 +31,20 @@ module Neo4j::Embedded
 
     # @return [Array<Symbol>] the columns in the query result
     def columns
-      @source.columns.map { |x| x.to_sym }
+      @source.columns.map(&:to_sym)
     end
 
-    # for the Enumerable contract
-    def each(&block)
+    def each
       raise ResultsAlreadyConsumedException unless @unread
 
-      if (block)
-        case @map_return_procs
-          when NilClass then
-            each_no_mapping &block
-          when Hash then
-            each_multi_column_mapping &block
-          else
-            each_single_column_mapping &block
+      if block_given?
+        @source.each do |row|
+          yield(row.each_with_object(@struct.new) do |(column, value), result|
+            result[column.to_sym] = (value.respond_to?(:wrapper) ? value.wrapper : value)
+          end)
         end
       else
         Enumerator.new(self)
-      end
-    end
-
-
-    private
-
-    def each_no_mapping
-      @source.each do |row|
-        hash = {}
-        row.each do |key, value|
-          out[key.to_sym] = value
-        end
-        yield hash
-      end
-    end
-
-    def each_multi_column_mapping
-      @source.each do |row|
-        hash = {}
-        row.each do |key, value|
-          k = key.to_sym
-          proc = @map_return_procs[k]
-          hash[k] = proc ? proc.call(value) : value
-        end
-        yield hash
-      end
-    end
-
-    def each_single_column_mapping
-      @source.each do |row|
-        result = @map_return_procs.call(row.values.first)
-        yield result
       end
     end
 
