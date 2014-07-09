@@ -7,7 +7,7 @@ end
 cypher_url = "http://localhost:7474/db/data/cypher"
 resource_headers = {'Content-Type' => 'application/json', 'Accept' => 'application/json'}
 
-describe "Cypher Queries" do
+describe "Cypher Queries", api: :server do
 
   describe "CREATE (v1) RETURN ID(v1)" do
     it "returns correct response" do

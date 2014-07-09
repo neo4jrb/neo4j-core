@@ -133,6 +133,12 @@ module Neo4j::Server
       raise ResponseError.new(@error_msg, @error_status, @error_code)
     end
 
+    def raise_cypher_error
+      raise "Tried to raise error without an error" unless @error
+      raise Neo4j::Session::CypherError.new(@error_msg, @error_code, @error_status)
+    end
+
+
     def self.create_with_no_tx(response)
       case response.code
         when 200
