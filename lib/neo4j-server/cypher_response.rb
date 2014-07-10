@@ -71,15 +71,6 @@ module Neo4j::Server
     end
 
     attr_reader :struct
-
-    def to_node_enumerable_first_column
-      return [] unless self.data
-      Enumerator.new do |yielder|
-        self.data.each do |data|
-          yielder << CypherNode.new(Neo4j::Session.current, data[0]).wrapper
-        end
-      end
-    end
     
     def initialize(response, uncommited = false)
       @response = response
