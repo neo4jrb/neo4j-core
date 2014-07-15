@@ -148,6 +148,12 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
           node[:bar].should be true
         end
 
+        it "can handle ruby arrays" do
+          node[:foo] = [1,2,3]
+          node[:foo].should eq [1,2,3]
+          node[:foo].should be_an(Array)
+        end
+
         it "raise exception for illegal values" do
           Proc.new { node[:illegal_thing] = Object.new }.should raise_error(Neo4j::PropertyValidator::InvalidPropertyException)
           node[:illegal_thing].should be_nil
