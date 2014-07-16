@@ -171,6 +171,8 @@ module Neo4j::Core
         when Regexp
           pattern = (value.casefold? ? "(?i)" : "") + value.source
           "#{key} =~ #{escape_value(pattern.gsub(/\\/, '\\\\\\'))}"
+        when /^\{[^\{\}]+\}$/
+          "#{key} = #{value}"
         else
           "#{key} = #{value.inspect}"
         end
