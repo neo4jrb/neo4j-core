@@ -11,18 +11,32 @@ module Neo4j::Embedded::Property
 
   def [](key)
     return nil unless has_property?(key.to_s)
-    get_property(key.to_s)
+    val = to_ruby_property(key.to_s)
   end
   tx_methods :[]
 
+  # Sets the property of this node.
+  # Property keys are always strings. Valid property value types are the primitives(<tt>String</tt>, <tt>Fixnum</tt>, <tt>Float</tt>, <tt>FalseClass</tt>, <tt>TrueClass</tt>) or array of those primitives.
+  #
+  # ==== Gotchas
+  # * Values in the array must be of the same type.
+  # * You can *not* delete or add one item in the array (e.g. person.phones.delete('123')) but instead you must create a new array instead.
+  #
+  # @param [String, Symbol] key of the property to set
+  # @param [String,Fixnum,Float,true,false, Array] value to set
+  def []=(k, v)
+    to_java_property(k, v)
+  end
+  tx_methods :[]=
+
   def props
     property_keys.inject({}) do |ret, key|
-      ret[key.to_sym] = get_property(key)
+      val = to_ruby_property(key)
+      ret[key.to_sym] = val
       ret
     end
   end
   tx_methods :props
-
 
   def props=(hash)
     property_keys.each do |key|
@@ -34,13 +48,7 @@ module Neo4j::Embedded::Property
   tx_methods :props=
 
   def _update_props(hash)
-    hash.each_pair do |k,v|
-      if v.nil?
-        remove_property(k)
-      else
-        set_property(k,v)
-      end
-    end
+    hash.each_pair { |k,v| to_java_property(k, v) }
     hash
   end
 
@@ -52,4 +60,38 @@ module Neo4j::Embedded::Property
   def neo_id
     get_id
   end
+
+  private
+
+  def to_ruby_property(key)
+    val = get_property(key)
+    val.class.superclass == ArrayJavaProxy ? val.to_a : val
+  end
+
+  def to_java_property(k, v)
+    validate_property(v)
+
+    k = k.to_s
+    if v.nil?
+      remove_property(k)
+    elsif (Array === v)
+      case v[0]
+        when NilClass
+          set_property(k, [].to_java(:string))
+        when String
+          set_property(k, v.to_java(:string))
+        when Float
+          set_property(k, v.to_java(:double))
+        when FalseClass, TrueClass
+          set_property(k, v.to_java(:boolean))
+        when Fixnum
+          set_property(k, v.to_java(:long))
+        else
+          raise "Not allowed to store array with value #{v[0]} type #{v[0].class}"
+      end
+    else
+      set_property(k, v)
+    end
+  end
+
 end
