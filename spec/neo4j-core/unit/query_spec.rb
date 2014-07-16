@@ -85,6 +85,23 @@ describe Neo4j::Core::Query do
     # params
   end
 
+  describe 'merging queries' do
+    let(:query1) { Neo4j::Core::Query.new.match(p: Person) }
+    let(:query2) { Neo4j::Core::Query.new.match(c: :Car) }
+
+    it 'Merging two matches' do
+      (query1 & query2).to_cypher.should == 'MATCH (p:`Person`), (c:`Car`)'
+    end
+
+    it 'Makes a query that allows further querying' do
+      (query1 & query2).match('(p)-[:DRIVES]->(c)').to_cypher.should == 'MATCH (p:`Person`), (c:`Car`), (p)-[:DRIVES]->(c)'
+    end
+
+    it 'merges params'
+
+    it 'merges options'
+  end
+
   # START
 
   describe '#start' do
