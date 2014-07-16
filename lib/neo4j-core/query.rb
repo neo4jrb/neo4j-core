@@ -17,7 +17,7 @@ module Neo4j::Core
 
       @options = options
       @clauses = []
-      @params = {}
+      @_params = {}
     end
 
     # @method start *args
@@ -136,13 +136,13 @@ module Neo4j::Core
     #   Query.new.match('(q: Person {id: {id}})').params(id: 12)
     #
     def params(args)
-      @params = @params.merge(args)
+      @_params = @_params.merge(args)
 
       self
     end
 
     def response
-      response = @session._query(self.to_cypher, @params)
+      response = @session._query(self.to_cypher, @_params)
       if !response.respond_to?(:error?) || !response.error?
         response
       else
@@ -252,7 +252,17 @@ module Neo4j::Core
       "#{self.to_cypher} UNION#{options[:all] ? ' ALL' : ''} #{other_query.to_cypher}"
     end
 
+    def &(other_query)
+      raise "Sessions don't match!" if @session != other_query.session
+
+      self.class.new(session: @session).tap do |new_query|
+        new_query.options = self.options.merge(other_query.options)
+        new_query.clauses = self.clauses + other_query.clauses
+      end.params(other_query._params)
+    end
+
     protected
+    attr_accessor :session, :options, :clauses, :_params
 
     def add_clauses(clauses)
       @clauses += clauses
