@@ -155,7 +155,7 @@ module Neo4j::Core
     def each
       response = self.response
       if response.is_a?(Neo4j::Server::CypherResponse)
-        self.response.to_node_enumeration
+        response.to_node_enumeration
       else
         Neo4j::Embedded::ResultWrapper.new(response, self.to_cypher)
       end.each {|object| yield object }
