@@ -39,6 +39,10 @@ def session
 end
 
 
+def unique_random_number
+  "#{Time.now.year}#{Time.now.to_i}#{Time.now.usec.to_s[0..2]}".to_i
+end
+
 FileUtils.rm_rf(EMBEDDED_DB_PATH)
 
 RSpec.configure do |c|

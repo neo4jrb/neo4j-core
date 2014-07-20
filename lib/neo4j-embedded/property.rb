@@ -61,6 +61,10 @@ module Neo4j::Embedded::Property
     get_id
   end
 
+  def refresh
+    # nothing is needed in the embedded db since we always asks the database
+  end
+
   private
 
   def to_ruby_property(key)

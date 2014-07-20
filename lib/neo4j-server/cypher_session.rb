@@ -37,6 +37,10 @@ module Neo4j::Server
       Neo4j::Session._notify_listeners(:session_available, self)
     end
 
+    def db_type
+      :server_db
+    end
+
     def to_s
       "#{self.class} url: '#{@resource_url}'"
     end

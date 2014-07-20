@@ -7,9 +7,9 @@ module Neo4j::Server
       @session = session
 
       @id = if value.is_a?(Hash)
-        @response_hash = value
-        @props = @response_hash['data']
-        @response_hash['self'].match(/\d+$/)[0].to_i
+        hash = value['data']
+        @props = Hash[hash.map{ |k, v| [k.to_sym, v] }]
+        value['self'].match(/\d+$/)[0].to_i
       else
         value
       end
@@ -45,24 +45,32 @@ module Neo4j::Server
       end
     end
 
+    def refresh
+      @props = nil
+    end
+
     # (see Neo4j::Node#remove_property)
     def remove_property(key)
+      refresh
       @session._query_or_fail("START n=node(#{neo_id}) REMOVE n.`#{key}`")
     end
 
     # (see Neo4j::Node#set_property)
     def set_property(key,value)
+      refresh
       @session._query_or_fail("START n=node(#{neo_id}) SET n.`#{key}` = { value }", false, value: value)
       value
     end
 
     # (see Neo4j::Node#props=)
     def props=(properties)
+      refresh
       @session._query_or_fail("START n=node(#{neo_id}) SET n = { props }", false, {props: properties})
       properties
     end
 
     def remove_properties(properties)
+      refresh
       q = "START n=node(#{neo_id}) REMOVE " + properties.map do |k|
         "n.`#{k}`"
       end.join(', ')
@@ -71,6 +79,7 @@ module Neo4j::Server
 
     # (see Neo4j::Node#update_props)
     def update_props(properties)
+      refresh
       return if properties.empty?
 
       removed_keys = properties.keys.select{|k| properties[k].nil?}
@@ -86,7 +95,11 @@ module Neo4j::Server
 
     # (see Neo4j::Node#get_property)
     def get_property(key)
-      @session._query_or_fail("START n=node(#{neo_id}) RETURN n.`#{key}`", true)
+      if @props
+        @props[key.to_sym]
+      else
+        @session._query_or_fail("START n=node(#{neo_id}) RETURN n.`#{key}`", true)
+      end
     end
 
     # (see Neo4j::Node#labels)

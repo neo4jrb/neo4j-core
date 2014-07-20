@@ -9,6 +9,7 @@ gem 'zip'
 
 group 'development' do
   gem 'yard'
+  gem 'simplecov'
 #  gem 'pry'
 end
 
