@@ -23,6 +23,10 @@ module Neo4j::Embedded
       Neo4j::Session.register(self)
     end
 
+    def db_type
+      :embedded_db
+    end
+
     def inspect
       "#{self.class} db_location: '#{@db_location}', running: #{running?}"
     end

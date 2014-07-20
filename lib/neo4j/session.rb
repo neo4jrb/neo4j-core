@@ -28,6 +28,11 @@ module Neo4j
       raise "not impl."
     end
 
+    # @return [:embedded_db | :server_db]
+    def db_type
+      raise "not impl."
+    end
+
     def auto_commit?
       true # TODO
     end

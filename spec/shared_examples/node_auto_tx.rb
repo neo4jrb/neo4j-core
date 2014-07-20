@@ -172,6 +172,55 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
 
       end
 
+      describe 'props' do
+        let(:label) { "L#{unique_random_number}".to_sym }
+
+        let!(:node) do
+          Neo4j::Node.create({age: 2}, label)
+        end
+
+        def get_node_from_query_result
+          Neo4j::Session.query.match(n: label).pluck(:n).first
+        end
+
+        it 'holds the current value' do
+          n = get_node_from_query_result
+          expect(n.props).to eq({age: 2})
+          n[:age] = 3
+          expect(n.props).to eq({age: 3})
+        end
+
+        describe 'refresh' do
+
+            it 'will keep the old value unless node is refreshed for the server_db' do
+              n = get_node_from_query_result
+              expect(n[:age]).to eq(2)
+              get_node_from_query_result[:age] = 4
+
+              if Neo4j::Session.current.db_type == :embedded_db
+                expect(n[:age]).to eq(4)
+                expect(n.props).to eq({age: 4})
+              else
+                expect(n[:age]).to eq(2)
+                expect(n.props).to eq({age: 2})
+              end
+
+            end
+
+
+          it 'will read from database again after refresh' do
+            n = get_node_from_query_result
+            expect(n[:age]).to eq(2)
+            get_node_from_query_result[:age] = 4
+            n.refresh
+            expect(n[:age]).to eq(4)
+            expect(n.props).to eq({age: 4})
+          end
+
+        end
+
+      end
+
       describe 'props=' do
         it "replace old properties with new properties" do
           n = Neo4j::Node.create(age: 2, foo: 'bar')

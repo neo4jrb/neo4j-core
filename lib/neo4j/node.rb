@@ -31,6 +31,11 @@ module Neo4j
       raise 'not implemented'
     end
 
+    # Refresh the properties by reading it from the database again next time an property value is requested.
+    def refresh
+      raise 'not implemented'
+    end
+
     # Updates the properties, keeps old properties
     # @param [Hash<Symbol, Object>] properties hash of properties that should be updated on the node
     def update_props(properties)
