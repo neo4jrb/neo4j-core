@@ -50,40 +50,86 @@ module Neo4j::Server
         {}
       end
 
-      it 'allow root resource with urls ending with slash' do
-        Neo4jServerEndpoint.should_receive(:new).with({}).and_return(@endpoint)
-        
-        @endpoint.should_receive(:get).with('http://localhost:7474').and_return(TestResponse.new(root_resource_with_slash))
-        @endpoint.should_receive(:get).with("http://localhost:7474/db/data/").and_return(TestResponse.new(data_resource))
-        
-        session = Neo4j::Session.create_session(:server_db)
-        expect(session.resource_url).to eq('http://localhost:7474/db/data/')
+      describe 'without auth params' do
+
+        before do
+          Neo4jServerEndpoint.should_receive(:new).with({}).and_return(@endpoint)
+
+          @endpoint.should_receive(:get).with('http://localhost:7474').and_return(TestResponse.new(root_resource_with_slash))
+          @endpoint.should_receive(:get).with("http://localhost:7474/db/data/").and_return(TestResponse.new(data_resource))
+        end
+
+        it 'allow root resource with urls ending with slash' do
+          session = Neo4j::Session.create_session(:server_db)
+          expect(session.resource_url).to eq('http://localhost:7474/db/data/')
+        end
+
+        it 'allow root resource with urls NOT ending with slash' do
+          session = Neo4j::Session.create_session(:server_db)
+          expect(session.resource_url).to eq('http://localhost:7474/db/data/')
+        end
+
+        describe 'on_session_available' do
+          after do
+            Neo4j::Session._listeners.clear
+          end
+
+
+#          specify { expect { |b| Neo4j::Session.on_session_available(&b) }.to yield_control }
+          it 'calls the callback directly if session already exists' do
+            session = Neo4j::Session.create_session(:server_db)
+            expect { |b| Neo4j::Session.on_session_available(&b) }.to yield_with_args(Neo4j::Session)
+          end
+
+          it 'calls the callback when session is available' do
+            called_with = nil
+            Neo4j::Session.on_session_available {|session| called_with = session}
+            session = Neo4j::Session.create_session(:server_db)
+            expect(called_with).to eq(session)
+          end
+
+        end
+
+        describe 'add_listener' do
+          after do
+            Neo4j::Session._listeners.clear
+          end
+
+          it 'notify listener when session is created' do
+            data, event = nil
+            Neo4j::Session.add_listener do |e, d|
+              event = e
+              data = d
+            end
+
+            session = Neo4j::Session.create_session(:server_db)
+            expect(event).to eq(:session_available)
+            expect(data).to eq(session)
+          end
+        end
       end
 
-      it 'allow root resource with urls NOT ending with slash' do
-        Neo4jServerEndpoint.should_receive(:new).with({}).and_return(@endpoint)
-        
-        @endpoint.should_receive(:get).with('http://localhost:7474').and_return(TestResponse.new(root_resource_with_no_slash))
-        @endpoint.should_receive(:get).with("http://localhost:7474/db/data/").and_return(TestResponse.new(data_resource))
+      describe 'with auth params' do
+        let(:auth) { {basic_auth: { username: 'username', password: 'password'}} }
 
-        session = Neo4j::Session.create_session(:server_db)
-        expect(session.resource_url).to eq('http://localhost:7474/db/data/')
-      end
+        before do
+          Neo4jServerEndpoint.should_receive(:new).with(auth).and_return(@endpoint)
+        end
 
-      it 'creates session with basic auth params' do
-        base_url = 'http://localhost:7474'
-        auth = {basic_auth: { username: 'username', password: 'password'}}
-        params = [base_url, auth]
+        it 'creates session with basic auth params' do
+          base_url = 'http://localhost:7474'
+          params = [base_url, auth]
 
-        Neo4jServerEndpoint.should_receive(:new).with(auth).and_return(@endpoint)
-        
-        @endpoint.should_receive(:get).with(base_url)
+          @endpoint.should_receive(:get).with(base_url)
           .and_return(TestResponse.new(root_resource_with_slash))
-        @endpoint.should_receive(:get).with("http://localhost:7474/db/data/")
+          @endpoint.should_receive(:get).with("http://localhost:7474/db/data/")
           .and_return(TestResponse.new(data_resource))
-          
-        session = Neo4j::Session.create_session(:server_db, params)
+
+          session = Neo4j::Session.create_session(:server_db, params)
+        end
+
       end
+
 
       it 'does work with two sessions' do
         base_url = 'http://localhost:7474'
