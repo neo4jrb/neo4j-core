@@ -111,6 +111,17 @@ module Neo4j
         @@current_session = session
       end
 
+      # Registers a callback which will be called immediately if session is already available,
+      # or called when it later becomes available.
+      def on_session_available(&callback)
+        if (Neo4j::Session.current)
+          callback.call(Neo4j::Session.current)
+        end
+        add_listener do |event, data|
+          callback.call(data) if event == :session_available
+        end
+      end
+
       def add_listener(&listener)
         self._listeners << listener
       end
