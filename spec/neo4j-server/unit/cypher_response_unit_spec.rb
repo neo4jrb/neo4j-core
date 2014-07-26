@@ -96,7 +96,7 @@ module Neo4j::Server
         node_enumeration[1][:r].props.should == {intensity: 3}
       end
 
-      pending 'returns hydrated CypherPath objects?'
+      skip 'returns hydrated CypherPath objects?'
     end
   end
 
