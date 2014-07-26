@@ -13,9 +13,9 @@ describe "Cypher Queries", api: :server do
     it "returns correct response" do
       body = {query: 'CREATE (v1) RETURN ID(v1)'}.to_json
       response = HTTParty.send(:post, cypher_url, headers: resource_headers, body: body)
-      response['columns'].should == ['ID(v1)']
+      expect(response['columns']).to eq(['ID(v1)'])
       id = response['data'].first.first
-      id.should be_a(Fixnum)
+      expect(id).to be_a(Fixnum)
     end
   end
 

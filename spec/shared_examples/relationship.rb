@@ -8,11 +8,11 @@ RSpec.shared_examples "Neo4j::Relationship" do
     it "returns the relationship" do
       rel = node_a.create_rel(:best_friend, node_b)
       id = rel.neo_id
-      Neo4j::Relationship.load(id).should == rel
+      expect(Neo4j::Relationship.load(id)).to eq(rel)
     end
 
     it 'returns nil if not found' do
-      Neo4j::Relationship.load(4299991).should be_nil
+      expect(Neo4j::Relationship.load(4299991)).to be_nil
     end
   end
 
@@ -21,17 +21,17 @@ RSpec.shared_examples "Neo4j::Relationship" do
       a = Neo4j::Node.create
       b = Neo4j::Node.create
       r = Neo4j::Relationship.create(:knows, a, b)
-      r.should_not be_nil
-      a.rel(dir: :outgoing, type: :knows).should eq(r)
-      b.rel(dir: :incoming, type: :knows).should eq(r)
+      expect(r).not_to be_nil
+      expect(a.rel(dir: :outgoing, type: :knows)).to eq(r)
+      expect(b.rel(dir: :incoming, type: :knows)).to eq(r)
     end
 
     it 'can create and set properties' do
       a = Neo4j::Node.create
       b = Neo4j::Node.create
       r = Neo4j::Relationship.create(:knows, a, b, {name: 'a', age: 42})
-      a.rel(dir: :outgoing, type: :knows)[:name].should eq('a')
-      b.rel(dir: :incoming, type: :knows)[:age].should eq(42)
+      expect(a.rel(dir: :outgoing, type: :knows)[:name]).to eq('a')
+      expect(b.rel(dir: :incoming, type: :knows)[:age]).to eq(42)
 
     end
   end
@@ -48,7 +48,7 @@ RSpec.shared_examples "Neo4j::Relationship" do
   describe 'exist?' do
     it 'is true if it exists' do
       rel = node_a.create_rel(:best_friend, node_b)
-      rel.exist?.should be true
+      expect(rel.exist?).to be true
     end
   end
 
@@ -57,13 +57,13 @@ RSpec.shared_examples "Neo4j::Relationship" do
 
     it 'can set a relation' do
       rel_a[:since] = 2000
-      rel_a[:since].should == 2000
+      expect(rel_a[:since]).to eq(2000)
     end
 
     it 'can delete a relationship' do
       rel_a[:since] = 'hej'
       rel_a[:since] = nil
-      rel_a[:since].should be_nil
+      expect(rel_a[:since]).to be_nil
     end
   end
 
@@ -71,7 +71,7 @@ RSpec.shared_examples "Neo4j::Relationship" do
     let(:rel_a) { node_a.create_rel(:best_friend, node_b) }
 
     it 'returns the end_node' do
-      rel_a.end_node.should == node_b
+      expect(rel_a.end_node).to eq(node_b)
     end
 
   end
@@ -80,8 +80,8 @@ RSpec.shared_examples "Neo4j::Relationship" do
     let(:rel_a) { node_a.create_rel(:best_friend, node_b) }
 
     it 'returns the other node' do
-      rel_a.other_node(node_a).should == node_b
-      rel_a.other_node(node_b).should == node_a
+      expect(rel_a.other_node(node_a)).to eq(node_b)
+      expect(rel_a.other_node(node_b)).to eq(node_a)
     end
 
   end
@@ -90,7 +90,7 @@ RSpec.shared_examples "Neo4j::Relationship" do
     let(:rel_a) { node_a.create_rel(:best_friend, node_b) }
 
     it 'returns the end_node' do
-      rel_a.start_node.should == node_a
+      expect(rel_a.start_node).to eq(node_a)
     end
 
   end
@@ -99,9 +99,9 @@ RSpec.shared_examples "Neo4j::Relationship" do
     let(:rel_a) { node_a.create_rel(:best_friend, node_b) }
 
     it 'does not exist after del' do
-      rel_a.exist?.should be true
+      expect(rel_a.exist?).to be true
       rel_a.del
-      rel_a.exist?.should be false
+      expect(rel_a.exist?).to be false
     end
   end
 
@@ -112,30 +112,30 @@ RSpec.shared_examples "Neo4j::Relationship" do
     it 'keeps old properties' do
       a = n1.create_rel(:knows, n2, {old: 'a'})
       a.update_props({})
-      a[:old].should == 'a'
+      expect(a[:old]).to eq('a')
 
       a.update_props({new: 'b', name: 'foo'})
-      a[:old].should == 'a'
-      a[:new].should == 'b'
-      a[:name].should == 'foo'
+      expect(a[:old]).to eq('a')
+      expect(a[:new]).to eq('b')
+      expect(a[:name]).to eq('foo')
     end
 
     it 'replace old properties' do
       a = n1.create_rel(:knows, n2, old: 'a')
       a.update_props({old: 'b'})
-      a[:old].should == 'b'
+      expect(a[:old]).to eq('b')
     end
 
     it 'replace escape properties' do
       a = n1.create_rel(:knows, n2)
       a.update_props(old: "\"'")
-      a[:old].should == "\"'"
+      expect(a[:old]).to eq("\"'")
     end
 
     it 'allows strange property names' do
       a = n1.create_rel(:knows, n2)
       a.update_props({"1" => 2, " ha " => "ho"})
-      a.props.should == {:"1"=>2, :" ha "=>"ho"}
+      expect(a.props).to eq({:"1"=>2, :" ha "=>"ho"})
     end
 
   end

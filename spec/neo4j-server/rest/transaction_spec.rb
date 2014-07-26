@@ -32,13 +32,13 @@ describe "Transaction", api: :server do
       body = {statements: [ {statement: "CREATE (n:Person { name : 'Andres', title : 'Developer', _key : 'SHA' }) RETURN id(n)"}]}.to_json
 
       response = HTTParty.send(:post, @exec_url, headers: resource_headers, body: body)
-      response.code.should == 200
+      expect(response.code).to eq(200)
 
       #   node.name = 'foo'
       body = {statements: [ {statement: "MATCH (movie:Person) RETURN movie"}]}.to_json
 
       response = HTTParty.send(:post, @exec_url, headers: resource_headers, body: body)
-      response.code.should == 200
+      expect(response.code).to eq(200)
     end
   end
 

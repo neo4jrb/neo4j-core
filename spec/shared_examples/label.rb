@@ -15,19 +15,19 @@ RSpec.shared_examples "Neo4j::Label" do
       it 'can add labels' do
         node = Neo4j::Node.create
         node.add_label(:new_label)
-        node.labels.should include(:new_label)
+        expect(node.labels).to include(:new_label)
       end
 
       it 'escapes label names' do
         node = Neo4j::Node.create
         node.add_label(":bla")
-        node.labels.should include(:':bla')
+        expect(node.labels).to include(:':bla')
       end
 
       it 'can set several labels in one go' do
         node = Neo4j::Node.create
         node.add_label(:one, :two, :three)
-        node.labels.should include(:one, :two, :three)
+        expect(node.labels).to include(:one, :two, :three)
       end
     end
 
@@ -36,31 +36,31 @@ RSpec.shared_examples "Neo4j::Label" do
       it 'replace old labels with new ones' do
         node = Neo4j::Node.create({}, :one, :two)
         node.set_label(:three)
-        node.labels.should == [:three]
+        expect(node.labels).to eq([:three])
       end
 
       it 'can allows setting several labels in one go' do
         node = Neo4j::Node.create({}, :one, :two)
         node.set_label(:two, :three, :four)
-        node.labels.should =~ [:two, :three, :four]
+        expect(node.labels).to match_array([:two, :three, :four])
       end
 
       it 'can remove all labels' do
         node = Neo4j::Node.create({}, :one, :two)
         node.set_label
-        node.labels.should == []
+        expect(node.labels).to eq([])
       end
 
       it "does not change lables if there is no change" do
         node = Neo4j::Node.create({}, :one, :two)
         node.set_label(:one, :two)
-        node.labels.should =~ [:one, :two]
+        expect(node.labels).to match_array([:one, :two])
       end
 
       it "can set labels without removing any labels" do
         node = Neo4j::Node.create()
         node.set_label(:one, :two)
-        node.labels.should =~ [:one, :two]
+        expect(node.labels).to match_array([:one, :two])
       end
     end
 
@@ -68,13 +68,13 @@ RSpec.shared_examples "Neo4j::Label" do
       it 'delete given label' do
         node = Neo4j::Node.create({}, :one, :two)
         node.remove_label(:two)
-        node.labels.should == [:one]
+        expect(node.labels).to eq([:one])
       end
 
       it 'can delete all labels' do
         node = Neo4j::Node.create({}, :one, :two)
         node.remove_label(:two, :one)
-        node.labels.should == []
+        expect(node.labels).to eq([])
       end
     end
   end
@@ -83,7 +83,7 @@ RSpec.shared_examples "Neo4j::Label" do
     describe 'create' do
       it "creates a label with a name" do
         red = Neo4j::Label.create(@label1)
-        red.name.should == @label1
+        expect(red.name).to eq(@label1)
       end
     end
 
@@ -91,8 +91,8 @@ RSpec.shared_examples "Neo4j::Label" do
     describe 'find_all_nodes' do
       it 'returns all nodes with that label' do
         result = Neo4j::Label.find_all_nodes(@label1)
-        result.count.should == 2
-        result.should include(@red1, @red2)
+        expect(result.count).to eq(2)
+        expect(result).to include(@red1, @red2)
       end
     end
 
@@ -108,25 +108,25 @@ RSpec.shared_examples "Neo4j::Label" do
 
       it 'finds nodes using an index' do
         result = Neo4j::Label.find_nodes(@random_label, :colour, 'red')
-        result.count.should == 1
-        result.should include(@red)
+        expect(result.count).to eq(1)
+        expect(result).to include(@red)
       end
 
 
       it "does not find it if it does not exist" do
         result = Neo4j::Label.find_nodes(@random_label, :colour, 'black')
-        result.count.should == 0
+        expect(result.count).to eq(0)
       end
 
       it "does not find it if it does not exist using an unknown label" do
         result = Neo4j::Label.find_nodes(:unknown_label99, :colour, 'red')
-        result.count.should == 0
+        expect(result.count).to eq(0)
       end
 
       it "finds it even if there is no index on it" do
         result = Neo4j::Label.find_nodes(@random_label, :name, 'r')
-        result.should include(@red)
-        result.count.should == 1
+        expect(result).to include(@red)
+        expect(result.count).to eq(1)
       end
     end
 
@@ -139,7 +139,7 @@ RSpec.shared_examples "Neo4j::Label" do
         people.drop_index(:name, :things)
         people.create_index(:name)
         people.create_index(:things)
-        people.indexes[:property_keys].count.should == 2
+        expect(people.indexes[:property_keys].count).to eq(2)
       end
     end
 
@@ -149,7 +149,7 @@ RSpec.shared_examples "Neo4j::Label" do
         people.drop_index(:name1, :name2)
         people.create_index(:name1)
         people.create_index(:name2)
-        people.indexes[:property_keys].should =~ [[:name1], [:name2]]
+        expect(people.indexes[:property_keys]).to match_array([[:name1], [:name2]])
       end
     end
 
@@ -160,7 +160,7 @@ RSpec.shared_examples "Neo4j::Label" do
         people.create_index(:name)
         people.create_index(:foo)
         people.drop_index(:foo)
-        people.indexes[:property_keys].should == [[:name]]
+        expect(people.indexes[:property_keys]).to eq([[:name]])
         people.drop_index(:name)
       end
     end
