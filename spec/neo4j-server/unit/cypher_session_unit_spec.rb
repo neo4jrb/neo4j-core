@@ -161,7 +161,6 @@ module Neo4j::Server
         it "generates 'START v0 = node(1915); RETURN v0'" do
           session.should_receive(:_query).with("START n=node(1915) RETURN n").and_return(cypher_response)
           node = session.load_node(1915)
-          node.neo_id.should == 1915
         end
 
         it "returns nil if EntityNotFoundException" do

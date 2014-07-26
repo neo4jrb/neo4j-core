@@ -77,7 +77,10 @@ module Neo4j::Server
         @props
       else
         props = @session._query_or_fail("START n=relationship(#{neo_id}) RETURN n", true)['data']
-        props.keys.inject({}){|hash,key| hash[key.to_sym] = props[key]; hash}
+        props.keys.inject({}) do |hash,key|
+          hash[key.to_sym] = props[key]
+          @props = hash
+        end
       end
     end
 

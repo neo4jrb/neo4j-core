@@ -81,7 +81,8 @@ module Neo4j::Server
     def load_node(neo_id)
       cypher_response = _query("START n=node(#{neo_id}) RETURN n")
       if (!cypher_response.error?)
-        CypherNode.new(self, neo_id)
+        result = cypher_response.first_data.empty? ? neo_id : cypher_response.first_data
+        CypherNode.new(self, result)
       elsif (cypher_response.error_status == 'EntityNotFoundException')
         return nil
       else
