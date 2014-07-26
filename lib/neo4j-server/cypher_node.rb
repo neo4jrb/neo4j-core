@@ -40,11 +40,8 @@ module Neo4j::Server
       if @props
         @props
       else
-        props = @session._query_or_fail("START n=node(#{neo_id}) RETURN n", true)['data']
-        props.keys.inject({}) do |hash,key|
-          hash[key.to_sym] = props[key]
-          @props = hash
-        end
+        hash = @session._query_or_fail("START n=node(#{neo_id}) RETURN n", true)['data']
+        @props = Hash[hash.map{ |k, v| [k.to_sym, v] }]
       end
     end
 
