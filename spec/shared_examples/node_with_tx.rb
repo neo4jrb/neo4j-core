@@ -10,7 +10,7 @@ RSpec.shared_examples "Neo4j::Node with tx" do
         tx.failure
         a
       end
-      node.should_not exist
+      expect(node).not_to exist
     end
 
     it 'rolls back the transaction if an exception occurs' do
@@ -19,23 +19,23 @@ RSpec.shared_examples "Neo4j::Node with tx" do
         Neo4j::Transaction.run do |tx|
           a = Neo4j::Node.create
           ids << a.neo_id
-          Neo4j::Node.load(ids.first).should == a
+          expect(Neo4j::Node.load(ids.first)).to eq(a)
           raise "should rollback"
         end
       rescue Exception => e
-        e.to_s.should == 'should rollback'
+        expect(e.to_s).to eq('should rollback')
       end
-      Neo4j::Node.load(ids.first).should be_nil
+      expect(Neo4j::Node.load(ids.first)).to be_nil
     end
 
     it 'can rollback a property' do
       node = Neo4j::Node.create(name: 'foo')
       Neo4j::Transaction.run do |tx|
         node[:name] = 'bar'
-        node[:name].should == 'bar'
+        expect(node[:name]).to eq('bar')
         tx.failure
       end
-      node[:name].should == 'foo'
+      expect(node[:name]).to eq('foo')
     end
   end
 
@@ -46,15 +46,15 @@ RSpec.shared_examples "Neo4j::Node with tx" do
         n = Neo4j::Transaction.run do
           Neo4j::Node.create name: 'jimmy'
         end
-        n[:name].should == 'jimmy'
+        expect(n[:name]).to eq('jimmy')
       end
 
       it 'does not have any relationships' do
-        Neo4j::Transaction.run do
+        expect(Neo4j::Transaction.run do
           n = Neo4j::Node.create
-          n.rels.should be_empty
+          expect(n.rels).to be_empty
           n
-        end.rels.should be_empty
+        end.rels).to be_empty
       end
     end
 
@@ -64,11 +64,11 @@ RSpec.shared_examples "Neo4j::Node with tx" do
           node_a = Neo4j::Node.create name: 'a'
           node_b = Neo4j::Node.create name: 'b'
           rel_a = node_a.create_rel(:best_friend, node_b, age: 42)
-          node_a.rels.to_a.should == [rel_a]
-          rel_a[:age].should == 42
+          expect(node_a.rels.to_a).to eq([rel_a])
+          expect(rel_a[:age]).to eq(42)
           rel_a
         end
-        rel[:age].should == 42
+        expect(rel[:age]).to eq(42)
       end
 
     end

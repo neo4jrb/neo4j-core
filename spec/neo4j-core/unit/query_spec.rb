@@ -6,14 +6,14 @@ describe Neo4j::Core::Query do
     let(:query) { Neo4j::Core::Query.new(parser: 2.0) }
 
     it 'should generate a per-query cypher parser version' do
-      query.to_cypher.should == 'CYPHER 2.0'
+      expect(query.to_cypher).to eq('CYPHER 2.0')
     end
 
     describe 'subsequent call' do
       let(:query) { super().match('q:Person') }
 
       it 'should combine the parser version with the rest of the query' do
-        query.to_cypher.should == 'CYPHER 2.0 MATCH q:Person'
+        expect(query.to_cypher).to eq('CYPHER 2.0 MATCH q:Person')
       end
     end
   end
@@ -27,7 +27,7 @@ describe Neo4j::Core::Query do
 
   def expects_cypher(cypher)
     query = eval("Neo4j::Core::Query.new#{self.class.description}")
-    query.to_cypher.should == cypher
+    expect(query.to_cypher).to eq(cypher)
   end
 
   def self.it_generates(cypher)
@@ -90,11 +90,11 @@ describe Neo4j::Core::Query do
     let(:query2) { Neo4j::Core::Query.new.match(c: :Car) }
 
     it 'Merging two matches' do
-      (query1 & query2).to_cypher.should == 'MATCH (p:`Person`), (c:`Car`)'
+      expect((query1 & query2).to_cypher).to eq('MATCH (p:`Person`), (c:`Car`)')
     end
 
     it 'Makes a query that allows further querying' do
-      (query1 & query2).match('(p)-[:DRIVES]->(c)').to_cypher.should == 'MATCH (p:`Person`), (c:`Car`), (p)-[:DRIVES]->(c)'
+      expect((query1 & query2).match('(p)-[:DRIVES]->(c)').to_cypher).to eq('MATCH (p:`Person`), (c:`Car`), (p)-[:DRIVES]->(c)')
     end
 
     it 'merges params'
@@ -118,7 +118,7 @@ describe Neo4j::Core::Query do
 
   describe '#match' do
     it 'is a test!' do
-      1.should == 1
+      expect(1).to eq(1)
     end
     describe ".match('n')" do
       it_generates "MATCH n"
@@ -590,14 +590,14 @@ describe Neo4j::Core::Query do
       q = Neo4j::Core::Query.new.match(o: :Person).where(o: {age: 10})
       result = Neo4j::Core::Query.new.match(n: :Person).union_cypher(q)
 
-      result.should == "MATCH (n:`Person`) UNION MATCH (o:`Person`) WHERE o.age = 10"
+      expect(result).to eq("MATCH (n:`Person`) UNION MATCH (o:`Person`) WHERE o.age = 10")
     end
 
     it "can represent UNION ALL with an option" do
       q = Neo4j::Core::Query.new.match(o: :Person).where(o: {age: 10})
       result = Neo4j::Core::Query.new.match(n: :Person).union_cypher(q, all: true)
 
-      result.should == "MATCH (n:`Person`) UNION ALL MATCH (o:`Person`) WHERE o.age = 10"
+      expect(result).to eq("MATCH (n:`Person`) UNION ALL MATCH (o:`Person`) WHERE o.age = 10")
     end
 
   end

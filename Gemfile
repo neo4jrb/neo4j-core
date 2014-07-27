@@ -15,7 +15,7 @@ end
 
 group 'test' do
   gem "rake", ">= 0.8.7"
-  gem "rspec", "~> 2.8"
+  gem "rspec", "~> 3.0"
   gem 'rspec-its'
 end
 

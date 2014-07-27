@@ -20,7 +20,7 @@ describe Neo4j::Core::CypherTranslator do
         "\u00b5",
       ].each do |s|
         it "does not change #{s}" do
-          klass.sanitize_escape_sequences(s).should == s
+          expect(klass.sanitize_escape_sequences(s)).to eq(s)
         end
       end
     end
@@ -31,7 +31,7 @@ describe Neo4j::Core::CypherTranslator do
         '2\56'    => '256',
       }.each do |before, after|
         it "replaces #{before} with #{after}" do
-          klass.sanitize_escape_sequences(before).should == after
+          expect(klass.sanitize_escape_sequences(before)).to eq(after)
         end
       end
     end
@@ -41,7 +41,7 @@ describe Neo4j::Core::CypherTranslator do
   context "#cyper_prop_list" do
     it "drops nil properties" do
       items = klass.cypher_prop_list({one: 1, two: 2, three: nil})
-      items.should == "{one : 1,two : 2}"
+      expect(items).to eq("{one : 1,two : 2}")
     end
   end
 

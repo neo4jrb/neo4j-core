@@ -27,8 +27,8 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
         its(:props) { should == { name: 'kalle', age: 42} }
 
         it 'read the properties using []' do
-          subject[:name].should == 'kalle'
-          subject[:age].should == 42
+          expect(subject[:name]).to eq('kalle')
+          expect(subject[:age]).to eq(42)
         end
       end
 
@@ -39,8 +39,8 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
           Neo4j::Node.create(name: 'kalle', age: nil)
         end
         it 'read the properties using []' do
-          subject[:name].should == 'kalle'
-          subject[:age].should be_nil
+          expect(subject[:name]).to eq('kalle')
+          expect(subject[:age]).to be_nil
         end
       end
 
@@ -56,7 +56,7 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
           its(:props) { should == { name: 'kaputt'} }
 
           it 'read the properties using []' do
-            subject[:name].should == 'kaputt'
+            expect(subject[:name]).to eq('kaputt')
           end
         end
       end
@@ -66,11 +66,11 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
           node1 = Neo4j::Node.create
           id1 = node1.neo_id
           node2 = Neo4j::Node.load(id1)
-          node1.neo_id.should == node2.neo_id
+          expect(node1.neo_id).to eq(node2.neo_id)
         end
 
         it "returns nil if the node does not exist" do
-          Neo4j::Node.load(71247427).should be_nil
+          expect(Neo4j::Node.load(71247427)).to be_nil
         end
       end
     end
@@ -84,90 +84,90 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
       describe 'neo_id' do
         it "returns the neo4j id" do
           neo_id = node.neo_id
-          neo_id.should be_a(Fixnum)
+          expect(neo_id).to be_a(Fixnum)
         end
       end
 
       describe 'del' do
         it "deletes the node" do
           n = Neo4j::Node.create
-          n.should exist
+          expect(n).to exist
           n.del
-          n.should_not exist
+          expect(n).not_to exist
         end
 
         it 'raise an exception if node does not exist' do
           n = Neo4j::Node.create
           n.del
-          Proc.new { n.del }.should raise_error
+          expect { n.del }.to raise_error
         end
 
         it 'does delete its relationships as well' do
           n = Neo4j::Node.create
           m = Neo4j::Node.create
           rel = n.create_rel(:friends, m)
-          rel.should exist
+          expect(rel).to exist
           n.del
-          n.should_not exist
-          rel.should_not exist
+          expect(n).not_to exist
+          expect(rel).not_to exist
         end
       end
 
       describe 'labels' do
         it 'returns [] if there are no labels' do
           n = Neo4j::Node.create
-          n.labels.to_a.should == []
+          expect(n.labels.to_a).to eq([])
         end
 
         it 'returns all labels for the node' do
           n = Neo4j::Node.create({}, :label1, :label2)
-          n.labels.to_a.should == [:label1, :label2]
+          expect(n.labels.to_a).to eq([:label1, :label2])
         end
       end
 
       describe '[] and []=' do
         it "can write and read String" do
           node[:foo] = 'bar'
-          node[:foo].should == 'bar'
+          expect(node[:foo]).to eq('bar')
         end
 
         it "can write and read Fixnum" do
           node[:foo] = 42
-          node[:foo].should eq(42)
+          expect(node[:foo]).to eq(42)
         end
 
         it "can write and read Float" do
           node[:foo] = 1.23
-          node[:foo].should eq(1.23)
+          expect(node[:foo]).to eq(1.23)
         end
 
         it "can write and read Boolean" do
           node[:foo] = false
           node[:bar] = true
-          node[:foo].should be false
-          node[:bar].should be true
+          expect(node[:foo]).to be false
+          expect(node[:bar]).to be true
         end
 
         it "can handle ruby arrays" do
           node[:foo] = [1,2,3]
-          node[:foo].should eq [1,2,3]
-          node[:foo].should be_an(Array)
+          expect(node[:foo]).to eq [1,2,3]
+          expect(node[:foo]).to be_an(Array)
         end
 
         it "raise exception for illegal values" do
-          Proc.new { node[:illegal_thing] = Object.new }.should raise_error(Neo4j::PropertyValidator::InvalidPropertyException)
-          node[:illegal_thing].should be_nil
+          expect { node[:illegal_thing] = Object.new }.to raise_error(Neo4j::PropertyValidator::InvalidPropertyException)
+          expect(node[:illegal_thing]).to be_nil
         end
 
         it "returns nil if it does not exist" do
-          node[:this_does_not_exist].should == nil
+          expect(node[:this_does_not_exist]).to eq(nil)
         end
 
         it "removes the property when setting it to nil" do
           node[:foo] = 2
-          node[:foo].should == 2
+          expect(node[:foo]).to eq(2)
           node[:foo] = nil
-          node[:foo].should be_nil
+          expect(node[:foo]).to be_nil
         end
 
       end
@@ -224,16 +224,16 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
       describe 'props=' do
         it "replace old properties with new properties" do
           n = Neo4j::Node.create(age: 2, foo: 'bar')
-          n.props.should == {age: 2, foo: 'bar'}
+          expect(n.props).to eq({age: 2, foo: 'bar'})
           n.props={name: 'andreas', age: 21}
-          n.props.should == {name: 'andreas', age: 21}
+          expect(n.props).to eq({name: 'andreas', age: 21})
         end
 
         it 'allows update with empty hash, will remove all props' do
           n = Neo4j::Node.create(age: 2, foo: 'bar')
-          n.props.should == {age: 2, foo: 'bar'}
+          expect(n.props).to eq({age: 2, foo: 'bar'})
           n.props={}
-          n.props.should == {}
+          expect(n.props).to eq({})
         end
       end
 
@@ -241,47 +241,47 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
         it 'keeps old properties' do
           a = Neo4j::Node.create(old: 'a')
           a.update_props({})
-          a[:old].should == 'a'
+          expect(a[:old]).to eq('a')
 
           a.update_props({new: 'b', name: 'foo'})
-          a[:old].should == 'a'
-          a[:new].should == 'b'
-          a[:name].should == 'foo'
+          expect(a[:old]).to eq('a')
+          expect(a[:new]).to eq('b')
+          expect(a[:name]).to eq('foo')
         end
 
         it 'replace old properties' do
           a = Neo4j::Node.create(old: 'a')
           a.update_props({old: 'b'})
-          a[:old].should == 'b'
+          expect(a[:old]).to eq('b')
         end
 
         it 'removes properties with nil values' do
           #skip "Failing test for https://github.com/andreasronge/neo4j/issues/319"
           a = Neo4j::Node.create(old: 'a', new: 'b')
-          a.props.should == {old: 'a', new: 'b'}
+          expect(a.props).to eq({old: 'a', new: 'b'})
           a.update_props(old: nil)
-          a.props.should == {new: 'b'}
+          expect(a.props).to eq({new: 'b'})
         end
 
         it 'can set boolean value' do
           a = Neo4j::Node.create(old: false)
-          a[:old].should eq(false)
+          expect(a[:old]).to eq(false)
           a.update_props({old: true})
-          a[:old].should eq(true)
+          expect(a[:old]).to eq(true)
           a.update_props({old: false})
-          a[:old].should eq(false)
+          expect(a[:old]).to eq(false)
         end
 
         it 'replace escape properties' do
           a = Neo4j::Node.create
           a.update_props(old: "\"'")
-          a[:old].should == "\"'"
+          expect(a[:old]).to eq("\"'")
         end
 
         it 'allows strange property names' do
           a = Neo4j::Node.create
           a.update_props({"1" => 2, " ha " => "ho"})
-          a.props.should == {:"1"=>2, :" ha "=>"ho"}
+          expect(a.props).to eq({:"1"=>2, :" ha "=>"ho"})
         end
 
       end
@@ -290,21 +290,21 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
 
         it "can create a new relationship" do
           rel = node_a.create_rel(:best_friend, node_b)
-          rel.neo_id.should be_a_kind_of(Fixnum)
-          rel.exist?.should be true
+          expect(rel.neo_id).to be_a_kind_of(Fixnum)
+          expect(rel.exist?).to be true
         end
 
 
         it 'has a start_node and end_node' do
           rel = node_a.create_rel(:best_friend, node_b)
-          rel.start_node.neo_id.should == node_a.neo_id
-          rel.end_node.neo_id.should == node_b.neo_id
+          expect(rel.start_node.neo_id).to eq(node_a.neo_id)
+          expect(rel.end_node.neo_id).to eq(node_b.neo_id)
         end
 
         it "can create a new relationship with properties" do
           rel = node_a.create_rel(:best_friend, node_b, since: 2001)
-          rel[:since].should == 2001
-          rel.exist?.should be true
+          expect(rel[:since]).to eq(2001)
+          expect(rel.exist?).to be true
         end
 
       end
@@ -312,18 +312,18 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
       describe 'rel?' do
         it "returns true relationship if there is only one" do
           node_a.create_rel(:knows, node_b)
-          node_a.rel?(type: :knows, dir: :outgoing).should be true
-          node_a.rel?(type: :knows, dir: :incoming).should be false
-          node_a.rel?(type: :knows).should be true
+          expect(node_a.rel?(type: :knows, dir: :outgoing)).to be true
+          expect(node_a.rel?(type: :knows, dir: :incoming)).to be false
+          expect(node_a.rel?(type: :knows)).to be true
         end
 
         it 'returns true if there is more then one matching relationship' do
           node_a.create_rel(:knows, node_b)
           node_a.create_rel(:knows, node_b)
-          node_a.rel?(type: :knows).should be true
-          node_a.rel?(dir: :outgoing, type: :knows).should be true
-          node_a.rel?(dir: :both, type: :knows).should be true
-          node_a.rel?(dir: :incoming, type: :knows).should be false
+          expect(node_a.rel?(type: :knows)).to be true
+          expect(node_a.rel?(dir: :outgoing, type: :knows)).to be true
+          expect(node_a.rel?(dir: :both, type: :knows)).to be true
+          expect(node_a.rel?(dir: :incoming, type: :knows)).to be false
         end
 
       end
@@ -331,9 +331,9 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
       describe 'rel' do
         it "returns the relationship if there is only one" do
           rel = node_a.create_rel(:knows, node_b)
-          node_a.rel(type: :knows, dir: :outgoing).should == rel
-          node_a.rel(type: :knows, dir: :incoming).should be_nil
-          node_a.rel(type: :knows).should == rel
+          expect(node_a.rel(type: :knows, dir: :outgoing)).to eq(rel)
+          expect(node_a.rel(type: :knows, dir: :incoming)).to be_nil
+          expect(node_a.rel(type: :knows)).to eq(rel)
         end
 
         it 'raise an exception if there are more then one matching relationship' do
@@ -349,26 +349,26 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
         describe 'node()' do
           it 'returns a node if there is any outgoing,incoming relationship of any type to it' do
             node_a.create_rel(:work, node_b)
-            node_a.node().should == node_b
+            expect(node_a.node()).to eq(node_b)
           end
 
           it 'returns nil if there is no relationships' do
-            node_a.node().should be_nil
+            expect(node_a.node()).to be_nil
           end
 
           it 'raise an exception if there are more then one relationship' do
             node_a.create_rel(:work, node_b)
             node_a.create_rel(:work, node_b)
-            expect{ node_a.node().should == node_b}.to raise_error
+            expect{ expect(node_a.node()).to eq(node_b)}.to raise_error
           end
         end
 
         describe 'node(dir: :outgoing, type: :friends)' do
           it 'returns a node if there is any outgoing,incoming relationship of any type to it' do
             node_a.create_rel(:friends, node_b)
-            node_a.node(dir: :outgoing, type: :friends).should == node_b
-            node_a.node(dir: :incoming, type: :friends).should be_nil
-            node_a.node(dir: :outgoing, type: :knows).should be_nil
+            expect(node_a.node(dir: :outgoing, type: :friends)).to eq(node_b)
+            expect(node_a.node(dir: :incoming, type: :friends)).to be_nil
+            expect(node_a.node(dir: :outgoing, type: :knows)).to be_nil
           end
 
         end
@@ -382,7 +382,7 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
             node_a.create_rel(:bar, node_b)
             node_a.create_rel(:bar, node_c)
             node_d.create_rel(:foo, node_a)
-            node_a.nodes.to_a.should =~ [node_b, node_c, node_d]
+            expect(node_a.nodes.to_a).to match_array([node_b, node_c, node_d])
           end
         end
 
@@ -390,9 +390,9 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
           it 'returns incoming and outgoing nodes of any type' do
             node_a.create_rel(:best_friend, node_b)
             node_b.create_rel(:work, node_a)
-            node_a.nodes(type: :work).to_a.should == [node_b]
-            node_a.nodes(type: :best_friend).to_a.should == [node_b]
-            node_a.nodes(type: :unknown_rel).should be_empty
+            expect(node_a.nodes(type: :work).to_a).to eq([node_b])
+            expect(node_a.nodes(type: :best_friend).to_a).to eq([node_b])
+            expect(node_a.nodes(type: :unknown_rel)).to be_empty
           end
         end
 
@@ -400,9 +400,9 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
           it 'finds outgoing nodes of any type' do
             node_a.create_rel(:best_friend, node_b)
             node_b.create_rel(:work, node_a)
-            node_a.nodes(dir: :outgoing).to_a.should == [node_b]
-            node_b.nodes(dir: :outgoing).to_a.should == [node_a]
-            node_c.nodes(dir: :outgoing).should be_empty
+            expect(node_a.nodes(dir: :outgoing).to_a).to eq([node_b])
+            expect(node_b.nodes(dir: :outgoing).to_a).to eq([node_a])
+            expect(node_c.nodes(dir: :outgoing)).to be_empty
 
           end
         end
@@ -410,8 +410,8 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
         describe 'nodes(dir: :incoming)' do
           it 'finds outgoing nodes of any type' do
             node_a.create_rel(:best_friend, node_b)
-            node_a.nodes(dir: :incoming).should be_empty
-            node_b.nodes(dir: :incoming).to_a.should == [node_a]
+            expect(node_a.nodes(dir: :incoming)).to be_empty
+            expect(node_b.nodes(dir: :incoming).to_a).to eq([node_a])
           end
         end
 
@@ -420,8 +420,8 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
             node_a.create_rel(:best_friend, node_b)
             node_b.create_rel(:work, node_a)
 
-            node_a.nodes(dir: :incoming, type: :work).to_a.should == [node_b]
-            node_b.nodes(dir: :incoming, type: :work).to_a.should be_empty
+            expect(node_a.nodes(dir: :incoming, type: :work).to_a).to eq([node_b])
+            expect(node_b.nodes(dir: :incoming, type: :work).to_a).to be_empty
           end
         end
 
@@ -429,9 +429,9 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
           it 'finds all relationships between two nodes' do
             node_a.create_rel(:work, node_b)
             node_a.create_rel(:work, node_c)
-            node_a.nodes(between: node_b).to_a.should == [node_b]
-            node_a.nodes(between: node_c).to_a.should == [node_c]
-            node_a.nodes(between: node_d).to_a.should be_empty
+            expect(node_a.nodes(between: node_b).to_a).to eq([node_b])
+            expect(node_a.nodes(between: node_c).to_a).to eq([node_c])
+            expect(node_a.nodes(between: node_d).to_a).to be_empty
           end
 
         end
@@ -445,12 +445,12 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
           it 'finds relationship of any dir and any type' do
             rel_a = node_a.create_rel(:best_friend, node_b, age: 42)
             rel_b = node_b.create_rel(:work, node_a)
-            node_a.rels.count.should == 2
-            node_a.rels.to_a.should =~ [rel_a, rel_b]
+            expect(node_a.rels.count).to eq(2)
+            expect(node_a.rels.to_a).to match_array([rel_a, rel_b])
           end
 
           it "returns an empty enumerable if there are no relationships" do
-            node_a.rels.should be_empty
+            expect(node_a.rels).to be_empty
           end
         end
 
@@ -458,8 +458,8 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
           it 'finds any dir of one relationship type' do
             rel_a = node_a.create_rel(:best_friend, node_b, age: 42)
             rel_b = node_b.create_rel(:work, node_a)
-            node_a.rels(type: :work).to_a.should == [rel_b]
-            node_a.rels(type: :best_friend).to_a.should == [rel_a]
+            expect(node_a.rels(type: :work).to_a).to eq([rel_b])
+            expect(node_a.rels(type: :best_friend).to_a).to eq([rel_a])
           end
         end
 
@@ -467,8 +467,8 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
           it 'finds outgoing rels of any type' do
             rel_a = node_a.create_rel(:best_friend, node_b)
             rel_b = node_b.create_rel(:work, node_a)
-            node_a.rels(dir: :outgoing).to_a.should == [rel_a]
-            node_b.rels(dir: :outgoing).to_a.should == [rel_b]
+            expect(node_a.rels(dir: :outgoing).to_a).to eq([rel_a])
+            expect(node_b.rels(dir: :outgoing).to_a).to eq([rel_b])
           end
         end
 
@@ -476,8 +476,8 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
           it 'finds incoming rels of any type' do
             rel_a = node_a.create_rel(:best_friend, node_b)
             rel_b = node_b.create_rel(:work, node_a)
-            node_a.rels(dir: :incoming).to_a.should == [rel_b]
-            node_b.rels(dir: :incoming).to_a.should == [rel_a]
+            expect(node_a.rels(dir: :incoming).to_a).to eq([rel_b])
+            expect(node_b.rels(dir: :incoming).to_a).to eq([rel_a])
           end
         end
 
@@ -488,8 +488,8 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
             rel_c = node_a.create_rel(:work, node_b)
             rel_d = node_b.create_rel(:best_friend, node_a)
 
-            node_a.rels(dir: :incoming, type: :work).to_a.should == [rel_b]
-            node_a.rels(dir: :outgoing, type: :work).to_a.should == [rel_c]
+            expect(node_a.rels(dir: :incoming, type: :work).to_a).to eq([rel_b])
+            expect(node_a.rels(dir: :outgoing, type: :work).to_a).to eq([rel_c])
           end
         end
 
@@ -497,8 +497,8 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
           it 'finds all relationships between two nodes' do
             rel_a = node_a.create_rel(:work, node_b)
             rel_b = node_a.create_rel(:work, node_c)
-            node_a.rels(between: node_b).to_a.should == [rel_a]
-            node_a.rels(between: node_c).to_a.should == [rel_b]
+            expect(node_a.rels(between: node_b).to_a).to eq([rel_a])
+            expect(node_a.rels(between: node_c).to_a).to eq([rel_b])
           end
 
           it 'can be combined with type, between: node_b, type: friends' do
@@ -506,10 +506,10 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
             rel_b = node_a.create_rel(:work, node_c)
             rel_c = node_a.create_rel(:friends, node_b)
             rel_d = node_a.create_rel(:friends, node_c)
-            node_a.rels(between: node_b, type: :friends).to_a.should == [rel_c]
-            node_a.rels(between: node_c, type: :friends).to_a.should == [rel_d]
-            node_a.rels(between: node_b, type: :work).to_a.should == [rel_a]
-            node_a.rels(between: node_c, type: :work).to_a.should == [rel_b]
+            expect(node_a.rels(between: node_b, type: :friends).to_a).to eq([rel_c])
+            expect(node_a.rels(between: node_c, type: :friends).to_a).to eq([rel_d])
+            expect(node_a.rels(between: node_b, type: :work).to_a).to eq([rel_a])
+            expect(node_a.rels(between: node_c, type: :work).to_a).to eq([rel_b])
           end
 
           it 'can be combined with direction' do
@@ -517,11 +517,11 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
             rel_b = node_a.create_rel(:work, node_c)
             rel_c = node_a.create_rel(:friends, node_b)
             rel_d = node_a.create_rel(:friends, node_c)
-            node_a.rels(between: node_b, dir: :both).to_a.should =~ [rel_c, rel_a]
-            node_a.rels(between: node_c, dir: :both).to_a.should =~ [rel_d, rel_b]
-            node_a.rels(between: node_b, dir: :outgoing).to_a.should =~ [rel_a, rel_c]
-            node_a.rels(between: node_c, dir: :incoming).to_a.should be_empty
-            node_c.rels(between: node_a, dir: :incoming).to_a.should =~ [rel_b, rel_d]
+            expect(node_a.rels(between: node_b, dir: :both).to_a).to match_array([rel_c, rel_a])
+            expect(node_a.rels(between: node_c, dir: :both).to_a).to match_array([rel_d, rel_b])
+            expect(node_a.rels(between: node_b, dir: :outgoing).to_a).to match_array([rel_a, rel_c])
+            expect(node_a.rels(between: node_c, dir: :incoming).to_a).to be_empty
+            expect(node_c.rels(between: node_a, dir: :incoming).to_a).to match_array([rel_b, rel_d])
           end
         end
 

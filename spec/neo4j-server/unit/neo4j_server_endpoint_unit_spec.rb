@@ -16,26 +16,26 @@ module Neo4j::Server
       end
 
       it "should allow HTTP requests WITHOUT params" do
-        HTTParty.should_receive(:get).with(url, {}).and_return(response)
+        expect(HTTParty).to receive(:get).with(url, {}).and_return(response)
         expect(@endpoint.get(url)).to eq(response)
 
-        HTTParty.should_receive(:post).with(url, {}).and_return(response)
+        expect(HTTParty).to receive(:post).with(url, {}).and_return(response)
         expect(@endpoint.post(url, {})).to eq(response)
 
-        HTTParty.should_receive(:delete).with(url, {}).and_return(response)
+        expect(HTTParty).to receive(:delete).with(url, {}).and_return(response)
         expect(@endpoint.delete(url, {})).to eq(response)
       end
 
       it "should allow HTTP requests WITH params" do
         params = { key1: 1, key2: 2 }
 
-        HTTParty.should_receive(:get).with(url, params).and_return(response)
+        expect(HTTParty).to receive(:get).with(url, params).and_return(response)
         expect(@endpoint.get(url, params)).to eq(response)
 
-        HTTParty.should_receive(:post).with(url, params).and_return(response)
+        expect(HTTParty).to receive(:post).with(url, params).and_return(response)
         expect(@endpoint.post(url, params)).to eq(response)
 
-        HTTParty.should_receive(:delete).with(url, params).and_return(response)
+        expect(HTTParty).to receive(:delete).with(url, params).and_return(response)
         expect(@endpoint.delete(url, params)).to eq(response)
       end
     end
@@ -47,13 +47,13 @@ module Neo4j::Server
       end
       
       it "should allow HTTP requests WITHOUT other params" do
-        HTTParty.should_receive(:get).with(url, @basic_auth).and_return(response)
+        expect(HTTParty).to receive(:get).with(url, @basic_auth).and_return(response)
         expect(@endpoint.get(url)).to eq(response)
 
-        HTTParty.should_receive(:post).with(url, @basic_auth).and_return(response)
+        expect(HTTParty).to receive(:post).with(url, @basic_auth).and_return(response)
         expect(@endpoint.post(url)).to eq(response)
 
-        HTTParty.should_receive(:delete).with(url, @basic_auth).and_return(response)
+        expect(HTTParty).to receive(:delete).with(url, @basic_auth).and_return(response)
         expect(@endpoint.delete(url)).to eq(response)
       end
 
@@ -61,13 +61,13 @@ module Neo4j::Server
         params = { key1: 1, key2: 2 }
         merged_params = params.merge(@basic_auth)
 
-        HTTParty.should_receive(:get).with(url, merged_params).and_return(response)
+        expect(HTTParty).to receive(:get).with(url, merged_params).and_return(response)
         expect(@endpoint.get(url, params)).to eq(response)
 
-        HTTParty.should_receive(:post).with(url, merged_params).and_return(response)
+        expect(HTTParty).to receive(:post).with(url, merged_params).and_return(response)
         expect(@endpoint.post(url, params)).to eq(response)
 
-        HTTParty.should_receive(:delete).with(url, merged_params).and_return(response)
+        expect(HTTParty).to receive(:delete).with(url, merged_params).and_return(response)
         expect(@endpoint.delete(url, params)).to eq(response)
       end
     end

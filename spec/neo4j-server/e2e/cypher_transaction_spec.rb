@@ -25,24 +25,24 @@ module Neo4j::Server
       tx = session.begin_tx
 
       q = tx._query("START n=node(#{id}) RETURN ID(n)")
-      q.response['results'].should == [{"columns"=>["ID(n)"], "data"=>[{"row"=>[id]}]}]
+      expect(q.response['results']).to eq([{"columns"=>["ID(n)"], "data"=>[{"row"=>[id]}]}])
     end
 
 
     it "sets the response error fields if not a valid query" do
       tx = session.begin_tx
       r = tx._query("START n=fs(0) RRETURN ID(n)")
-      r.error?.should be true
+      expect(r.error?).to be true
 
-      r.error_msg.should =~ /Invalid input/
-      r.error_status.should =~ /Syntax/
+      expect(r.error_msg).to match(/Invalid input/)
+      expect(r.error_status).to match(/Syntax/)
     end
 
     it 'can commit' do
       tx = session.begin_tx
       tx.success
       response = tx.finish
-      response.code.should == 200
+      expect(response.code).to eq(200)
     end
 
 
@@ -50,8 +50,8 @@ module Neo4j::Server
       tx = session.begin_tx
       node = Neo4j::Node.create(name: 'andreas')
       tx.success
-      tx.finish.code.should == 200
-      node['name'].should == 'andreas'
+      expect(tx.finish.code).to eq(200)
+      expect(node['name']).to eq('andreas')
     end
 
 
@@ -59,20 +59,20 @@ module Neo4j::Server
       node = Neo4j::Node.create(name: 'foo')
       Neo4j::Transaction.run do
         node[:name] = 'bar'
-        node[:name].should == 'bar'
+        expect(node[:name]).to eq('bar')
       end
-      node[:name].should == 'bar'
+      expect(node[:name]).to eq('bar')
     end
 
     it 'can rollback' do
       node = Neo4j::Node.create(name: 'andreas')
       Neo4j::Transaction.run do |tx|
         node[:name] = 'foo'
-        node[:name].should == 'foo'
+        expect(node[:name]).to eq('foo')
         tx.failure
       end
 
-      node['name'].should == 'andreas'
+      expect(node['name']).to eq('andreas')
     end
 
     it 'can continue operations after transaction is rolled back' do
@@ -80,9 +80,9 @@ module Neo4j::Server
       Neo4j::Transaction.run do |tx|
         tx.failure
         node[:name] = 'foo'
-        node[:name].should == 'foo'
+        expect(node[:name]).to eq('foo')
       end
-      node['name'].should == 'andreas'
+      expect(node['name']).to eq('andreas')
 
     end
 
@@ -91,7 +91,7 @@ module Neo4j::Server
         Neo4j::Node.create(name: 'andreas')
       end
 
-      node['name'].should == 'andreas'
+      expect(node['name']).to eq('andreas')
     end
   end
 end

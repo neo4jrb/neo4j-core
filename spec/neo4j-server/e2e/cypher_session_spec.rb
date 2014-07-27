@@ -23,23 +23,23 @@ module Neo4j::Server
       it 'stores a named session' do
         name = :test
         test = open_named_session(name)
-        Neo4j::Session.named(name).should == test
+        expect(Neo4j::Session.named(name)).to eq(test)
       end
 
       it 'does not override the current session when default = false' do
         default = open_session
-        Neo4j::Session.current.should == default
+        expect(Neo4j::Session.current).to eq(default)
         name = :tesr
         open_named_session(name)
-        Neo4j::Session.current.should == default
+        expect(Neo4j::Session.current).to eq(default)
       end
 
       it 'makes the new session current when default = true' do
         default = open_session
-        Neo4j::Session.current.should == default
+        expect(Neo4j::Session.current).to eq(default)
         name = :test
         test = open_named_session(name, true)
-        Neo4j::Session.current.should == test
+        expect(Neo4j::Session.current).to eq(test)
       end
     end
 
@@ -50,24 +50,24 @@ module Neo4j::Server
 
       it 'returns a result containing data,columns and error?' do
         result = session._query("START n=node(#{a_node_id}) RETURN ID(n)")
-        result.data.should == [[a_node_id]]
-        result.columns.should == ['ID(n)']
-        result.error?.should be false
+        expect(result.data).to eq([[a_node_id]])
+        expect(result.columns).to eq(['ID(n)'])
+        expect(result.error?).to be false
       end
 
       it "allows you to specify parameters" do
         result = session._query("START n=node({myparam}) RETURN ID(n)", myparam: a_node_id)
-        result.data.should == [[a_node_id]]
-        result.columns.should == ['ID(n)']
-        result.error?.should be false
+        expect(result.data).to eq([[a_node_id]])
+        expect(result.columns).to eq(['ID(n)'])
+        expect(result.error?).to be false
       end
 
       it 'returns error codes if not a valid cypher query' do
         result = session._query("SSTART n=node(0) RETURN ID(n)")
-        result.error?.should be true
-        result.error_msg.should =~ /Invalid input/
-        result.error_status.should == 'SyntaxException'
-        result.error_code.should_not be_empty
+        expect(result.error?).to be true
+        expect(result.error_msg).to match(/Invalid input/)
+        expect(result.error_status).to eq('SyntaxException')
+        expect(result.error_code).not_to be_empty
       end
     end
 

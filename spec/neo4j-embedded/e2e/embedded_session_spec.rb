@@ -27,7 +27,7 @@ module Neo4j::Embedded
 
     describe 'db_location' do
       it "returns the location of the database" do
-        session.db_location.should == EMBEDDED_DB_PATH
+        expect(session.db_location).to eq(EMBEDDED_DB_PATH)
       end
     end
 
@@ -39,21 +39,21 @@ module Neo4j::Embedded
 
       it 'starts the database' do
         session.start
-        session.running?.should be true
+        expect(session.running?).to be true
       end
 
       it "raise an error if session already was started" do
         session.start
-        session.running?.should be true
+        expect(session.running?).to be true
         expect{ session.start }.to raise_error
       end
 
       it 'is allowed to start the session after it has been shutdown' do
         session.start
         session.shutdown
-        session.running?.should be false
+        expect(session.running?).to be false
         session.start
-        session.running?.should be true
+        expect(session.running?).to be true
       end
     end
 
@@ -65,17 +65,17 @@ module Neo4j::Embedded
 
       it 'starts the database' do
         session.start
-        session.running?.should be true
+        expect(session.running?).to be true
         session.shutdown
-        session.running?.should be false
+        expect(session.running?).to be false
       end
 
       it 'ok to shutdown twice' do
         session.start
         session.shutdown
-        session.running?.should be false
+        expect(session.running?).to be false
         session.shutdown
-        session.running?.should be false
+        expect(session.running?).to be false
       end
     end
 
@@ -83,8 +83,8 @@ module Neo4j::Embedded
       it 'by default map the result to single column of nodes' do
         @jimmy = Neo4j::Node.create({name: 'jimmy', age: 42}, :person)
         result = session.query.match(n: :person).return(n: [:name, :age]).to_a
-        result.first.should respond_to('n.name')
-        result.first.should respond_to('n.age')
+        expect(result.first).to respond_to('n.name')
+        expect(result.first).to respond_to('n.age')
 
       end
     end
@@ -101,8 +101,8 @@ module Neo4j::Embedded
 
         r = session._query("START n=node(#{id}) RETURN n")
         all = r.to_a # only allowed to traverse once
-        all.count.should == 1
-        all.first.should include('n')
+        expect(all.count).to eq(1)
+        expect(all.first).to include('n')
       end
     end
 
