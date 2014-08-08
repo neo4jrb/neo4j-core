@@ -45,7 +45,7 @@ module Neo4j::Server
 
         it "returns all properties" do
           node = CypherNode.new(session, 42)
-          expect(session).to receive(:_query).with("START n=node(42) RETURN n",nil).and_return(cypher_response)
+          expect(session).to receive(:_query_entity_data).with("START n=node(42) RETURN n").and_return({'data'=> {'name'=>'andreas'}})
           expect(node.props).to eq({name: 'andreas'})
         end
       end

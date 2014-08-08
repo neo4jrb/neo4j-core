@@ -19,7 +19,6 @@ module Neo4j::Server
       def_delegator :@response, :error_msg
       def_delegator :@response, :error_status
       def_delegator :@response, :error_code
-      def_delegator :@response, :data
       def_delegator :@response, :columns
       def_delegator :@response, :struct
 
@@ -37,7 +36,7 @@ module Neo4j::Server
       end
 
       def each(&block)
-        data.each do |row|
+        @response.each_data_row do |row|
           yield(row.each_with_index.each_with_object(struct.new) do |(value, i), result|
             result[columns[i].to_sym] = value
           end)
@@ -53,20 +52,23 @@ module Neo4j::Server
       Enumerator.new do |yielder|
         self.to_struct_enumeration(cypher).each do |row|
           yielder << row.each_pair.each_with_object(@struct.new) do |(column, value), result|
-
-            result[column] = if value.is_a?(Hash)
-              if value['labels']
-                CypherNode.new(session, value).wrapper
-              elsif value['type']
-                CypherRelationship.new(session, value).wrapper
-              else
-                value
-              end
-            else
-              value
-            end
+            result[column] = map_row_value(value, session)
           end
         end
+      end
+    end
+
+    def map_row_value(value, session)
+      return value unless value.is_a?(Hash)
+
+      if value['labels']
+        add_entity_id(value)
+        CypherNode.new(session, value).wrapper
+      elsif value['type']
+        add_entity_id(value)
+        CypherRelationship.new(session, value).wrapper
+      else
+        value
       end
     end
 
@@ -78,12 +80,28 @@ module Neo4j::Server
     end
 
 
-    def first_data
+    def entity_data(id=nil)
       if uncommited?
-        @data.first['row'].first
+        data = @data.first['row'].first
+        data.is_a?(Hash) ? {'data' => data, 'id' => id} : data
       else
-        @data[0][0]
+        data = @data[0][0]
+        data.is_a?(Hash) ? add_entity_id(data) : data
       end
+    end
+
+    def first_data(id = nil)
+      if uncommited?
+        data = @data.first['row'].first
+        #data.is_a?(Hash) ? {'data' => data, 'id' => id} : data
+      else
+        data = @data[0][0]
+        data.is_a?(Hash) ? add_entity_id(data) : data
+      end
+    end
+
+    def add_entity_id(data)
+      data.merge!({'id' => data['self'].match(/\d+$/)[0].to_i})
     end
 
     def error?
@@ -96,6 +114,14 @@ module Neo4j::Server
 
     def raise_unless_response_code(code)
       raise "Response code #{response.code}, expected #{code} for #{response.request.path}, #{response.body}" unless response.code == code
+    end
+
+    def each_data_row
+      if uncommited?
+        data.each{|r| yield r['row']}
+      else
+        data.each{|r| yield r}
+      end
     end
 
     def set_data(data, columns)

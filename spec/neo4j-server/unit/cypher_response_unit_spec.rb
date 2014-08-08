@@ -6,6 +6,52 @@ module Neo4j::Server
       response.struct.new(*hash.values)
     end
 
+    describe '#entity_data' do
+      let(:without_tx_response) do
+        {
+            "columns"=>["n"],
+            "data"=>[[{"labels"=>"http://localhost:7474/db/data/node/625/labels",
+                                         "outgoing_relationships"=>"http://localhost:7474/db/data/node/625/relationships/out",
+                                         "data"=>{"name"=>"Brian", "hat"=>"fancy"}, "traverse"=>"http://localhost:7474/db/data/node/625/traverse/{returnType}", "all_typed_relationships"=>"http://localhost:7474/db/data/node/625/relationships/all/{-list|&|types}", "property"=>"http://localhost:7474/db/data/node/625/properties/{key}", "self"=>"http://localhost:7474/db/data/node/625", "properties"=>"http://localhost:7474/db/data/node/625/properties", "outgoing_typed_relationships"=>"http://localhost:7474/db/data/node/625/relationships/out/{-list|&|types}", "incoming_relationships"=>"http://localhost:7474/db/data/node/625/relationships/in", "extensions"=>{}, "create_relationship"=>"http://localhost:7474/db/data/node/625/relationships", "paged_traverse"=>"http://localhost:7474/db/data/node/625/paged/traverse/{returnType}{?pageSize,leaseTime}", "all_relationships"=>"http://localhost:7474/db/data/node/625/relationships/all", "incoming_typed_relationships"=>"http://localhost:7474/db/data/node/625/relationships/in/{-list|&|types}"}]]
+        }
+      end
+
+
+      let(:with_tx_response) do
+        {
+            "commit"=>"http://localhost:7474/db/data/transaction/153/commit", "results"=>[{"columns"=>["n"], "data"=>[{"row"=>[{"name"=>"Brian", "hat"=>"fancy"}]}]}], "transaction"=>{"expires"=>"Fri, 08 Aug 2014 11:38:39 +0000"}, "errors"=>[]
+        }
+      end
+
+      shared_examples 'a hash with data and id' do
+        specify { expect(subject['data']).to eq({"name"=>"Brian", "hat"=>"fancy"})}
+        specify { expect(subject['id']).to eq(625)}
+      end
+
+      def successful_response(response)
+        expect(response).to receive(:code).and_return(200)
+        response
+      end
+
+      context 'returns in a transaction' do
+        subject do
+          CypherResponse.create_with_tx(successful_response(with_tx_response)).entity_data(625)
+        end
+
+        it_behaves_like 'a hash with data and id'
+      end
+
+      context 'returns when not in a transaction' do
+        subject do
+          CypherResponse.create_with_no_tx(successful_response(without_tx_response)).entity_data(625)
+        end
+
+        it_behaves_like 'a hash with data and id'
+      end
+
+    end
+
+
     describe '#to_struct_enumeration' do
       it "creates a enumerable of hash key values" do
           #result.data.should == [[0]]

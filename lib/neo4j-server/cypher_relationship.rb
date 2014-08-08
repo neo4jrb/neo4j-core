@@ -15,8 +15,7 @@ module Neo4j::Server
         @props = @response_hash['data']
         @start_node_neo_id = @response_hash['start'].match(/\d+$/)[0].to_i
         @end_node_neo_id = @response_hash['end'].match(/\d+$/)[0].to_i
-
-        @response_hash['self'].match(/\d+$/)[0].to_i
+        @response_hash['id']
       else
         @rel_type = rel_type
 

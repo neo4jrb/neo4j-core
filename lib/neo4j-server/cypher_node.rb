@@ -9,7 +9,7 @@ module Neo4j::Server
       @id = if value.is_a?(Hash)
         hash = value['data']
         @props = Hash[hash.map{ |k, v| [k.to_sym, v] }]
-        value['self'].match(/\d+$/)[0].to_i
+        value['id'] # value['self'].match(/\d+$/)[0].to_i
       else
         value
       end
@@ -40,8 +40,8 @@ module Neo4j::Server
       if @props
         @props
       else
-        hash = @session._query_or_fail("START n=node(#{neo_id}) RETURN n", true)['data']
-        @props = Hash[hash.map{ |k, v| [k.to_sym, v] }]
+        hash = @session._query_entity_data("START n=node(#{neo_id}) RETURN n")
+        @props = Hash[hash['data'].map{ |k, v| [k.to_sym, v] }]
       end
     end
 
@@ -147,7 +147,7 @@ module Neo4j::Server
       response = @session._query("START n=node(#{neo_id}) RETURN ID(n)")
       if (!response.error?)
         return true
-      elsif (response.error_status == 'EntityNotFoundException')
+      elsif (response.error_status =~ /EntityNotFound/)
         return false
       else
         response.raise_error

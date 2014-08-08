@@ -37,6 +37,21 @@ RSpec.shared_examples "Neo4j::Node with tx" do
       end
       expect(node[:name]).to eq('foo')
     end
+
+    it 'can rollback a relationship' do
+      node1 = Neo4j::Node.create(name: 'node1')
+      node2 = Neo4j::Node.create(name: 'node2')
+      expect(node1.node(dir: :outgoing, type: :knows)).to be_nil
+
+      Neo4j::Transaction.run do |tx|
+        node1.create_rel(:knows, node2)
+        expect(node1.node(dir: :outgoing, type: :knows)).to eq(node2)
+        tx.failure
+      end
+
+      expect(node1.node(dir: :outgoing, type: :knows)).to be_nil
+
+    end
   end
 
   context "inside a transaction" do
