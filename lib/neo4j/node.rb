@@ -196,12 +196,6 @@ module Neo4j
         session.load_node(neo_id)
       end
 
-      # Checks if the given entity node or entity id (Neo4j::Node#neo_id) exists in the database.
-      # @return [true, false] if exist
-      def exist?(entity_or_entity_id, session = Neo4j::Session.current!)
-        session.node_exist?(neo_id)
-      end
-
       # Find the node with given label and value
       def find_nodes(label, value=nil, session = Neo4j::Session.current!)
         session.find_nodes(label, value)

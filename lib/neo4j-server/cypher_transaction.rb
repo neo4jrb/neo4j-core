@@ -15,6 +15,7 @@ module Neo4j::Server
     end
 
     def initialize(db, response, url, endpoint)
+      @pushed_nested = 0
       @endpoint = endpoint
       @commit_url = response['commit']
       @exec_url = response.headers['location']
@@ -41,7 +42,10 @@ module Neo4j::Server
         end
       end
       response = @endpoint.post(@exec_url, headers: resource_headers, body: body.to_json)
+      _create_cypher_response(response)
+    end
 
+    def _create_cypher_response(response)
       first_result = response['results'][0]
       cr = CypherResponse.new(response, true)
 
@@ -66,17 +70,39 @@ module Neo4j::Server
       !!@failure
     end
 
+    def push_nested!
+      @pushed_nested += 1
+    end
+
+    def pop_nested!
+      @pushed_nested -= 1
+    end
+
     def finish
+      pop_nested!
+      return if @pushed_nested >= 0
+      raise "Can't commit transaction, already committed" if (@pushed_nested < -1)
       Neo4j::Transaction.unregister(self)
       if failure?
-        response = @endpoint.delete(@exec_url, headers: resource_headers)
+        _delete_tx
       else
-        response = @endpoint.post(@commit_url, headers: resource_headers)
+        _commit_tx
       end
+    end
+
+    def _validate_response(response)
+    end
+
+    def _delete_tx
+      response = @endpoint.delete(@exec_url, headers: resource_headers)
       expect_response_code(response,200)
       response
     end
 
-
+    def _commit_tx
+      response = @endpoint.post(@commit_url, headers: resource_headers)
+      expect_response_code(response,200)
+      response
+    end
   end
 end

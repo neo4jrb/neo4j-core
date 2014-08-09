@@ -61,53 +61,47 @@ describe Neo4j::Server::CypherNode, api: :server do
 
   end
 
-  xit 'works' do
-
-    #3clean_server_db
-    #@tx = Neo4j::Transaction.new
-
-    # <struct n=CypherNode 3148 (70222548854240)>
-
-    n = Neo4j::Node.create({name: 'Brian', hat: 'fancy'}, :person)
-    #n2 = Neo4j::Node.create({name: 'Andreas', hat: 'funny'}, :person)
-    puts "ID #{n.neo_id}, n.props #{n.props.inspect}"
-    # result = session.query("MATCH (n) WHERE ID(n) = #{n.neo_id} RETURN ID(n)").first
-    # puts "RESULT #{result.inspect}"  # RESULT #<struct n=["row", [{"hat"=>"fancy", "name"=>"Brian"}]]>
-    #
-    # p = Neo4j::Node.load(n.neo_id)
-    # puts "P #{p.props}"
-    # result = session.query("START n=node(#{n.neo_id}), n2=node(#{n2.neo_id}) RETURN n,n2").first
-    # #result = session.query("MATCH(n:person) RETURN n.name AS name, n.hat as hat").first
-    # puts "RESULT AGAIN #{result.inspect}"
-    # expect(result.n[:name]).to eq('Brian')
-    # expect(result.n[:hat]).to eq('fancy')
-
-    # n = Neo4j::Node.create(name: 'bla')
-    # hash = n.props
-    # expect(hash).to eq({name: 'bla'})
-     #@tx.finish
-
-  end
-
-  it 'handles nested transaction' do
-    skip "need to simulate Placebo Transaction as done in Embedded Db"
-    Neo4j::Transaction.run do
-      Neo4j::Transaction.run do
-        Neo4j::Node.create
+  context 'nested transaction' do
+    xit 'can create and load nodes in nested tx' do
+      n = Neo4j::Transaction.run do
+        n1 = Neo4j::Transaction.run do
+          n2 = Neo4j::Node.create
+          expect(Neo4j::Node.load(n2.neo_id)).to eq n2
+          n2
+        end
+        expect(Neo4j::Node.load(n1.neo_id)).to eq n1
+        n1
       end
+      expect(Neo4j::Node.load(n.neo_id)).to eq n
     end
+
+    it 'can rollback inner transaction' do
+      id = Neo4j::Transaction.run do
+        puts "inner 1"
+        Neo4j::Transaction.run do |tx|
+          puts "inner 2"
+          i = Neo4j::Node.create.neo_id
+          tx.failure
+          i
+        end
+      end
+      expect(Neo4j::Node.load(id)).to eq(nil)
+    end
+
+    xit 'can rollback outer transaction' do
+      id = Neo4j::Transaction.run do  |tx|
+        i = Neo4j::Transaction.run do
+          Neo4j::Node.create.neo_id
+        end
+        tx.failure
+        i
+      end
+      expect(Neo4j::Node.load(id)).to eq(nil)
+    end
+
   end
 
   it_behaves_like "Neo4j::Node auto tx"
   it_behaves_like "Neo4j::Node with tx"
 
 end
-
-
-##
-# ROW #<struct n={"labels"=>"http://localhost:7474/db/data/node/148/labels", "outgoing_relationships"=>"http://localhost:7474/db/data/node/148/relationships/out", "data"=>{"name"=>"jimmy", "age"=>42}, "traverse"
-### ---
-
-#ROW {"row"=>[{"name"=>"Brian", "hat"=>"fancy"}]}
-#ROW #<struct n=["row", [{"name"=>"Brian", "hat"=>"fancy"}]]>
-#RESULT AGAIN [#<struct n=["row", [{"name"=>"jimmy", "age"=>42}]]>, #<struct n=["row", [{"name"=>"andreas", "age"=>20}]]>, #<struct n=["row", [{"name"=>"kallekula"}]]>, #<struct n=["row", [{"name"=>"Brian", "hat"=>"fancy"}]]>, #<struct n=["row", [{"nam
