@@ -62,7 +62,7 @@ describe Neo4j::Server::CypherNode, api: :server do
   end
 
   context 'nested transaction' do
-    xit 'can create and load nodes in nested tx' do
+    it 'can create and load nodes in nested tx' do
       n = Neo4j::Transaction.run do
         n1 = Neo4j::Transaction.run do
           n2 = Neo4j::Node.create
@@ -77,9 +77,7 @@ describe Neo4j::Server::CypherNode, api: :server do
 
     it 'can rollback inner transaction' do
       id = Neo4j::Transaction.run do
-        puts "inner 1"
         Neo4j::Transaction.run do |tx|
-          puts "inner 2"
           i = Neo4j::Node.create.neo_id
           tx.failure
           i
@@ -88,7 +86,7 @@ describe Neo4j::Server::CypherNode, api: :server do
       expect(Neo4j::Node.load(id)).to eq(nil)
     end
 
-    xit 'can rollback outer transaction' do
+    it 'can rollback outer transaction' do
       id = Neo4j::Transaction.run do  |tx|
         i = Neo4j::Transaction.run do
           Neo4j::Node.create.neo_id
