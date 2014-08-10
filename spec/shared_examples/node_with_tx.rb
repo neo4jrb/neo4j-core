@@ -1,9 +1,133 @@
 RSpec.shared_examples "Neo4j::Node with tx" do
-  let(:node_a) { Neo4j::Node.create(name: 'a') }
-  let(:node_b) { Neo4j::Node.create(name: 'b') }
-  let(:node_c) { Neo4j::Node.create(name: 'c') }
+
+
+  shared_examples 'a node with properties and id' do
+    describe '#neo_id' do
+      it 'is a fixnum' do
+        expect(subject.neo_id).to be_a(Fixnum)
+      end
+    end
+
+    describe '#props' do
+      it 'contains a hash of properties' do
+        expect(subject.props).to eq({name: 'Brian', hat: 'fancy'})
+      end
+    end
+
+    describe '#rels' do
+      it 'does not have any relationships' do
+        expect(subject.rels).to be_empty
+      end
+    end
+
+    describe '#create_rel' do
+      it 'creates the relationship' do
+        other_node = Neo4j::Node.create name: 'a'
+        rel_a = subject.create_rel(:best_friend, other_node, age: 42)
+        expect(subject.rels.to_a).to eq([rel_a])
+        expect(rel_a[:age]).to eq(42)
+      end
+    end
+
+  end
+
+  context 'inside a transaction' do
+    describe 'Neo4j::Relationship.create' do
+
+      subject(:created_rel) do
+        @node_a = Neo4j::Node.create
+        @node_b = Neo4j::Node.create
+        Neo4j::Relationship.create(:knows, @node_a, @node_b, since: 1992)
+      end
+
+      around(:example) do |example|
+        tx = Neo4j::Transaction.new
+        example.run
+        tx.finish
+      end
+
+      describe '#exist' do
+        specify{is_expected.to exist}
+      end
+
+      it 'has properties' do
+        skip "TODO: DOES NOT WORK"
+        expect(subject.props).to eq({since: 1992})
+      end
+    end
+
+    describe 'Neo4j::Node.create' do
+
+      around(:example) do |example|
+        tx = Neo4j::Transaction.new
+        example.run
+        tx.finish
+      end
+
+      subject(:created_node) do
+        Neo4j::Node.create({name: 'Brian', hat: 'fancy'}, :person)
+      end
+
+      it_behaves_like "a node with properties and id"
+
+      describe 'Neo4j::Node.load' do
+        subject(:loaded_node) do
+          Neo4j::Node.load(created_node.neo_id)
+        end
+
+        it_behaves_like "a node with properties and id"
+      end
+
+    end
+  end
+
+  context 'nested transaction' do
+    it 'can create and load nodes in nested tx' do
+      n = Neo4j::Transaction.run do
+        n1 = Neo4j::Transaction.run do
+          n2 = Neo4j::Node.create
+          expect(Neo4j::Node.load(n2.neo_id)).to eq n2
+          n2
+        end
+        expect(Neo4j::Node.load(n1.neo_id)).to eq n1
+        n1
+      end
+      expect(Neo4j::Node.load(n.neo_id)).to eq n
+    end
+
+    it 'can rollback inner transaction' do
+      id = Neo4j::Transaction.run do
+        Neo4j::Transaction.run do |tx|
+          i = Neo4j::Node.create.neo_id
+          tx.failure
+          i
+        end
+      end
+      expect(Neo4j::Node.load(id)).to eq(nil)
+    end
+
+    it 'can rollback outer transaction' do
+      id = Neo4j::Transaction.run do  |tx|
+        i = Neo4j::Transaction.run do
+          Neo4j::Node.create.neo_id
+        end
+        tx.failure
+        i
+      end
+      expect(Neo4j::Node.load(id)).to eq(nil)
+    end
+
+  end
 
   context 'rollback' do
+
+    it 'does not rolls back the transaction if no failure' do
+      node = Neo4j::Transaction.run do
+        Neo4j::Node.create
+      end
+      expect(node).to exist
+    end
+
     it 'rolls back the transaction if failure is called' do
       node = Neo4j::Transaction.run do |tx|
         a = Neo4j::Node.create
@@ -50,41 +174,6 @@ RSpec.shared_examples "Neo4j::Node with tx" do
       end
 
       expect(node1.node(dir: :outgoing, type: :knows)).to be_nil
-
-    end
-  end
-
-  context "inside a transaction" do
-
-    describe 'Neo4j::Node.create' do
-      it 'creates a new node' do
-        n = Neo4j::Transaction.run do
-          Neo4j::Node.create name: 'jimmy'
-        end
-        expect(n[:name]).to eq('jimmy')
-      end
-
-      it 'does not have any relationships' do
-        expect(Neo4j::Transaction.run do
-          n = Neo4j::Node.create
-          expect(n.rels).to be_empty
-          n
-        end.rels).to be_empty
-      end
-    end
-
-    describe 'create_rel' do
-      it 'creates the relationship' do
-        rel = Neo4j::Transaction.run do
-          node_a = Neo4j::Node.create name: 'a'
-          node_b = Neo4j::Node.create name: 'b'
-          rel_a = node_a.create_rel(:best_friend, node_b, age: 42)
-          expect(node_a.rels.to_a).to eq([rel_a])
-          expect(rel_a[:age]).to eq(42)
-          rel_a
-        end
-        expect(rel[:age]).to eq(42)
-      end
 
     end
   end
