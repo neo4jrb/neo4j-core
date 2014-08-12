@@ -78,7 +78,7 @@ module Neo4j::Server
       @pushed_nested -= 1
     end
 
-    def finish
+    def close
       pop_nested!
       return if @pushed_nested >= 0
       raise "Can't commit transaction, already committed" if (@pushed_nested < -1)
@@ -89,6 +89,8 @@ module Neo4j::Server
         _commit_tx
       end
     end
+
+    alias_method :finish, :close
 
     def _validate_response(response)
     end
