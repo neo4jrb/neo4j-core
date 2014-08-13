@@ -43,7 +43,7 @@ RSpec.shared_examples "Neo4j::Node with tx" do
       around(:example) do |example|
         tx = Neo4j::Transaction.new
         example.run
-        tx.finish
+        tx.close
       end
 
       describe '#exist' do
@@ -61,7 +61,7 @@ RSpec.shared_examples "Neo4j::Node with tx" do
       around(:example) do |example|
         tx = Neo4j::Transaction.new
         example.run
-        tx.finish
+        tx.close
       end
 
       subject(:created_node) do

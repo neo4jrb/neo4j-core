@@ -1,9 +1,10 @@
 module Neo4j::Server
   class CypherTransaction
-    attr_reader :commit_url, :exec_url
-
-    include Resource
+    include Neo4j::Transaction::Instance
     include Neo4j::Core::CypherTranslator
+    include Resource
+
+    attr_reader :commit_url, :exec_url
 
     class CypherError < StandardError
       attr_reader :code, :status
@@ -15,13 +16,12 @@ module Neo4j::Server
     end
 
     def initialize(db, response, url, endpoint)
-      @pushed_nested = 0
       @endpoint = endpoint
       @commit_url = response['commit']
       @exec_url = response.headers['location']
       init_resource_data(response, url)
       expect_response_code(response,201)
-      Neo4j::Transaction.register(self)
+      register_instance
     end
 
     def _query(cypher_query, params=nil)
@@ -58,42 +58,7 @@ module Neo4j::Server
       cr
     end
 
-    def success
-      # this is need in the Java API
-    end
 
-    def failure
-      @failure = true
-    end
-
-    def failure?
-      !!@failure
-    end
-
-    def push_nested!
-      @pushed_nested += 1
-    end
-
-    def pop_nested!
-      @pushed_nested -= 1
-    end
-
-    def close
-      pop_nested!
-      return if @pushed_nested >= 0
-      raise "Can't commit transaction, already committed" if (@pushed_nested < -1)
-      Neo4j::Transaction.unregister(self)
-      if failure?
-        _delete_tx
-      else
-        _commit_tx
-      end
-    end
-
-    alias_method :finish, :close
-
-    def _validate_response(response)
-    end
 
     def _delete_tx
       response = @endpoint.delete(@exec_url, headers: resource_headers)

@@ -9,14 +9,13 @@ module Neo4j::Server
 
     after do
       session && session.close
-      Neo4j::Transaction.current && Neo4j::Transaction.current.finish
+      Neo4j::Transaction.current && Neo4j::Transaction.current.close
     end
 
 
     it "can open and commit a transaction" do
       tx = session.begin_tx
-      tx.success
-      tx.finish
+      tx.close
     end
 
     it "can run a valid query" do
@@ -40,8 +39,7 @@ module Neo4j::Server
 
     it 'can commit' do
       tx = session.begin_tx
-      tx.success
-      response = tx.finish
+      response = tx.close
       expect(response.code).to eq(200)
     end
 
@@ -49,8 +47,7 @@ module Neo4j::Server
     it "can create a node" do
       tx = session.begin_tx
       node = Neo4j::Node.create(name: 'andreas')
-      tx.success
-      expect(tx.finish.code).to eq(200)
+      expect(tx.close.code).to eq(200)
       expect(node['name']).to eq('andreas')
     end
 

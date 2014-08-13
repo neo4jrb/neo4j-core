@@ -37,33 +37,33 @@ describe Neo4j::Server::CypherTransaction do
 
   end
 
-  describe 'finish' do
+  describe 'close' do
     it 'post to the commit url' do
       expect(endpoint).to receive(:post).with('commit url', anything).and_return(OpenStruct.new(code: 200, request: OpenStruct.new(path: '')))
-      a_new_transaction.finish
+      a_new_transaction.close
     end
 
     it 'commits and unregisters the transaction' do
       expect(Neo4j::Transaction).to receive(:unregister)
       expect(a_new_transaction).to receive(:_commit_tx)
-      a_new_transaction.finish
+      a_new_transaction.close
     end
 
     it 'raise an exception if it is already commited' do
       expect(endpoint).to receive(:post).with('commit url', anything).and_return(OpenStruct.new(code: 200, request: OpenStruct.new(path: '')))
-      a_new_transaction.finish
+      a_new_transaction.close
 
       # bang
-      expect{a_new_transaction.finish}.to raise_error(/already committed/)
+      expect{a_new_transaction.close}.to raise_error(/already committed/)
     end
   end
 
   describe 'push_nested!' do
 
-    it 'will not finish a transaction if transaction is nested' do
+    it 'will not close a transaction if transaction is nested' do
       a_new_transaction.push_nested!
       expect(Neo4j::Transaction).to_not receive(:unregister)
-      a_new_transaction.finish
+      a_new_transaction.close
     end
 
   end
@@ -74,7 +74,7 @@ describe Neo4j::Server::CypherTransaction do
       a_new_transaction.pop_nested!
       expect(Neo4j::Transaction).to receive(:unregister)
       expect(a_new_transaction).to receive(:_commit_tx)
-      a_new_transaction.finish
+      a_new_transaction.close
     end
 
     it 'does not commit if pushed more then popped' do
@@ -82,17 +82,17 @@ describe Neo4j::Server::CypherTransaction do
       a_new_transaction.push_nested!
       a_new_transaction.pop_nested!
       expect(Neo4j::Transaction).to_not receive(:unregister)
-      a_new_transaction.finish
+      a_new_transaction.close
     end
 
-    it 'needs to pop one for each pushed in order to finish tx' do
+    it 'needs to pop one for each pushed in order to close tx' do
       a_new_transaction.push_nested!
       a_new_transaction.push_nested!
       a_new_transaction.pop_nested!
       a_new_transaction.pop_nested!
       expect(Neo4j::Transaction).to receive(:unregister)
       expect(a_new_transaction).to receive(:_commit_tx)
-      a_new_transaction.finish
+      a_new_transaction.close
     end
 
   end
