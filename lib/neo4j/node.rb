@@ -204,7 +204,6 @@ module Neo4j
 
     def initialize
       raise "Can't instantiate abstract class" if abstract_class?
-      puts "Instantiated!"
     end
 
     private

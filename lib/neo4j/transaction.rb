@@ -30,6 +30,22 @@ module Neo4j
         @pushed_nested -= 1
       end
 
+      # Only for the embedded neo4j !
+      # Acquires a read lock for entity for this transaction.
+      # See neo4j java docs.
+      # @param [Neo4j::Node,Neo4j::Relationship] entity
+      # @return [Java::OrgNeo4jKernelImplCoreapi::PropertyContainerLocker]
+      def acquire_read_lock(entity)
+      end
+
+      # Only for the embedded neo4j !
+      # Acquires a write lock for entity for this transaction.
+      # See neo4j java docs.
+      # @param [Neo4j::Node,Neo4j::Relationship] entity
+      # @return [Java::OrgNeo4jKernelImplCoreapi::PropertyContainerLocker]
+      def acquire_write_lock(entity)
+      end
+
       # Commits or marks this transaction for rollback, depending on whether failure() has been previously invoked.
       def close
         pop_nested!
@@ -48,7 +64,7 @@ module Neo4j
 
 
     # @return [Neo4j::Transaction::Instance]
-    def new(current = Session.current)
+    def new(current = Session.current!)
       current.begin_tx
     end
 
