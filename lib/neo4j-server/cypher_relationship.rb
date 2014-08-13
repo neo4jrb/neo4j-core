@@ -75,8 +75,8 @@ module Neo4j::Server
       if @props
         @props
       else
-        hash = @session._query_or_fail("START n=relationship(#{neo_id}) RETURN n", true)['data']
-        @props = Hash[hash.map{ |k, v| [k.to_sym, v] }]
+        hash = @session._query_entity_data("START n=relationship(#{neo_id}) RETURN n")
+        @props = Hash[hash['data'].map{ |k, v| [k.to_sym, v] }]
       end
     end
 

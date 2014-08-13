@@ -51,7 +51,6 @@ RSpec.shared_examples "Neo4j::Node with tx" do
       end
 
       it 'has properties' do
-        skip "TODO: DOES NOT WORK"
         expect(subject.props).to eq({since: 1992})
       end
     end
