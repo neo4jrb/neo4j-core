@@ -14,6 +14,7 @@ module Neo4j
       def failure
         @failure = true
       end
+      alias_method :fail, :failure
 
       # If it has been marked as failed
       def failure?
