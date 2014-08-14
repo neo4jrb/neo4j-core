@@ -26,6 +26,8 @@ module Neo4j::Embedded
             _start_node.wrapper
           end
           tx_methods :start_node
+          alias_method :_start_node_id, :start_node
+          tx_methods :_start_node_id
 
           def _start_node
             getStartNode
@@ -54,6 +56,8 @@ module Neo4j::Embedded
             _end_node.wrapper
           end
           tx_methods :end_node
+          alias_method :_end_node_id, :end_node
+          tx_methods :_end_node_id
 
           def _end_node
             getEndNode

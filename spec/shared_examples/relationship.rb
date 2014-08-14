@@ -16,6 +16,18 @@ RSpec.shared_examples "Neo4j::Relationship" do
     end
   end
 
+  describe 'classmethod: _load' do
+    it 'returns the unwrapped relationship' do
+      rel = node_a.create_rel(:best_friends, node_b)
+      id = rel.neo_id
+      expect(Neo4j::Relationship._load(id)).to eq(rel)
+    end
+
+    it 'returns nil if not found' do
+      expect(Neo4j::Relationship._load(4299991)).to be_nil
+    end
+  end
+
   describe 'classmethod: create' do
     it 'creates a relationship' do
       a = Neo4j::Node.create
@@ -137,7 +149,6 @@ RSpec.shared_examples "Neo4j::Relationship" do
       a.update_props({"1" => 2, " ha " => "ho"})
       expect(a.props).to eq({:"1"=>2, :" ha "=>"ho"})
     end
-
   end
 
 end

@@ -159,8 +159,9 @@ module Neo4j::Server
 
       describe 'load_node' do
         it "generates 'START v0 = node(1915); RETURN v0'" do
+          expect(cypher_response).to receive(:entity_data)
           expect(session).to receive(:_query).with("START n=node(1915) RETURN n").and_return(cypher_response)
-          node = session.load_node(1915)
+          session.load_node(1915)
         end
 
         it "returns nil if EntityNotFoundException" do

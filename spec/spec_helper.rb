@@ -7,9 +7,18 @@ require 'logger'
 require 'rspec/its'
 require 'neo4j-core'
 
+require 'ostruct'
+
 
 if RUBY_PLATFORM == 'java'
   require "neo4j-embedded/embedded_impermanent_session"
+
+  # for some reason this is not impl. in JRuby
+  class OpenStruct
+    def [](key)
+      self.send(key)
+    end
+  end
 end
 
 Dir["#{File.dirname(__FILE__)}/shared_examples/**/*.rb"].each { |f| require f }

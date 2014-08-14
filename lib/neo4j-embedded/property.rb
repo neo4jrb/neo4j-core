@@ -22,8 +22,8 @@ module Neo4j::Embedded::Property
   # * Values in the array must be of the same type.
   # * You can *not* delete or add one item in the array (e.g. person.phones.delete('123')) but instead you must create a new array instead.
   #
-  # @param [String, Symbol] key of the property to set
-  # @param [String,Fixnum,Float,true,false, Array] value to set
+  # @param [String, Symbol] k of the property to set
+  # @param [String,Fixnum,Float,true,false, Array] v to set
   def []=(k, v)
     to_java_property(k, v)
   end

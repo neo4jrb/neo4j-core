@@ -15,8 +15,7 @@ module Neo4j::Server
         @props = @response_hash['data']
         @start_node_neo_id = @response_hash['start'].match(/\d+$/)[0].to_i
         @end_node_neo_id = @response_hash['end'].match(/\d+$/)[0].to_i
-
-        @response_hash['self'].match(/\d+$/)[0].to_i
+        @response_hash['id']
       else
         @rel_type = rel_type
 
@@ -44,6 +43,14 @@ module Neo4j::Server
       end
     end
 
+    def _start_node_id
+      @start_node_neo_id ||= get_node_id(:start)
+    end
+
+    def _end_node_id
+      @end_node_neo_id ||= get_node_id(:end)
+    end
+
     def _start_node
       load_resource
       id = resource_url_id(resource_url(:start))
@@ -54,6 +61,11 @@ module Neo4j::Server
       load_resource
       id = resource_url_id(resource_url(:end))
       Neo4j::Node._load(id)
+    end
+
+    def get_node_id(direction)
+      load_resource
+      resource_url_id(resource_url(direction))
     end
 
     def get_property(key)
@@ -76,8 +88,8 @@ module Neo4j::Server
       if @props
         @props
       else
-        hash = @session._query_or_fail("START n=relationship(#{neo_id}) RETURN n", true)['data']
-        @props = Hash[hash.map{ |k, v| [k.to_sym, v] }]
+        hash = @session._query_entity_data("START n=relationship(#{neo_id}) RETURN n")
+        @props = Hash[hash['data'].map{ |k, v| [k.to_sym, v] }]
       end
     end
 

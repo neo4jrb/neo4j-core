@@ -68,7 +68,13 @@ module Neo4j::Server
     end
 
     def begin_tx
-      Thread.current[:neo4j_curr_tx] = wrap_resource(self, 'transaction', CypherTransaction, nil, :post, @endpoint)
+      if Neo4j::Transaction.current
+        # Handle nested transaction "placebo transaction"
+        Neo4j::Transaction.current.push_nested!
+      else
+        wrap_resource(self, 'transaction', CypherTransaction, nil, :post, @endpoint)
+      end
+      Neo4j::Transaction.current
     end
 
     def create_node(props=nil, labels=[])
@@ -81,9 +87,9 @@ module Neo4j::Server
     def load_node(neo_id)
       cypher_response = _query("START n=node(#{neo_id}) RETURN n")
       if (!cypher_response.error?)
-        result = cypher_response.first_data.empty? ? neo_id : cypher_response.first_data
+        result = cypher_response.entity_data(neo_id)
         CypherNode.new(self, result)
-      elsif (cypher_response.error_status == 'EntityNotFoundException')
+      elsif (cypher_response.error_status =~ /EntityNotFound/)
         return nil
       else
         cypher_response.raise_error
@@ -145,10 +151,22 @@ module Neo4j::Server
       end
     end
 
+    def _query_data(q)
+      r = _query_or_fail(q, true)
+      # the response is different if we have a transaction or not
+      Neo4j::Transaction.current ? r : r['data']
+    end
+
     def _query_or_fail(q, single_row = false, params=nil)
       response = _query(q, params)
       response.raise_error if response.error?
       single_row ? response.first_data : response
+    end
+
+    def _query_entity_data(q, id=nil)
+      response = _query(q)
+      response.raise_error if response.error?
+      response.entity_data(id)
     end
 
     def _query(q, params=nil)

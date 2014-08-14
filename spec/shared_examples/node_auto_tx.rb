@@ -6,6 +6,14 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
 
 
   context "with auto commit" do
+    # before(:each) do
+    #   @tx = Neo4j::Transaction.new
+    # end
+    #
+    # after(:each) do
+    #   @tx.finish
+    # end
+
     describe "class methods" do
       describe 'create()' do
 

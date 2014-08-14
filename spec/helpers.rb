@@ -1,7 +1,7 @@
 module Helpers
   def clean_server_db
     resource_headers = {'Content-Type' => 'application/json', 'Accept' => 'application/json'}
-    q = 'START n = node(*) MATCH n-[r?]-() WHERE ID(n)>0 DELETE n, r;'
+    q = 'START n = node(*) OPTIONAL MATCH n-[r]-() WHERE ID(n)>0 DELETE n, r;'
     url = 'http://localhost:7474/db/data/cypher'
     response = HTTParty.post(url, headers: resource_headers, body: {query: q}.to_json)
     Neo4j::Session.set_current(nil)
