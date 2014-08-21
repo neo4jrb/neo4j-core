@@ -7,6 +7,7 @@ module Neo4j::Embedded
           include Neo4j::Embedded::Property
           include Neo4j::EntityEquality
           include Neo4j::Relationship::Wrapper
+          include Neo4j::Core::ActiveEntity
           extend Neo4j::Core::TxMethods
 
           alias_method :_other_node, :getOtherNode

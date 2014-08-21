@@ -3,6 +3,7 @@ module Neo4j::Server
   class CypherRelationship < Neo4j::Relationship
     include Neo4j::Server::Resource
     include Neo4j::Core::CypherTranslator
+    include Neo4j::Core::ActiveEntity
 
     attr_reader :start_node_neo_id, :end_node_neo_id
 
