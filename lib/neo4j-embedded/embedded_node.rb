@@ -54,6 +54,7 @@ module Neo4j::Embedded
         java_clazz.class_eval do
           include Neo4j::Embedded::Property
           include Neo4j::EntityEquality
+          include Neo4j::Core::ActiveEntity
           extend Neo4j::Core::TxMethods
 
           def inspect
@@ -77,7 +78,6 @@ module Neo4j::Embedded
           def _java_label(label_name)
             Java::OrgNeo4jGraphdb.DynamicLabel.label(label_name)
           end
-
 
           def _add_label(*label_name)
             label_name.each do |name|
