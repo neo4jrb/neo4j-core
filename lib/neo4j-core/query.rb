@@ -199,6 +199,8 @@ module Neo4j::Core
 
       query = query.return(columns)
 
+      columns = columns.map {|column| column.to_s.gsub(/^\s*distinct\s*/i, '').to_sym }
+
       case columns.size
       when 0
         raise ArgumentError, 'No columns specified for Query#pluck'

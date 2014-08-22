@@ -165,6 +165,20 @@ RSpec.shared_examples "Neo4j::Session" do
         end
       end
 
+      describe 'pluck' do
+        before(:all) do
+          r = Random.new
+          @label = ("R3" + r.rand(0..1000000).to_s).to_sym
+          @kalle = Neo4j::Node.create({name: 'kalle', age: 4}, @label)
+          @andreas2 = Neo4j::Node.create({name: 'andreas', age: 2}, @label)
+          @andreas1 = Neo4j::Node.create({name: 'andreas', age: 1}, @label)
+        end
+
+        subject { Neo4j::Session.query.match(n: @label).where(n: {name: 'andreas'}).pluck('DISTINCT n.name') }
+
+        it { should == ['andreas'] }
+      end
+
       describe 'sort' do
         it 'sorts with: order: :name' do
           result = Neo4j::Session.query.match(n: @label).order(n: :name).pluck(:n)
