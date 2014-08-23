@@ -1,6 +1,7 @@
 require 'forwardable'
 require 'fileutils'
 
+require 'neo4j-core/version'
 require 'neo4j/property_validator'
 require 'neo4j/property_container'
 require 'neo4j-core/active_entity'
