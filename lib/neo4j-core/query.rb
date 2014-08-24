@@ -183,7 +183,7 @@ module Neo4j::Core
     # @example
     #    Query.new.match(n: :Person).return(p: :name}.pluck(p: :name) # => Array of names
     # @example
-    #    Query.new.match(n: :Person).return(p: :name}.pluck('p, p.name') # => Array of [node, name] pairs
+    #    Query.new.match(n: :Person).return(p: :name}.pluck('p, DISTINCT p.name') # => Array of [node, name] pairs
     #
     def pluck(*columns)
       query = self.dup
