@@ -51,11 +51,19 @@ module Neo4j
       end
     end
 
-    # Returns a Query object.  See Neo4j::Core::Query for more details, but basic usage looks like:
+
+    # Performs a cypher query.  See {Neo4j::Core::Query} for more details, but basic usage looks like:
     #
-    # @example
-    #   session.query.match("(c:Car)<-[:OWNS]-(p:Person)").where(c: {vin: '234UAEB3425B'}).return(:p).first[:p]
+    # @example Using cypher DSL
+    #   Neo4j::Session.query.match("(c:person)-[:friends]->(p:person)").where(c: {name: 'andreas'}).pluck(:p).first[:name]
     #
+    # @example Show the generated Cypher
+    #   Neo4j::Session.query..match("(c:person)-[:friends]->(p:person)").where(c: {name: 'andreas'}).return(:p).to_cypher
+    #
+    # @example Use Cypher string instead of the cypher DSL
+    #   Neo4j::Session.query("MATCH (c:person)-[:friends]->(p:person) WHERE c.name = \"andreas\" RETURN p").first[:p][:name]
+    #
+    # @return [Neo4j::Core::Query, Enumerable] return a Query object for DSL or a Enumerable if using raw cypher strings
     # @see http://docs.neo4j.org/chunked/milestone/cypher-query-lang.html The Cypher Query Language Documentation
     #
     def query(options = {})
