@@ -1,0 +1,3500 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Neo4j::Core::Query
+  
+    &mdash; Neo4j::Core API Documentation
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Neo4j/Core/Query.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (Q)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Neo4j.html" title="Neo4j (module)">Neo4j</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Core.html" title="Neo4j::Core (module)">Core</a></span></span>
+     &raquo; 
+    <span class="title">Query</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Neo4j::Core::Query
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Neo4j::Core::Query</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+      <dt class="r2">Includes:</dt>
+      <dd class="r2">Enumerable, <span class='object_link'><a href="QueryClauses.html" title="Neo4j::Core::QueryClauses (module)">QueryClauses</a></span></dd>
+      
+    
+  
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/neo4j-core/query.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Allows for generation of cypher queries via ruby method calls (inspired by
+ActiveRecord / arel syntax)</p>
+
+<p>Can be used to express cypher queries in ruby nicely, or to more easily
+generate queries programatically.</p>
+
+<p>Also, queries can be passed around an application to progressively build a
+query across different concerns</p>
+
+<p>See also the following link for full cypher language documentation: <a
+href="http://docs.neo4j.org/chunked/milestone/cypher-query-lang.html">docs.neo4j.org/chunked/milestone/cypher-query-lang.html</a></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="METHODS-constant" class="">METHODS =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>DELETE clause</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='qwords_beg'>%w[</span><span class='tstring_content'>with</span><span class='words_sep'> </span><span class='tstring_content'>start</span><span class='words_sep'> </span><span class='tstring_content'>match</span><span class='words_sep'> </span><span class='tstring_content'>optional_match</span><span class='words_sep'> </span><span class='tstring_content'>using</span><span class='words_sep'> </span><span class='tstring_content'>where</span><span class='words_sep'> </span><span class='tstring_content'>set</span><span class='words_sep'> </span><span class='tstring_content'>create</span><span class='words_sep'> </span><span class='tstring_content'>create_unique</span><span class='words_sep'> </span><span class='tstring_content'>merge</span><span class='words_sep'> </span><span class='tstring_content'>on_create_set</span><span class='words_sep'> </span><span class='tstring_content'>on_match_set</span><span class='words_sep'> </span><span class='tstring_content'>remove</span><span class='words_sep'> </span><span class='tstring_content'>unwind</span><span class='words_sep'> </span><span class='tstring_content'>delete</span><span class='words_sep'> </span><span class='tstring_content'>return</span><span class='words_sep'> </span><span class='tstring_content'>order</span><span class='words_sep'> </span><span class='tstring_content'>skip</span><span class='words_sep'> </span><span class='tstring_content'>limit</span><span class='words_sep'>]</span></pre></dd>
+      
+        <dt id="CLAUSES-constant" class="">CLAUSES =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>METHODS</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_method'>method</span><span class='op'>|</span> <span class='id identifier rubyid_const_get'>const_get</span><span class='lparen'>(</span><span class='id identifier rubyid_method'>method</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>_</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_c'>c</span><span class='op'>|</span> <span class='id identifier rubyid_c'>c</span><span class='period'>.</span><span class='id identifier rubyid_capitalize'>capitalize</span> <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Clause</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='rbrace'>}</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#%26-instance_method" title="#&amp; (instance method)">- (Object) <strong>&amp;</strong>(other_query) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#break-instance_method" title="#break (instance method)">- (Object) <strong>break</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Allows what&#39;s been built of the query so far to be frozen and the rest
+built anew.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create-instance_method" title="#create (instance method)">- (Query) <strong>create</strong>(*args) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>CREATE clause.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_unique-instance_method" title="#create_unique (instance method)">- (Query) <strong>create_unique</strong>(*args) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>CREATE UNIQUE clause.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#delete-instance_method" title="#delete (instance method)">- (Query) <strong>delete</strong>(*args) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>DELETE clause.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#each-instance_method" title="#each (instance method)">- (Object) <strong>each</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#exec-instance_method" title="#exec (instance method)">- (Boolean) <strong>exec</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Executes a query without returning the result.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Query) <strong>initialize</strong>(options = {}) </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of Query.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#limit-instance_method" title="#limit (instance method)">- (Query) <strong>limit</strong>(*args) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>LIMIT clause.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#match-instance_method" title="#match (instance method)">- (Query) <strong>match</strong>(*args) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>MATCH clause.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#merge-instance_method" title="#merge (instance method)">- (Query) <strong>merge</strong>(*args) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>MERGE clause.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#on_create_set-instance_method" title="#on_create_set (instance method)">- (Query) <strong>on_create_set</strong>(*args) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>ON CREATE SET clause.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#on_match_set-instance_method" title="#on_match_set (instance method)">- (Query) <strong>on_match_set</strong>(*args) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>ON MATCH SET clause.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#optional_match-instance_method" title="#optional_match (instance method)">- (Query) <strong>optional_match</strong>(*args) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>OPTIONAL MATCH clause.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#order-instance_method" title="#order (instance method)">- (Query) <strong>order</strong>(*args) </a>
+    
+
+    
+      (also: #order_by)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>ORDER BY clause.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#params-instance_method" title="#params (instance method)">- (Object) <strong>params</strong>(args) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Allows for the specification of values for params specified in query.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#pluck-instance_method" title="#pluck (instance method)">- (Object) <strong>pluck</strong>(*columns) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return the specified columns as an array.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#remove-instance_method" title="#remove (instance method)">- (Query) <strong>remove</strong>(*args) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>REMOVE clause.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#response-instance_method" title="#response (instance method)">- (Object) <strong>response</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#return-instance_method" title="#return (instance method)">- (Query) <strong>return</strong>(*args) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>RETURN clause.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#set-instance_method" title="#set (instance method)">- (Query) <strong>set</strong>(*args) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>SET clause.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#set_props-instance_method" title="#set_props (instance method)">- (Object) <strong>set_props</strong>(*args) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Works the same as the #set method, but when given a nested array it will
+set properties rather than setting entire objects.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#skip-instance_method" title="#skip (instance method)">- (Query) <strong>skip</strong>(*args) </a>
+    
+
+    
+      (also: #offset)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>SKIP clause.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#start-instance_method" title="#start (instance method)">- (Query) <strong>start</strong>(*args) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>START clause.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#to_a-instance_method" title="#to_a (instance method)">- (Array) <strong>to_a</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Class is Enumerable.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#to_cypher-instance_method" title="#to_cypher (instance method)">- (String) <strong>to_cypher</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns a CYPHER query string from the object query representation.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#union_cypher-instance_method" title="#union_cypher (instance method)">- (String) <strong>union_cypher</strong>(other_query, options = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns a CYPHER query specifying the union of the callee object&#39;s
+query and the argument&#39;s query.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#unwind-instance_method" title="#unwind (instance method)">- (Query) <strong>unwind</strong>(*args) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>UNWIND clause.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#using-instance_method" title="#using (instance method)">- (Query) <strong>using</strong>(*args) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>USING clause.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#where-instance_method" title="#where (instance method)">- (Query) <strong>where</strong>(*args) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>WHERE clause.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#with-instance_method" title="#with (instance method)">- (Query) <strong>with</strong>(*args) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>WITH clause.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  <div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>) <strong>initialize</strong>(options = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of Query</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+15
+16
+17
+18
+19
+20
+21</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/query.rb', line 15</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='ivar'>@session</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:session</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Session</span><span class='period'>.</span><span class='id identifier rubyid_current'>current</span>
+
+  <span class='ivar'>@options</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span>
+  <span class='ivar'>@clauses</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='ivar'>@_params</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="&-instance_method">
+  
+    - (<tt>Object</tt>) <strong>&amp;</strong>(other_query) 
+  
+
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+257
+258
+259
+260
+261
+262
+263
+264</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/query.rb', line 257</span>
+
+<span class='kw'>def</span> <span class='op'>&amp;</span><span class='lparen'>(</span><span class='id identifier rubyid_other_query'>other_query</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Sessions don&#39;t match!</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='ivar'>@session</span> <span class='op'>!=</span> <span class='id identifier rubyid_other_query'>other_query</span><span class='period'>.</span><span class='id identifier rubyid_session'>session</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='label'>session:</span> <span class='ivar'>@session</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_tap'>tap</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_new_query'>new_query</span><span class='op'>|</span>
+    <span class='id identifier rubyid_new_query'>new_query</span><span class='period'>.</span><span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span><span class='id identifier rubyid_other_query'>other_query</span><span class='period'>.</span><span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_new_query'>new_query</span><span class='period'>.</span><span class='id identifier rubyid_clauses'>clauses</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_clauses'>clauses</span> <span class='op'>+</span> <span class='id identifier rubyid_other_query'>other_query</span><span class='period'>.</span><span class='id identifier rubyid_clauses'>clauses</span>
+  <span class='kw'>end</span><span class='period'>.</span><span class='id identifier rubyid_params'>params</span><span class='lparen'>(</span><span class='id identifier rubyid_other_query'>other_query</span><span class='period'>.</span><span class='id identifier rubyid__params'>_params</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="break-instance_method">
+  
+    - (<tt>Object</tt>) <strong>break</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Allows what&#39;s been built of the query so far to be frozen and the rest
+built anew.  Can be called multiple times in a string of method calls</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+      <pre class="example code"><code><span class='comment'># Creates a query representing the cypher: MATCH (q:Person), r:Car MATCH (p: Person)--&gt;q
+</span><span class='const'>Query</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='label'>q:</span> <span class='const'>Person</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>r:Car</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_break'>break</span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>(p: Person)--&gt;q</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+127
+128
+129</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/query.rb', line 127</span>
+
+<span class='kw'>def</span> <span class='kw'>break</span>
+  <span class='id identifier rubyid_build_deeper_query'>build_deeper_query</span><span class='lparen'>(</span><span class='kw'>nil</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>) <strong>create</strong>(*args) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>CREATE clause</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+  <div class="tags">
+    <h3>Examples:</h3>
+    <ul class="specs">
+      <table>
+        <tr>
+          <th style="text-align: left">Ruby Code</th>
+          <th style="text-align: left">Generated Cypher</th>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.create('(:Person)')  </pre></td>
+          <td><pre class="code">CREATE (:Person)</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.create(:Person)  </pre></td>
+          <td><pre class="code">CREATE (:Person)</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.create(age: 41, height: 70)  </pre></td>
+          <td><pre class="code">CREATE ( {age: 41, height: 70})</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.create(Person: {age: 41, height: 70})  </pre></td>
+          <td><pre class="code">CREATE (:`Person` {age: 41, height: 70})</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.create(q: {Person: {age: 41, height: 70}})  </pre></td>
+          <td><pre class="code">CREATE (q:`Person` {age: 41, height: 70})</pre></td>
+        </tr>
+      
+      </table>
+    </ul>
+  </div>
+
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/query.rb', line 75</span>
+
+</pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create_unique-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>) <strong>create_unique</strong>(*args) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>CREATE UNIQUE clause</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+  <div class="tags">
+    <h3>Examples:</h3>
+    <ul class="specs">
+      <table>
+        <tr>
+          <th style="text-align: left">Ruby Code</th>
+          <th style="text-align: left">Generated Cypher</th>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.create_unique('(:Person)')  </pre></td>
+          <td><pre class="code">CREATE UNIQUE (:Person)</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.create_unique(:Person)  </pre></td>
+          <td><pre class="code">CREATE UNIQUE (:Person)</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.create_unique(age: 41, height: 70)  </pre></td>
+          <td><pre class="code">CREATE UNIQUE ( {age: 41, height: 70})</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.create_unique(Person: {age: 41, height: 70})  </pre></td>
+          <td><pre class="code">CREATE UNIQUE (:`Person` {age: 41, height: 70})</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.create_unique(q: {Person: {age: 41, height: 70}})  </pre></td>
+          <td><pre class="code">CREATE UNIQUE (q:`Person` {age: 41, height: 70})</pre></td>
+        </tr>
+      
+      </table>
+    </ul>
+  </div>
+
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/query.rb', line 79</span>
+
+</pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="delete-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>) <strong>delete</strong>(*args) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>DELETE clause</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+  <div class="tags">
+    <h3>Examples:</h3>
+    <ul class="specs">
+      <table>
+        <tr>
+          <th style="text-align: left">Ruby Code</th>
+          <th style="text-align: left">Generated Cypher</th>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.delete('n')  </pre></td>
+          <td><pre class="code">DELETE n</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.delete(:n)  </pre></td>
+          <td><pre class="code">DELETE n</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.delete('n', :o)  </pre></td>
+          <td><pre class="code">DELETE n, o</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.delete(['n', :o])  </pre></td>
+          <td><pre class="code">DELETE n, o</pre></td>
+        </tr>
+      
+      </table>
+    </ul>
+  </div>
+
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+99</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/query.rb', line 99</span>
+
+<span class='const'>METHODS</span> <span class='op'>=</span> <span class='qwords_beg'>%w[</span><span class='tstring_content'>with</span><span class='words_sep'> </span><span class='tstring_content'>start</span><span class='words_sep'> </span><span class='tstring_content'>match</span><span class='words_sep'> </span><span class='tstring_content'>optional_match</span><span class='words_sep'> </span><span class='tstring_content'>using</span><span class='words_sep'> </span><span class='tstring_content'>where</span><span class='words_sep'> </span><span class='tstring_content'>set</span><span class='words_sep'> </span><span class='tstring_content'>create</span><span class='words_sep'> </span><span class='tstring_content'>create_unique</span><span class='words_sep'> </span><span class='tstring_content'>merge</span><span class='words_sep'> </span><span class='tstring_content'>on_create_set</span><span class='words_sep'> </span><span class='tstring_content'>on_match_set</span><span class='words_sep'> </span><span class='tstring_content'>remove</span><span class='words_sep'> </span><span class='tstring_content'>unwind</span><span class='words_sep'> </span><span class='tstring_content'>delete</span><span class='words_sep'> </span><span class='tstring_content'>return</span><span class='words_sep'> </span><span class='tstring_content'>order</span><span class='words_sep'> </span><span class='tstring_content'>skip</span><span class='words_sep'> </span><span class='tstring_content'>limit</span><span class='words_sep'>]</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="each-instance_method">
+  
+    - (<tt>Object</tt>) <strong>each</strong> 
+  
+
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+155
+156
+157
+158
+159
+160
+161
+162</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/query.rb', line 155</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_each'>each</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_response'>response</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Server</span><span class='op'>::</span><span class='const'>CypherResponse</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_to_node_enumeration'>to_node_enumeration</span>
+  <span class='kw'>else</span>
+    <span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Embedded</span><span class='op'>::</span><span class='const'>ResultWrapper</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_to_cypher'>to_cypher</span><span class='rparen'>)</span>
+  <span class='kw'>end</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_object'>object</span><span class='op'>|</span> <span class='kw'>yield</span> <span class='id identifier rubyid_object'>object</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="exec-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>exec</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Executes a query without returning the result</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>true if successful</p>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Server/CypherResponse/ResponseError.html" title="Neo4j::Server::CypherResponse::ResponseError (class)">Neo4j::Server::CypherResponse::ResponseError</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Raises errors from neo4j server</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+173
+174
+175
+176
+177</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/query.rb', line 173</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_exec'>exec</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_response'>response</span>
+
+  <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="limit-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>) <strong>limit</strong>(*args) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>LIMIT clause</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+  <div class="tags">
+    <h3>Examples:</h3>
+    <ul class="specs">
+      <table>
+        <tr>
+          <th style="text-align: left">Ruby Code</th>
+          <th style="text-align: left">Generated Cypher</th>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.limit(3)  </pre></td>
+          <td><pre class="code">LIMIT 3</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.limit('3')  </pre></td>
+          <td><pre class="code">LIMIT 3</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.limit(3).limit(5)  </pre></td>
+          <td><pre class="code">LIMIT 5</pre></td>
+        </tr>
+      
+      </table>
+    </ul>
+  </div>
+
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/query.rb', line 51</span>
+
+</pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="match-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>) <strong>match</strong>(*args) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>MATCH clause</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+  <div class="tags">
+    <h3>Examples:</h3>
+    <ul class="specs">
+      <table>
+        <tr>
+          <th style="text-align: left">Ruby Code</th>
+          <th style="text-align: left">Generated Cypher</th>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.match('n')  </pre></td>
+          <td><pre class="code">MATCH n</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.match(:n)  </pre></td>
+          <td><pre class="code">MATCH n</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.match(n: Person)  </pre></td>
+          <td><pre class="code">MATCH (n:`Person`)</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.match(n: Note)  </pre></td>
+          <td><pre class="code">MATCH (n:`GreatNote`)</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.match(n: 'Person')  </pre></td>
+          <td><pre class="code">MATCH (n:`Person`)</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.match(n: ':Person')  </pre></td>
+          <td><pre class="code">MATCH (n:Person)</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.match(n: :Person)  </pre></td>
+          <td><pre class="code">MATCH (n:`Person`)</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.match(n: ' :Person')  </pre></td>
+          <td><pre class="code">MATCH (n:Person)</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.match(n: 'Person {name: "Brian"}')  </pre></td>
+          <td><pre class="code">MATCH (n:Person {name: "Brian"})</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.match(n: {name: 'Brian', age: 33})  </pre></td>
+          <td><pre class="code">MATCH (n {name: "Brian", age: 33})</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.match(n: {Person: {name: 'Brian', age: 33}})  </pre></td>
+          <td><pre class="code">MATCH (n:`Person` {name: "Brian", age: 33})</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.match(n: {Person: {name: '{param}'}})  </pre></td>
+          <td><pre class="code">MATCH (n:`Person` {name: {param}})</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.match('n--o')  </pre></td>
+          <td><pre class="code">MATCH n--o</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.match('n--o').match('o--p')  </pre></td>
+          <td><pre class="code">MATCH n--o, o--p</pre></td>
+        </tr>
+      
+      </table>
+    </ul>
+  </div>
+
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/query.rb', line 27</span>
+
+</pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="merge-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>) <strong>merge</strong>(*args) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>MERGE clause</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+  <div class="tags">
+    <h3>Examples:</h3>
+    <ul class="specs">
+      <table>
+        <tr>
+          <th style="text-align: left">Ruby Code</th>
+          <th style="text-align: left">Generated Cypher</th>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.merge('(:Person)')  </pre></td>
+          <td><pre class="code">MERGE (:Person)</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.merge(:Person)  </pre></td>
+          <td><pre class="code">MERGE (:Person)</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.merge(age: 41, height: 70)  </pre></td>
+          <td><pre class="code">MERGE ( {age: 41, height: 70})</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.merge(Person: {age: 41, height: 70})  </pre></td>
+          <td><pre class="code">MERGE (:`Person` {age: 41, height: 70})</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.merge(q: {Person: {age: 41, height: 70}})  </pre></td>
+          <td><pre class="code">MERGE (q:`Person` {age: 41, height: 70})</pre></td>
+        </tr>
+      
+      </table>
+    </ul>
+  </div>
+
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/query.rb', line 83</span>
+
+</pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="on_create_set-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>) <strong>on_create_set</strong>(*args) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>ON CREATE SET clause</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+  <div class="tags">
+    <h3>Examples:</h3>
+    <ul class="specs">
+      <table>
+        <tr>
+          <th style="text-align: left">Ruby Code</th>
+          <th style="text-align: left">Generated Cypher</th>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.on_create_set('n = {name: "Brian"}')  </pre></td>
+          <td><pre class="code">ON CREATE SET n = {name: "Brian"}</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.on_create_set(n: {name: 'Brian', age: 30})  </pre></td>
+          <td><pre class="code">ON CREATE SET n.name = "Brian", n.age = 30</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.on_create_set(n: {name: 'Brian', age: 30}, o: {age: 29})  </pre></td>
+          <td><pre class="code">ON CREATE SET n.name = "Brian", n.age = 30, o.age = 29</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.on_create_set(n: {name: 'Brian', age: 30}).on_create_set('o.age = 29')  </pre></td>
+          <td><pre class="code">ON CREATE SET n.name = "Brian", n.age = 30, o.age = 29</pre></td>
+        </tr>
+      
+      </table>
+    </ul>
+  </div>
+
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/query.rb', line 87</span>
+
+</pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="on_match_set-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>) <strong>on_match_set</strong>(*args) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>ON MATCH SET clause</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+  <div class="tags">
+    <h3>Examples:</h3>
+    <ul class="specs">
+      <table>
+        <tr>
+          <th style="text-align: left">Ruby Code</th>
+          <th style="text-align: left">Generated Cypher</th>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.on_match_set('n = {name: "Brian"}')  </pre></td>
+          <td><pre class="code">ON MATCH SET n = {name: "Brian"}</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.on_match_set(n: {name: 'Brian', age: 30})  </pre></td>
+          <td><pre class="code">ON MATCH SET n.name = "Brian", n.age = 30</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.on_match_set(n: {name: 'Brian', age: 30}, o: {age: 29})  </pre></td>
+          <td><pre class="code">ON MATCH SET n.name = "Brian", n.age = 30, o.age = 29</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.on_match_set(n: {name: 'Brian', age: 30}).on_match_set('o.age = 29')  </pre></td>
+          <td><pre class="code">ON MATCH SET n.name = "Brian", n.age = 30, o.age = 29</pre></td>
+        </tr>
+      
+      </table>
+    </ul>
+  </div>
+
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/query.rb', line 91</span>
+
+</pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="optional_match-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>) <strong>optional_match</strong>(*args) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>OPTIONAL MATCH clause</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+  <div class="tags">
+    <h3>Examples:</h3>
+    <ul class="specs">
+      <table>
+        <tr>
+          <th style="text-align: left">Ruby Code</th>
+          <th style="text-align: left">Generated Cypher</th>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.optional_match(n: Person)  </pre></td>
+          <td><pre class="code">OPTIONAL MATCH (n:`Person`)</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.match('m--n').optional_match('n--o').match('o--p')  </pre></td>
+          <td><pre class="code">MATCH m--n, o--p OPTIONAL MATCH n--o</pre></td>
+        </tr>
+      
+      </table>
+    </ul>
+  </div>
+
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/query.rb', line 31</span>
+
+</pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="order-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>) <strong>order</strong>(*args) 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='order_by-instance_method'>order_by</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>ORDER BY clause</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+  <div class="tags">
+    <h3>Examples:</h3>
+    <ul class="specs">
+      <table>
+        <tr>
+          <th style="text-align: left">Ruby Code</th>
+          <th style="text-align: left">Generated Cypher</th>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.order('q.name')  </pre></td>
+          <td><pre class="code">ORDER BY q.name</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.order_by('q.name')  </pre></td>
+          <td><pre class="code">ORDER BY q.name</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.order('q.age', 'q.name DESC')  </pre></td>
+          <td><pre class="code">ORDER BY q.age, q.name DESC</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.order(q: :age)  </pre></td>
+          <td><pre class="code">ORDER BY q.age</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.order(q: [:age, {name: :desc}])  </pre></td>
+          <td><pre class="code">ORDER BY q.age, q.name DESC</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.order(q: [:age, {name: :desc, grade: :asc}])  </pre></td>
+          <td><pre class="code">ORDER BY q.age, q.name DESC, q.grade ASC</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.order(q: {age: :asc, name: :desc})  </pre></td>
+          <td><pre class="code">ORDER BY q.age ASC, q.name DESC</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.order(q: [:age, 'name desc'])  </pre></td>
+          <td><pre class="code">ORDER BY q.age, q.name desc</pre></td>
+        </tr>
+      
+      </table>
+    </ul>
+  </div>
+
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/query.rb', line 47</span>
+
+</pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="params-instance_method">
+  
+    - (<tt>Object</tt>) <strong>params</strong>(args) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Allows for the specification of values for params specified in query</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+      <pre class="example code"><code><span class='comment'># Creates a query representing the cypher: MATCH (q: Person {id: {id}})
+</span><span class='comment'># Calls to params don&#39;t affect the cypher query generated, but the params will be
+</span><span class='comment'># Passed down when the query is made
+</span><span class='const'>Query</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>(q: Person {id: {id}})</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_params'>params</span><span class='lparen'>(</span><span class='label'>id:</span> <span class='int'>12</span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+138
+139
+140
+141
+142</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/query.rb', line 138</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_params'>params</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='ivar'>@_params</span> <span class='op'>=</span> <span class='ivar'>@_params</span><span class='period'>.</span><span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+
+  <span class='kw'>self</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="pluck-instance_method">
+  
+    - (<tt>Object</tt>) <strong>pluck</strong>(*columns) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return the specified columns as an array. If one column is specified, a
+one-dimensional array is returned with the values of that column If two
+columns are specified, a n-dimensional array is returned with the values of
+those columns</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+      <pre class="example code"><code>Query.new.match(n: :Person).return(p: :name}.pluck(p: :name) # =&gt; Array of names</code></pre>
+    
+      
+      <pre class="example code"><code>Query.new.match(n: :Person).return(p: :name}.pluck(&#39;p, DISTINCT p.name&#39;) # =&gt; Array of [node, name] pairs</code></pre>
+    
+  </div>
+
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/query.rb', line 188</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_pluck'>pluck</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_columns'>columns</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_query'>query</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+  <span class='id identifier rubyid_query'>query</span><span class='period'>.</span><span class='id identifier rubyid_remove_clause_class'>remove_clause_class</span><span class='lparen'>(</span><span class='const'>ReturnClause</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_columns'>columns</span> <span class='op'>=</span> <span class='id identifier rubyid_columns'>columns</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_column_definition'>column_definition</span><span class='op'>|</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_column_definition'>column_definition</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Hash</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_column_definition'>column_definition</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_k'>k</span><span class='comma'>,</span> <span class='id identifier rubyid_v'>v</span><span class='op'>|</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_k'>k</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_v'>v</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='rbrace'>}</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_column_definition'>column_definition</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span><span class='period'>.</span><span class='id identifier rubyid_flatten'>flatten</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:to_sym</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_query'>query</span> <span class='op'>=</span> <span class='id identifier rubyid_query'>query</span><span class='period'>.</span><span class='id identifier rubyid_return'>return</span><span class='lparen'>(</span><span class='id identifier rubyid_columns'>columns</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_columns'>columns</span> <span class='op'>=</span> <span class='id identifier rubyid_columns'>columns</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_column'>column</span><span class='op'>|</span> <span class='id identifier rubyid_column'>column</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^\s*distinct\s*</span><span class='regexp_end'>/i</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span> <span class='rbrace'>}</span>
+
+  <span class='kw'>case</span> <span class='id identifier rubyid_columns'>columns</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
+  <span class='kw'>when</span> <span class='int'>0</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>No columns specified for Query#pluck</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='int'>1</span>
+    <span class='id identifier rubyid_column'>column</span> <span class='op'>=</span> <span class='id identifier rubyid_columns'>columns</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_query'>query</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_row'>row</span><span class='op'>|</span> <span class='id identifier rubyid_row'>row</span><span class='lbracket'>[</span><span class='id identifier rubyid_column'>column</span><span class='rbracket'>]</span> <span class='rbrace'>}</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_query'>query</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_row'>row</span><span class='op'>|</span>
+      <span class='id identifier rubyid_columns'>columns</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_column'>column</span><span class='op'>|</span>
+        <span class='id identifier rubyid_row'>row</span><span class='lbracket'>[</span><span class='id identifier rubyid_column'>column</span><span class='rbracket'>]</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="remove-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>) <strong>remove</strong>(*args) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>REMOVE clause</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+  <div class="tags">
+    <h3>Examples:</h3>
+    <ul class="specs">
+      <table>
+        <tr>
+          <th style="text-align: left">Ruby Code</th>
+          <th style="text-align: left">Generated Cypher</th>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.remove('n.prop')  </pre></td>
+          <td><pre class="code">REMOVE n.prop</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.remove('n:American')  </pre></td>
+          <td><pre class="code">REMOVE n:American</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.remove(n: 'prop')  </pre></td>
+          <td><pre class="code">REMOVE n.prop</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.remove(n: :American)  </pre></td>
+          <td><pre class="code">REMOVE n:American</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.remove(n: :American, o: 'prop')  </pre></td>
+          <td><pre class="code">REMOVE n:American, o.prop</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.remove(n: ':prop')  </pre></td>
+          <td><pre class="code">REMOVE n:prop</pre></td>
+        </tr>
+      
+      </table>
+    </ul>
+  </div>
+
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/query.rb', line 63</span>
+
+</pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="response-instance_method">
+  
+    - (<tt>Object</tt>) <strong>response</strong> 
+  
+
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+144
+145
+146
+147
+148
+149
+150
+151</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/query.rb', line 144</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_response'>response</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='ivar'>@session</span><span class='period'>.</span><span class='id identifier rubyid__query'>_query</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_to_cypher'>to_cypher</span><span class='comma'>,</span> <span class='ivar'>@_params</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:error?</span><span class='rparen'>)</span> <span class='op'>||</span> <span class='op'>!</span><span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_error?'>error?</span>
+    <span class='id identifier rubyid_response'>response</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_raise_cypher_error'>raise_cypher_error</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="return-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>) <strong>return</strong>(*args) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>RETURN clause</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+  <div class="tags">
+    <h3>Examples:</h3>
+    <ul class="specs">
+      <table>
+        <tr>
+          <th style="text-align: left">Ruby Code</th>
+          <th style="text-align: left">Generated Cypher</th>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.return('q')  </pre></td>
+          <td><pre class="code">RETURN q</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.return(:q)  </pre></td>
+          <td><pre class="code">RETURN q</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.return('q.name, q.age')  </pre></td>
+          <td><pre class="code">RETURN q.name, q.age</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.return(q: [:name, :age], r: :grade)  </pre></td>
+          <td><pre class="code">RETURN q.name, q.age, r.grade</pre></td>
+        </tr>
+      
+      </table>
+    </ul>
+  </div>
+
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/query.rb', line 71</span>
+
+</pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="set-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>) <strong>set</strong>(*args) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>SET clause</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+  <div class="tags">
+    <h3>Examples:</h3>
+    <ul class="specs">
+      <table>
+        <tr>
+          <th style="text-align: left">Ruby Code</th>
+          <th style="text-align: left">Generated Cypher</th>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.set('n = {name: "Brian"}')  </pre></td>
+          <td><pre class="code">SET n = {name: "Brian"}</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.set(n: {name: 'Brian', age: 30})  </pre></td>
+          <td><pre class="code">SET n = {name: "Brian", age: 30}</pre></td>
+        </tr>
+      
+      </table>
+    </ul>
+  </div>
+
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/query.rb', line 59</span>
+
+</pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="set_props-instance_method">
+  
+    - (<tt>Object</tt>) <strong>set_props</strong>(*args) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Works the same as the #set method, but when given a nested array it will
+set properties rather than setting entire objects</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+      <pre class="example code"><code><span class='comment'># Creates a query representing the cypher: MATCH (n:Person) SET n.age = 19
+</span><span class='const'>Query</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='label'>n:</span> <span class='symbol'>:Person</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_set_props'>set_props</span><span class='lparen'>(</span><span class='label'>n:</span> <span class='lbrace'>{</span><span class='label'>age:</span> <span class='int'>19</span><span class='rbrace'>}</span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+
+
+</div>
+  <div class="tags">
+    <h3>Examples:</h3>
+    <ul class="specs">
+      <table>
+        <tr>
+          <th style="text-align: left">Ruby Code</th>
+          <th style="text-align: left">Generated Cypher</th>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.set_props('n = {name: "Brian"}')  </pre></td>
+          <td><pre class="code">SET n = {name: "Brian"}</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.set_props(n: {name: 'Brian', age: 30})  </pre></td>
+          <td><pre class="code">SET n.name = "Brian", n.age = 30</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.set_props(n: {name: 'Brian', age: 30}, o: {age: 29})  </pre></td>
+          <td><pre class="code">SET n.name = "Brian", n.age = 30, o.age = 29</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.set_props(n: {name: 'Brian', age: 30}).set_props('o.age = 29')  </pre></td>
+          <td><pre class="code">SET n.name = "Brian", n.age = 30, o.age = 29</pre></td>
+        </tr>
+      
+      </table>
+    </ul>
+  </div>
+
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+119
+120
+121</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/query.rb', line 119</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_set_props'>set_props</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_build_deeper_query'>build_deeper_query</span><span class='lparen'>(</span><span class='const'>SetClause</span><span class='comma'>,</span> <span class='id identifier rubyid_args'>args</span><span class='comma'>,</span> <span class='label'>set_props:</span> <span class='kw'>true</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="skip-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>) <strong>skip</strong>(*args) 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='offset-instance_method'>offset</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>SKIP clause</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+  <div class="tags">
+    <h3>Examples:</h3>
+    <ul class="specs">
+      <table>
+        <tr>
+          <th style="text-align: left">Ruby Code</th>
+          <th style="text-align: left">Generated Cypher</th>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.skip(5)  </pre></td>
+          <td><pre class="code">SKIP 5</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.skip('5')  </pre></td>
+          <td><pre class="code">SKIP 5</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.skip(5).skip(10)  </pre></td>
+          <td><pre class="code">SKIP 10</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.offset(6)  </pre></td>
+          <td><pre class="code">SKIP 6</pre></td>
+        </tr>
+      
+      </table>
+    </ul>
+  </div>
+
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/query.rb', line 55</span>
+
+</pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="start-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>) <strong>start</strong>(*args) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>START clause</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+  <div class="tags">
+    <h3>Examples:</h3>
+    <ul class="specs">
+      <table>
+        <tr>
+          <th style="text-align: left">Ruby Code</th>
+          <th style="text-align: left">Generated Cypher</th>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.start('r=node:nodes(name = "Brian")')  </pre></td>
+          <td><pre class="code">START r=node:nodes(name = "Brian")</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.start(r: 'node:nodes(name = "Brian")')  </pre></td>
+          <td><pre class="code">START r = node:nodes(name = "Brian")</pre></td>
+        </tr>
+      
+      </table>
+    </ul>
+  </div>
+
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/query.rb', line 23</span>
+
+</pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="to_a-instance_method">
+  
+    - (<tt>Array</tt>) <strong>to_a</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Class is Enumerable.  Each yield is a Hash with the key matching the
+variable returned and the value being the value for that key from the
+response</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Server/CypherResponse/ResponseError.html" title="Neo4j::Server::CypherResponse::ResponseError (class)">Neo4j::Server::CypherResponse::ResponseError</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Raises errors from neo4j server</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/query.rb', line 164</span>
+
+</pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="to_cypher-instance_method">
+  
+    - (<tt>String</tt>) <strong>to_cypher</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a CYPHER query string from the object query representation</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+      <pre class="example code"><code><span class='const'>Query</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='label'>p:</span> <span class='symbol'>:Person</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='label'>p:</span> <span class='lbrace'>{</span><span class='label'>age:</span> <span class='int'>30</span><span class='rbrace'>}</span><span class='rparen'>)</span>  <span class='comment'># =&gt; &quot;MATCH (p:Person) WHERE p.age = 30</span></code></pre>
+    
+  </div>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Resulting cypher query string</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/query.rb', line 225</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_to_cypher'>to_cypher</span>
+  <span class='id identifier rubyid_cypher_string'>cypher_string</span> <span class='op'>=</span> <span class='id identifier rubyid_partitioned_clauses'>partitioned_clauses</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_clauses'>clauses</span><span class='op'>|</span>
+    <span class='id identifier rubyid_clauses_by_class'>clauses_by_class</span> <span class='op'>=</span> <span class='id identifier rubyid_clauses'>clauses</span><span class='period'>.</span><span class='id identifier rubyid_group_by'>group_by</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:class</span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_cypher_parts'>cypher_parts</span> <span class='op'>=</span> <span class='const'>CLAUSES</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_clause_class'>clause_class</span><span class='op'>|</span>
+      <span class='id identifier rubyid_clauses'>clauses</span> <span class='op'>=</span> <span class='id identifier rubyid_clauses_by_class'>clauses_by_class</span><span class='lbracket'>[</span><span class='id identifier rubyid_clause_class'>clause_class</span><span class='rbracket'>]</span>
+
+      <span class='id identifier rubyid_clause_class'>clause_class</span><span class='period'>.</span><span class='id identifier rubyid_to_cypher'>to_cypher</span><span class='lparen'>(</span><span class='id identifier rubyid_clauses'>clauses</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_clauses'>clauses</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_cypher_string'>cypher_string</span> <span class='op'>=</span> <span class='id identifier rubyid_cypher_parts'>cypher_parts</span><span class='period'>.</span><span class='id identifier rubyid_compact'>compact</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_cypher_string'>cypher_string</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+  <span class='kw'>end</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> </span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='id identifier rubyid_cypher_string'>cypher_string</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>CYPHER </span><span class='embexpr_beg'>#{</span><span class='ivar'>@options</span><span class='lbracket'>[</span><span class='symbol'>:parser</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cypher_string'>cypher_string</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='ivar'>@options</span><span class='lbracket'>[</span><span class='symbol'>:parser</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_cypher_string'>cypher_string</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="union_cypher-instance_method">
+  
+    - (<tt>String</tt>) <strong>union_cypher</strong>(other_query, options = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a CYPHER query specifying the union of the callee object&#39;s
+query and the argument&#39;s query</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+      <pre class="example code"><code><span class='comment'># Generates cypher: MATCH (n:Person) UNION MATCH (o:Person) WHERE o.age = 10
+</span><span class='id identifier rubyid_q'>q</span> <span class='op'>=</span> <span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Core</span><span class='op'>::</span><span class='const'>Query</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='label'>o:</span> <span class='symbol'>:Person</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='label'>o:</span> <span class='lbrace'>{</span><span class='label'>age:</span> <span class='int'>10</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Core</span><span class='op'>::</span><span class='const'>Query</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='label'>n:</span> <span class='symbol'>:Person</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_union_cypher'>union_cypher</span><span class='lparen'>(</span><span class='id identifier rubyid_q'>q</span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>other_query</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Second half of UNION</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>options</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Specify true to use UNION ALL</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Resulting UNION cypher query string</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+253
+254
+255</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/query.rb', line 253</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_union_cypher'>union_cypher</span><span class='lparen'>(</span><span class='id identifier rubyid_other_query'>other_query</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_to_cypher'>to_cypher</span><span class='embexpr_end'>}</span><span class='tstring_content'> UNION</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:all</span><span class='rbracket'>]</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> ALL</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_other_query'>other_query</span><span class='period'>.</span><span class='id identifier rubyid_to_cypher'>to_cypher</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="unwind-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>) <strong>unwind</strong>(*args) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>UNWIND clause</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+  <div class="tags">
+    <h3>Examples:</h3>
+    <ul class="specs">
+      <table>
+        <tr>
+          <th style="text-align: left">Ruby Code</th>
+          <th style="text-align: left">Generated Cypher</th>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.unwind('val AS x')  </pre></td>
+          <td><pre class="code">UNWIND val AS x</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.unwind(x: :val)  </pre></td>
+          <td><pre class="code">UNWIND val AS x</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.unwind(x: 'val')  </pre></td>
+          <td><pre class="code">UNWIND val AS x</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.unwind(x: [1,3,5])  </pre></td>
+          <td><pre class="code">UNWIND [1, 3, 5] AS x</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.unwind(x: [1,3,5]).unwind('val as y')  </pre></td>
+          <td><pre class="code">UNWIND [1, 3, 5] AS x UNWIND val as y</pre></td>
+        </tr>
+      
+      </table>
+    </ul>
+  </div>
+
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/query.rb', line 67</span>
+
+</pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="using-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>) <strong>using</strong>(*args) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>USING clause</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+  <div class="tags">
+    <h3>Examples:</h3>
+    <ul class="specs">
+      <table>
+        <tr>
+          <th style="text-align: left">Ruby Code</th>
+          <th style="text-align: left">Generated Cypher</th>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.using('INDEX m:German(surname)')  </pre></td>
+          <td><pre class="code">USING INDEX m:German(surname)</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.using('SCAN m:German')  </pre></td>
+          <td><pre class="code">USING SCAN m:German</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.using('INDEX m:German(surname)').using('SCAN m:German')  </pre></td>
+          <td><pre class="code">USING INDEX m:German(surname) USING SCAN m:German</pre></td>
+        </tr>
+      
+      </table>
+    </ul>
+  </div>
+
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/query.rb', line 35</span>
+
+</pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="where-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>) <strong>where</strong>(*args) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>WHERE clause</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+  <div class="tags">
+    <h3>Examples:</h3>
+    <ul class="specs">
+      <table>
+        <tr>
+          <th style="text-align: left">Ruby Code</th>
+          <th style="text-align: left">Generated Cypher</th>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.where()  </pre></td>
+          <td><pre class="code"></pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.where({})  </pre></td>
+          <td><pre class="code"></pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.where('q.age > 30')  </pre></td>
+          <td><pre class="code">WHERE q.age > 30</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.where('q.age' => 30)  </pre></td>
+          <td><pre class="code">WHERE q.age = 30</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.where('q.age' => [30, 32, 34])  </pre></td>
+          <td><pre class="code">WHERE q.age IN [30, 32, 34]</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.where(q: {age: [30, 32, 34]})  </pre></td>
+          <td><pre class="code">WHERE q.age IN [30, 32, 34]</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.where('q.age' => nil)  </pre></td>
+          <td><pre class="code">WHERE q.age IS NULL</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.where(q: {age: nil})  </pre></td>
+          <td><pre class="code">WHERE q.age IS NULL</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.where(q: {neo_id: 22})  </pre></td>
+          <td><pre class="code">WHERE ID(q) = 22</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.where(q: {age: '{age}'})  </pre></td>
+          <td><pre class="code">WHERE q.age = {age}</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.where(q: {age: 30, name: 'Brian'})  </pre></td>
+          <td><pre class="code">WHERE q.age = 30 AND q.name = "Brian"</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.where(q: {age: 30, name: 'Brian'}).where('r.grade = 80')  </pre></td>
+          <td><pre class="code">WHERE q.age = 30 AND q.name = "Brian" AND r.grade = 80</pre></td>
+        </tr>
+      
+      </table>
+    </ul>
+  </div>
+
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/query.rb', line 39</span>
+
+</pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="with-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>) <strong>with</strong>(*args) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>WITH clause</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Neo4j::Core::Query (class)">Query</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+  <div class="tags">
+    <h3>Examples:</h3>
+    <ul class="specs">
+      <table>
+        <tr>
+          <th style="text-align: left">Ruby Code</th>
+          <th style="text-align: left">Generated Cypher</th>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.with('n.age AS age')  </pre></td>
+          <td><pre class="code">WITH n.age AS age</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.with('n.age AS age', 'count(n) as c')  </pre></td>
+          <td><pre class="code">WITH n.age AS age, count(n) as c</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.with(['n.age AS age', 'count(n) as c'])  </pre></td>
+          <td><pre class="code">WITH n.age AS age, count(n) as c</pre></td>
+        </tr>
+      
+        <tr>
+          <td><pre class="code">query.with(age: 'n.age')  </pre></td>
+          <td><pre class="code">WITH n.age AS age</pre></td>
+        </tr>
+      
+      </table>
+    </ul>
+  </div>
+
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/query.rb', line 43</span>
+
+</pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Mon Aug 25 14:21:42 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

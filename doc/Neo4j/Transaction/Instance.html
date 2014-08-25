@@ -1,0 +1,551 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Neo4j::Transaction::Instance
+  
+    &mdash; Neo4j::Core API Documentation
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Neo4j/Transaction/Instance.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (I)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Neo4j.html" title="Neo4j (module)">Neo4j</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Transaction.html" title="Neo4j::Transaction (module)">Transaction</a></span></span>
+     &raquo; 
+    <span class="title">Instance</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Neo4j::Transaction::Instance
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+    <dt class="r1">Included in:</dt>
+    <dd class="r1"><span class='object_link'><a href="../Embedded/EmbeddedTransaction.html" title="Neo4j::Embedded::EmbeddedTransaction (class)">Embedded::EmbeddedTransaction</a></span>, <span class='object_link'><a href="../Server/CypherTransaction.html" title="Neo4j::Server::CypherTransaction (class)">Server::CypherTransaction</a></span></dd>
+    
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/neo4j/transaction.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#acquire_read_lock-instance_method" title="#acquire_read_lock (instance method)">- (Java::OrgNeo4jKernelImplCoreapi::PropertyContainerLocker) <strong>acquire_read_lock</strong>(entity) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Only for the embedded neo4j ! Acquires a read lock for entity for this
+transaction.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#acquire_write_lock-instance_method" title="#acquire_write_lock (instance method)">- (Java::OrgNeo4jKernelImplCoreapi::PropertyContainerLocker) <strong>acquire_write_lock</strong>(entity) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Only for the embedded neo4j ! Acquires a write lock for entity for this
+transaction.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#close-instance_method" title="#close (instance method)">- (Object) <strong>close</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Commits or marks this transaction for rollback, depending on whether
+failure() has been previously invoked.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#failure-instance_method" title="#failure (instance method)">- (Object) <strong>failure</strong> </a>
+    
+
+    
+      (also: #fail)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Marks this transaction as failed, which means that it will unconditionally
+be rolled back when close() is called.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#failure%3F-instance_method" title="#failure? (instance method)">- (Boolean) <strong>failure?</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>If it has been marked as failed.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="acquire_read_lock-instance_method">
+  
+    - (<tt>Java::OrgNeo4jKernelImplCoreapi::PropertyContainerLocker</tt>) <strong>acquire_read_lock</strong>(entity) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Only for the embedded neo4j ! Acquires a read lock for entity for this
+transaction. See neo4j java docs.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>entity</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Node.html" title="Neo4j::Node (class)">Neo4j::Node</a></span></tt>, <tt><span class='object_link'><a href="../Relationship.html" title="Neo4j::Relationship (class)">Neo4j::Relationship</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Java::OrgNeo4jKernelImplCoreapi::PropertyContainerLocker</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+39
+40</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/transaction.rb', line 39</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_acquire_read_lock'>acquire_read_lock</span><span class='lparen'>(</span><span class='id identifier rubyid_entity'>entity</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="acquire_write_lock-instance_method">
+  
+    - (<tt>Java::OrgNeo4jKernelImplCoreapi::PropertyContainerLocker</tt>) <strong>acquire_write_lock</strong>(entity) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Only for the embedded neo4j ! Acquires a write lock for entity for this
+transaction. See neo4j java docs.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>entity</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Node.html" title="Neo4j::Node (class)">Neo4j::Node</a></span></tt>, <tt><span class='object_link'><a href="../Relationship.html" title="Neo4j::Relationship (class)">Neo4j::Relationship</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Java::OrgNeo4jKernelImplCoreapi::PropertyContainerLocker</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+47
+48</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/transaction.rb', line 47</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_acquire_write_lock'>acquire_write_lock</span><span class='lparen'>(</span><span class='id identifier rubyid_entity'>entity</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="close-instance_method">
+  
+    - (<tt>Object</tt>) <strong>close</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Commits or marks this transaction for rollback, depending on whether
+failure() has been previously invoked.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/transaction.rb', line 51</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_close'>close</span>
+  <span class='id identifier rubyid_pop_nested!'>pop_nested!</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='ivar'>@pushed_nested</span> <span class='op'>&gt;=</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Can&#39;t commit transaction, already committed</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='ivar'>@pushed_nested</span> <span class='op'>&lt;</span> <span class='op'>-</span><span class='int'>1</span><span class='rparen'>)</span>
+  <span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Transaction</span><span class='period'>.</span><span class='id identifier rubyid_unregister'>unregister</span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_failure?'>failure?</span>
+    <span class='id identifier rubyid__delete_tx'>_delete_tx</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid__commit_tx'>_commit_tx</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="failure-instance_method">
+  
+    - (<tt>Object</tt>) <strong>failure</strong> 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='fail-instance_method'>fail</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Marks this transaction as failed, which means that it will unconditionally
+be rolled back when close() is called.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+14
+15
+16</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/transaction.rb', line 14</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_failure'>failure</span>
+  <span class='ivar'>@failure</span> <span class='op'>=</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="failure?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>failure?</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>If it has been marked as failed</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+20
+21
+22</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/transaction.rb', line 20</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_failure?'>failure?</span>
+  <span class='op'>!</span><span class='op'>!</span><span class='ivar'>@failure</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Mon Aug 25 14:21:41 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

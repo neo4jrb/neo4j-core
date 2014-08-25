@@ -8,7 +8,6 @@ b/
 # ignore Rubymine
 .idea
 
-doc
 pkg/
 
 .rvmrc

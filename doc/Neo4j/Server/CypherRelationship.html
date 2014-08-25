@@ -1,0 +1,1643 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Neo4j::Server::CypherRelationship
+  
+    &mdash; Neo4j::Core API Documentation
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Neo4j/Server/CypherRelationship.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (C)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Neo4j.html" title="Neo4j (module)">Neo4j</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Server.html" title="Neo4j::Server (module)">Server</a></span></span>
+     &raquo; 
+    <span class="title">CypherRelationship</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Neo4j::Server::CypherRelationship
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName"><span class='object_link'><a href="../Relationship.html" title="Neo4j::Relationship (class)">Relationship</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="../Relationship.html" title="Neo4j::Relationship (class)">Relationship</a></span></li>
+          
+            <li class="next">Neo4j::Server::CypherRelationship</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+      <dt class="r2">Includes:</dt>
+      <dd class="r2"><span class='object_link'><a href="../Core/ActiveEntity.html" title="Neo4j::Core::ActiveEntity (module)">Core::ActiveEntity</a></span>, <span class='object_link'><a href="../Core/CypherTranslator.html" title="Neo4j::Core::CypherTranslator (module)">Core::CypherTranslator</a></span>, <span class='object_link'><a href="Resource.html" title="Neo4j::Server::Resource (module)">Resource</a></span></dd>
+      
+    
+  
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/neo4j-server/cypher_relationship.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+  <h2>Constant Summary</h2>
+  
+
+
+
+  <h2>Constant Summary</h2>
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../Core/CypherTranslator.html" title="Neo4j::Core::CypherTranslator (module)">Core::CypherTranslator</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Core/CypherTranslator.html#SANITIZE_ESCAPED_REGEXP-constant" title="Neo4j::Core::CypherTranslator::SANITIZE_ESCAPED_REGEXP (constant)">Core::CypherTranslator::SANITIZE_ESCAPED_REGEXP</a></span></p>
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../PropertyValidator.html" title="Neo4j::PropertyValidator (module)">PropertyValidator</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../PropertyValidator.html#VALID_PROPERTY_VALUE_CLASSES-constant" title="Neo4j::PropertyValidator::VALID_PROPERTY_VALUE_CLASSES (constant)">PropertyValidator::VALID_PROPERTY_VALUE_CLASSES</a></span></p>
+
+
+  <h2>Instance Attribute Summary <small>(<a href="#" class="summary_toggle">collapse</a>)</small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#end_node_neo_id-instance_method" title="#end_node_neo_id (instance method)">- (Object) <strong>end_node_neo_id</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute end_node_neo_id.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#start_node_neo_id-instance_method" title="#start_node_neo_id (instance method)">- (Object) <strong>start_node_neo_id</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute start_node_neo_id.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="Resource.html" title="Neo4j::Server::Resource (module)">Resource</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Resource.html#resource_data-instance_method" title="Neo4j::Server::Resource#resource_data (method)">#resource_data</a></span>, <span class='object_link'><a href="Resource.html#resource_url-instance_method" title="Neo4j::Server::Resource#resource_url (method)">#resource_url</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#%3D%3D-instance_method" title="#== (instance method)">- (Object) <strong>==</strong>(o) </a>
+    
+
+    
+      (also: #eql?)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_end_node-instance_method" title="#_end_node (instance method)">- (Object) <strong>_end_node</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_end_node_id-instance_method" title="#_end_node_id (instance method)">- (Object) <strong>_end_node_id</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_start_node-instance_method" title="#_start_node (instance method)">- (Object) <strong>_start_node</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_start_node_id-instance_method" title="#_start_node_id (instance method)">- (Object) <strong>_start_node_id</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#del-instance_method" title="#del (instance method)">- (Object) <strong>del</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#exist%3F-instance_method" title="#exist? (instance method)">- (Boolean) <strong>exist?</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_node_id-instance_method" title="#get_node_id (instance method)">- (Object) <strong>get_node_id</strong>(direction) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_property-instance_method" title="#get_property (instance method)">- (Object) <strong>get_property</strong>(key) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (CypherRelationship) <strong>initialize</strong>(session, value, rel_type = nil) </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of CypherRelationship.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#inspect-instance_method" title="#inspect (instance method)">- (Object) <strong>inspect</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#load_resource-instance_method" title="#load_resource (instance method)">- (Object) <strong>load_resource</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#neo_id-instance_method" title="#neo_id (instance method)">- (Object) <strong>neo_id</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#props-instance_method" title="#props (instance method)">- (Hash&lt;Symbol,Object&gt;) <strong>props</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>All properties of the relationship.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#props%3D-instance_method" title="#props= (instance method)">- (Object) <strong>props=</strong>(properties) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>replace all properties with new properties.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rel_type-instance_method" title="#rel_type (instance method)">- (Object) <strong>rel_type</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#remove_property-instance_method" title="#remove_property (instance method)">- (Object) <strong>remove_property</strong>(key) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#set_property-instance_method" title="#set_property (instance method)">- (Object) <strong>set_property</strong>(key, value) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#update_props-instance_method" title="#update_props (instance method)">- (Object) <strong>update_props</strong>(properties) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Updates the properties, keeps old properties.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Core/ActiveEntity.html" title="Neo4j::Core::ActiveEntity (module)">Core::ActiveEntity</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Core/ActiveEntity.html#persisted%3F-instance_method" title="Neo4j::Core::ActiveEntity#persisted? (method)">#persisted?</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Core/CypherTranslator.html" title="Neo4j::Core::CypherTranslator (module)">Core::CypherTranslator</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Core/CypherTranslator.html#cypher_prop_list-instance_method" title="Neo4j::Core::CypherTranslator#cypher_prop_list (method)">#cypher_prop_list</a></span>, <span class='object_link'><a href="../Core/CypherTranslator.html#escape_quotes-instance_method" title="Neo4j::Core::CypherTranslator#escape_quotes (method)">#escape_quotes</a></span>, <span class='object_link'><a href="../Core/CypherTranslator.html#escape_value-instance_method" title="Neo4j::Core::CypherTranslator#escape_value (method)">#escape_value</a></span>, <span class='object_link'><a href="../Core/CypherTranslator.html#sanitize_escape_sequences-instance_method" title="Neo4j::Core::CypherTranslator#sanitize_escape_sequences (method)">#sanitize_escape_sequences</a></span>, <span class='object_link'><a href="../Core/CypherTranslator.html#sanitized_column_names-class_method" title="Neo4j::Core::CypherTranslator.sanitized_column_names (method)">sanitized_column_names</a></span>, <span class='object_link'><a href="../Core/CypherTranslator.html#translate_response-class_method" title="Neo4j::Core::CypherTranslator.translate_response (method)">translate_response</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Resource.html" title="Neo4j::Server::Resource (module)">Resource</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Resource.html#convert_from_json_value-instance_method" title="Neo4j::Server::Resource#convert_from_json_value (method)">#convert_from_json_value</a></span>, <span class='object_link'><a href="Resource.html#convert_to_json_value-instance_method" title="Neo4j::Server::Resource#convert_to_json_value (method)">#convert_to_json_value</a></span>, <span class='object_link'><a href="Resource.html#expect_response_code-instance_method" title="Neo4j::Server::Resource#expect_response_code (method)">#expect_response_code</a></span>, <span class='object_link'><a href="Resource.html#handle_response_error-instance_method" title="Neo4j::Server::Resource#handle_response_error (method)">#handle_response_error</a></span>, <span class='object_link'><a href="Resource.html#init_resource_data-instance_method" title="Neo4j::Server::Resource#init_resource_data (method)">#init_resource_data</a></span>, <span class='object_link'><a href="Resource.html#resource_headers-instance_method" title="Neo4j::Server::Resource#resource_headers (method)">#resource_headers</a></span>, <span class='object_link'><a href="Resource.html#resource_url_id-instance_method" title="Neo4j::Server::Resource#resource_url_id (method)">#resource_url_id</a></span>, <span class='object_link'><a href="Resource.html#response_exception-instance_method" title="Neo4j::Server::Resource#response_exception (method)">#response_exception</a></span>, <span class='object_link'><a href="Resource.html#wrap_resource-instance_method" title="Neo4j::Server::Resource#wrap_resource (method)">#wrap_resource</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="../Relationship.html" title="Neo4j::Relationship (class)">Relationship</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Relationship.html#_load-class_method" title="Neo4j::Relationship._load (method)">_load</a></span>, <span class='object_link'><a href="../Relationship.html#_other_node-instance_method" title="Neo4j::Relationship#_other_node (method)">#_other_node</a></span>, <span class='object_link'><a href="../Relationship.html#create-class_method" title="Neo4j::Relationship.create (method)">create</a></span>, <span class='object_link'><a href="../Relationship.html#end_node-instance_method" title="Neo4j::Relationship#end_node (method)">#end_node</a></span>, <span class='object_link'><a href="../Relationship.html#load-class_method" title="Neo4j::Relationship.load (method)">load</a></span>, <span class='object_link'><a href="../Relationship.html#other_node-instance_method" title="Neo4j::Relationship#other_node (method)">#other_node</a></span>, <span class='object_link'><a href="../Relationship.html#start_node-instance_method" title="Neo4j::Relationship#start_node (method)">#start_node</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Relationship/Wrapper.html" title="Neo4j::Relationship::Wrapper (module)">Relationship::Wrapper</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Relationship/Wrapper.html#neo4j_obj-instance_method" title="Neo4j::Relationship::Wrapper#neo4j_obj (method)">#neo4j_obj</a></span>, <span class='object_link'><a href="../Relationship/Wrapper.html#wrapper-instance_method" title="Neo4j::Relationship::Wrapper#wrapper (method)">#wrapper</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../PropertyContainer.html" title="Neo4j::PropertyContainer (module)">PropertyContainer</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../PropertyContainer.html#%5B%5D-instance_method" title="Neo4j::PropertyContainer#[] (method)">#[]</a></span>, <span class='object_link'><a href="../PropertyContainer.html#%5B%5D%3D-instance_method" title="Neo4j::PropertyContainer#[]= (method)">#[]=</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../PropertyValidator.html" title="Neo4j::PropertyValidator (module)">PropertyValidator</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../PropertyValidator.html#valid_property%3F-instance_method" title="Neo4j::PropertyValidator#valid_property? (method)">#valid_property?</a></span>, <span class='object_link'><a href="../PropertyValidator.html#validate_property-instance_method" title="Neo4j::PropertyValidator#validate_property (method)">#validate_property</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Neo4j::Server::CypherRelationship (class)">CypherRelationship</a></span></tt>) <strong>initialize</strong>(session, value, rel_type = nil) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of CypherRelationship</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_relationship.rb', line 10</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='id identifier rubyid_rel_type'>rel_type</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='ivar'>@session</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span>
+
+  <span class='ivar'>@id</span> <span class='op'>=</span> <span class='kw'>if</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Hash</span><span class='rparen'>)</span>
+    <span class='ivar'>@response_hash</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span>
+    <span class='ivar'>@rel_type</span> <span class='op'>=</span> <span class='ivar'>@response_hash</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>type</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='ivar'>@props</span> <span class='op'>=</span> <span class='ivar'>@response_hash</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>data</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='ivar'>@start_node_neo_id</span> <span class='op'>=</span> <span class='ivar'>@response_hash</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>start</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\d+$</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+    <span class='ivar'>@end_node_neo_id</span> <span class='op'>=</span> <span class='ivar'>@response_hash</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>end</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\d+$</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+    <span class='ivar'>@response_hash</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>id</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>else</span>
+    <span class='ivar'>@rel_type</span> <span class='op'>=</span> <span class='id identifier rubyid_rel_type'>rel_type</span>
+
+    <span class='id identifier rubyid_value'>value</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id=""></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="end_node_neo_id-instance_method">
+  
+    - (<tt>Object</tt>) <strong>end_node_neo_id</strong>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute end_node_neo_id</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+8
+9
+10</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_relationship.rb', line 8</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_end_node_neo_id'>end_node_neo_id</span>
+  <span class='ivar'>@end_node_neo_id</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="start_node_neo_id-instance_method">
+  
+    - (<tt>Object</tt>) <strong>start_node_neo_id</strong>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute start_node_neo_id</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+8
+9
+10</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_relationship.rb', line 8</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_start_node_neo_id'>start_node_neo_id</span>
+  <span class='ivar'>@start_node_neo_id</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="==-instance_method">
+  
+    - (<tt>Object</tt>) <strong>==</strong>(o) 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='eql?-instance_method'>eql?</span></span>
+    </span>
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+27
+28
+29</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_relationship.rb', line 27</span>
+
+<span class='kw'>def</span> <span class='op'>==</span><span class='lparen'>(</span><span class='id identifier rubyid_o'>o</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_o'>o</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span> <span class='op'>==</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_o'>o</span><span class='period'>.</span><span class='id identifier rubyid_neo_id'>neo_id</span> <span class='op'>==</span> <span class='id identifier rubyid_neo_id'>neo_id</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_end_node-instance_method">
+  
+    - (<tt>Object</tt>) <strong>_end_node</strong> 
+  
+
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+61
+62
+63
+64
+65</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_relationship.rb', line 61</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__end_node'>_end_node</span>
+  <span class='id identifier rubyid_load_resource'>load_resource</span>
+  <span class='id identifier rubyid_id'>id</span> <span class='op'>=</span> <span class='id identifier rubyid_resource_url_id'>resource_url_id</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_url'>resource_url</span><span class='lparen'>(</span><span class='symbol'>:end</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Node</span><span class='period'>.</span><span class='id identifier rubyid__load'>_load</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_end_node_id-instance_method">
+  
+    - (<tt>Object</tt>) <strong>_end_node_id</strong> 
+  
+
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+51
+52
+53</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_relationship.rb', line 51</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__end_node_id'>_end_node_id</span>
+  <span class='ivar'>@end_node_neo_id</span> <span class='op'>||=</span> <span class='id identifier rubyid_get_node_id'>get_node_id</span><span class='lparen'>(</span><span class='symbol'>:end</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_start_node-instance_method">
+  
+    - (<tt>Object</tt>) <strong>_start_node</strong> 
+  
+
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+55
+56
+57
+58
+59</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_relationship.rb', line 55</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__start_node'>_start_node</span>
+  <span class='id identifier rubyid_load_resource'>load_resource</span>
+  <span class='id identifier rubyid_id'>id</span> <span class='op'>=</span> <span class='id identifier rubyid_resource_url_id'>resource_url_id</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_url'>resource_url</span><span class='lparen'>(</span><span class='symbol'>:start</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Node</span><span class='period'>.</span><span class='id identifier rubyid__load'>_load</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_start_node_id-instance_method">
+  
+    - (<tt>Object</tt>) <strong>_start_node_id</strong> 
+  
+
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+47
+48
+49</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_relationship.rb', line 47</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__start_node_id'>_start_node_id</span>
+  <span class='ivar'>@start_node_neo_id</span> <span class='op'>||=</span> <span class='id identifier rubyid_get_node_id'>get_node_id</span><span class='lparen'>(</span><span class='symbol'>:start</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="del-instance_method">
+  
+    - (<tt>Object</tt>) <strong>del</strong> 
+  
+
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+117
+118
+119
+120</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_relationship.rb', line 117</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_del'>del</span>
+  <span class='id identifier rubyid_id'>id</span> <span class='op'>=</span> <span class='id identifier rubyid_neo_id'>neo_id</span>
+  <span class='ivar'>@session</span><span class='period'>.</span><span class='id identifier rubyid__query'>_query</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>START n=relationship(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_id'>id</span><span class='embexpr_end'>}</span><span class='tstring_content'>) DELETE n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_raise_unless_response_code'>raise_unless_response_code</span><span class='lparen'>(</span><span class='int'>200</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="exist?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>exist?</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_relationship.rb', line 122</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_exist?'>exist?</span>
+  <span class='id identifier rubyid_id'>id</span> <span class='op'>=</span> <span class='id identifier rubyid_neo_id'>neo_id</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='ivar'>@session</span><span class='period'>.</span><span class='id identifier rubyid__query'>_query</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>START n=relationship(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_id'>id</span><span class='embexpr_end'>}</span><span class='tstring_content'>) RETURN n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='op'>!</span><span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_error?'>error?</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>true</span>
+  <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_error_status'>error_status</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>BadInputException</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='comment'># TODO see github issue neo4j/1061
+</span>    <span class='kw'>return</span> <span class='kw'>false</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_raise_error'>raise_error</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_node_id-instance_method">
+  
+    - (<tt>Object</tt>) <strong>get_node_id</strong>(direction) 
+  
+
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+67
+68
+69
+70</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_relationship.rb', line 67</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_node_id'>get_node_id</span><span class='lparen'>(</span><span class='id identifier rubyid_direction'>direction</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_load_resource'>load_resource</span>
+  <span class='id identifier rubyid_resource_url_id'>resource_url_id</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_url'>resource_url</span><span class='lparen'>(</span><span class='id identifier rubyid_direction'>direction</span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_property-instance_method">
+  
+    - (<tt>Object</tt>) <strong>get_property</strong>(key) 
+  
+
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+72
+73
+74
+75</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_relationship.rb', line 72</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_property'>get_property</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_id'>id</span> <span class='op'>=</span> <span class='id identifier rubyid_neo_id'>neo_id</span>
+  <span class='ivar'>@session</span><span class='period'>.</span><span class='id identifier rubyid__query_or_fail'>_query_or_fail</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>START n=relationship(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_id'>id</span><span class='embexpr_end'>}</span><span class='tstring_content'>) RETURN n.`</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_key'>key</span><span class='embexpr_end'>}</span><span class='tstring_content'>`</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='kw'>true</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="inspect-instance_method">
+  
+    - (<tt>Object</tt>) <strong>inspect</strong> 
+  
+
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+36
+37
+38</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_relationship.rb', line 36</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_inspect'>inspect</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>CypherRelationship </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_neo_id'>neo_id</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="load_resource-instance_method">
+  
+    - (<tt>Object</tt>) <strong>load_resource</strong> 
+  
+
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+40
+41
+42
+43
+44
+45</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_relationship.rb', line 40</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_load_resource'>load_resource</span>
+  <span class='id identifier rubyid_id'>id</span> <span class='op'>=</span> <span class='id identifier rubyid_neo_id'>neo_id</span>
+  <span class='kw'>unless</span> <span class='ivar'>@resource_data</span>
+    <span class='ivar'>@resource_data</span> <span class='op'>=</span> <span class='ivar'>@session</span><span class='period'>.</span><span class='id identifier rubyid__query_or_fail'>_query_or_fail</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>START n=relationship(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_id'>id</span><span class='embexpr_end'>}</span><span class='tstring_content'>) RETURN n</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='kw'>true</span><span class='rparen'>)</span> <span class='comment'># r.first_data
+</span>  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="neo_id-instance_method">
+  
+    - (<tt>Object</tt>) <strong>neo_id</strong> 
+  
+
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+32
+33
+34</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_relationship.rb', line 32</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_neo_id'>neo_id</span>
+  <span class='ivar'>@id</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="props-instance_method">
+  
+    - (<tt>Hash&lt;Symbol,Object&gt;</tt>) <strong>props</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns all properties of the relationship</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash&lt;Symbol,Object&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>all properties of the relationship</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+88
+89
+90
+91
+92
+93
+94
+95</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_relationship.rb', line 88</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_props'>props</span>
+  <span class='kw'>if</span> <span class='ivar'>@props</span>
+    <span class='ivar'>@props</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_hash'>hash</span> <span class='op'>=</span> <span class='ivar'>@session</span><span class='period'>.</span><span class='id identifier rubyid__query_entity_data'>_query_entity_data</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>START n=relationship(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_neo_id'>neo_id</span><span class='embexpr_end'>}</span><span class='tstring_content'>) RETURN n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='ivar'>@props</span> <span class='op'>=</span> <span class='const'>Hash</span><span class='lbracket'>[</span><span class='id identifier rubyid_hash'>hash</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>data</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_k'>k</span><span class='comma'>,</span> <span class='id identifier rubyid_v'>v</span><span class='op'>|</span> <span class='lbracket'>[</span><span class='id identifier rubyid_k'>k</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='comma'>,</span> <span class='id identifier rubyid_v'>v</span><span class='rbracket'>]</span> <span class='rbrace'>}</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="props=-instance_method">
+  
+    - (<tt>Object</tt>) <strong>props=</strong>(properties) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>replace all properties with new properties</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>properties</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>a hash of properties the relationship should have</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+98
+99
+100
+101</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_relationship.rb', line 98</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_props='>props=</span><span class='lparen'>(</span><span class='id identifier rubyid_properties'>properties</span><span class='rparen'>)</span>
+  <span class='ivar'>@session</span><span class='period'>.</span><span class='id identifier rubyid__query_or_fail'>_query_or_fail</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>START n=relationship(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_neo_id'>neo_id</span><span class='embexpr_end'>}</span><span class='tstring_content'>) SET n = { props }</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='lbrace'>{</span><span class='label'>props:</span> <span class='id identifier rubyid_properties'>properties</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_properties'>properties</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rel_type-instance_method">
+  
+    - (<tt>Object</tt>) <strong>rel_type</strong> 
+  
+
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+113
+114
+115</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_relationship.rb', line 113</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rel_type'>rel_type</span>
+  <span class='ivar'>@rel_type</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="remove_property-instance_method">
+  
+    - (<tt>Object</tt>) <strong>remove_property</strong>(key) 
+  
+
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+82
+83
+84
+85</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_relationship.rb', line 82</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_remove_property'>remove_property</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_id'>id</span> <span class='op'>=</span> <span class='id identifier rubyid_neo_id'>neo_id</span>
+  <span class='ivar'>@session</span><span class='period'>.</span><span class='id identifier rubyid__query_or_fail'>_query_or_fail</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>START n=relationship(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_id'>id</span><span class='embexpr_end'>}</span><span class='tstring_content'>) REMOVE n.`</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_key'>key</span><span class='embexpr_end'>}</span><span class='tstring_content'>`</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="set_property-instance_method">
+  
+    - (<tt>Object</tt>) <strong>set_property</strong>(key, value) 
+  
+
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+77
+78
+79
+80</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_relationship.rb', line 77</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_set_property'>set_property</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_id'>id</span> <span class='op'>=</span> <span class='id identifier rubyid_neo_id'>neo_id</span>
+  <span class='ivar'>@session</span><span class='period'>.</span><span class='id identifier rubyid__query_or_fail'>_query_or_fail</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>START n=relationship(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_id'>id</span><span class='embexpr_end'>}</span><span class='tstring_content'>) SET n.`</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_key'>key</span><span class='embexpr_end'>}</span><span class='tstring_content'>` = {value}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='lbrace'>{</span><span class='label'>value:</span> <span class='id identifier rubyid_value'>value</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="update_props-instance_method">
+  
+    - (<tt>Object</tt>) <strong>update_props</strong>(properties) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Updates the properties, keeps old properties</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>properties</span>
+      
+      
+        <span class='type'>(<tt>Hash&lt;Symbol,Object&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>hash of properties that should be updated on the relationship</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+104
+105
+106
+107
+108
+109
+110
+111</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_relationship.rb', line 104</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_update_props'>update_props</span><span class='lparen'>(</span><span class='id identifier rubyid_properties'>properties</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='id identifier rubyid_properties'>properties</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+  <span class='id identifier rubyid_q'>q</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>START n=relationship(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_neo_id'>neo_id</span><span class='embexpr_end'>}</span><span class='tstring_content'>) SET </span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_properties'>properties</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_k'>k</span><span class='op'>|</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>n.`</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_k'>k</span><span class='embexpr_end'>}</span><span class='tstring_content'>`= </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_escape_value'>escape_value</span><span class='lparen'>(</span><span class='id identifier rubyid_properties'>properties</span><span class='lbracket'>[</span><span class='id identifier rubyid_k'>k</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>,</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='ivar'>@session</span><span class='period'>.</span><span class='id identifier rubyid__query_or_fail'>_query_or_fail</span><span class='lparen'>(</span><span class='id identifier rubyid_q'>q</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_properties'>properties</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Mon Aug 25 14:21:43 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

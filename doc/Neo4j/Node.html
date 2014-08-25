@@ -1,0 +1,2366 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Neo4j::Node
+  
+    &mdash; Neo4j::Core API Documentation
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../';
+  framesUrl = "../frames.html#!Neo4j/Node.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../_index.html">Index (N)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Neo4j.html" title="Neo4j (module)">Neo4j</a></span></span>
+     &raquo; 
+    <span class="title">Node</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Neo4j::Node
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Neo4j::Node</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+      <dt class="r2">Includes:</dt>
+      <dd class="r2"><span class='object_link'><a href="EntityEquality.html" title="Neo4j::EntityEquality (module)">EntityEquality</a></span>, <span class='object_link'><a href="Node/Wrapper.html" title="Neo4j::Node::Wrapper (module)">Wrapper</a></span>, <span class='object_link'><a href="PropertyContainer.html" title="Neo4j::PropertyContainer (module)">PropertyContainer</a></span></dd>
+      
+    
+  
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/neo4j/node.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>The base class for both the Embedded and Server Neo4j Node Notice this
+class is abstract and can&#39;t be instantiated</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><div id="subclasses">
+  <h2>Direct Known Subclasses</h2>
+  <p class="children"><span class='object_link'><a href="Server/CypherNode.html" title="Neo4j::Server::CypherNode (class)">Server::CypherNode</a></span></p>
+</div>
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Node/Wrapper.html" title="Neo4j::Node::Wrapper (module)">Wrapper</a></span>
+    
+  
+    
+  
+</p>
+
+  <h2>Constant Summary</h2>
+  
+
+
+
+  <h2>Constant Summary</h2>
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="PropertyValidator.html" title="Neo4j::PropertyValidator (module)">PropertyValidator</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="PropertyValidator.html#VALID_PROPERTY_VALUE_CLASSES-constant" title="Neo4j::PropertyValidator::VALID_PROPERTY_VALUE_CLASSES (constant)">PropertyValidator::VALID_PROPERTY_VALUE_CLASSES</a></span></p>
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_load-class_method" title="_load (class method)">+ (Neo4j::Node) <strong>_load</strong>(neo_id, session = Neo4j::Session.current!) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Same as #load but does not try to return a wrapped node.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create-class_method" title="create (class method)">+ (Object) <strong>create</strong>(props = nil, *labels_or_db) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Creates a node.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#find_nodes-class_method" title="find_nodes (class method)">+ (Object) <strong>find_nodes</strong>(label, value = nil, session = Neo4j::Session.current!) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Find the node with given label and value.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#load-class_method" title="load (class method)">+ (Object) <strong>load</strong>(neo_id, session = Neo4j::Session.current!) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Loads a node from the database with given id.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_rel-instance_method" title="#_rel (instance method)">- (Object) <strong>_rel</strong>(spec = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#add_label-instance_method" title="#add_label (instance method)">- (Object) <strong>add_label</strong>(*labels) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Adds one or more Neo4j labels on the node.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_rel-instance_method" title="#create_rel (instance method)">- (Object) <strong>create_rel</strong>(type, other_node, props = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Creates a relationship of given type to other_node with optionally
+properties.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#del-instance_method" title="#del (instance method)">- (Object) <strong>del</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Deletes this node from the database.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#exist%3F-instance_method" title="#exist? (instance method)">- (Boolean) <strong>exist?</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>True if the node exists.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_property-instance_method" title="#get_property (instance method)">- (Object) <strong>get_property</strong>(key, value) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Directly get the property on the node (low level method, may need
+transaction).</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Node) <strong>initialize</strong> </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of Node.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#labels-instance_method" title="#labels (instance method)">- (Object) <strong>labels</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>All the Neo4j labels for this node.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#node-instance_method" title="#node (instance method)">- (Object) <strong>node</strong>(specs = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the only node of a given type and direction that is attached to
+this node, or nil.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#nodes-instance_method" title="#nodes (instance method)">- (Enumerable&lt;Neo4j::Node&gt;) <strong>nodes</strong>(specs = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  <span class="abstract note title">abstract</span>
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Works like #rels method but instead returns the nodes.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#props-instance_method" title="#props (instance method)">- (Hash&lt;Symbol, Object&gt;) <strong>props</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>All properties of the node.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#props%3D-instance_method" title="#props= (instance method)">- (Object) <strong>props=</strong>(properties) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>replace all properties with new properties.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#refresh-instance_method" title="#refresh (instance method)">- (Object) <strong>refresh</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Refresh the properties by reading it from the database again next time an
+property value is requested.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rel-instance_method" title="#rel (instance method)">- (Object) <strong>rel</strong>(spec = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Same as #node but returns the relationship.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rel%3F-instance_method" title="#rel? (instance method)">- (Boolean) <strong>rel?</strong>(spec = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns true or false if there is one or more relationships.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rels-instance_method" title="#rels (instance method)">- (Enumerable&lt;Neo4j::Relationship&gt;) <strong>rels</strong>(match = {dir: :both}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns an enumeration of relationships.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#remove_label-instance_method" title="#remove_label (instance method)">- (Object) <strong>remove_label</strong>(*labels) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Removes given labels.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#remove_property-instance_method" title="#remove_property (instance method)">- (Object) <strong>remove_property</strong>(key) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Directly remove the property on the node (low level method, may need
+transaction).</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#set_label-instance_method" title="#set_label (instance method)">- (Object) <strong>set_label</strong>(*labels) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Sets label on the node.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#set_property-instance_method" title="#set_property (instance method)">- (Object) <strong>set_property</strong>(key, value) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Directly set the property on the node (low level method, may need
+transaction).</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#update_props-instance_method" title="#update_props (instance method)">- (Object) <strong>update_props</strong>(properties) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Updates the properties, keeps old properties.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="PropertyContainer.html" title="Neo4j::PropertyContainer (module)">PropertyContainer</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="PropertyContainer.html#%5B%5D-instance_method" title="Neo4j::PropertyContainer#[] (method)">#[]</a></span>, <span class='object_link'><a href="PropertyContainer.html#%5B%5D%3D-instance_method" title="Neo4j::PropertyContainer#[]= (method)">#[]=</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="PropertyValidator.html" title="Neo4j::PropertyValidator (module)">PropertyValidator</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="PropertyValidator.html#valid_property%3F-instance_method" title="Neo4j::PropertyValidator#valid_property? (method)">#valid_property?</a></span>, <span class='object_link'><a href="PropertyValidator.html#validate_property-instance_method" title="Neo4j::PropertyValidator#validate_property (method)">#validate_property</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Node/Wrapper.html" title="Neo4j::Node::Wrapper (module)">Wrapper</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Node/Wrapper.html#neo4j_obj-instance_method" title="Neo4j::Node::Wrapper#neo4j_obj (method)">#neo4j_obj</a></span>, <span class='object_link'><a href="Node/Wrapper.html#wrapper-instance_method" title="Neo4j::Node::Wrapper#wrapper (method)">#wrapper</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="EntityEquality.html" title="Neo4j::EntityEquality (module)">EntityEquality</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="EntityEquality.html#%3D%3D-instance_method" title="Neo4j::EntityEquality#== (method)">#==</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Neo4j::Node (class)">Node</a></span></tt>) <strong>initialize</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of Node</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+205
+206
+207</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/node.rb', line 205</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Can&#39;t instantiate abstract class</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_abstract_class?'>abstract_class?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="_load-class_method">
+  
+    + (<tt><span class='object_link'><a href="" title="Neo4j::Node (class)">Neo4j::Node</a></span></tt>) <strong>_load</strong>(neo_id, session = Neo4j::Session.current!) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Same as #load but does not try to return a wrapped node</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Neo4j::Node (class)">Neo4j::Node</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>an unwrapped node</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+195
+196
+197</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/node.rb', line 195</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__load'>_load</span><span class='lparen'>(</span><span class='id identifier rubyid_neo_id'>neo_id</span><span class='comma'>,</span> <span class='id identifier rubyid_session'>session</span> <span class='op'>=</span> <span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Session</span><span class='period'>.</span><span class='id identifier rubyid_current!'>current!</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_load_node'>load_node</span><span class='lparen'>(</span><span class='id identifier rubyid_neo_id'>neo_id</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create-class_method">
+  
+    + (<tt>Object</tt>) <strong>create</strong>(props = nil, *labels_or_db) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Creates a node</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+182
+183
+184
+185</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/node.rb', line 182</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='id identifier rubyid_props'>props</span><span class='op'>=</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_labels_or_db'>labels_or_db</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_session'>session</span> <span class='op'>=</span> <span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Core</span><span class='op'>::</span><span class='const'>ArgumentHelper</span><span class='period'>.</span><span class='id identifier rubyid_session'>session</span><span class='lparen'>(</span><span class='id identifier rubyid_labels_or_db'>labels_or_db</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_create_node'>create_node</span><span class='lparen'>(</span><span class='id identifier rubyid_props'>props</span><span class='comma'>,</span> <span class='id identifier rubyid_labels_or_db'>labels_or_db</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="find_nodes-class_method">
+  
+    + (<tt>Object</tt>) <strong>find_nodes</strong>(label, value = nil, session = Neo4j::Session.current!) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Find the node with given label and value</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+200
+201
+202</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/node.rb', line 200</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_find_nodes'>find_nodes</span><span class='lparen'>(</span><span class='id identifier rubyid_label'>label</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='op'>=</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_session'>session</span> <span class='op'>=</span> <span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Session</span><span class='period'>.</span><span class='id identifier rubyid_current!'>current!</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_find_nodes'>find_nodes</span><span class='lparen'>(</span><span class='id identifier rubyid_label'>label</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="load-class_method">
+  
+    + (<tt>Object</tt>) <strong>load</strong>(neo_id, session = Neo4j::Session.current!) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Loads a node from the database with given id</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+188
+189
+190
+191</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/node.rb', line 188</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_load'>load</span><span class='lparen'>(</span><span class='id identifier rubyid_neo_id'>neo_id</span><span class='comma'>,</span> <span class='id identifier rubyid_session'>session</span> <span class='op'>=</span> <span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Session</span><span class='period'>.</span><span class='id identifier rubyid_current!'>current!</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_node'>node</span> <span class='op'>=</span> <span class='id identifier rubyid__load'>_load</span><span class='lparen'>(</span><span class='id identifier rubyid_neo_id'>neo_id</span><span class='comma'>,</span> <span class='id identifier rubyid_session'>session</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_node'>node</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_node'>node</span><span class='period'>.</span><span class='id identifier rubyid_wrapper'>wrapper</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="_rel-instance_method">
+  
+    - (<tt>Object</tt>) <strong>_rel</strong>(spec = {}) 
+  
+
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+155
+156
+157</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/node.rb', line 155</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__rel'>_rel</span><span class='lparen'>(</span><span class='id identifier rubyid_spec'>spec</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not implemented</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="add_label-instance_method">
+  
+    - (<tt>Object</tt>) <strong>add_label</strong>(*labels) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Adds one or more Neo4j labels on the node</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>labels</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;Symbol&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>one or more labels to add</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+97
+98
+99</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/node.rb', line 97</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_add_label'>add_label</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_labels'>labels</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not implemented</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create_rel-instance_method">
+  
+    - (<tt>Object</tt>) <strong>create_rel</strong>(type, other_node, props = nil) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Creates a relationship of given type to other_node with optionally
+properties</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>type</span>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the type of the relation between the two nodes</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>other_node</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Neo4j::Node (class)">Neo4j::Node</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the other node</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>props</span>
+      
+      
+        <span class='type'>(<tt>Hash&lt;Symbol, Object&gt;</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>optionally properties for the created relationship</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+68
+69
+70</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/node.rb', line 68</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create_rel'>create_rel</span><span class='lparen'>(</span><span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_other_node'>other_node</span><span class='comma'>,</span> <span class='id identifier rubyid_props'>props</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not implemented</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="del-instance_method">
+  
+    - (<tt>Object</tt>) <strong>del</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Deletes this node from the database</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+119
+120
+121</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/node.rb', line 119</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_del'>del</span><span class='lparen'>(</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not implemented</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="exist?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>exist?</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns true if the node exists</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>true if the node exists</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+124
+125
+126</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/node.rb', line 124</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_exist?'>exist?</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not implemented</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_property-instance_method">
+  
+    - (<tt>Object</tt>) <strong>get_property</strong>(key, value) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Directly get the property on the node (low level method, may need
+transaction)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>key</span>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>, <tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        
+        <div class='inline'>
+<p>the value of the key</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+60
+61
+62</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/node.rb', line 60</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_property'>get_property</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not implemented</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="labels-instance_method">
+  
+    - (<tt>Object</tt>) <strong>labels</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns all the Neo4j labels for this node</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        
+        <div class='inline'>
+<p>all the Neo4j labels for this node</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+114
+115
+116</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/node.rb', line 114</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_labels'>labels</span><span class='lparen'>(</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not implemented</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="node-instance_method">
+  
+    - (<tt>Object</tt>) <strong>node</strong>(specs = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the only node of a given type and direction that is attached to
+this node, or nil. This is a convenience method that is used in the
+commonly occuring situation where a node has exactly zero or one
+relationships of a given type and direction to another node. Typically this
+invariant is maintained by the rest of the code: if at any time more than
+one such relationships exist, it is a fatal error that should generate an
+exception.</p>
+
+<p>This method reflects that semantics and returns either:</p>
+<ul><li>
+<p>nil if there are zero relationships of the given type and direction,</p>
+</li><li>
+<p>the relationship if there&#39;s exactly one, or</p>
+</li><li>
+<p>throws an exception in all other cases.</p>
+</li></ul>
+
+<p>This method should be used only in situations with an invariant as
+described above. In those situations, a “state-checking” method (e.g.
+#rel?) is not required, because this method behaves correctly “out of the
+box.”</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+146
+147
+148</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/node.rb', line 146</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_node'>node</span><span class='lparen'>(</span><span class='id identifier rubyid_specs'>specs</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not implemented</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="nodes-instance_method">
+  
+    - (<tt>Enumerable&lt;<span class='object_link'><a href="" title="Neo4j::Node (class)">Neo4j::Node</a></span>&gt;</tt>) <strong>nodes</strong>(specs = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <div class="note abstract">
+  <strong>This method is abstract.</strong>
+  <div class='inline'></div>
+</div>
+
+  <div class="note notetag">
+    <strong>Note:</strong>
+    <div class='inline'>
+<p>it&#39;s possible that the same node is returned more than once because of
+several relationship reaching to the same node, see #outgoing for
+alternative</p>
+</div>
+  </div>
+
+
+<p>Works like #rels method but instead returns the nodes. It does try to load
+a Ruby wrapper around each node</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>match</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the options to create a message with.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Enumerable&lt;<span class='object_link'><a href="" title="Neo4j::Node (class)">Neo4j::Node</a></span>&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>an Enumeration of either Neo4j::Node objects or wrapped Neo4j::Node objects</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+176
+177
+178</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/node.rb', line 176</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_nodes'>nodes</span><span class='lparen'>(</span><span class='id identifier rubyid_specs'>specs</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='comment'>#rels(specs).map{|n| n.other_node(self)}
+</span><span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="props-instance_method">
+  
+    - (<tt>Hash&lt;Symbol, Object&gt;</tt>) <strong>props</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns all properties of the node</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash&lt;Symbol, Object&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>all properties of the node</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+24
+25
+26</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/node.rb', line 24</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_props'>props</span><span class='lparen'>(</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not implemented</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="props=-instance_method">
+  
+    - (<tt>Object</tt>) <strong>props=</strong>(properties) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>replace all properties with new properties</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>properties</span>
+      
+      
+        <span class='type'>(<tt>Hash&lt;Symbol, Object&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>a hash of properties the node should have</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+30
+31
+32</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/node.rb', line 30</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_props='>props=</span><span class='lparen'>(</span><span class='id identifier rubyid_properties'>properties</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not implemented</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="refresh-instance_method">
+  
+    - (<tt>Object</tt>) <strong>refresh</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Refresh the properties by reading it from the database again next time an
+property value is requested.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+35
+36
+37</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/node.rb', line 35</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_refresh'>refresh</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not implemented</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rel-instance_method">
+  
+    - (<tt>Object</tt>) <strong>rel</strong>(spec = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Same as #node but returns the relationship. Notice it may raise an
+exception if there are more then one relationship matching.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+151
+152
+153</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/node.rb', line 151</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rel'>rel</span><span class='lparen'>(</span><span class='id identifier rubyid_spec'>spec</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not implemented</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rel?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>rel?</strong>(spec = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns true or false if there is one or more relationships</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+161
+162
+163</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/node.rb', line 161</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rel?'>rel?</span><span class='lparen'>(</span><span class='id identifier rubyid_spec'>spec</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not implemented</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rels-instance_method">
+  
+    - (<tt>Enumerable&lt;<span class='object_link'><a href="Relationship.html" title="Neo4j::Relationship (class)">Neo4j::Relationship</a></span>&gt;</tt>) <strong>rels</strong>(match = {dir: :both}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns an enumeration of relationships. It always returns relationships of
+depth one.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Return both incoming and outgoing relationships of any type</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_node_a'>node_a</span><span class='period'>.</span><span class='id identifier rubyid_rels'>rels</span></code></pre>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>All outgoing or incoming relationship of type friends</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_node_a'>node_a</span><span class='period'>.</span><span class='id identifier rubyid_rels'>rels</span><span class='lparen'>(</span><span class='label'>type:</span> <span class='symbol'>:friends</span><span class='rparen'>)</span></code></pre>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>All outgoing relationships between me and another node of type friends</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_node_a'>node_a</span><span class='period'>.</span><span class='id identifier rubyid_rels'>rels</span><span class='lparen'>(</span><span class='label'>type:</span> <span class='symbol'>:friends</span><span class='comma'>,</span> <span class='label'>dir:</span> <span class='symbol'>:outgoing</span><span class='comma'>,</span> <span class='label'>between:</span> <span class='id identifier rubyid_node_b'>node_b</span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>match</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{dir: :both}</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the options to create a message with.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    <p class="tag_title">Options Hash (<tt>match</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:dir</span>
+          <span class="type">(<tt>Symbol</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>dir the direction of the relationship, allowed values: :both, :incoming,
+:outgoing.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:type</span>
+          <span class="type">(<tt>Symbol</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>the type of relationship to navigate</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:between</span>
+          <span class="type">(<tt>Symbol</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>return all the relationships between this and given node</p>
+</div>
+          
+        </li>
+      
+    </ul>
+  
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Enumerable&lt;<span class='object_link'><a href="Relationship.html" title="Neo4j::Relationship (class)">Neo4j::Relationship</a></span>&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>of Neo4j::Relationship objects</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+91
+92
+93</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/node.rb', line 91</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rels'>rels</span><span class='lparen'>(</span><span class='id identifier rubyid_match'>match</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='label'>dir:</span> <span class='symbol'>:both</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not implemented</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="remove_label-instance_method">
+  
+    - (<tt>Object</tt>) <strong>remove_label</strong>(*labels) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Removes given labels</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+108
+109
+110</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/node.rb', line 108</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_remove_label'>remove_label</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_labels'>labels</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not implemented</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="remove_property-instance_method">
+  
+    - (<tt>Object</tt>) <strong>remove_property</strong>(key) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Directly remove the property on the node (low level method, may need
+transaction)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+46
+47
+48</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/node.rb', line 46</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_remove_property'>remove_property</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not implemented</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="set_label-instance_method">
+  
+    - (<tt>Object</tt>) <strong>set_label</strong>(*labels) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Sets label on the node. Any old labels will be removed</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>labels</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;Symbol&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>one or more labels to set</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+103
+104
+105</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/node.rb', line 103</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_set_label'>set_label</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_labels'>labels</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not implemented</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="set_property-instance_method">
+  
+    - (<tt>Object</tt>) <strong>set_property</strong>(key, value) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Directly set the property on the node (low level method, may need
+transaction)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>key</span>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>, <tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>value</span>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>see Neo4j::PropertyValidator::VALID_PROPERTY_VALUE_CLASSES for valid values</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+53
+54
+55</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/node.rb', line 53</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_set_property'>set_property</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not implemented</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="update_props-instance_method">
+  
+    - (<tt>Object</tt>) <strong>update_props</strong>(properties) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Updates the properties, keeps old properties</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>properties</span>
+      
+      
+        <span class='type'>(<tt>Hash&lt;Symbol, Object&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>hash of properties that should be updated on the node</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+41
+42
+43</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/node.rb', line 41</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_update_props'>update_props</span><span class='lparen'>(</span><span class='id identifier rubyid_properties'>properties</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not implemented</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Mon Aug 25 14:21:41 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

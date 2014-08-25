@@ -1,0 +1,1652 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Neo4j::Core::HashWithIndifferentAccess
+  
+    &mdash; Neo4j::Core API Documentation
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Neo4j/Core/HashWithIndifferentAccess.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (H)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Neo4j.html" title="Neo4j (module)">Neo4j</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Core.html" title="Neo4j::Core (module)">Core</a></span></span>
+     &raquo; 
+    <span class="title">HashWithIndifferentAccess</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Neo4j::Core::HashWithIndifferentAccess
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName">Hash</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Hash</li>
+          
+            <li class="next">Neo4j::Core::HashWithIndifferentAccess</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/neo4j-core/hash_with_indifferent_access.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Stolen from <a
+href="http://as.rubyonrails.org/classes/HashWithIndifferentAccess.html">as.rubyonrails.org/classes/HashWithIndifferentAccess.html</a>
+We don&#39;t want to depend on active support</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#new_from_hash_copying_default-class_method" title="new_from_hash_copying_default (class method)">+ (Object) <strong>new_from_hash_copying_default</strong>(hash) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#%5B%5D%3D-instance_method" title="#[]= (instance method)">- (Object) <strong>[]=</strong>(key, value) </a>
+    
+
+    
+      (also: #store)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Assigns a new value to the hash:.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#default-instance_method" title="#default (instance method)">- (Object) <strong>default</strong>(key = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#delete-instance_method" title="#delete (instance method)">- (Object) <strong>delete</strong>(key) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Removes a specified key from the hash.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#dup-instance_method" title="#dup (instance method)">- (Object) <strong>dup</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns an exact copy of the hash.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#extractable_options%3F-instance_method" title="#extractable_options? (instance method)">- (Boolean) <strong>extractable_options?</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Always returns true, so that Array#extract_options! finds members of this
+class.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fetch-instance_method" title="#fetch (instance method)">- (Object) <strong>fetch</strong>(key, *extras) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Fetches the value for the specified key, same as doing <a
+href="key">hash</a>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (HashWithIndifferentAccess) <strong>initialize</strong>(constructor = {}) </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of HashWithIndifferentAccess.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#key%3F-instance_method" title="#key? (instance method)">- (Boolean) <strong>key?</strong>(key) </a>
+    
+
+    
+      (also: #include?, #has_key?, #member?)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Checks the hash for a key matching the argument passed in:.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#merge-instance_method" title="#merge (instance method)">- (Object) <strong>merge</strong>(hash) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Merges the instantized and the specified hashes together, giving precedence
+to the values from the second hash.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#nested_under_indifferent_access-instance_method" title="#nested_under_indifferent_access (instance method)">- (Object) <strong>nested_under_indifferent_access</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#regular_update-instance_method" title="#regular_update (instance method)">- (Object) <strong>regular_update</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#regular_writer-instance_method" title="#regular_writer (instance method)">- (Object) <strong>regular_writer</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#reverse_merge-instance_method" title="#reverse_merge (instance method)">- (Object) <strong>reverse_merge</strong>(other_hash) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Performs the opposite of merge, with the keys and values from the first
+hash taking precedence over the second.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#reverse_merge%21-instance_method" title="#reverse_merge! (instance method)">- (Object) <strong>reverse_merge!</strong>(other_hash) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#stringify_keys-instance_method" title="#stringify_keys (instance method)">- (Object) <strong>stringify_keys</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#stringify_keys%21-instance_method" title="#stringify_keys! (instance method)">- (Object) <strong>stringify_keys!</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#symbolize_keys-instance_method" title="#symbolize_keys (instance method)">- (Object) <strong>symbolize_keys</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>undef :symbolize_keys!.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#to_hash-instance_method" title="#to_hash (instance method)">- (Object) <strong>to_hash</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Convert to a Hash with String keys.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#to_options%21-instance_method" title="#to_options! (instance method)">- (Object) <strong>to_options!</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#update-instance_method" title="#update (instance method)">- (Object) <strong>update</strong>(other_hash) </a>
+    
+
+    
+      (also: #merge!)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Updates the instantized hash with values from the second:.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#values_at-instance_method" title="#values_at (instance method)">- (Object) <strong>values_at</strong>(*indices) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns an array of the values at the specified indices:.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#with_indifferent_access-instance_method" title="#with_indifferent_access (instance method)">- (Object) <strong>with_indifferent_access</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  <div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Neo4j::Core::HashWithIndifferentAccess (class)">HashWithIndifferentAccess</a></span></tt>) <strong>initialize</strong>(constructor = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of HashWithIndifferentAccess</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+20
+21
+22
+23
+24
+25
+26
+27</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/hash_with_indifferent_access.rb', line 20</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_constructor'>constructor</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_constructor'>constructor</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Hash</span><span class='rparen'>)</span>
+    <span class='kw'>super</span><span class='lparen'>(</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_update'>update</span><span class='lparen'>(</span><span class='id identifier rubyid_constructor'>constructor</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='kw'>super</span><span class='lparen'>(</span><span class='id identifier rubyid_constructor'>constructor</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="new_from_hash_copying_default-class_method">
+  
+    + (<tt>Object</tt>) <strong>new_from_hash_copying_default</strong>(hash) 
+  
+
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+37
+38
+39
+40
+41</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/hash_with_indifferent_access.rb', line 37</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_new_from_hash_copying_default'>new_from_hash_copying_default</span><span class='lparen'>(</span><span class='id identifier rubyid_hash'>hash</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_hash'>hash</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_tap'>tap</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_new_hash'>new_hash</span><span class='op'>|</span>
+    <span class='id identifier rubyid_new_hash'>new_hash</span><span class='period'>.</span><span class='id identifier rubyid_default'>default</span> <span class='op'>=</span> <span class='id identifier rubyid_hash'>hash</span><span class='period'>.</span><span class='id identifier rubyid_default'>default</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="[]=-instance_method">
+  
+    - (<tt>Object</tt>) <strong>[]=</strong>(key, value) 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='store-instance_method'>store</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Assigns a new value to the hash:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_hash'>hash</span> <span class='op'>=</span> <span class='const'>HashWithIndifferentAccess</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+<span class='id identifier rubyid_hash'>hash</span><span class='lbracket'>[</span><span class='symbol'>:key</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>value</span><span class='tstring_end'>&quot;</span></span></code></pre>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+51
+52
+53</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/hash_with_indifferent_access.rb', line 51</span>
+
+<span class='kw'>def</span> <span class='op'>[]=</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_regular_writer'>regular_writer</span><span class='lparen'>(</span><span class='id identifier rubyid_convert_key'>convert_key</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_convert_value'>convert_value</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="default-instance_method">
+  
+    - (<tt>Object</tt>) <strong>default</strong>(key = nil) 
+  
+
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+29
+30
+31
+32
+33
+34
+35</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/hash_with_indifferent_access.rb', line 29</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_default'>default</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Symbol</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rparen'>)</span>
+    <span class='kw'>self</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span>
+  <span class='kw'>else</span>
+    <span class='kw'>super</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="delete-instance_method">
+  
+    - (<tt>Object</tt>) <strong>delete</strong>(key) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Removes a specified key from the hash.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+133
+134
+135</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/hash_with_indifferent_access.rb', line 133</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='kw'>super</span><span class='lparen'>(</span><span class='id identifier rubyid_convert_key'>convert_key</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="dup-instance_method">
+  
+    - (<tt>Object</tt>) <strong>dup</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns an exact copy of the hash.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+110
+111
+112
+113
+114</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/hash_with_indifferent_access.rb', line 110</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_dup'>dup</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_tap'>tap</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_new_hash'>new_hash</span><span class='op'>|</span>
+    <span class='id identifier rubyid_new_hash'>new_hash</span><span class='period'>.</span><span class='id identifier rubyid_default'>default</span> <span class='op'>=</span> <span class='id identifier rubyid_default'>default</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="extractable_options?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>extractable_options?</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Always returns true, so that <code>Array#extract_options!</code> finds
+members of this class.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+8
+9
+10</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/hash_with_indifferent_access.rb', line 8</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_extractable_options?'>extractable_options?</span>
+  <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="fetch-instance_method">
+  
+    - (<tt>Object</tt>) <strong>fetch</strong>(key, *extras) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Fetches the value for the specified key, same as doing <a
+href="key">hash</a></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+94
+95
+96</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/hash_with_indifferent_access.rb', line 94</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_extras'>extras</span><span class='rparen'>)</span>
+  <span class='kw'>super</span><span class='lparen'>(</span><span class='id identifier rubyid_convert_key'>convert_key</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_extras'>extras</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="key?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>key?</strong>(key) 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='include?-instance_method'>include?</span>, <span id='has_key?-instance_method'>has_key?</span>, <span id='member?-instance_method'>member?</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Checks the hash for a key matching the argument passed in:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_hash'>hash</span> <span class='op'>=</span> <span class='const'>HashWithIndifferentAccess</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+<span class='id identifier rubyid_hash'>hash</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>key</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>value</span><span class='tstring_end'>&quot;</span></span>
+<span class='id identifier rubyid_hash'>hash</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span> <span class='symbol'>:key</span>  <span class='comment'># =&gt; true
+</span><span class='id identifier rubyid_hash'>hash</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>key</span><span class='tstring_end'>&quot;</span></span> <span class='comment'># =&gt; true
+</span></code></pre>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+85
+86
+87</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/hash_with_indifferent_access.rb', line 85</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='kw'>super</span><span class='lparen'>(</span><span class='id identifier rubyid_convert_key'>convert_key</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="merge-instance_method">
+  
+    - (<tt>Object</tt>) <strong>merge</strong>(hash) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Merges the instantized and the specified hashes together, giving precedence
+to the values from the second hash. Does not overwrite the existing hash.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+118
+119
+120</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/hash_with_indifferent_access.rb', line 118</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span><span class='id identifier rubyid_hash'>hash</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span><span class='period'>.</span><span class='id identifier rubyid_update'>update</span><span class='lparen'>(</span><span class='id identifier rubyid_hash'>hash</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="nested_under_indifferent_access-instance_method">
+  
+    - (<tt>Object</tt>) <strong>nested_under_indifferent_access</strong> 
+  
+
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+16
+17
+18</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/hash_with_indifferent_access.rb', line 16</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_nested_under_indifferent_access'>nested_under_indifferent_access</span>
+  <span class='kw'>self</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="regular_update-instance_method">
+  
+    - (<tt>Object</tt>) <strong>regular_update</strong> 
+  
+
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+44</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/hash_with_indifferent_access.rb', line 44</span>
+
+<span class='id identifier rubyid_alias_method'>alias_method</span> <span class='symbol'>:regular_update</span><span class='comma'>,</span> <span class='symbol'>:update</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="regular_writer-instance_method">
+  
+    - (<tt>Object</tt>) <strong>regular_writer</strong> 
+  
+
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+43</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/hash_with_indifferent_access.rb', line 43</span>
+
+<span class='id identifier rubyid_alias_method'>alias_method</span> <span class='symbol'>:regular_writer</span><span class='comma'>,</span> <span class='symbol'>:[]=</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="reverse_merge-instance_method">
+  
+    - (<tt>Object</tt>) <strong>reverse_merge</strong>(other_hash) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Performs the opposite of merge, with the keys and values from the first
+hash taking precedence over the second. This overloaded definition prevents
+returning a regular hash, if reverse_merge is called on a
+<code>HashWithDifferentAccess</code>.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+124
+125
+126</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/hash_with_indifferent_access.rb', line 124</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_reverse_merge'>reverse_merge</span><span class='lparen'>(</span><span class='id identifier rubyid_other_hash'>other_hash</span><span class='rparen'>)</span>
+  <span class='kw'>super</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_new_from_hash_copying_default'>new_from_hash_copying_default</span><span class='lparen'>(</span><span class='id identifier rubyid_other_hash'>other_hash</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="reverse_merge!-instance_method">
+  
+    - (<tt>Object</tt>) <strong>reverse_merge!</strong>(other_hash) 
+  
+
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+128
+129
+130</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/hash_with_indifferent_access.rb', line 128</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_reverse_merge!'>reverse_merge!</span><span class='lparen'>(</span><span class='id identifier rubyid_other_hash'>other_hash</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_replace'>replace</span><span class='lparen'>(</span><span class='id identifier rubyid_reverse_merge'>reverse_merge</span><span class='lparen'>(</span> <span class='id identifier rubyid_other_hash'>other_hash</span> <span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="stringify_keys-instance_method">
+  
+    - (<tt>Object</tt>) <strong>stringify_keys</strong> 
+  
+
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+138</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/hash_with_indifferent_access.rb', line 138</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_stringify_keys'>stringify_keys</span><span class='semicolon'>;</span> <span class='id identifier rubyid_dup'>dup</span> <span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="stringify_keys!-instance_method">
+  
+    - (<tt>Object</tt>) <strong>stringify_keys!</strong> 
+  
+
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+137</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/hash_with_indifferent_access.rb', line 137</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_stringify_keys!'>stringify_keys!</span><span class='semicolon'>;</span> <span class='kw'>self</span> <span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="symbolize_keys-instance_method">
+  
+    - (<tt>Object</tt>) <strong>symbolize_keys</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>undef :symbolize_keys!</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+140</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/hash_with_indifferent_access.rb', line 140</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_symbolize_keys'>symbolize_keys</span><span class='semicolon'>;</span> <span class='id identifier rubyid_to_hash'>to_hash</span><span class='period'>.</span><span class='id identifier rubyid_symbolize_keys'>symbolize_keys</span> <span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="to_hash-instance_method">
+  
+    - (<tt>Object</tt>) <strong>to_hash</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Convert to a Hash with String keys.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+144
+145
+146</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/hash_with_indifferent_access.rb', line 144</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_to_hash'>to_hash</span>
+  <span class='const'>Hash</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_default'>default</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_merge!'>merge!</span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="to_options!-instance_method">
+  
+    - (<tt>Object</tt>) <strong>to_options!</strong> 
+  
+
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+141</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/hash_with_indifferent_access.rb', line 141</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_to_options!'>to_options!</span><span class='semicolon'>;</span> <span class='kw'>self</span> <span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="update-instance_method">
+  
+    - (<tt>Object</tt>) <strong>update</strong>(other_hash) 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='merge!-instance_method'>merge!</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Updates the instantized hash with values from the second:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_hash_1'>hash_1</span> <span class='op'>=</span> <span class='const'>HashWithIndifferentAccess</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+<span class='id identifier rubyid_hash_1'>hash_1</span><span class='lbracket'>[</span><span class='symbol'>:key</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>value</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='id identifier rubyid_hash_2'>hash_2</span> <span class='op'>=</span> <span class='const'>HashWithIndifferentAccess</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+<span class='id identifier rubyid_hash_2'>hash_2</span><span class='lbracket'>[</span><span class='symbol'>:key</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>New Value!</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='id identifier rubyid_hash_1'>hash_1</span><span class='period'>.</span><span class='id identifier rubyid_update'>update</span><span class='lparen'>(</span><span class='id identifier rubyid_hash_2'>hash_2</span><span class='rparen'>)</span> <span class='comment'># =&gt; {&quot;key&quot;=&gt;&quot;New Value!&quot;}
+</span></code></pre>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+67
+68
+69
+70
+71
+72
+73
+74</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/hash_with_indifferent_access.rb', line 67</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_update'>update</span><span class='lparen'>(</span><span class='id identifier rubyid_other_hash'>other_hash</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_other_hash'>other_hash</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span> <span class='const'>HashWithIndifferentAccess</span>
+    <span class='kw'>super</span><span class='lparen'>(</span><span class='id identifier rubyid_other_hash'>other_hash</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_other_hash'>other_hash</span><span class='period'>.</span><span class='id identifier rubyid_each_pair'>each_pair</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='op'>|</span> <span class='id identifier rubyid_regular_writer'>regular_writer</span><span class='lparen'>(</span><span class='id identifier rubyid_convert_key'>convert_key</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_convert_value'>convert_value</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+    <span class='kw'>self</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="values_at-instance_method">
+  
+    - (<tt>Object</tt>) <strong>values_at</strong>(*indices) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns an array of the values at the specified indices:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_hash'>hash</span> <span class='op'>=</span> <span class='const'>HashWithIndifferentAccess</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+<span class='id identifier rubyid_hash'>hash</span><span class='lbracket'>[</span><span class='symbol'>:a</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>x</span><span class='tstring_end'>&quot;</span></span>
+<span class='id identifier rubyid_hash'>hash</span><span class='lbracket'>[</span><span class='symbol'>:b</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>y</span><span class='tstring_end'>&quot;</span></span>
+<span class='id identifier rubyid_hash'>hash</span><span class='period'>.</span><span class='id identifier rubyid_values_at'>values_at</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>a</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>b</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='comment'># =&gt; [&quot;x&quot;, &quot;y&quot;]
+</span></code></pre>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+105
+106
+107</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/hash_with_indifferent_access.rb', line 105</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_values_at'>values_at</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_indices'>indices</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_indices'>indices</span><span class='period'>.</span><span class='id identifier rubyid_collect'>collect</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_key'>key</span><span class='op'>|</span> <span class='kw'>self</span><span class='lbracket'>[</span><span class='id identifier rubyid_convert_key'>convert_key</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span><span class='rbracket'>]</span><span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="with_indifferent_access-instance_method">
+  
+    - (<tt>Object</tt>) <strong>with_indifferent_access</strong> 
+  
+
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+12
+13
+14</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-core/hash_with_indifferent_access.rb', line 12</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_with_indifferent_access'>with_indifferent_access</span>
+  <span class='id identifier rubyid_dup'>dup</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Mon Aug 25 14:21:44 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

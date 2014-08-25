@@ -1,0 +1,911 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Neo4j::Label
+  
+    &mdash; Neo4j::Core API Documentation
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../';
+  framesUrl = "../frames.html#!Neo4j/Label.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../_index.html">Index (L)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Neo4j.html" title="Neo4j (module)">Neo4j</a></span></span>
+     &raquo; 
+    <span class="title">Label</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Neo4j::Label
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Neo4j::Label</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+      <dt class="r2">Extended by:</dt>
+      <dd class="r2"><span class='object_link'><a href="Core/CypherTranslator.html" title="Neo4j::Core::CypherTranslator (module)">Core::CypherTranslator</a></span></dd>
+      
+    
+  
+    
+  
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/neo4j/label.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>A label is a named graph construct that is used to group nodes. See
+Neo4j::Node how to create and delete nodes</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><a href="http://docs.neo4j.org/chunked/milestone/graphdb-neo4j-labels.html" target="_parent" title="http://docs.neo4j.org/chunked/milestone/graphdb-neo4j-labels.html">http://docs.neo4j.org/chunked/milestone/graphdb-neo4j-labels.html</a></li>
+    
+  </ul>
+
+</div><div id="subclasses">
+  <h2>Direct Known Subclasses</h2>
+  <p class="children"><span class='object_link'><a href="Embedded/EmbeddedLabel.html" title="Neo4j::Embedded::EmbeddedLabel (class)">Embedded::EmbeddedLabel</a></span>, <span class='object_link'><a href="Server/CypherLabel.html" title="Neo4j::Server::CypherLabel (class)">Server::CypherLabel</a></span></p>
+</div>
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Label/InvalidQueryError.html" title="Neo4j::Label::InvalidQueryError (class)">InvalidQueryError</a></span>
+    
+  
+</p>
+
+
+
+  <h2>Constant Summary</h2>
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="Core/CypherTranslator.html" title="Neo4j::Core::CypherTranslator (module)">Core::CypherTranslator</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Core/CypherTranslator.html#SANITIZE_ESCAPED_REGEXP-constant" title="Neo4j::Core::CypherTranslator::SANITIZE_ESCAPED_REGEXP (constant)">Core::CypherTranslator::SANITIZE_ESCAPED_REGEXP</a></span></p>
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create-class_method" title="create (class method)">+ (Object) <strong>create</strong>(name, session = Neo4j::Session.current) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns a label of given name that can be used to specifying constraints.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#find_all_nodes-class_method" title="find_all_nodes (class method)">+ (Enumerable&lt;Neo4j::Node&gt;) <strong>find_all_nodes</strong>(label_name, session = Neo4j::Session.current) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>All nodes having given label.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#find_nodes-class_method" title="find_nodes (class method)">+ (Enumerable&lt;Neo4j::Node&gt;) <strong>find_nodes</strong>(label_name, key, value, session = Neo4j::Session.current) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>All nodes having given label and properties.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_constraint-instance_method" title="#create_constraint (instance method)">- (Object) <strong>create_constraint</strong>(property, constraints, session = Neo4j::Session.current) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Creates a neo4j constraint on a property See <a
+href="http://docs.neo4j.org/chunked/stable/query-constraints.html">docs.neo4j.org/chunked/stable/query-constraints.html</a>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_index-instance_method" title="#create_index (instance method)">- (Object) <strong>create_index</strong>(*properties) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  <span class="abstract note title">abstract</span>
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#drop_constraint-instance_method" title="#drop_constraint (instance method)">- (Object) <strong>drop_constraint</strong>(property, constraint, session = Neo4j::Session.current) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Drops a neo4j constraint on a property See <a
+href="http://docs.neo4j.org/chunked/stable/query-constraints.html">docs.neo4j.org/chunked/stable/query-constraints.html</a>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#drop_index-instance_method" title="#drop_index (instance method)">- (Object) <strong>drop_index</strong>(*properties) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  <span class="abstract note title">abstract</span>
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#indexes-instance_method" title="#indexes (instance method)">- (Object) <strong>indexes</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  <span class="abstract note title">abstract</span>
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>List indices for a label.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#name-instance_method" title="#name (instance method)">- (Object) <strong>name</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  <span class="abstract note title">abstract</span>
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Core/CypherTranslator.html" title="Neo4j::Core::CypherTranslator (module)">Core::CypherTranslator</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Core/CypherTranslator.html#cypher_prop_list-instance_method" title="Neo4j::Core::CypherTranslator#cypher_prop_list (method)">cypher_prop_list</a></span>, <span class='object_link'><a href="Core/CypherTranslator.html#escape_quotes-instance_method" title="Neo4j::Core::CypherTranslator#escape_quotes (method)">escape_quotes</a></span>, <span class='object_link'><a href="Core/CypherTranslator.html#escape_value-instance_method" title="Neo4j::Core::CypherTranslator#escape_value (method)">escape_value</a></span>, <span class='object_link'><a href="Core/CypherTranslator.html#sanitize_escape_sequences-instance_method" title="Neo4j::Core::CypherTranslator#sanitize_escape_sequences (method)">sanitize_escape_sequences</a></span>, <span class='object_link'><a href="Core/CypherTranslator.html#sanitized_column_names-class_method" title="Neo4j::Core::CypherTranslator.sanitized_column_names (method)">sanitized_column_names</a></span>, <span class='object_link'><a href="Core/CypherTranslator.html#translate_response-class_method" title="Neo4j::Core::CypherTranslator.translate_response (method)">translate_response</a></span></p>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="create-class_method">
+  
+    + (<tt>Object</tt>) <strong>create</strong>(name, session = Neo4j::Session.current) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a label of given name that can be used to specifying constraints</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>name</span>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>, <tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the name of the label</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+67
+68
+69</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/label.rb', line 67</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_session'>session</span> <span class='op'>=</span> <span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Session</span><span class='period'>.</span><span class='id identifier rubyid_current'>current</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_create_label'>create_label</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="find_all_nodes-class_method">
+  
+    + (<tt>Enumerable&lt;<span class='object_link'><a href="Node.html" title="Neo4j::Node (class)">Neo4j::Node</a></span>&gt;</tt>) <strong>find_all_nodes</strong>(label_name, session = Neo4j::Session.current) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns all nodes having given label. Nodes can be wrapped in your own
+model ruby classes.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Enumerable&lt;<span class='object_link'><a href="Node.html" title="Neo4j::Node (class)">Neo4j::Node</a></span>&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>all nodes having given label. Nodes can be wrapped in your own model ruby
+classes.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+73
+74
+75</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/label.rb', line 73</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_find_all_nodes'>find_all_nodes</span><span class='lparen'>(</span><span class='id identifier rubyid_label_name'>label_name</span><span class='comma'>,</span> <span class='id identifier rubyid_session'>session</span> <span class='op'>=</span> <span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Session</span><span class='period'>.</span><span class='id identifier rubyid_current'>current</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_find_all_nodes'>find_all_nodes</span><span class='lparen'>(</span><span class='id identifier rubyid_label_name'>label_name</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="find_nodes-class_method">
+  
+    + (<tt>Enumerable&lt;<span class='object_link'><a href="Node.html" title="Neo4j::Node (class)">Neo4j::Node</a></span>&gt;</tt>) <strong>find_nodes</strong>(label_name, key, value, session = Neo4j::Session.current) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns all nodes having given label and properties. Nodes can be wrapped
+in your own model ruby classes.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Enumerable&lt;<span class='object_link'><a href="Node.html" title="Neo4j::Node (class)">Neo4j::Node</a></span>&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>all nodes having given label and properties. Nodes can be wrapped in your
+own model ruby classes.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+78
+79
+80</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/label.rb', line 78</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_find_nodes'>find_nodes</span><span class='lparen'>(</span><span class='id identifier rubyid_label_name'>label_name</span><span class='comma'>,</span> <span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='id identifier rubyid_session'>session</span> <span class='op'>=</span> <span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Session</span><span class='period'>.</span><span class='id identifier rubyid_current'>current</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_find_nodes'>find_nodes</span><span class='lparen'>(</span><span class='id identifier rubyid_label_name'>label_name</span><span class='comma'>,</span> <span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="create_constraint-instance_method">
+  
+    - (<tt>Object</tt>) <strong>create_constraint</strong>(property, constraints, session = Neo4j::Session.current) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Creates a neo4j constraint on a property See <a
+href="http://docs.neo4j.org/chunked/stable/query-constraints.html">docs.neo4j.org/chunked/stable/query-constraints.html</a></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+      <pre class="example code"><code><span class='id identifier rubyid_label'>label</span> <span class='op'>=</span> <span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Label</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='symbol'>:person</span><span class='comma'>,</span> <span class='id identifier rubyid_session'>session</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_label'>label</span><span class='period'>.</span><span class='id identifier rubyid_create_constraint'>create_constraint</span><span class='lparen'>(</span><span class='symbol'>:name</span><span class='comma'>,</span> <span class='lbrace'>{</span><span class='label'>type:</span> <span class='symbol'>:unique</span><span class='rbrace'>}</span><span class='comma'>,</span> <span class='id identifier rubyid_session'>session</span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+35
+36
+37
+38
+39
+40
+41
+42
+43</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/label.rb', line 35</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create_constraint'>create_constraint</span><span class='lparen'>(</span><span class='id identifier rubyid_property'>property</span><span class='comma'>,</span> <span class='id identifier rubyid_constraints'>constraints</span><span class='comma'>,</span> <span class='id identifier rubyid_session'>session</span> <span class='op'>=</span> <span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Session</span><span class='period'>.</span><span class='id identifier rubyid_current'>current</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_cypher'>cypher</span> <span class='op'>=</span> <span class='kw'>case</span> <span class='id identifier rubyid_constraints'>constraints</span><span class='lbracket'>[</span><span class='symbol'>:type</span><span class='rbracket'>]</span>
+    <span class='kw'>when</span> <span class='symbol'>:unique</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>CREATE CONSTRAINT ON (n:`</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>`) ASSERT n.`</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_property'>property</span><span class='embexpr_end'>}</span><span class='tstring_content'>` IS UNIQUE</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Not supported constrain </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_constraints'>constraints</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'> for property </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_property'>property</span><span class='embexpr_end'>}</span><span class='tstring_content'> (expected :type =&gt; :unique)</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid__query_or_fail'>_query_or_fail</span><span class='lparen'>(</span><span class='id identifier rubyid_cypher'>cypher</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create_index-instance_method">
+  
+    - (<tt>Object</tt>) <strong>create_index</strong>(*properties) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <div class="note abstract">
+  <strong>This method is abstract.</strong>
+  <div class='inline'></div>
+</div>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+14
+15
+16</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/label.rb', line 14</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create_index'>create_index</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_properties'>properties</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not implemented</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="drop_constraint-instance_method">
+  
+    - (<tt>Object</tt>) <strong>drop_constraint</strong>(property, constraint, session = Neo4j::Session.current) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Drops a neo4j constraint on a property See <a
+href="http://docs.neo4j.org/chunked/stable/query-constraints.html">docs.neo4j.org/chunked/stable/query-constraints.html</a></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+      <pre class="example code"><code><span class='id identifier rubyid_label'>label</span> <span class='op'>=</span> <span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Label</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='symbol'>:person</span><span class='comma'>,</span> <span class='id identifier rubyid_session'>session</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_label'>label</span><span class='period'>.</span><span class='id identifier rubyid_create_constraint'>create_constraint</span><span class='lparen'>(</span><span class='symbol'>:name</span><span class='comma'>,</span> <span class='lbrace'>{</span><span class='label'>type:</span> <span class='symbol'>:unique</span><span class='rbrace'>}</span><span class='comma'>,</span> <span class='id identifier rubyid_session'>session</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_label'>label</span><span class='period'>.</span><span class='id identifier rubyid_drop_constraint'>drop_constraint</span><span class='lparen'>(</span><span class='symbol'>:name</span><span class='comma'>,</span> <span class='lbrace'>{</span><span class='label'>type:</span> <span class='symbol'>:unique</span><span class='rbrace'>}</span><span class='comma'>,</span> <span class='id identifier rubyid_session'>session</span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+52
+53
+54
+55
+56
+57
+58
+59
+60</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/label.rb', line 52</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_drop_constraint'>drop_constraint</span><span class='lparen'>(</span><span class='id identifier rubyid_property'>property</span><span class='comma'>,</span> <span class='id identifier rubyid_constraint'>constraint</span><span class='comma'>,</span> <span class='id identifier rubyid_session'>session</span> <span class='op'>=</span> <span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Session</span><span class='period'>.</span><span class='id identifier rubyid_current'>current</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_cypher'>cypher</span> <span class='op'>=</span> <span class='kw'>case</span> <span class='id identifier rubyid_constraint'>constraint</span><span class='lbracket'>[</span><span class='symbol'>:type</span><span class='rbracket'>]</span>
+             <span class='kw'>when</span> <span class='symbol'>:unique</span>
+               <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DROP CONSTRAINT ON (n:`</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>`) ASSERT n.`</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_property'>property</span><span class='embexpr_end'>}</span><span class='tstring_content'>` IS UNIQUE</span><span class='tstring_end'>&quot;</span></span>
+             <span class='kw'>else</span>
+               <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Not supported constrain </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_constraint'>constraint</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+           <span class='kw'>end</span>
+  <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid__query_or_fail'>_query_or_fail</span><span class='lparen'>(</span><span class='id identifier rubyid_cypher'>cypher</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="drop_index-instance_method">
+  
+    - (<tt>Object</tt>) <strong>drop_index</strong>(*properties) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <div class="note abstract">
+  <strong>This method is abstract.</strong>
+  <div class='inline'></div>
+</div>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+19
+20
+21</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/label.rb', line 19</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_drop_index'>drop_index</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_properties'>properties</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not implemented</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="indexes-instance_method">
+  
+    - (<tt>Object</tt>) <strong>indexes</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <div class="note abstract">
+  <strong>This method is abstract.</strong>
+  <div class='inline'></div>
+</div>
+
+<p>List indices for a label</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+25
+26
+27</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/label.rb', line 25</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_indexes'>indexes</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not implemented</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="name-instance_method">
+  
+    - (<tt>Object</tt>) <strong>name</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <div class="note abstract">
+  <strong>This method is abstract.</strong>
+  <div class='inline'></div>
+</div>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+9
+10
+11</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/label.rb', line 9</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_name'>name</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not implemented</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Mon Aug 25 14:21:41 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Neo4j::Core::QueryClauses
+  
+    &mdash; Neo4j::Core API Documentation
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Neo4j/Core/QueryClauses.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (Q)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Neo4j.html" title="Neo4j (module)">Neo4j</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Core.html" title="Neo4j::Core (module)">Core</a></span></span>
+     &raquo; 
+    <span class="title">QueryClauses</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Neo4j::Core::QueryClauses
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+    <dt class="r1">Included in:</dt>
+    <dd class="r1"><span class='object_link'><a href="Query.html" title="Neo4j::Core::Query (class)">Query</a></span></dd>
+    
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/neo4j-core/query_clauses.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="QueryClauses/ArgError.html" title="Neo4j::Core::QueryClauses::ArgError (class)">ArgError</a></span>, <span class='object_link'><a href="QueryClauses/Clause.html" title="Neo4j::Core::QueryClauses::Clause (class)">Clause</a></span>, <span class='object_link'><a href="QueryClauses/CreateClause.html" title="Neo4j::Core::QueryClauses::CreateClause (class)">CreateClause</a></span>, <span class='object_link'><a href="QueryClauses/CreateUniqueClause.html" title="Neo4j::Core::QueryClauses::CreateUniqueClause (class)">CreateUniqueClause</a></span>, <span class='object_link'><a href="QueryClauses/DeleteClause.html" title="Neo4j::Core::QueryClauses::DeleteClause (class)">DeleteClause</a></span>, <span class='object_link'><a href="QueryClauses/LimitClause.html" title="Neo4j::Core::QueryClauses::LimitClause (class)">LimitClause</a></span>, <span class='object_link'><a href="QueryClauses/MatchClause.html" title="Neo4j::Core::QueryClauses::MatchClause (class)">MatchClause</a></span>, <span class='object_link'><a href="QueryClauses/MergeClause.html" title="Neo4j::Core::QueryClauses::MergeClause (class)">MergeClause</a></span>, <span class='object_link'><a href="QueryClauses/OnCreateSetClause.html" title="Neo4j::Core::QueryClauses::OnCreateSetClause (class)">OnCreateSetClause</a></span>, <span class='object_link'><a href="QueryClauses/OnMatchSetClause.html" title="Neo4j::Core::QueryClauses::OnMatchSetClause (class)">OnMatchSetClause</a></span>, <span class='object_link'><a href="QueryClauses/OptionalMatchClause.html" title="Neo4j::Core::QueryClauses::OptionalMatchClause (class)">OptionalMatchClause</a></span>, <span class='object_link'><a href="QueryClauses/OrderClause.html" title="Neo4j::Core::QueryClauses::OrderClause (class)">OrderClause</a></span>, <span class='object_link'><a href="QueryClauses/RemoveClause.html" title="Neo4j::Core::QueryClauses::RemoveClause (class)">RemoveClause</a></span>, <span class='object_link'><a href="QueryClauses/ReturnClause.html" title="Neo4j::Core::QueryClauses::ReturnClause (class)">ReturnClause</a></span>, <span class='object_link'><a href="QueryClauses/SetClause.html" title="Neo4j::Core::QueryClauses::SetClause (class)">SetClause</a></span>, <span class='object_link'><a href="QueryClauses/SkipClause.html" title="Neo4j::Core::QueryClauses::SkipClause (class)">SkipClause</a></span>, <span class='object_link'><a href="QueryClauses/StartClause.html" title="Neo4j::Core::QueryClauses::StartClause (class)">StartClause</a></span>, <span class='object_link'><a href="QueryClauses/UnwindClause.html" title="Neo4j::Core::QueryClauses::UnwindClause (class)">UnwindClause</a></span>, <span class='object_link'><a href="QueryClauses/UsingClause.html" title="Neo4j::Core::QueryClauses::UsingClause (class)">UsingClause</a></span>, <span class='object_link'><a href="QueryClauses/WhereClause.html" title="Neo4j::Core::QueryClauses::WhereClause (class)">WhereClause</a></span>, <span class='object_link'><a href="QueryClauses/WithClause.html" title="Neo4j::Core::QueryClauses::WithClause (class)">WithClause</a></span>
+    
+  
+</p>
+
+
+
+
+
+
+
+
+
+</div>
+
+    <div id="footer">
+  Generated on Mon Aug 25 14:21:41 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

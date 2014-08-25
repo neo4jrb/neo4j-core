@@ -1,0 +1,844 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Neo4j::Embedded::EmbeddedLabel
+  
+    &mdash; Neo4j::Core API Documentation
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Neo4j/Embedded/EmbeddedLabel.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (E)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Neo4j.html" title="Neo4j (module)">Neo4j</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Embedded.html" title="Neo4j::Embedded (module)">Embedded</a></span></span>
+     &raquo; 
+    <span class="title">EmbeddedLabel</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Neo4j::Embedded::EmbeddedLabel
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName"><span class='object_link'><a href="../Label.html" title="Neo4j::Label (class)">Label</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="../Label.html" title="Neo4j::Label (class)">Label</a></span></li>
+          
+            <li class="next">Neo4j::Embedded::EmbeddedLabel</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+      <dt class="r2">Extended by:</dt>
+      <dd class="r2"><span class='object_link'><a href="../Core/TxMethods.html" title="Neo4j::Core::TxMethods (module)">Core::TxMethods</a></span></dd>
+      
+    
+  
+    
+  
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/neo4j-embedded/embedded_label.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="JAVA_CLASS-constant" class="">JAVA_CLASS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>Java</span><span class='op'>::</span><span class='const'>OrgNeo4jGraphdb</span><span class='op'>::</span><span class='const'>DynamicLabel</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../Core/CypherTranslator.html" title="Neo4j::Core::CypherTranslator (module)">Core::CypherTranslator</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Core/CypherTranslator.html#SANITIZE_ESCAPED_REGEXP-constant" title="Neo4j::Core::CypherTranslator::SANITIZE_ESCAPED_REGEXP (constant)">Core::CypherTranslator::SANITIZE_ESCAPED_REGEXP</a></span></p>
+
+
+  <h2>Instance Attribute Summary <small>(<a href="#" class="summary_toggle">collapse</a>)</small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#name-instance_method" title="#name (instance method)">- (Object) <strong>name</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute name.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#as_java-class_method" title="as_java (class method)">+ (Object) <strong>as_java</strong>(labels) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_find_nodes-instance_method" title="#_find_nodes (instance method)">- (Object) <strong>_find_nodes</strong>(key = nil, value = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#as_java-instance_method" title="#as_java (instance method)">- (Object) <strong>as_java</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_index-instance_method" title="#create_index (instance method)">- (Object) <strong>create_index</strong>(*properties) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#drop_index-instance_method" title="#drop_index (instance method)">- (Object) <strong>drop_index</strong>(*properties) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#find_nodes-instance_method" title="#find_nodes (instance method)">- (Object) <strong>find_nodes</strong>(key = nil, value = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#indexes-instance_method" title="#indexes (instance method)">- (Object) <strong>indexes</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (EmbeddedLabel) <strong>initialize</strong>(session, name) </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of EmbeddedLabel.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#to_s-instance_method" title="#to_s (instance method)">- (Object) <strong>to_s</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Core/TxMethods.html" title="Neo4j::Core::TxMethods (module)">Core::TxMethods</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Core/TxMethods.html#tx_methods-instance_method" title="Neo4j::Core::TxMethods#tx_methods (method)">tx_methods</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="../Label.html" title="Neo4j::Label (class)">Label</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Label.html#create-class_method" title="Neo4j::Label.create (method)">create</a></span>, <span class='object_link'><a href="../Label.html#create_constraint-instance_method" title="Neo4j::Label#create_constraint (method)">#create_constraint</a></span>, <span class='object_link'><a href="../Label.html#drop_constraint-instance_method" title="Neo4j::Label#drop_constraint (method)">#drop_constraint</a></span>, <span class='object_link'><a href="../Label.html#find_all_nodes-class_method" title="Neo4j::Label.find_all_nodes (method)">find_all_nodes</a></span>, <span class='object_link'><a href="../Label.html#find_nodes-class_method" title="Neo4j::Label.find_nodes (method)">find_nodes</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Core/CypherTranslator.html" title="Neo4j::Core::CypherTranslator (module)">Core::CypherTranslator</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Core/CypherTranslator.html#cypher_prop_list-instance_method" title="Neo4j::Core::CypherTranslator#cypher_prop_list (method)">#cypher_prop_list</a></span>, <span class='object_link'><a href="../Core/CypherTranslator.html#escape_quotes-instance_method" title="Neo4j::Core::CypherTranslator#escape_quotes (method)">#escape_quotes</a></span>, <span class='object_link'><a href="../Core/CypherTranslator.html#escape_value-instance_method" title="Neo4j::Core::CypherTranslator#escape_value (method)">#escape_value</a></span>, <span class='object_link'><a href="../Core/CypherTranslator.html#sanitize_escape_sequences-instance_method" title="Neo4j::Core::CypherTranslator#sanitize_escape_sequences (method)">#sanitize_escape_sequences</a></span>, <span class='object_link'><a href="../Core/CypherTranslator.html#sanitized_column_names-class_method" title="Neo4j::Core::CypherTranslator.sanitized_column_names (method)">sanitized_column_names</a></span>, <span class='object_link'><a href="../Core/CypherTranslator.html#translate_response-class_method" title="Neo4j::Core::CypherTranslator.translate_response (method)">translate_response</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Neo4j::Embedded::EmbeddedLabel (class)">EmbeddedLabel</a></span></tt>) <strong>initialize</strong>(session, name) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of EmbeddedLabel</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+7
+8
+9
+10</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-embedded/embedded_label.rb', line 7</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+  <span class='ivar'>@name</span> <span class='op'>=</span> <span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span>
+  <span class='ivar'>@session</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id=""></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="name-instance_method">
+  
+    - (<tt>Object</tt>) <strong>name</strong>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute name</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+4
+5
+6</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-embedded/embedded_label.rb', line 4</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_name'>name</span>
+  <span class='ivar'>@name</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="as_java-class_method">
+  
+    + (<tt>Object</tt>) <strong>as_java</strong>(labels) 
+  
+
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+68
+69
+70
+71
+72
+73
+74
+75</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-embedded/embedded_label.rb', line 68</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_as_java'>as_java</span><span class='lparen'>(</span><span class='id identifier rubyid_labels'>labels</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_labels'>labels</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Array</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='id identifier rubyid_labels'>labels</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+    <span class='id identifier rubyid_labels'>labels</span><span class='period'>.</span><span class='id identifier rubyid_inject'>inject</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='rbracket'>]</span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_result'>result</span><span class='comma'>,</span> <span class='id identifier rubyid_label'>label</span><span class='op'>|</span> <span class='id identifier rubyid_result'>result</span> <span class='op'>&lt;&lt;</span> <span class='const'>JAVA_CLASS</span><span class='period'>.</span><span class='id identifier rubyid_label'>label</span><span class='lparen'>(</span><span class='id identifier rubyid_label'>label</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rparen'>)</span> <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_to_java'>to_java</span><span class='lparen'>(</span><span class='const'>JAVA_CLASS</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='const'>JAVA_CLASS</span><span class='period'>.</span><span class='id identifier rubyid_label'>label</span><span class='lparen'>(</span><span class='id identifier rubyid_labels'>labels</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="_find_nodes-instance_method">
+  
+    - (<tt>Object</tt>) <strong>_find_nodes</strong>(key = nil, value = nil) 
+  
+
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+26
+27
+28
+29
+30
+31
+32
+33
+34</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-embedded/embedded_label.rb', line 26</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__find_nodes'>_find_nodes</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='op'>=</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+    <span class='ivar'>@session</span><span class='period'>.</span><span class='id identifier rubyid_graph_db'>graph_db</span><span class='period'>.</span><span class='id identifier rubyid_find_nodes_by_label_and_property'>find_nodes_by_label_and_property</span><span class='lparen'>(</span><span class='id identifier rubyid_as_java'>as_java</span><span class='comma'>,</span> <span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_iterator'>iterator</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_ggo'>ggo</span> <span class='op'>=</span> <span class='const'>Java</span><span class='op'>::</span><span class='const'>OrgNeo4jTooling</span><span class='op'>::</span><span class='const'>GlobalGraphOperations</span><span class='period'>.</span><span class='id identifier rubyid_at'>at</span><span class='lparen'>(</span><span class='ivar'>@session</span><span class='period'>.</span><span class='id identifier rubyid_graph_db'>graph_db</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_ggo'>ggo</span><span class='period'>.</span><span class='id identifier rubyid_getAllNodesWithLabel'>getAllNodesWithLabel</span><span class='lparen'>(</span><span class='id identifier rubyid_as_java'>as_java</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_iterator'>iterator</span>
+  <span class='kw'>end</span>
+
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="as_java-instance_method">
+  
+    - (<tt>Object</tt>) <strong>as_java</strong> 
+  
+
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+36
+37
+38</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-embedded/embedded_label.rb', line 36</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_as_java'>as_java</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_as_java'>as_java</span><span class='lparen'>(</span><span class='ivar'>@name</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create_index-instance_method">
+  
+    - (<tt>Object</tt>) <strong>create_index</strong>(*properties) 
+  
+
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+40
+41
+42
+43
+44</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-embedded/embedded_label.rb', line 40</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create_index'>create_index</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_properties'>properties</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_index_creator'>index_creator</span> <span class='op'>=</span> <span class='ivar'>@session</span><span class='period'>.</span><span class='id identifier rubyid_graph_db'>graph_db</span><span class='period'>.</span><span class='id identifier rubyid_schema'>schema</span><span class='period'>.</span><span class='id identifier rubyid_index_for'>index_for</span><span class='lparen'>(</span><span class='id identifier rubyid_as_java'>as_java</span><span class='rparen'>)</span>
+  <span class='comment'># we can also use the PropertyConstraintCreator here
+</span>  <span class='id identifier rubyid_properties'>properties</span><span class='period'>.</span><span class='id identifier rubyid_inject'>inject</span><span class='lparen'>(</span><span class='id identifier rubyid_index_creator'>index_creator</span><span class='rparen'>)</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_creator'>creator</span><span class='comma'>,</span> <span class='id identifier rubyid_key'>key</span><span class='op'>|</span> <span class='id identifier rubyid_creator'>creator</span><span class='period'>.</span><span class='id identifier rubyid_on'>on</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rparen'>)</span><span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="drop_index-instance_method">
+  
+    - (<tt>Object</tt>) <strong>drop_index</strong>(*properties) 
+  
+
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+56
+57
+58
+59
+60
+61
+62
+63</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-embedded/embedded_label.rb', line 56</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_drop_index'>drop_index</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_properties'>properties</span><span class='rparen'>)</span>
+  <span class='ivar'>@session</span><span class='period'>.</span><span class='id identifier rubyid_graph_db'>graph_db</span><span class='period'>.</span><span class='id identifier rubyid_schema'>schema</span><span class='period'>.</span><span class='id identifier rubyid_indexes'>indexes</span><span class='lparen'>(</span><span class='id identifier rubyid_as_java'>as_java</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_index_def'>index_def</span><span class='op'>|</span>
+    <span class='comment'># at least one match, TODO
+</span>    <span class='id identifier rubyid_keys'>keys</span> <span class='op'>=</span> <span class='id identifier rubyid_index_def'>index_def</span><span class='period'>.</span><span class='id identifier rubyid_property_keys'>property_keys</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_x'>x</span><span class='op'>|</span> <span class='id identifier rubyid_x'>x</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='rbrace'>}</span>
+    <span class='id identifier rubyid_index_def'>index_def</span><span class='period'>.</span><span class='id identifier rubyid_drop'>drop</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_properties'>properties</span> <span class='op'>-</span> <span class='id identifier rubyid_keys'>keys</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_properties'>properties</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span>
+  <span class='kw'>end</span>
+
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="find_nodes-instance_method">
+  
+    - (<tt>Object</tt>) <strong>find_nodes</strong>(key = nil, value = nil) 
+  
+
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+16
+17
+18
+19
+20
+21
+22
+23</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-embedded/embedded_label.rb', line 16</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_find_nodes'>find_nodes</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='op'>=</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+   <span class='kw'>begin</span>
+    <span class='id identifier rubyid_iterator'>iterator</span> <span class='op'>=</span> <span class='id identifier rubyid__find_nodes'>_find_nodes</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_iterator'>iterator</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_n'>n</span><span class='op'>|</span> <span class='id identifier rubyid_n'>n</span><span class='period'>.</span><span class='id identifier rubyid_wrapper'>wrapper</span><span class='rbrace'>}</span>
+  <span class='kw'>ensure</span>
+    <span class='id identifier rubyid_iterator'>iterator</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_iterator'>iterator</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="indexes-instance_method">
+  
+    - (<tt>Object</tt>) <strong>indexes</strong> 
+  
+
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+47
+48
+49
+50
+51
+52
+53</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-embedded/embedded_label.rb', line 47</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_indexes'>indexes</span><span class='lparen'>(</span><span class='rparen'>)</span>
+  <span class='lbrace'>{</span>
+      <span class='label'>property_keys:</span> <span class='ivar'>@session</span><span class='period'>.</span><span class='id identifier rubyid_graph_db'>graph_db</span><span class='period'>.</span><span class='id identifier rubyid_schema'>schema</span><span class='period'>.</span><span class='id identifier rubyid_indexes'>indexes</span><span class='lparen'>(</span><span class='id identifier rubyid_as_java'>as_java</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_index_def'>index_def</span><span class='op'>|</span>
+        <span class='id identifier rubyid_index_def'>index_def</span><span class='period'>.</span><span class='id identifier rubyid_property_keys'>property_keys</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_x'>x</span><span class='op'>|</span> <span class='id identifier rubyid_x'>x</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='rbrace'>}</span>
+      <span class='kw'>end</span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="to_s-instance_method">
+  
+    - (<tt>Object</tt>) <strong>to_s</strong> 
+  
+
+  
+
+  
+</h3>
+<table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+12
+13
+14</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-embedded/embedded_label.rb', line 12</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='ivar'>@name</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Mon Aug 25 14:21:43 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>
