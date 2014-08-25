@@ -1,4 +1,5 @@
 require 'neo4j-core/query_clauses'
+require 'active_support/notifications'
 
 module Neo4j::Core
   # Allows for generation of cypher queries via ruby method calls (inspired by ActiveRecord / arel syntax)
@@ -142,7 +143,10 @@ module Neo4j::Core
     end
 
     def response
-      response = @session._query(self.to_cypher, @_params)
+      cypher = self.to_cypher
+      response = ActiveSupport::Notifications.instrument('neo4j.cypher_query', context: @options[:context] || 'CYPHER', cypher: cypher) do
+        @session._query(cypher, @_params)
+      end
       if !response.respond_to?(:error?) || !response.error?
         response
       else
