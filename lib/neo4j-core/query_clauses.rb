@@ -190,7 +190,7 @@ module Neo4j::Core
       private
 
       def key_value_string(key, value, previous_keys = [])
-        param = (previous_keys + [key]).join('_').gsub(/[\._]+/, '_')
+        param = (previous_keys + [key]).join('_').gsub(/[\(\)\._]+/, '_')
         @params = @params.merge(param.to_sym => value)
 
         if value.is_a?(Array)
