@@ -62,13 +62,12 @@ namespace :neo4j do
   end
 
   def install_location(args)
-    "neo4j-#{get_environment(args)}"
+    FileUtils.mkdir_p('db') unless File.directory?('db')
+    "db/neo4j-#{get_environment(args)}"
   end
 
   desc "Install Neo4j, example neo4j:install[community-2.1.3,development]"
   task :install, :edition, :environment do |_, args|
-    args.with_defaults(:edition => "community")
-
     file = args[:edition]
     environment = get_environment(args)
     puts "Installing Neo4j-#{file} environment: #{environment}"
@@ -77,7 +76,7 @@ namespace :neo4j do
     
     if OS::Underlying.windows?
       # Extract and move to neo4j directory
-      unless File.exist?('neo4j')
+      unless File.exist?(install_location(args))
         Zip::ZipFile.open(downloaded_file) do |zip_file|
           zip_file.each do |f|
            f_path=File.join(".", f.name)
