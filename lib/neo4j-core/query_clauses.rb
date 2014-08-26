@@ -13,9 +13,12 @@ module Neo4j::Core
     class Clause
       include CypherTranslator
 
+      attr_reader :params
+
       def initialize(arg, options = {})
         @arg = arg
         @options = options
+        @params = {}
       end
 
       def value
@@ -154,33 +157,46 @@ module Neo4j::Core
     class WhereClause < Clause
       @keyword = 'WHERE'
 
-      def from_key_and_value(key, value)
+      def from_key_and_value(key, value, previous_keys = [])
         case value
         when Hash
           value.map do |k, v|
             if k.to_sym == :neo_id
-              "ID(#{key}) = #{v}"
+              "ID(#{key}) = #{v.to_i}"
             else
-              key.to_s + '.' + from_key_and_value(k, v)
+              key.to_s + '.' + from_key_and_value(k, v, previous_keys + [key])
             end
           end.join(' AND ')
-        when Array
-          "#{key} IN [#{value.join(', ')}]"
         when NilClass
           "#{key} IS NULL"
         when Regexp
           pattern = (value.casefold? ? "(?i)" : "") + value.source
           "#{key} =~ #{escape_value(pattern.gsub(/\\/, '\\\\\\'))}"
-        when /^\{[^\{\}]+\}$/
-          "#{key} = #{value}"
+        when Array
+          key_value_string(key, value, previous_keys)
+        when /^\{[^\{\}]+\}$/ # manually specified params
+          key_value_string(key, value)
         else
-          "#{key} = #{value.inspect}"
+          key_value_string(key, value, previous_keys)
         end
       end
 
       class << self
         def clause_string(clauses)
           clauses.map(&:value).join(' AND ')
+        end
+      end
+
+      private
+
+      def key_value_string(key, value, previous_keys = [])
+        param = (previous_keys + [key]).join('_').gsub(/[\._]+/, '_')
+        @params = @params.merge(param.to_sym => value)
+
+        if value.is_a?(Array)
+          "#{key} IN {#{param}}"
+        else
+          "#{key} = {#{param}}"
         end
       end
     end

@@ -146,7 +146,7 @@ module Neo4j::Core
       return @response if @response
       cypher = self.to_cypher
       @response = ActiveSupport::Notifications.instrument('neo4j.cypher_query', context: @options[:context] || 'CYPHER', cypher: cypher, params: @_params) do
-        @session._query(cypher, @_params)
+        @session._query(cypher, merge_params)
       end
       if !response.respond_to?(:error?) || !response.error?
         response
@@ -204,7 +204,7 @@ module Neo4j::Core
 
       query = query.return(columns)
 
-      columns = columns.map {|column| column.to_s.gsub(/^\s*distinct\s*/i, '').to_sym }
+      columns = query.response.columns
 
       case columns.size
       when 0
@@ -308,6 +308,11 @@ module Neo4j::Core
 
       partitioning
     end
+
+    def merge_params
+      @clauses.compact.inject(@_params) {|params, clause| params.merge(clause.params) }
+    end
+
   end
 end
 
