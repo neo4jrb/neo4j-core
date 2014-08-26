@@ -2,6 +2,7 @@
 require 'os'
 require 'httparty'
 require 'zip'
+require File.expand_path("../config_server", __FILE__)
 
 namespace :neo4j do
 
@@ -56,12 +57,21 @@ namespace :neo4j do
     file_name
   end
 
-  desc "Install Neo4j, example neo4j:install[community,2.0.3]"
-  task :install, :edition, :version do |t, args|
+  def get_environment(args)
+    args[:environment] || 'development'
+  end
+
+  def install_location(args)
+    "neo4j-#{get_environment(args)}"
+  end
+
+  desc "Install Neo4j, example neo4j:install[community-2.1.3,development]"
+  task :install, :edition, :environment do |_, args|
     args.with_defaults(:edition => "community")
 
-    file = args[:version] ? "#{args[:edition]}-#{args[:version]}" : "#{args[:edition]}"
-    puts "Installing Neo4j-#{file}"
+    file = args[:edition]
+    environment = get_environment(args)
+    puts "Installing Neo4j-#{file} environment: #{environment}"
 
     downloaded_file = download_neo4j file
     
@@ -79,100 +89,126 @@ namespace :neo4j do
            end
           end
         end
-        FileUtils.mv "neo4j-#{file}", "neo4j"
+        FileUtils.mv "neo4j-#{file}", install_location(args)
         FileUtils.rm downloaded_file
      end
 
       # Install if running with Admin Privileges
-      if %x[reg query "HKU\\S-1-5-19"].size > 0 
-        %x[neo4j/bin/neo4j install]
+      if %x[reg query "HKU\\S-1-5-19"].size > 0
+        %x["#{install_location(args)}/bin/neo4j install"]
         puts "Neo4j Installed as a service."
       end
 
     else
       %x[tar -xvf #{downloaded_file}]
-      %x[mv neo4j-#{file} neo4j]
+      %x[mv neo4j-#{file} #{install_location(args)}]
       %x[rm #{downloaded_file}]
       puts "Neo4j Installed in to neo4j directory."
     end
-    puts "Type 'rake neo4j:start' to start it"
+    puts "Type 'rake neo4j:start' or 'rake neo4j:start[ENVIRONMENT]' to start it\nType 'neo4j:config[ENVIRONMENT,PORT]' for changing server port, (default 7474)"
   end
   
   desc "Start the Neo4j Server"
-  task :start do
-    puts "Starting Neo4j..."
+  task :start, :environment do |_, args|
+    puts "Starting Neo4j #{get_environment(args)}..."
     if OS::Underlying.windows? 
       if %x[reg query "HKU\\S-1-5-19"].size > 0 
-        %x[neo4j/bin/Neo4j.bat start]  #start service
+        %x[#{install_location(args)}/bin/Neo4j.bat start]  #start service
       else
         puts "Starting Neo4j directly, not as a service."
-        %x[neo4j/bin/Neo4j.bat]
+        %x[#{install_location(args)}/bin/Neo4j.bat]
       end      
     else
-      %x[neo4j/bin/neo4j start]  
+      %x[#{install_location(args)}/bin/neo4j start]
     end
   end
-  
+
+  desc "Configure Server, e.g. rake neo4j:config[development,8888]"
+  task :config, :environment, :port do |_, args|
+
+    port = args[:port]
+    raise "no port given" unless port
+    puts "Config Neo4j #{get_environment(args)} for port #{port}"
+    location = "#{install_location(args)}/conf/neo4j-server.properties"
+    text = File.read(location)
+    replace = Neo4j::Tasks::ConfigServer.config(text, port)
+    File.open(location, "w") {|file| file.puts replace}
+  end
+
   desc "Stop the Neo4j Server"
-  task :stop do
-    puts "Stopping Neo4j..."
+  task :stop, :environment do |_, args|
+    puts "Stopping Neo4j #{get_environment(args)}..."
     if OS::Underlying.windows? 
       if %x[reg query "HKU\\S-1-5-19"].size > 0
-         %x[neo4j/bin/Neo4j.bat stop]  #stop service
+         %x[#{install_location(args)}/bin/Neo4j.bat stop]  #stop service
       else
         puts "You do not have administrative rights to stop the Neo4j Service"   
       end
     else  
-      %x[neo4j/bin/neo4j stop]
+      %x[#{install_location(args)}/bin/neo4j stop]
+    end
+  end
+
+  desc "Get info the Neo4j Server"
+  task :info, :environment do |_, args|
+    puts "Info from Neo4j #{get_environment(args)}..."
+    if OS::Underlying.windows?
+      if %x[reg query "HKU\\S-1-5-19"].size > 0
+        %x[#{install_location(args)}/bin/Neo4j.bat info]  #stop service
+      else
+        puts "You do not have administrative rights to get info from the Neo4j Service"
+      end
+    else
+      puts %x[#{install_location(args)}/bin/neo4j info]
     end
   end
 
   desc "Restart the Neo4j Server"
-  task :restart do
-    puts "Restarting Neo4j..."
+  task :restart, :environment do |_, args|
+    puts "Restarting Neo4j #{get_environment(args)}..."
     if OS::Underlying.windows? 
       if %x[reg query "HKU\\S-1-5-19"].size > 0
-         %x[neo4j/bin/Neo4j.bat restart] 
+         %x[#{install_location(args)}/bin/Neo4j.bat restart]
       else
         puts "You do not have administrative rights to restart the Neo4j Service"   
       end
     else  
-      %x[neo4j/bin/neo4j restart]
+      %x[#{install_location(args)}/bin/neo4j restart]
     end
   end
 
   desc "Reset the Neo4j Server"
-  task :reset_yes_i_am_sure do
+  task :reset_yes_i_am_sure, :environment do |_, args|
     # Stop the server
     if OS::Underlying.windows? 
       if %x[reg query "HKU\\S-1-5-19"].size > 0
-         %x[neo4j/bin/Neo4j.bat stop]
+         %x[#{install_location(args)}/bin/Neo4j.bat stop]
          
         # Reset the database
-        FileUtils.rm_rf("neo4j/data/graph.db")
-        FileUtils.mkdir("neo4j/data/graph.db")
+        FileUtils.rm_rf("#{install_location(args)}/data/graph.db")
+        FileUtils.mkdir("#{install_location(args)}/data/graph.db")
         
         # Remove log files
-        FileUtils.rm_rf("neo4j/data/log")
-        FileUtils.mkdir("neo4j/data/log")
+        FileUtils.rm_rf("#{install_location(args)}/data/log")
+        FileUtils.mkdir("#{install_location(args)}/data/log")
 
-        %x[neo4j/bin/Neo4j.bat start]
+        %x[#{install_location(args)}/bin/Neo4j.bat start]
       else
         puts "You do not have administrative rights to reset the Neo4j Service"   
       end
     else  
-      %x[neo4j/bin/neo4j stop]
+      %x[#{install_location(args)}/bin/neo4j stop]
       
       # Reset the database
-      FileUtils.rm_rf("neo4j/data/graph.db")
-      FileUtils.mkdir("neo4j/data/graph.db")
+      FileUtils.rm_rf("#{install_location(args)}/data/graph.db")
+      FileUtils.mkdir("#{install_location(args)}/data/graph.db")
       
       # Remove log files
-      FileUtils.rm_rf("neo4j/data/log")
-      FileUtils.mkdir("neo4j/data/log")
+      FileUtils.rm_rf("#{install_location(args)}/data/log")
+      FileUtils.mkdir("#{install_location(args)}/data/log")
       
       # Start the server
-      %x[neo4j/bin/neo4j start]
+      %x[#{install_location(args)}/bin/neo4j start]
     end
   end
 
