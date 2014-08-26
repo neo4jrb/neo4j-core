@@ -59,14 +59,18 @@ module Neo4j::Server
     end
 
     def map_row_value(value, session)
-      return value unless value.is_a?(Hash)
-
-      if value['labels']
-        add_entity_id(value)
-        CypherNode.new(session, value).wrapper
-      elsif value['type']
-        add_entity_id(value)
-        CypherRelationship.new(session, value).wrapper
+      if value.is_a?(Hash)
+        if value['labels']
+          add_entity_id(value)
+          CypherNode.new(session, value).wrapper
+        elsif value['type']
+          add_entity_id(value)
+          CypherRelationship.new(session, value).wrapper
+        else
+          value
+        end
+      elsif value.is_a?(Array)
+        value.map {|v| map_row_value(v, session) }
       else
         value
       end
