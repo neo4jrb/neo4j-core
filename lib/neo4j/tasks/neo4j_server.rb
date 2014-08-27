@@ -62,7 +62,7 @@ namespace :neo4j do
   end
 
   def install_location(args)
-    FileUtils.mkdir_p("db/neo4j/#{get_environment(args)}")
+    FileUtils.mkdir_p("db/neo4j")
     "db/neo4j/#{get_environment(args)}"
   end
 
