@@ -1,10 +1,6 @@
 require 'forwardable'
 require 'fileutils'
 
-require 'oj'
-require 'oj_mimic_json'
-Oj.default_options = {:mode => :strict }
-
 require 'neo4j-core/version'
 require 'neo4j/property_validator'
 require 'neo4j/property_container'
@@ -29,4 +25,8 @@ else
   # just for the tests
   module Neo4j::Embedded
   end
+
+  require 'oj'
+  require 'oj_mimic_json'
+  Oj.default_options = {:mode => :strict }
 end
