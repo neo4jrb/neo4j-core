@@ -30,12 +30,15 @@ It comes included with the Apache Lucene document database.
 
   # Not released yet
   s.add_dependency("httparty")
-  s.add_dependency("json")
   s.add_dependency("os")  # for Rake task
   s.add_dependency("zip") # for Rake task
   s.add_dependency("activesupport") # For ActiveSupport::Notifications
 
   if RUBY_PLATFORM =~ /java/
+    s.add_dependency("json")
     s.add_dependency("neo4j-community", '~> 2.1.1')
+  else
+    s.add_dependency("oj")
+    s.add_dependency("oj_mimic_json")
   end
 end
