@@ -1,3 +1,11 @@
+* Use JSON oj implementation for better performance on neo4j server
+* Some performance improvements on regexps
+* Better support for cypher collect to return array
+* Security: prevent cypher injection
+* Support to install via rake different neo4j server environments
+* Support for query logger
+* Distinct support for query dsl
+
 == 3.0.0.alpha.19
 * Better support for (nested) transaction #94
 * Upgrade to Rspec 3 (#93 @ausmarton)
