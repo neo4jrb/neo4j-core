@@ -105,7 +105,7 @@ module Neo4j::Server
     end
 
     def add_entity_id(data)
-      data.merge!({'id' => data['self'].match(/\d+$/)[0].to_i})
+      data.merge!({'id' => data['self'].split('/')[-1].to_i})
     end
 
     def error?
