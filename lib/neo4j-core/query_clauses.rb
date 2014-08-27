@@ -174,8 +174,6 @@ module Neo4j::Core
           "#{key} =~ #{escape_value(pattern.gsub(/\\/, '\\\\\\'))}"
         when Array
           key_value_string(key, value, previous_keys)
-        when /^\{[^\{\}]+\}$/ # manually specified params
-          key_value_string(key, value)
         else
           key_value_string(key, value, previous_keys)
         end

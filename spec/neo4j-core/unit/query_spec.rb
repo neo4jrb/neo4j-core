@@ -168,10 +168,6 @@ describe Neo4j::Core::Query do
       it_generates "MATCH (n:`Person` {name: \"Brian\", age: 33})"
     end
 
-    describe ".match(n: {Person: {name: '{param}'}})" do
-      it_generates "MATCH (n:`Person` {name: {param}})"
-    end
-
     describe ".match('n--o')" do
       it_generates "MATCH n--o"
     end
@@ -247,10 +243,6 @@ describe Neo4j::Core::Query do
 
     describe ".where(q: {neo_id: 22})" do
       it_generates "WHERE ID(q) = 22"
-    end
-
-    describe ".where(q: {age: '{age}'})" do
-      it_generates "WHERE q.age = {age}"
     end
 
     describe ".where(q: {age: 30, name: 'Brian'})" do
