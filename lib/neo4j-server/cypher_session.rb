@@ -185,7 +185,13 @@ module Neo4j::Server
       return [] unless response.data
       Enumerator.new do |yielder|
         response.data.each do |data|
-          yielder << CypherNode.new(self, data[0]).wrapper
+          if !Neo4j::Transaction.current
+            yielder << CypherNode.new(self, data[0]).wrapper
+          else
+            data["row"].each do |id|
+              yielder << CypherNode.new(self, id).wrapper
+            end
+          end
         end
       end
     end
