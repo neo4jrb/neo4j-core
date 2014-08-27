@@ -25,7 +25,4 @@ else
   # just for the tests
   module Neo4j::Embedded
   end
-
-  require 'oj'
-  require 'oj_mimic_json'
 end
