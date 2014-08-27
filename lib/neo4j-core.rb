@@ -28,5 +28,4 @@ else
 
   require 'oj'
   require 'oj_mimic_json'
-  Oj.default_options = {:mode => :strict }
 end
