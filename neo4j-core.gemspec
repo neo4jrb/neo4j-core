@@ -34,7 +34,7 @@ It comes included with the Apache Lucene document database.
   s.add_dependency("zip") # for Rake task
   s.add_dependency("activesupport") # For ActiveSupport::Notifications
 
-  if RUBY_PLATFORM =~ /java/
+  if RUBY_PLATFORM == 'java'
     s.add_dependency("json")
     s.add_dependency("neo4j-community", '~> 2.1.1')
   else
