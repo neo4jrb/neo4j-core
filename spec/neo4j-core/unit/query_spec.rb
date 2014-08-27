@@ -51,7 +51,7 @@ describe Neo4j::Core::Query do
       it_generates "START n MATCH (q:`Person`) WHERE q.age > 30"
     end
 
-    describe ".match(q: {age: 30}).set(q: {age: 31})" do
+    describe ".match(q: {age: 30}).set_props(q: {age: 31})" do
       it_generates "MATCH (q {age: 30}) SET q = {age: 31}"
     end
 
@@ -482,30 +482,30 @@ describe Neo4j::Core::Query do
 
   # SET
 
-  describe '#set' do
-    describe ".set('n = {name: \"Brian\"}')" do
-      it_generates "SET n = {name: \"Brian\"}"
-    end
-
-    describe ".set(n: {name: 'Brian', age: 30})" do
-      it_generates "SET n = {name: \"Brian\", age: 30}"
-    end
-  end
-
   describe '#set_props' do
     describe ".set_props('n = {name: \"Brian\"}')" do
       it_generates "SET n = {name: \"Brian\"}"
     end
 
     describe ".set_props(n: {name: 'Brian', age: 30})" do
+      it_generates "SET n = {name: \"Brian\", age: 30}"
+    end
+  end
+
+  describe '#set' do
+    describe ".set('n = {name: \"Brian\"}')" do
+      it_generates "SET n = {name: \"Brian\"}"
+    end
+
+    describe ".set(n: {name: 'Brian', age: 30})" do
       it_generates "SET n.name = \"Brian\", n.age = 30"
     end
 
-    describe ".set_props(n: {name: 'Brian', age: 30}, o: {age: 29})" do
+    describe ".set(n: {name: 'Brian', age: 30}, o: {age: 29})" do
       it_generates "SET n.name = \"Brian\", n.age = 30, o.age = 29"
     end
 
-    describe ".set_props(n: {name: 'Brian', age: 30}).set_props('o.age = 29')" do
+    describe ".set(n: {name: 'Brian', age: 30}).set_props('o.age = 29')" do
       it_generates "SET n.name = \"Brian\", n.age = 30, o.age = 29"
     end
   end

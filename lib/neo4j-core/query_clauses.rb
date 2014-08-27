@@ -382,12 +382,12 @@ module Neo4j::Core
           "#{key} = #{value}"
         when Hash
           if @options[:set_props]
+            attribute_string = value.map {|k, v| "#{k}: #{v.inspect}" }.join(', ')
+            "#{key} = {#{attribute_string}}"
+          else
             value.map do |k, v|
               "#{key}.#{k} = #{v.inspect}"
             end
-          else
-            attribute_string = value.map {|k, v| "#{k}: #{v.inspect}" }.join(', ')
-            "#{key} = {#{attribute_string}}"
           end
         else
           raise ArgError.new(value)
@@ -406,7 +406,7 @@ module Neo4j::Core
 
       def initialize(*args)
         super
-        @options[:set_props] = true
+        @options[:set_props] = false
       end
     end
 
