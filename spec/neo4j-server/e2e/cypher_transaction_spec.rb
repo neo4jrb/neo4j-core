@@ -114,8 +114,36 @@ module Neo4j::Server
           tx.close
         end
       end
+    end
+
+    describe '#create_rel' do
+      it 'can create and load it' do
+        tx = Neo4j::Transaction.new
+        a = Neo4j::Node.create(name: 'a')
+        b = Neo4j::Node.create(name: 'b')
+        rel = a.create_rel(:knows, b, {colour: 'blue'})
+        loaded = Neo4j::Relationship.load(rel.neo_id)
+        expect(loaded).to eq(rel)
+        expect(loaded['colour']).to eq('blue')
+        tx.close
+      end
+    end
+
+
+    describe '#rel' do
+      it 'can load it' do
+        tx = Neo4j::Transaction.new
+        a = Neo4j::Node.create(name: 'a')
+        b = Neo4j::Node.create(name: 'b')
+        rel = a.create_rel(:knows, b, {colour: 'blue'})
+        loaded = a.rel(dir: :outgoing, type: :knows)
+        expect(loaded).to eq(rel)
+        expect(loaded['colour']).to eq('blue')
+        tx.close
+      end
 
     end
+
 
     describe '.create' do
       it "creates a node" do
@@ -123,6 +151,20 @@ module Neo4j::Server
         node = Neo4j::Node.create(name: 'andreas')
         expect(tx.close.code).to eq(200)
         expect(node['name']).to eq('andreas')
+        #tx.close
+      end
+    end
+
+    describe '#del' do
+      it "deletes a node" do
+        skip 'see https://github.com/neo4j/neo4j/issues/2943'
+        tx = session.begin_tx
+        node = Neo4j::Node.create(name: 'andreas')
+        id = node.neo_id
+        node.del
+        loaded = Neo4j::Node.load(id)
+        expect(loaded).to be_nil
+        #tx.close
       end
     end
 

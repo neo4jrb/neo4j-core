@@ -183,19 +183,30 @@ module Neo4j::Server
 
     def search_result_to_enumerable_first_column(response)
       return [] unless response.data
+      if Neo4j::Transaction.current
+        search_result_to_enumerable_first_column_with_tx(response)
+      else
+        search_result_to_enumerable_first_column_without_tx(response)
+      end
+    end
+
+    def search_result_to_enumerable_first_column_with_tx(response)
       Enumerator.new do |yielder|
         response.data.each do |data|
-          if !Neo4j::Transaction.current
-            yielder << CypherNode.new(self, data[0]).wrapper
-          else
-            data["row"].each do |id|
-              yielder << CypherNode.new(self, id).wrapper
-            end
+          data["row"].each do |id|
+            yielder << CypherNode.new(self, id).wrapper
           end
         end
       end
     end
 
+    def search_result_to_enumerable_first_column_without_tx(response)
+      Enumerator.new do |yielder|
+        response.data.each do |data|
+          yielder << CypherNode.new(self, data[0]).wrapper
+        end
+      end
+  end
 
     def map_column(key, map, data)
       case map[key]
