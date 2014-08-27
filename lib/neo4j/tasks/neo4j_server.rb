@@ -62,8 +62,8 @@ namespace :neo4j do
   end
 
   def install_location(args)
-    FileUtils.mkdir_p('db') unless File.directory?('db')
-    "db/neo4j-#{get_environment(args)}"
+    FileUtils.mkdir_p('db/neo4j') unless File.directory?('db')
+    "db/neo4j/neo4j-#{get_environment(args)}"
   end
 
   desc "Install Neo4j, example neo4j:install[community-2.1.3,development]"
