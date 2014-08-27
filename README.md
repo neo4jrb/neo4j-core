@@ -8,6 +8,23 @@ It can be used standalone without the neo4j gem.
 * [3.0 Documentation](https://github.com/andreasronge/neo4j-core/wiki)
 * [2.x Documentation](https://github.com/andreasronge/neo4j-core/tree/v2.x)
 
+
+## Support
+
+* [Neo4j.rb mailing list](https://groups.google.com/forum/#!forum/neo4jrb)
+* Consulting support ? ask any of the developers
+
+## Developers
+
+* [Andreas Ronge](https://github.com/andreasronge)
+* [Brian Underwood](https://github.com/cheerfulstoic)
+* [Chris Grigg](https://github.com/subvertallchris)
+
+
+## Contributing
+
+Pull request with high test coverage and good [code climate](https://codeclimate.com/github/andreasronge/neo4j-core) values will be accepted faster.
+
 ## License
 * Neo4j.rb - MIT, see the LICENSE file http://github.com/andreasronge/neo4j-core/tree/master/LICENSE.
 * Lucene -  Apache, see http://lucene.apache.org/java/docs/features.html

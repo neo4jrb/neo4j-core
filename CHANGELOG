@@ -1,3 +1,4 @@
+== 3.0.0.rc.1
 * Use JSON oj implementation for better performance on neo4j server
 * Some performance improvements on regexps
 * Better support for cypher collect to return array
