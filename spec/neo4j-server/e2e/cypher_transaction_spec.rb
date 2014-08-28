@@ -44,22 +44,6 @@ module Neo4j::Server
     end
 
 
-    it "can create a node" do
-      tx = session.begin_tx
-      node = Neo4j::Node.create(name: 'andreas')
-      expect(tx.close.code).to eq(200)
-      expect(node['name']).to eq('andreas')
-    end
-
-
-    it "can update a property" do
-      node = Neo4j::Node.create(name: 'foo')
-      Neo4j::Transaction.run do
-        node[:name] = 'bar'
-        expect(node[:name]).to eq('bar')
-      end
-      expect(node[:name]).to eq('bar')
-    end
 
     it 'can rollback' do
       node = Neo4j::Node.create(name: 'andreas')
@@ -90,5 +74,111 @@ module Neo4j::Server
 
       expect(node['name']).to eq('andreas')
     end
+
+
+    describe Neo4j::Label do
+
+      describe '.find_nodes' do
+
+        it 'find and can load them' do
+          tx = Neo4j::Transaction.new
+          label_name = unique_random_number
+          n = Neo4j::Node.create({name: 'andreas'}, label_name)
+          found = Neo4j::Label.find_nodes(label_name, :name, "andreas").to_a.first
+          expect(found[:name]).to eq('andreas')
+          expect(found).to eq(n)
+          tx.close
+        end
+      end
+    end
+
+
+    describe Neo4j::Node do
+
+      describe '.load' do
+        it 'can load existing node' do
+          node = Neo4j::Node.create(name: 'andreas')
+          id = node.neo_id
+          tx = Neo4j::Transaction.new
+          found = Neo4j::Node.load(id)
+          expect(node).to eq(found)
+          tx.close
+        end
+
+        it 'can load node created in tx' do
+          tx = Neo4j::Transaction.new
+          node = Neo4j::Node.create(name: 'andreas')
+          id = node.neo_id
+          found = Neo4j::Node.load(id)
+          expect(node).to eq(found)
+          tx.close
+        end
+      end
+    end
+
+    describe '#create_rel' do
+      it 'can create and load it' do
+        tx = Neo4j::Transaction.new
+        a = Neo4j::Node.create(name: 'a')
+        b = Neo4j::Node.create(name: 'b')
+        rel = a.create_rel(:knows, b, {colour: 'blue'})
+        loaded = Neo4j::Relationship.load(rel.neo_id)
+        expect(loaded).to eq(rel)
+        expect(loaded['colour']).to eq('blue')
+        tx.close
+      end
+    end
+
+
+    describe '#rel' do
+      it 'can load it' do
+        tx = Neo4j::Transaction.new
+        a = Neo4j::Node.create(name: 'a')
+        b = Neo4j::Node.create(name: 'b')
+        rel = a.create_rel(:knows, b, {colour: 'blue'})
+        loaded = a.rel(dir: :outgoing, type: :knows)
+        expect(loaded).to eq(rel)
+        expect(loaded['colour']).to eq('blue')
+        tx.close
+      end
+
+    end
+
+
+    describe '.create' do
+      it "creates a node" do
+        tx = session.begin_tx
+        node = Neo4j::Node.create(name: 'andreas')
+        expect(tx.close.code).to eq(200)
+        expect(node['name']).to eq('andreas')
+        #tx.close
+      end
+    end
+
+    describe '#del' do
+      it "deletes a node" do
+        skip 'see https://github.com/neo4j/neo4j/issues/2943'
+        tx = session.begin_tx
+        node = Neo4j::Node.create(name: 'andreas')
+        id = node.neo_id
+        node.del
+        loaded = Neo4j::Node.load(id)
+        expect(loaded).to be_nil
+        #tx.close
+      end
+    end
+
+
+    describe '#[]=' do
+      it "can update/read a property" do
+        node = Neo4j::Node.create(name: 'foo')
+        Neo4j::Transaction.run do
+          node[:name] = 'bar'
+          expect(node[:name]).to eq('bar')
+        end
+        expect(node[:name]).to eq('bar')
+      end
+    end
+
   end
 end
