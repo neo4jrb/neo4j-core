@@ -16,9 +16,13 @@ module Neo4j
       end
 
 
-      def wrap_resource(db, rel, resource_class, args=nil, verb=:get, payload=nil, endpoint)
+      def wrap_resource(db, rel, resource_class, args=nil, verb=:get, payload={}, endpoint)
         url = resource_url(rel, args)
-        response = endpoint.send(verb, url, headers: {'Content-Type' => 'application/json'}, body: payload)
+        response = case verb
+          when :get then endpoint.get(url, payload)
+          when :post then endpoint.post(url, payload)
+          else raise "Illegal verb #{verb}"
+        end
         response.code == 404 ? nil : resource_class.new(db, response, url, endpoint)
       end
 
@@ -34,11 +38,11 @@ module Neo4j
         end
       end
 
-      def handle_response_error(response, msg="Error for request", url = response.request.path.to_s )
+      def handle_response_error(response, msg="Error for request", url = response.request_uri )
         raise ServerException.new("#{msg} #{url}, #{response.code}, #{response.body}")
       end
 
-      def expect_response_code(response, expected_code, msg="Error for request", url=response.request.path.to_s )
+      def expect_response_code(response, expected_code, msg="Error for request", url=response.request_uri )
         handle_response_error(response, "Expected response code #{expected_code} #{msg}",url) unless response.code == expected_code
         response
       end

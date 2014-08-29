@@ -30,6 +30,8 @@ It comes included with the Apache Lucene document database.
 
   # Not released yet
   s.add_dependency("httparty")
+  s.add_dependency("faraday", '~> 0.9.0')
+  s.add_dependency('faraday_middleware', '~> 0.9.1')
   s.add_dependency("json")
   s.add_dependency("os")  # for Rake task
   s.add_dependency("zip") # for Rake task

@@ -18,7 +18,8 @@ module Neo4j::Server
     def initialize(db, response, url, endpoint)
       @endpoint = endpoint
       @commit_url = response['commit']
-      @exec_url = response.headers['location']
+      @exec_url = response.headers['Location']
+      raise "NO ENDPOINT URL #{@endpoint} : HEAD: #{response.headers.inspect}" if !@exec_url || @exec_url.empty?
       init_resource_data(response, url)
       expect_response_code(response,201)
       register_instance
@@ -41,7 +42,7 @@ module Neo4j::Server
           statement[:statement].gsub!("{ #{k} }", "#{escape_value(v)}")
         end
       end
-      response = @endpoint.post(@exec_url, headers: resource_headers, body: body.to_json)
+      response = @endpoint.post(@exec_url, body)
       _create_cypher_response(response)
     end
 
@@ -67,7 +68,9 @@ module Neo4j::Server
     end
 
     def _commit_tx
-      response = @endpoint.post(@commit_url, headers: resource_headers)
+      puts "COMMIT TX  #{@commit_url}"
+      response = @endpoint.post(@commit_url)
+
       expect_response_code(response,200)
       response
     end

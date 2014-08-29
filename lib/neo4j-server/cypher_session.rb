@@ -16,14 +16,14 @@ module Neo4j::Server
     # @see Neo4j::Session#open
     #
     # @param [String] endpoint_url - the url to the neo4j server, defaults to 'http://localhost:7474'
-    # @param [Hash] params - see https://github.com/jnunemaker/httparty/blob/master/lib/httparty.rb for supported HTTParty options
+    # @param [Hash] params - see Neo4jServerEndpoint
     def self.open(endpoint_url=nil, params = {})
       endpoint = Neo4jServerEndpoint.new(params)
       url = endpoint_url || 'http://localhost:7474'
       response = endpoint.get(url)
       raise "Server not available on #{url} (response code #{response.code})" unless response.code == 200
-      
-      root_data = JSON.parse(response.body)
+
+      root_data = response.body
       data_url = root_data['data']
       data_url << '/' unless data_url.end_with?('/')
 
@@ -56,7 +56,7 @@ module Neo4j::Server
     def initialize_resource(data_url)
       response = @endpoint.get(data_url)
       expect_response_code(response,200)
-      data_resource = JSON.parse(response.body)
+      data_resource = response.body
       raise "No data_resource for #{response.body}" unless data_resource
       # store the resource data
       init_resource_data(data_resource, data_url)
@@ -114,7 +114,7 @@ module Neo4j::Server
     def indexes(label)
       response = @endpoint.get("#{@resource_url}schema/index/#{label}")
       expect_response_code(response, 200)
-      data_resource = JSON.parse(response.body)
+      data_resource = response.body
 
       property_keys = data_resource.map do |row|
         row['property_keys'].map(&:to_sym)
@@ -178,7 +178,7 @@ module Neo4j::Server
       else
         url = resource_url('cypher')
         q = params.nil? ? {query: q} : {query: q, params: params}
-        response = @endpoint.post(url, headers: resource_headers, body: q.to_json)
+        response = @endpoint.post(url, q)
         CypherResponse.create_with_no_tx(response)
       end
     end

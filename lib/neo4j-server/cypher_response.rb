@@ -161,12 +161,12 @@ module Neo4j::Server
         when 400
           CypherResponse.new(response).set_error(response['message'], response['exception'], response['fullname'])
         else
-          raise "Unknown response code #{response.code} for #{response.request.path.to_s}"
+          raise "Unknown response code #{response.code} for #{response.request_uri}"
       end
     end
 
     def self.create_with_tx(response)
-      raise "Unknown response code #{response.code} for #{response.request.path.to_s}" unless response.code == 200
+      raise "Unknown response code #{response.code} for #{response.request_uri}" unless response.code == 200
 
       first_result = response['results'][0]
       cr = CypherResponse.new(response, true)
