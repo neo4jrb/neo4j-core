@@ -21,5 +21,13 @@ task 'spec-core' do
   abort("RSpec neo4j-core failed") unless success
 end
 
+desc 'Generate coverage report'
+task 'coverage' do
+  ENV['COVERAGE'] = 'true'
+  rm_rf "coverage/"
+  task = Rake::Task['spec-core']
+  task.reenable
+  task.invoke
+end
 
 task :default => ['spec-core']

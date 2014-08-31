@@ -1,3 +1,15 @@
+# To run coverage via travis
+require 'coveralls'
+Coveralls.wear!
+
+# To run it manually via Rake
+if ENV['COVERAGE']
+  puts "RUN SIMPLECOV"
+  require 'simplecov'
+  SimpleCov.formatter = SimpleCov::Formatter::HTMLFormatter
+  SimpleCov.start
+end
+
 require 'rubygems'
 require "bundler/setup"
 require 'rspec'
@@ -6,7 +18,6 @@ require 'tmpdir'
 require 'logger'
 require 'rspec/its'
 require 'neo4j-core'
-
 require 'ostruct'
 
 
