@@ -80,8 +80,6 @@ module Neo4j::Embedded::Property
       remove_property(k)
     elsif (Array === v)
       case v[0]
-        when NilClass
-          set_property(k, [].to_java(:string))
         when String
           set_property(k, v.to_java(:string))
         when Float

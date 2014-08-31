@@ -156,10 +156,33 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
           expect(node[:bar]).to be true
         end
 
-        it "can handle ruby arrays" do
-          node[:foo] = [1,2,3]
-          expect(node[:foo]).to eq [1,2,3]
-          expect(node[:foo]).to be_an(Array)
+        context 'reading/writing Arrays' do
+          it "can handle ruby arrays of Fixnum" do
+            node[:foo] = [1,2,3]
+            expect(node[:foo]).to eq [1,2,3]
+            expect(node[:foo]).to be_an(Array)
+          end
+
+          it "can handle ruby arrays of strings" do
+            node[:foo] = ['hej', 'hopp']
+            expect(node[:foo]).to eq ['hej', 'hopp']
+          end
+
+          it "can handle ruby arrays of strings" do
+            node[:foo] = ['hej', 'hopp']
+            expect(node[:foo]).to eq ['hej', 'hopp']
+          end
+
+          it "can handle ruby arrays of true,false" do
+            node[:foo] = [false,true,true]
+            expect(node[:foo]).to eq [false,true,true]
+          end
+
+          it "can handle ruby arrays of floats" do
+            node[:foo] = [3.14, 4.24]
+            expect(node[:foo]).to eq [3.14, 4.24]
+          end
+
         end
 
         it "raise exception for illegal values" do

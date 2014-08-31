@@ -1,9 +1,6 @@
 # To run coverage via travis
-if RUBY_PLATFORM == 'java'
-  # only do coverage report using JRuby since only JRuby can run both embedded and server tests
-  require 'coveralls'
-  Coveralls.wear!
-end
+require 'coveralls'
+Coveralls.wear!
 
 # To run it manually via Rake
 if ENV['COVERAGE']
@@ -45,26 +42,6 @@ RSpec.configure do |c|
   c.include Helpers
 end
 
-def create_embedded_session
-  Neo4j::Session.open(:impermanent_db, EMBEDDED_DB_PATH, auto_commit: true)
-end
-
-def create_server_session
-  Neo4j::Session.open(:server_db, "http://localhost:7474")
-end
-
-def create_named_server_session(name, default = nil)
-  Neo4j::Session.open_named(:server_db, name, default, "http://localhost:7474")
-end
-
-def session
-  Neo4j::Session.current
-end
-
-
-def unique_random_number
-  "#{Time.now.year}#{Time.now.to_i}#{Time.now.usec.to_s[0..2]}".to_i
-end
 
 FileUtils.rm_rf(EMBEDDED_DB_PATH)
 
@@ -94,10 +71,7 @@ RSpec.configure do |c|
     Neo4j::Session.current || create_server_session
   end
 
-  #c.after(:all, api: :server) do
-  #  clean_server_db if Neo4j::Session.current && Neo4j::Session.current.kind_of?(Neo4j::Server::CypherSession)
-  #end
-
+  # Make sure embedded specs are not run by MRI
   c.exclusion_filter = {
       :api => lambda do |ed|
         RUBY_PLATFORM != 'java' && ed == :embedded
