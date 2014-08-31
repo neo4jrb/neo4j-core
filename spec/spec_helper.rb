@@ -1,6 +1,9 @@
 # To run coverage via travis
-require 'coveralls'
-Coveralls.wear!
+if RUBY_PLATFORM == 'java'
+  # only do coverage report using JRuby since only JRuby can run both embedded and server tests
+  require 'coveralls'
+  Coveralls.wear!
+end
 
 # To run it manually via Rake
 if ENV['COVERAGE']
