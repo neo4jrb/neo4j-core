@@ -145,7 +145,7 @@ module Neo4j::Core
     def response
       return @response if @response
       cypher = self.to_cypher
-      @response = ActiveSupport::Notifications.instrument('neo4j.cypher_query', context: @options[:context] || 'CYPHER', cypher: cypher, params: @_params) do
+      @response = ActiveSupport::Notifications.instrument('neo4j.cypher_query', context: @options[:context] || 'CYPHER', cypher: cypher, params: merge_params) do
         @session._query(cypher, merge_params)
       end
       if !response.respond_to?(:error?) || !response.error?
@@ -310,7 +310,7 @@ module Neo4j::Core
     end
 
     def merge_params
-      @clauses.compact.inject(@_params) {|params, clause| params.merge(clause.params) }
+      @merge_params ||= @clauses.compact.inject(@_params) {|params, clause| params.merge(clause.params) }
     end
 
   end
