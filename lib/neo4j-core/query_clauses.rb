@@ -112,6 +112,17 @@ module Neo4j::Core
 
       private
 
+      def key_value_string(key, value, previous_keys = [], force_equals = false)
+        param = (previous_keys + [key]).join('_').gsub(/[\(\)\._]+/, '_')
+        @params[param.to_sym] = value
+
+        if !value.is_a?(Array) || force_equals
+          "#{key} = {#{param}}"
+        else
+          "#{key} IN {#{param}}"
+        end
+      end
+
       def format_label(label_string)
         label_string = label_string.to_s.strip
         if !label_string.empty? && label_string[0] != ':'
@@ -182,19 +193,6 @@ module Neo4j::Core
       class << self
         def clause_string(clauses)
           clauses.map(&:value).join(' AND ')
-        end
-      end
-
-      private
-
-      def key_value_string(key, value, previous_keys = [])
-        param = (previous_keys + [key]).join('_').gsub(/[\(\)\._]+/, '_')
-        @params = @params.merge(param.to_sym => value)
-
-        if value.is_a?(Array)
-          "#{key} IN {#{param}}"
-        else
-          "#{key} = {#{param}}"
         end
       end
     end
@@ -386,7 +384,7 @@ module Neo4j::Core
             "#{key} = {#{attribute_string}}"
           else
             value.map do |k, v|
-              "#{key}.#{k} = #{v.inspect}"
+              key_value_string("#{key}.#{k}", v, [], true)
             end
           end
         else
