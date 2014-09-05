@@ -384,7 +384,7 @@ module Neo4j::Core
             "#{key} = {#{attribute_string}}"
           else
             value.map do |k, v|
-              key_value_string("#{key}.#{k}", v, [], true)
+              key_value_string("#{key}.#{k}", v, ['setter'], true)
             end
           end
         else
