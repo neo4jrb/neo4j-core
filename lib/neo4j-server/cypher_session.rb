@@ -31,7 +31,7 @@ module Neo4j::Server
     end
 
     def initialize(data_url, endpoint = nil)
-      @endpoint = endpoint || Neo4jServerEndpoint.new(data_url)
+      @endpoint = endpoint || Neo4jServerEndpoint.new
       Neo4j::Session.register(self)
       initialize_resource(data_url)
       Neo4j::Session._notify_listeners(:session_available, self)

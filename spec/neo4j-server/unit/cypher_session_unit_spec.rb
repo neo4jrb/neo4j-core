@@ -19,7 +19,7 @@ module Neo4j::Server
     class TestResponse
       attr_reader :body
       def initialize(body)
-        @body = body.to_json
+        @body = body
       end
 
       def code

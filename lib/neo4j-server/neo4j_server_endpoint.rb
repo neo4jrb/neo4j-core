@@ -10,8 +10,6 @@ module Neo4j::Server
       attr_reader :response
       def initialize(response)
         @response = response
-        #puts "RESPONSE #{@response.success?}/#{@response.class}, status #{@response.status.inspect}"
-        #puts "BODY #{@response.body.inspect}"
       end
 
       def [](value)
@@ -23,13 +21,11 @@ module Neo4j::Server
       end
 
       def headers
-        puts "HEADERS #{@response.headers.inspect}"
         @response.headers
       end
 
       def request_uri
-        # HTTP CLIENT
-        #@response.header.request_uri.to_s
+        @response.env[:url].to_s
       end
 
       def body
@@ -73,7 +69,6 @@ module Neo4j::Server
     end
 
     def delete(url, params={})
-      puts "DELETE, params #{params.inspect}"
       Response.new @conn.delete(url, params)
     end
 

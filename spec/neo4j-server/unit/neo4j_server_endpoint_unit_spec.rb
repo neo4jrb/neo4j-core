@@ -47,30 +47,10 @@ module Neo4j::Server
         @endpoint = Neo4jServerEndpoint.new(@basic_auth)
         @faraday = @endpoint.conn
       end
-      
-      it "should allow HTTP requests WITHOUT other params" do
-        expect(@faraday).to receive(:get).with(url, @basic_auth).and_return(response)
-        expect(@endpoint.get(url).response).to eq(response)
 
-        expect(@faraday).to receive(:post).with(url, @basic_auth).and_return(response)
-        expect(@endpoint.post(url).response).to eq(response)
-
-        expect(@faraday).to receive(:delete).with(url, @basic_auth).and_return(response)
-        expect(@endpoint.delete(url).response).to eq(response)
-      end
-
-      it "should allow HTTP requests WITH other params" do
-        params = { key1: 1, key2: 2 }
-        merged_params = params.merge(@basic_auth)
-
-        expect(@faraday).to receive(:get).with(url, merged_params).and_return(response)
-        expect(@endpoint.get(url, params).response).to eq(response)
-
-        expect(@faraday).to receive(:post).with(url, merged_params).and_return(response)
-        expect(@endpoint.post(url, params).response).to eq(response)
-
-        expect(@faraday).to receive(:delete).with(url, merged_params).and_return(response)
-        expect(@endpoint.delete(url, params).response).to eq(response)
+      it "should configure a Faraday::RackBuilder::Handler" do
+        handlers = @faraday.builder.handlers.map(&:name)
+        expect(handlers).to include('Faraday::Request::BasicAuthentication')
       end
     end
   end
