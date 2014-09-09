@@ -97,7 +97,7 @@ module Neo4j::Core
     # DELETE clause
     # @return [Query]
 
-    METHODS = %w[with start match optional_match using where or set create create_unique merge on_create_set on_match_set remove unwind delete cypher return order skip limit]
+    METHODS = %w[with start match optional_match using where set create create_unique merge on_create_set on_match_set remove unwind delete return order skip limit]
 
     CLAUSES = METHODS.map {|method| const_get(method.split('_').map {|c| c.capitalize }.join + 'Clause') }
 

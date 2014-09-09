@@ -106,7 +106,7 @@ module Neo4j::Core
         end
 
         def to_cypher(clauses)
-          @keyword.nil? ? clause_string(clauses) : "#{@keyword} #{clause_string(clauses)}"
+          "#{@keyword} #{clause_string(clauses)}"
         end
       end
 
@@ -168,10 +168,6 @@ module Neo4j::Core
     class WhereClause < Clause
       @keyword = 'WHERE'
 
-      def conjunction
-        'AND'
-      end
-
       def from_key_and_value(key, value, previous_keys = [])
         case value
         when Hash
@@ -181,7 +177,7 @@ module Neo4j::Core
             else
               key.to_s + '.' + from_key_and_value(k, v, previous_keys + [key])
             end
-          end.join(" #{conjunction} ")
+          end.join(' AND ')
         when NilClass
           "#{key} IS NULL"
         when Regexp
@@ -195,28 +191,12 @@ module Neo4j::Core
       end
 
       class << self
-        def conjunction
-          'AND'
-        end
-
         def clause_string(clauses)
-          clauses.map(&:value).join(" #{conjunction} ")
+          clauses.map(&:value).join(' AND ')
         end
       end
     end
 
-    class OrClause < WhereClause
-      @keyword = 'OR'
-      def conjunction
-        'OR'
-      end
-
-      class << self
-        def conjunction
-          'OR'
-        end
-      end
-    end
 
     class MatchClause < Clause
       @keyword = 'MATCH'
@@ -504,15 +484,7 @@ module Neo4j::Core
       end
     end
 
-    class CypherClause < Clause
-      @keyword = nil
 
-      class << self
-        def clause_string(clauses)
-          clauses.map(&:value).join
-        end
-      end
-    end
   end
 end
 
