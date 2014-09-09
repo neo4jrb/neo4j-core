@@ -51,6 +51,14 @@ describe Neo4j::Core::Query do
       it_generates "START n MATCH (q:`Person`) WHERE q.age > 30"
     end
 
+    describe ".where('q.age > 30').or('q.height > 6.11').start('n').match(q: Person)" do
+      it_generates "START n MATCH (q:`Person`) WHERE q.age > 30 OR q.height > 6.11"
+    end
+
+    describe ".where('q.age > 30').or('q.height > 6.11').cypher('UNKNOWNCLAUSE Function(q)').start('n').match(q: Person)" do
+      it_generates "START n MATCH (q:`Person`) WHERE q.age > 30 OR q.height > 6.11 UNKNOWNCLAUSE Function(q)"
+    end
+
     describe ".match(q: {age: 30}).set_props(q: {age: 31})" do
       it_generates "MATCH (q {age: 30}) SET q = {age: 31}"
     end
@@ -254,6 +262,54 @@ describe Neo4j::Core::Query do
     end
   end
 
+  # OR
+
+  describe '#or' do
+    describe '.or()' do
+      it_generates ""
+    end
+
+    describe ".or({})" do
+      it_generates ""
+    end
+
+    describe ".or('q.age > 30')" do
+      it_generates "OR q.age > 30"
+    end
+
+    describe ".or('q.age' => 30)" do
+      it_generates "OR q.age = {q_age}", q_age: 30
+    end
+
+    describe ".or('q.age' => [30, 32, 34])" do
+      it_generates "OR q.age IN {q_age}", q_age: [30, 32, 34]
+    end
+
+    describe ".or(q: {age: [30, 32, 34]})" do
+      it_generates "OR q.age IN {q_age}", q_age: [30, 32, 34]
+    end
+
+    describe ".or('q.age' => nil)" do
+      it_generates "OR q.age IS NULL"
+    end
+
+    describe ".or(q: {age: nil})" do
+      it_generates "OR q.age IS NULL"
+    end
+
+    describe ".or(q: {neo_id: 22})" do
+      it_generates "OR ID(q) = 22"
+    end
+
+    describe ".or(q: {age: 30, name: 'Brian'})" do
+      it_generates "OR q.age = {q_age} OR q.name = {q_name}", q_age: 30, q_name: 'Brian'
+    end
+
+    describe ".or(q: {age: 30, name: 'Brian'}).or('r.grade = 80')" do
+      it_generates "OR q.age = {q_age} OR q.name = {q_name} OR r.grade = 80", q_age: 30, q_name: 'Brian'
+    end
+  end
+
   # UNWIND
 
   describe '#unwind' do
@@ -278,6 +334,13 @@ describe Neo4j::Core::Query do
     end
   end
 
+  # CYPHER
+
+  describe '#cypher' do
+    describe '.cypher("WHERE n.age = 40")' do
+      it_generates "WHERE n.age = 40"
+    end
+  end
 
   # RETURN
 
