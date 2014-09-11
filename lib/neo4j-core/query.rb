@@ -99,7 +99,7 @@ module Neo4j::Core
 
     METHODS = %w[with start match optional_match using where set create create_unique merge on_create_set on_match_set remove unwind delete return order skip limit]
 
-    CLAUSES = METHODS.map {|method| const_get(method.split('_').map {|c| c.capitalize }.join + 'Clause') }
+    CLAUSES = METHODS.map { |method| const_get(method.split('_').map { |c| c.capitalize }.join + 'Clause') }
 
     METHODS.each_with_index do |clause, i|
       clause_class = CLAUSES[i]
@@ -163,7 +163,7 @@ module Neo4j::Core
         response.to_node_enumeration
       else
         Neo4j::Embedded::ResultWrapper.new(response, self.to_cypher)
-      end.each {|object| yield object }
+      end.each { |object| yield object }
     end
 
     # @method to_a
@@ -191,19 +191,7 @@ module Neo4j::Core
     #    Query.new.match(n: :Person).return(p: :name}.pluck('p, DISTINCT p.name') # => Array of [node, name] pairs
     #
     def pluck(*columns)
-      query = self.dup
-      query.remove_clause_class(ReturnClause)
-
-      columns = columns.map do |column_definition|
-        if column_definition.is_a?(Hash)
-          column_definition.map {|k, v| "#{k}.#{v}" }
-        else
-          column_definition
-        end
-      end.flatten.map(&:to_sym)
-
-      query = query.return(columns)
-
+      query = return_query(columns)
       columns = query.response.columns
 
       case columns.size
@@ -211,7 +199,7 @@ module Neo4j::Core
         raise ArgumentError, 'No columns specified for Query#pluck'
       when 1
         column = columns[0]
-        query.map {|row| row[column] }
+        query.map { |row| row[column] }
       else
         query.map do |row|
           columns.map do |column|
@@ -221,6 +209,20 @@ module Neo4j::Core
       end
     end
 
+    def return_query(columns)
+      query = self.dup
+      query.remove_clause_class(ReturnClause)
+
+      columns = columns.map do |column_definition|
+        if column_definition.is_a?(Hash)
+          column_definition.map { |k, v| "#{k}.#{v}" }
+        else
+          column_definition
+        end
+      end.flatten.map(&:to_sym)
+
+      query.return(columns)
+    end
 
     # Returns a CYPHER query string from the object query representation
     # @example
@@ -310,11 +312,8 @@ module Neo4j::Core
     end
 
     def merge_params
-      @merge_params ||= @clauses.compact.inject(@_params) {|params, clause| params.merge(clause.params) }
+      @merge_params ||= @clauses.compact.inject(@_params) { |params, clause| params.merge(clause.params) }
     end
 
   end
 end
-
-
-
