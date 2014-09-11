@@ -22,10 +22,13 @@ module Neo4j::Server
         @body = body
       end
 
-      def code
+      def status
         200
       end
 
+      def request_uri
+        ""
+      end
       def request
         return Struct.new(:path).new('bla')
       end
@@ -149,7 +152,10 @@ module Neo4j::Server
           .and_return(TestResponse.new(root_resource_with_no_slash))
         expect(@endpoint).to receive(:get).with("http://localhost:7474/db/data/")
           .and_return(TestResponse.new(data_resource))
-        
+
+        # handlers = @faraday.builder.handlers.map(&:name)
+        # expect(handlers).to include('Faraday::Request::BasicAuthentication')
+
         Neo4j::Session.create_session(:server_db)
       end
 
@@ -190,11 +196,8 @@ module Neo4j::Server
         end
 
         it "create a new transaction and stores it in thread local" do
-          response = double('response', headers: {'location' => 'http://tx/42'}, code: 201, request: dummy_request)
-          expect(response).to receive(:[]).with('exception').and_return(nil)
-          expect(response).to receive(:[]).with('commit').and_return('http://tx/42/commit')
+          response = double('response2', headers: {'Location' => 'http://tx/42'}, status: 201, body: {'commit' => 'http://tx/42/commit'})
           expect(session).to receive(:resource_url).with('transaction', nil).and_return('http://new.tx')
-          
           session.instance_variable_set("@endpoint", @endpoint)
           expect(@endpoint).to receive(:post).with('http://new.tx', anything).and_return(response)
           

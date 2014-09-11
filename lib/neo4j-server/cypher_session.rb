@@ -21,7 +21,7 @@ module Neo4j::Server
       endpoint = Neo4jServerEndpoint.new(params)
       url = endpoint_url || 'http://localhost:7474'
       response = endpoint.get(url)
-      raise "Server not available on #{url} (response code #{response.code})" unless response.code == 200
+      raise "Server not available on #{url} (response code #{response.status})" unless response.status == 200
 
       root_data = response.body
       data_url = root_data['data']

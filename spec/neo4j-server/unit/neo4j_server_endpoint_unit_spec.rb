@@ -18,26 +18,26 @@ module Neo4j::Server
 
       it "should allow HTTP requests WITHOUT params" do
         expect(@faraday).to receive(:get).with(url, {}).and_return(response)
-        expect(@endpoint.get(url).response).to eq(response)
+        expect(@endpoint.get(url)).to eq(response)
 
         expect(@faraday).to receive(:post).and_return(response)
-        expect(@endpoint.post(url).response).to eq(response)
+        expect(@endpoint.post(url)).to eq(response)
 
         expect(@faraday).to receive(:delete).with(url, {}).and_return(response)
-        expect(@endpoint.delete(url, {}).response).to eq(response)
+        expect(@endpoint.delete(url, {})).to eq(response)
       end
 
       it "should allow HTTP requests WITH params" do
         params = { key1: 1, key2: 2 }
 
         expect(@faraday).to receive(:get).with(url, params).and_return(response)
-        expect(@endpoint.get(url, params).response).to eq(response)
+        expect(@endpoint.get(url, params)).to eq(response)
 
         expect(@faraday).to receive(:post).with(url, params).and_return(response)
-        expect(@endpoint.post(url, params).response).to eq(response)
+        expect(@endpoint.post(url, params)).to eq(response)
 
         expect(@faraday).to receive(:delete).with(url, params).and_return(response)
-        expect(@endpoint.delete(url, params).response).to eq(response)
+        expect(@endpoint.delete(url, params)).to eq(response)
       end
     end
 

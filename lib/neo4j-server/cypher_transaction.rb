@@ -17,10 +17,10 @@ module Neo4j::Server
 
     def initialize(db, response, url, endpoint)
       @endpoint = endpoint
-      @commit_url = response['commit']
+      @commit_url = response.body['commit']
       @exec_url = response.headers['Location']
       raise "NO ENDPOINT URL #{@endpoint} : HEAD: #{response.headers.inspect}" if !@exec_url || @exec_url.empty?
-      init_resource_data(response, url)
+      init_resource_data(response.body, url)
       expect_response_code(response,201)
       register_instance
     end
@@ -47,13 +47,13 @@ module Neo4j::Server
     end
 
     def _create_cypher_response(response)
-      first_result = response['results'][0]
+      first_result = response.body['results'][0]
       cr = CypherResponse.new(response, true)
 
-      if (response['errors'].empty?)
+      if (response.body['errors'].empty?)
         cr.set_data(first_result['data'], first_result['columns'])
       else
-        first_error = response['errors'].first
+        first_error = response.body['errors'].first
         cr.set_error(first_error['message'], first_error['code'], first_error['code'])
       end
       cr

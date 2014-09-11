@@ -8,7 +8,7 @@ module Neo4j
       attr_reader :resource_data, :resource_url
 
       def init_resource_data(resource_data, resource_url)
-        raise "Exception #{response['exception']}" if resource_data['exception']
+        raise "Exception #{resource_data['exception']}" if resource_data['exception']
         @resource_url = resource_url
         @resource_data = resource_data
         raise "expected @resource_data to be Hash got #{@resource_data.class}" unless @resource_data.respond_to?(:[])
@@ -23,7 +23,7 @@ module Neo4j
           when :post then endpoint.post(url, payload)
           else raise "Illegal verb #{verb}"
         end
-        response.code == 404 ? nil : resource_class.new(db, response, url, endpoint)
+        response.status == 404 ? nil : resource_class.new(db, response, url, endpoint)
       end
 
       def resource_url(rel=nil, args=nil)
@@ -38,12 +38,12 @@ module Neo4j
         end
       end
 
-      def handle_response_error(response, msg="Error for request", url = response.request_uri )
-        raise ServerException.new("#{msg} #{url}, #{response.code}, #{response.body}")
+      def handle_response_error(response, msg="Error for request" )
+        raise ServerException.new("#{msg} #{response.env && response.env[:url].to_s}, #{response.status}, #{response.status}")
       end
 
-      def expect_response_code(response, expected_code, msg="Error for request", url=response.request_uri )
-        handle_response_error(response, "Expected response code #{expected_code} #{msg}",url) unless response.code == expected_code
+      def expect_response_code(response, expected_code, msg="Error for request" )
+        handle_response_error(response, "Expected response code #{expected_code} #{msg}") unless response.status == expected_code
         response
       end
 

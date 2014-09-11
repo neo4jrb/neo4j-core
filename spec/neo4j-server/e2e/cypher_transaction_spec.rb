@@ -24,7 +24,7 @@ module Neo4j::Server
       tx = session.begin_tx
 
       q = tx._query("START n=node(#{id}) RETURN ID(n)")
-      expect(q.response['results']).to eq([{"columns"=>["ID(n)"], "data"=>[{"row"=>[id]}]}])
+      expect(q.response.body['results']).to eq([{"columns"=>["ID(n)"], "data"=>[{"row"=>[id]}]}])
     end
 
 
@@ -40,7 +40,7 @@ module Neo4j::Server
     it 'can commit' do
       tx = session.begin_tx
       response = tx.close
-      expect(response.code).to eq(200)
+      expect(response.status).to eq(200)
     end
 
 
@@ -149,7 +149,7 @@ module Neo4j::Server
       it "creates a node" do
         tx = session.begin_tx
         node = Neo4j::Node.create(name: 'andreas')
-        expect(tx.close.code).to eq(200)
+        expect(tx.close.status).to eq(200)
         expect(node['name']).to eq('andreas')
         #tx.close
       end

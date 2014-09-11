@@ -117,7 +117,7 @@ module Neo4j::Server
     end
 
     def raise_unless_response_code(code)
-      raise "Response code #{response.code}, expected #{code} for #{response.request.path}, #{response.body}" unless response.code == code
+      raise "Response code #{response.code}, expected #{code} for #{response.request.path}, #{response.body}" unless response.status == code
     end
 
     def each_data_row
@@ -155,26 +155,26 @@ module Neo4j::Server
 
 
     def self.create_with_no_tx(response)
-      case response.code
+      case response.status
         when 200
-          CypherResponse.new(response).set_data(response['data'], response['columns'])
+          CypherResponse.new(response).set_data(response.body['data'], response.body['columns'])
         when 400
-          CypherResponse.new(response).set_error(response['message'], response['exception'], response['fullname'])
+          CypherResponse.new(response).set_error(response.body['message'], response.body['exception'], response.body['fullname'])
         else
-          raise "Unknown response code #{response.code} for #{response.request_uri}"
+          raise "Unknown response code #{response.status} for #{response.env[:url].to_s}"
       end
     end
 
     def self.create_with_tx(response)
-      raise "Unknown response code #{response.code} for #{response.request_uri}" unless response.code == 200
+      raise "Unknown response code #{response.status} for #{response.request_uri}" unless response.status == 200
 
-      first_result = response['results'][0]
+      first_result = response.body['results'][0]
       cr = CypherResponse.new(response, true)
 
-      if (response['errors'].empty?)
+      if (response.body['errors'].empty?)
         cr.set_data(first_result['data'], first_result['columns'])
       else
-        first_error = response['errors'].first
+        first_error = response.body['errors'].first
         cr.set_error(first_error['message'], first_error['status'], first_error['code'])
       end
       cr
