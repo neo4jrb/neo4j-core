@@ -16,14 +16,14 @@ module Neo4j
       end
 
 
-      def wrap_resource(db, rel, resource_class, args=nil, verb=:get, payload={}, endpoint)
+      def wrap_resource(db, rel, resource_class, args=nil, verb=:get, payload={}, connection)
         url = resource_url(rel, args)
         response = case verb
-          when :get then endpoint.get(url, payload)
-          when :post then endpoint.post(url, payload)
+          when :get then connection.get(url, payload)
+          when :post then connection.post(url, payload)
           else raise "Illegal verb #{verb}"
         end
-        response.status == 404 ? nil : resource_class.new(db, response, url, endpoint)
+        response.status == 404 ? nil : resource_class.new(db, response, url, connection)
       end
 
       def resource_url(rel=nil, args=nil)

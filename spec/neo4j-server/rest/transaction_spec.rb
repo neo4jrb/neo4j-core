@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'httparty'
 
 def url_for(rel_url)
   "http://localhost:7474/db/data"

@@ -15,11 +15,11 @@ module Neo4j::Server
       end
     end
 
-    def initialize(db, response, url, endpoint)
-      @endpoint = endpoint
+    def initialize(db, response, url, connection)
+      @connection = connection
       @commit_url = response.body['commit']
       @exec_url = response.headers['Location']
-      raise "NO ENDPOINT URL #{@endpoint} : HEAD: #{response.headers.inspect}" if !@exec_url || @exec_url.empty?
+      raise "NO ENDPOINT URL #{@connection} : HEAD: #{response.headers.inspect}" if !@exec_url || @exec_url.empty?
       init_resource_data(response.body, url)
       expect_response_code(response,201)
       register_instance
@@ -42,7 +42,7 @@ module Neo4j::Server
           statement[:statement].gsub!("{ #{k} }", "#{escape_value(v)}")
         end
       end
-      response = @endpoint.post(@exec_url, body)
+      response = @connection.post(@exec_url, body)
       _create_cypher_response(response)
     end
 
@@ -62,14 +62,13 @@ module Neo4j::Server
 
 
     def _delete_tx
-      response = @endpoint.delete(@exec_url, headers: resource_headers)
+      response = @connection.delete(@exec_url, headers: resource_headers)
       expect_response_code(response,200)
       response
     end
 
     def _commit_tx
-      puts "COMMIT TX  #{@commit_url}"
-      response = @endpoint.post(@commit_url)
+      response = @connection.post(@commit_url)
 
       expect_response_code(response,200)
       response

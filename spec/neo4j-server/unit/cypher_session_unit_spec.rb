@@ -3,8 +3,8 @@ require 'spec_helper'
 module Neo4j::Server
   describe CypherSession do
     
-    before(:each) do
-      @endpoint = Neo4jServerEndpoint.new()
+    let(:connection) do
+      double('connection')
     end
 
     let(:cypher_response) do
@@ -13,7 +13,7 @@ module Neo4j::Server
 
     let(:session) do
       allow_any_instance_of(CypherSession).to receive(:initialize_resource).and_return(nil)
-      CypherSession.new('http://foo.bar')
+      CypherSession.new('http://foo.bar', connection)
     end
 
     class TestResponse
@@ -56,10 +56,9 @@ module Neo4j::Server
       describe 'without auth params' do
 
         before do
-          expect(Neo4jServerEndpoint).to receive(:new).with({}).and_return(@endpoint)
-
-          expect(@endpoint).to receive(:get).with('http://localhost:7474').and_return(TestResponse.new(root_resource_with_slash))
-          expect(@endpoint).to receive(:get).with("http://localhost:7474/db/data/").and_return(TestResponse.new(data_resource))
+          expect(CypherSession).to receive(:create_connection).and_return(connection)
+          expect(connection).to receive(:get).with('http://localhost:7474').and_return(TestResponse.new(root_resource_with_slash))
+          expect(connection).to receive(:get).with("http://localhost:7474/db/data/").and_return(TestResponse.new(data_resource))
         end
 
         it 'allow root resource with urls ending with slash' do
@@ -77,8 +76,6 @@ module Neo4j::Server
             Neo4j::Session._listeners.clear
           end
 
-
-#          specify { expect { |b| Neo4j::Session.on_session_available(&b) }.to yield_control }
           it 'calls the callback directly if session already exists' do
             session = Neo4j::Session.create_session(:server_db)
             expect { |b| Neo4j::Session.on_session_available(&b) }.to yield_with_args(Neo4j::Session)
@@ -115,20 +112,13 @@ module Neo4j::Server
       describe 'with auth params' do
         let(:auth) { {basic_auth: { username: 'username', password: 'password'}} }
 
-        before do
-          expect(Neo4jServerEndpoint).to receive(:new).with(auth).and_return(@endpoint)
-        end
-
         it 'creates session with basic auth params' do
           base_url = 'http://localhost:7474'
           params = [base_url, auth]
-
-          expect(@endpoint).to receive(:get).with(base_url)
-          .and_return(TestResponse.new(root_resource_with_slash))
-          expect(@endpoint).to receive(:get).with("http://localhost:7474/db/data/")
-          .and_return(TestResponse.new(data_resource))
-
           session = Neo4j::Session.create_session(:server_db, params)
+          handlers = session.connection.builder.handlers.map(&:name)
+          expect(handlers).to include('Faraday::Request::BasicAuthentication')
+
         end
 
       end
@@ -139,18 +129,18 @@ module Neo4j::Server
         auth = {basic_auth: { username: 'username', password: 'password'}}
         params = [base_url, auth]
 
-        expect(Neo4jServerEndpoint).to receive(:new).with(auth).and_return(@endpoint)
-        expect(@endpoint).to receive(:get).with(base_url)
+        expect(Neo4j::Server::CypherSession).to receive(:create_connection).with(auth).and_return(connection)
+        expect(connection).to receive(:get).with(base_url)
           .and_return(TestResponse.new(root_resource_with_slash))
-        expect(@endpoint).to receive(:get).with("http://localhost:7474/db/data/")
+        expect(connection).to receive(:get).with("http://localhost:7474/db/data/")
           .and_return(TestResponse.new(data_resource))
 
         Neo4j::Session.create_session(:server_db, params)
 
-        expect(Neo4jServerEndpoint).to receive(:new).with({}).and_return(@endpoint)
-        expect(@endpoint).to receive(:get).with('http://localhost:7474')
+        expect(Neo4j::Server::CypherSession).to receive(:create_connection).with({}).and_return(connection)
+        expect(connection).to receive(:get).with('http://localhost:7474')
           .and_return(TestResponse.new(root_resource_with_no_slash))
-        expect(@endpoint).to receive(:get).with("http://localhost:7474/db/data/")
+        expect(connection).to receive(:get).with("http://localhost:7474/db/data/")
           .and_return(TestResponse.new(data_resource))
 
         # handlers = @faraday.builder.handlers.map(&:name)
@@ -198,8 +188,7 @@ module Neo4j::Server
         it "create a new transaction and stores it in thread local" do
           response = double('response2', headers: {'Location' => 'http://tx/42'}, status: 201, body: {'commit' => 'http://tx/42/commit'})
           expect(session).to receive(:resource_url).with('transaction', nil).and_return('http://new.tx')
-          session.instance_variable_set("@endpoint", @endpoint)
-          expect(@endpoint).to receive(:post).with('http://new.tx', anything).and_return(response)
+          expect(connection).to receive(:post).with('http://new.tx', anything).and_return(response)
           
           tx = session.begin_tx
           expect(tx.commit_url).to eq('http://tx/42/commit')
