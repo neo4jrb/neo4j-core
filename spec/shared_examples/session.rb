@@ -293,6 +293,13 @@ RSpec.shared_examples "Neo4j::Session" do
           expect(result.n[:name]).to eq('Brian')
           expect(result.n[:hat]).to eq('fancy')
         end
+
+        it 'allows querying with cypher strings directly' do
+          expect do
+            session.query("MATCH (n) WWHERE ID(n) = 42 RETURN n").first
+          end.to raise_error(/Invalid input 'W'/)
+        end
+
       end
 
     end
