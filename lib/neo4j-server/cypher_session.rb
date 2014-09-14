@@ -12,7 +12,7 @@ module Neo4j::Server
     alias_method :super_query, :query
     attr_reader :connection
 
-    # @param [Hash] params example, {basic_auth: {username: 'foo', password: 'bar'}}
+    # @param [Hash] params could be empty or contain basic authentication user and password
     # @return [Faraday]
     # @see https://github.com/lostisland/faraday
     def self.create_connection(params)
@@ -32,9 +32,9 @@ module Neo4j::Server
     # @see Neo4j::Session#open
     #
     # @param [String] endpoint_url - the url to the neo4j server, defaults to 'http://localhost:7474'
-    # @param [Hash] params faraday params, see #create_connection
+    # @param [Hash] params faraday params, see #create_connection or an already created faraday connection
     def self.open(endpoint_url=nil, params = {})
-      connection = create_connection(params)
+      connection = params[:connection] || create_connection(params)
       url = endpoint_url || 'http://localhost:7474'
       response = connection.get(url)
       raise "Server not available on #{url} (response code #{response.status})" unless response.status == 200

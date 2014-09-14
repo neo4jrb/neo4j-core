@@ -84,6 +84,12 @@ module Neo4j
       # @example A Neo4j Server session
       #   Neo4j::Session.open(:server_db, 'http://localhost:7474', {basic_auth: {username: 'foo', password: 'bar'}})
       #
+      # @example Using a user defined Faraday HTTP connection
+      #   connection = Faraday.new do |b|
+      #     # faraday config
+      #   end
+      #   Neo4j::Session.open(:server_db, 'http://localhost:7474', connection: connection)
+      #
       # @example A embedded Neo4j session
       #   Neo4j::Session.open(:embedded_db, 'path/to/db')
       #
