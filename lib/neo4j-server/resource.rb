@@ -8,7 +8,7 @@ module Neo4j
       attr_reader :resource_data, :resource_url
 
       def init_resource_data(resource_data, resource_url)
-        raise "Exception #{response['exception']}" if resource_data['exception']
+        raise "Exception #{resource_data['exception']}" if resource_data['exception']
         @resource_url = resource_url
         @resource_data = resource_data
         raise "expected @resource_data to be Hash got #{@resource_data.class}" unless @resource_data.respond_to?(:[])
@@ -16,30 +16,29 @@ module Neo4j
       end
 
 
-      def wrap_resource(db, rel, resource_class, args=nil, verb=:get, payload=nil, endpoint)
-        url = resource_url(rel, args)
-        response = endpoint.send(verb, url, headers: {'Content-Type' => 'application/json'}, body: payload)
-        response.code == 404 ? nil : resource_class.new(db, response, url, endpoint)
+      def wrap_resource(db, rel, resource_class, verb=:get, payload={}, connection)
+        url = resource_url(rel)
+        response = case verb
+          when :get then connection.get(url, payload)
+          when :post then connection.post(url, payload)
+          else raise "Illegal verb #{verb}"
+        end
+        response.status == 404 ? nil : resource_class.new(db, response, url, connection)
       end
 
-      def resource_url(rel=nil, args=nil)
+      def resource_url(rel=nil)
         return @resource_url unless rel
         url = @resource_data[rel.to_s]
         raise "No resource rel '#{rel}', available #{@resource_data.keys.inspect}" unless url
-        return url unless args
-        if (args.is_a?(Hash))
-          args.keys.inject(url){|ack, key| ack.sub("{#{key}}",args[key].to_s)}
-        else
-          "#{url}/#{args.to_s}"
-        end
+        url
       end
 
-      def handle_response_error(response, msg="Error for request", url = response.request.path.to_s )
-        raise ServerException.new("#{msg} #{url}, #{response.code}, #{response.body}")
+      def handle_response_error(response, msg="Error for request" )
+        raise ServerException.new("#{msg} #{response.env && response.env[:url].to_s}, #{response.status}, #{response.status}")
       end
 
-      def expect_response_code(response, expected_code, msg="Error for request", url=response.request.path.to_s )
-        handle_response_error(response, "Expected response code #{expected_code} #{msg}",url) unless response.code == expected_code
+      def expect_response_code(response, expected_code, msg="Error for request" )
+        handle_response_error(response, "Expected response code #{expected_code} #{msg}") unless response.status == expected_code
         response
       end
 
@@ -58,15 +57,6 @@ module Neo4j
 
       def convert_from_json_value(value)
         JSON.parse(value, :quirks_mode => true)
-      end
-
-      def convert_to_json_value(value)
-        case value
-          when String
-            %Q["#{value}"]
-          else
-            value.to_s
-        end
       end
     end
   end

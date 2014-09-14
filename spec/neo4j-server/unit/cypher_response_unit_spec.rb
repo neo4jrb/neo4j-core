@@ -29,8 +29,7 @@ module Neo4j::Server
       end
 
       def successful_response(response)
-        expect(response).to receive(:code).and_return(200)
-        response
+        double('successful_response', body: response, status: 200)
       end
 
       context 'returns in a transaction' do

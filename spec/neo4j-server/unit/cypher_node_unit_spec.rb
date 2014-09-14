@@ -5,7 +5,11 @@ module Neo4j::Server
 
     let(:session) do
       allow_any_instance_of(CypherSession).to receive(:initialize_resource)
-      CypherSession.new('http://an.url')
+      CypherSession.new('http://an.url', connection)
+    end
+
+    let(:connection) do
+      double('connection')
     end
 
     describe 'instance methods' do

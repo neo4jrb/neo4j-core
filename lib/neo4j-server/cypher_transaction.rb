@@ -15,11 +15,12 @@ module Neo4j::Server
       end
     end
 
-    def initialize(db, response, url, endpoint)
-      @endpoint = endpoint
-      @commit_url = response['commit']
-      @exec_url = response.headers['location']
-      init_resource_data(response, url)
+    def initialize(db, response, url, connection)
+      @connection = connection
+      @commit_url = response.body['commit']
+      @exec_url = response.headers['Location']
+      raise "NO ENDPOINT URL #{@connection} : HEAD: #{response.headers.inspect}" if !@exec_url || @exec_url.empty?
+      init_resource_data(response.body, url)
       expect_response_code(response,201)
       register_instance
     end
@@ -41,18 +42,18 @@ module Neo4j::Server
           statement[:statement].gsub!("{ #{k} }", "#{escape_value(v)}")
         end
       end
-      response = @endpoint.post(@exec_url, headers: resource_headers, body: body.to_json)
+      response = @connection.post(@exec_url, body)
       _create_cypher_response(response)
     end
 
     def _create_cypher_response(response)
-      first_result = response['results'][0]
+      first_result = response.body['results'][0]
       cr = CypherResponse.new(response, true)
 
-      if (response['errors'].empty?)
+      if (response.body['errors'].empty?)
         cr.set_data(first_result['data'], first_result['columns'])
       else
-        first_error = response['errors'].first
+        first_error = response.body['errors'].first
         cr.set_error(first_error['message'], first_error['code'], first_error['code'])
       end
       cr
@@ -61,13 +62,14 @@ module Neo4j::Server
 
 
     def _delete_tx
-      response = @endpoint.delete(@exec_url, headers: resource_headers)
+      response = @connection.delete(@exec_url, headers: resource_headers)
       expect_response_code(response,200)
       response
     end
 
     def _commit_tx
-      response = @endpoint.post(@commit_url, headers: resource_headers)
+      response = @connection.post(@commit_url)
+
       expect_response_code(response,200)
       response
     end

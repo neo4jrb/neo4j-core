@@ -10,28 +10,44 @@ module Neo4j::Server
     include Neo4j::Core::CypherTranslator
     
     alias_method :super_query, :query
+    attr_reader :connection
 
+    # @param [Hash] params could be empty or contain basic authentication user and password
+    # @return [Faraday]
+    # @see https://github.com/lostisland/faraday
+    def self.create_connection(params)
+      conn = Faraday.new do |b|
+        b.request :basic_auth, params[:basic_auth][:username], params[:basic_auth][:password] if params[:basic_auth]
+        b.request :json
+        #b.response :logger
+        b.response :json, :content_type => "application/json"
+        #b.use Faraday::Response::RaiseError
+        b.adapter  Faraday.default_adapter
+      end
+      conn.headers = {'Content-Type' => 'application/json'}
+      conn
+    end
 
     # Opens a session to the database
     # @see Neo4j::Session#open
     #
     # @param [String] endpoint_url - the url to the neo4j server, defaults to 'http://localhost:7474'
-    # @param [Hash] params - see https://github.com/jnunemaker/httparty/blob/master/lib/httparty.rb for supported HTTParty options
+    # @param [Hash] params faraday params, see #create_connection or an already created faraday connection
     def self.open(endpoint_url=nil, params = {})
-      endpoint = Neo4jServerEndpoint.new(params)
+      connection = params[:connection] || create_connection(params)
       url = endpoint_url || 'http://localhost:7474'
-      response = endpoint.get(url)
-      raise "Server not available on #{url} (response code #{response.code})" unless response.code == 200
-      
-      root_data = JSON.parse(response.body)
+      response = connection.get(url)
+      raise "Server not available on #{url} (response code #{response.status})" unless response.status == 200
+
+      root_data = response.body
       data_url = root_data['data']
       data_url << '/' unless data_url.end_with?('/')
 
-      CypherSession.new(data_url, endpoint)
+      CypherSession.new(data_url, connection)
     end
 
-    def initialize(data_url, endpoint = nil)
-      @endpoint = endpoint || Neo4jServerEndpoint.new(data_url)
+    def initialize(data_url, connection)
+      @connection = connection
       Neo4j::Session.register(self)
       initialize_resource(data_url)
       Neo4j::Session._notify_listeners(:session_available, self)
@@ -54,9 +70,9 @@ module Neo4j::Server
     end
 
     def initialize_resource(data_url)
-      response = @endpoint.get(data_url)
+      response = @connection.get(data_url)
       expect_response_code(response,200)
-      data_resource = JSON.parse(response.body)
+      data_resource = response.body
       raise "No data_resource for #{response.body}" unless data_resource
       # store the resource data
       init_resource_data(data_resource, data_url)
@@ -72,7 +88,7 @@ module Neo4j::Server
         # Handle nested transaction "placebo transaction"
         Neo4j::Transaction.current.push_nested!
       else
-        wrap_resource(self, 'transaction', CypherTransaction, nil, :post, @endpoint)
+        wrap_resource(self, 'transaction', CypherTransaction, :post, @connection)
       end
       Neo4j::Transaction.current
     end
@@ -112,9 +128,9 @@ module Neo4j::Server
     end
 
     def indexes(label)
-      response = @endpoint.get("#{@resource_url}schema/index/#{label}")
+      response = @connection.get("#{@resource_url}schema/index/#{label}")
       expect_response_code(response, 200)
-      data_resource = JSON.parse(response.body)
+      data_resource = response.body
 
       property_keys = data_resource.map do |row|
         row['property_keys'].map(&:to_sym)
@@ -178,7 +194,7 @@ module Neo4j::Server
       else
         url = resource_url('cypher')
         q = params.nil? ? {query: q} : {query: q, params: params}
-        response = @endpoint.post(url, headers: resource_headers, body: q.to_json)
+        response = @connection.post(url, q)
         CypherResponse.create_with_no_tx(response)
       end
     end

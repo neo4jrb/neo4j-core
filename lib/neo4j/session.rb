@@ -78,7 +78,21 @@ module Neo4j
     end
 
     class << self
-      # Creates a new session to Neo4j
+      # Creates a new session to Neo4j.
+      # This will be the default session to be used unless there is already a session created (see #current and #set_current)
+      #
+      # @example A Neo4j Server session
+      #   Neo4j::Session.open(:server_db, 'http://localhost:7474', {basic_auth: {username: 'foo', password: 'bar'}})
+      #
+      # @example Using a user defined Faraday HTTP connection
+      #   connection = Faraday.new do |b|
+      #     # faraday config
+      #   end
+      #   Neo4j::Session.open(:server_db, 'http://localhost:7474', connection: connection)
+      #
+      # @example A embedded Neo4j session
+      #   Neo4j::Session.open(:embedded_db, 'path/to/db')
+      #
       # @see also Neo4j::Server::CypherSession#open for :server_db params
       # @param db_type the type of database, e.g. :embedded_db, or :server_db
       def open(db_type=:server_db, *params)
@@ -90,6 +104,7 @@ module Neo4j
         register(create_session(db_type, params), name, default)
       end
 
+      # @private
       def create_session(db_type, params = {})
         unless (@@factories[db_type])
           raise "Can't connect to database '#{db_type}', available #{@@factories.keys.join(',')}"
@@ -97,10 +112,12 @@ module Neo4j
         @@factories[db_type].call(*params)
       end
 
+      # @return [Neo4j::Session] the current session
       def current
         @@current_session
       end
 
+      # Returns the current session or raise an exception if no session is available
       def current!
         raise "No session, please create a session first with Neo4j::Session.open(:server_db) or :embedded_db" unless current
         current
@@ -111,10 +128,13 @@ module Neo4j
         current!.query(options)
       end
 
+      # Returns a session with given name or else raise an exception
       def named(name)
         @@all_sessions[name] || raise("No session named #{name}.")
       end
 
+      # Sets the session to be used as default
+      # @param [Neo4j::Session] session the session to use
       def set_current(session)
         @@current_session = session
       end
@@ -130,19 +150,23 @@ module Neo4j
         end
       end
 
+      # @private
       def add_listener(&listener)
         self._listeners << listener
       end
 
+      # @private
       def _listeners
         @@listeners ||= []
         @@listeners
       end
 
+      # @private
       def _notify_listeners(event, data)
         _listeners.each {|li| li.call(event, data)}
       end
 
+      # @private
       def register(session, name = nil, default = nil)
         if default == true
           set_current(session)
@@ -150,9 +174,10 @@ module Neo4j
           set_current(session) unless @@current_session
         end
         @@all_sessions[name] = session if name
-        @@current_session
+        session
       end
 
+      # @private
       def unregister(session)
         @@current_session = nil if @@current_session == session
       end
@@ -161,6 +186,7 @@ module Neo4j
          "Neo4j::Session available: #{@@factories && @@factories.keys}"
       end
 
+      # @private
       def register_db(db, &session_factory)
         puts "replace factory for #{db}" if @@factories[db]
         @@factories[db] = session_factory

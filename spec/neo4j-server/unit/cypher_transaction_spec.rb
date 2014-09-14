@@ -3,8 +3,14 @@ require 'ostruct'
 
 describe Neo4j::Server::CypherTransaction do
 
+  let(:body) do
+    {
+        'commit' => 'commit url'
+    }
+  end
+
   let(:response) do
-    OpenStruct.new(headers: {'location' => 'tx url'}, commit: 'commit url', code: 201, request: OpenStruct.new(path: 'some path'))
+    OpenStruct.new(headers: {'Location' => 'tx url'}, body: body, status: 201)
   end
 
   let(:endpoint) do
@@ -39,7 +45,7 @@ describe Neo4j::Server::CypherTransaction do
 
   describe 'close' do
     it 'post to the commit url' do
-      expect(endpoint).to receive(:post).with('commit url', anything).and_return(OpenStruct.new(code: 200, request: OpenStruct.new(path: '')))
+      expect(endpoint).to receive(:post).with('commit url').and_return(OpenStruct.new(status: 200))
       a_new_transaction.close
     end
 
@@ -50,7 +56,7 @@ describe Neo4j::Server::CypherTransaction do
     end
 
     it 'raise an exception if it is already commited' do
-      expect(endpoint).to receive(:post).with('commit url', anything).and_return(OpenStruct.new(code: 200, request: OpenStruct.new(path: '')))
+      expect(endpoint).to receive(:post).with('commit url').and_return(OpenStruct.new(status: 200))
       a_new_transaction.close
 
       # bang

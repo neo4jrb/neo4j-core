@@ -2,6 +2,7 @@
 require 'os'
 require 'httparty'
 require 'zip'
+require 'httparty'
 require File.expand_path("../config_server", __FILE__)
 
 namespace :neo4j do
