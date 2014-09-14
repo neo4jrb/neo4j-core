@@ -32,7 +32,7 @@ module Neo4j::Server
     # @see Neo4j::Session#open
     #
     # @param [String] endpoint_url - the url to the neo4j server, defaults to 'http://localhost:7474'
-    # @param [Hash] params - see Neo4jServerEndpoint
+    # @param [Hash] params faraday params, see #create_connection
     def self.open(endpoint_url=nil, params = {})
       connection = create_connection(params)
       url = endpoint_url || 'http://localhost:7474'
