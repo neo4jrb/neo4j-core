@@ -88,7 +88,7 @@ module Neo4j::Server
         # Handle nested transaction "placebo transaction"
         Neo4j::Transaction.current.push_nested!
       else
-        wrap_resource(self, 'transaction', CypherTransaction, nil, :post, @connection)
+        wrap_resource(self, 'transaction', CypherTransaction, :post, @connection)
       end
       Neo4j::Transaction.current
     end

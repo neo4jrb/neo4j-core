@@ -187,7 +187,7 @@ module Neo4j::Server
 
         it "create a new transaction and stores it in thread local" do
           response = double('response2', headers: {'Location' => 'http://tx/42'}, status: 201, body: {'commit' => 'http://tx/42/commit'})
-          expect(session).to receive(:resource_url).with('transaction', nil).and_return('http://new.tx')
+          expect(session).to receive(:resource_url).with('transaction').and_return('http://new.tx')
           expect(connection).to receive(:post).with('http://new.tx', anything).and_return(response)
           
           tx = session.begin_tx

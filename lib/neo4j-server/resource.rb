@@ -16,8 +16,8 @@ module Neo4j
       end
 
 
-      def wrap_resource(db, rel, resource_class, args=nil, verb=:get, payload={}, connection)
-        url = resource_url(rel, args)
+      def wrap_resource(db, rel, resource_class, verb=:get, payload={}, connection)
+        url = resource_url(rel)
         response = case verb
           when :get then connection.get(url, payload)
           when :post then connection.post(url, payload)
@@ -26,16 +26,11 @@ module Neo4j
         response.status == 404 ? nil : resource_class.new(db, response, url, connection)
       end
 
-      def resource_url(rel=nil, args=nil)
+      def resource_url(rel=nil)
         return @resource_url unless rel
         url = @resource_data[rel.to_s]
         raise "No resource rel '#{rel}', available #{@resource_data.keys.inspect}" unless url
-        return url unless args
-        if (args.is_a?(Hash))
-          args.keys.inject(url){|ack, key| ack.sub("{#{key}}",args[key].to_s)}
-        else
-          "#{url}/#{args.to_s}"
-        end
+        url
       end
 
       def handle_response_error(response, msg="Error for request" )
@@ -62,15 +57,6 @@ module Neo4j
 
       def convert_from_json_value(value)
         JSON.parse(value, :quirks_mode => true)
-      end
-
-      def convert_to_json_value(value)
-        case value
-          when String
-            %Q["#{value}"]
-          else
-            value.to_s
-        end
       end
     end
   end
