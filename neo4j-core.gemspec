@@ -39,5 +39,6 @@ It comes included with the Apache Lucene document database.
 
   if RUBY_PLATFORM == 'java'
     s.add_dependency("neo4j-community", '~> 2.1.1')
+    s.add_development_dependency 'ruby-debug'
   end
 end
