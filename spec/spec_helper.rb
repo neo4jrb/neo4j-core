@@ -19,10 +19,10 @@ require 'logger'
 require 'rspec/its'
 require 'neo4j-core'
 require 'ostruct'
-require 'ruby-debug'
 
 if RUBY_PLATFORM == 'java'
   require "neo4j-embedded/embedded_impermanent_session"
+  require 'ruby-debug'
 
   # for some reason this is not impl. in JRuby
   class OpenStruct
