@@ -11,15 +11,16 @@ module Neo4j::Embedded
     class Error < StandardError
     end
 
-    attr_reader :graph_db, :db_location
+    attr_reader :graph_db, :db_location, :properties_file
     extend Forwardable
     extend Neo4j::Core::TxMethods
     def_delegator :@graph_db, :begin_tx
 
 
     def initialize(db_location, config={})
-      @db_location = db_location
-      @auto_commit = !!config[:auto_commit]
+      @db_location     = db_location
+      @auto_commit     = !!config[:auto_commit]
+      @properties_file = config[:properties_file]
       Neo4j::Session.register(self)
     end
 
@@ -34,8 +35,10 @@ module Neo4j::Embedded
     def start
       raise Error.new("Embedded Neo4j db is already running") if running?
       puts "Start embedded Neo4j db at #{db_location}"
-      factory = Java::OrgNeo4jGraphdbFactory::GraphDatabaseFactory.new
-      @graph_db = factory.newEmbeddedDatabase(db_location)
+      factory    = Java::OrgNeo4jGraphdbFactory::GraphDatabaseFactory.new
+      db_service = factory.newEmbeddedDatabaseBuilder(db_location)
+      db_service.loadPropertiesFromFile(properties_file) if properties_file
+      @graph_db = db_service.newGraphDatabase()
       Neo4j::Session._notify_listeners(:session_available, self)
       @engine = Java::OrgNeo4jCypherJavacompat::ExecutionEngine.new(@graph_db)
     end
