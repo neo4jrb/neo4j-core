@@ -188,7 +188,6 @@ module Neo4j
 
       # @private
       def register_db(db, &session_factory)
-        require 'ruby-debug'; debugger
         puts "replace factory for #{db}" if @@factories[db]
         @@factories[db] = session_factory
       end

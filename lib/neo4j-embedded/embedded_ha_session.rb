@@ -9,7 +9,6 @@ module Neo4j::Embedded
     def start
       raise Error.new("Embedded HA Neo4j db is already running") if running?
       puts "Start embedded HA Neo4j db at #{db_location}"
-      require 'ruby-debug'; debugger
       factory    = Java::OrgNeo4jGraphdbFactory::HighlyAvailableGraphDatabaseFactory.new
       db_service = factory.newHighlyAvailableDatabaseBuilder(db_location)
 

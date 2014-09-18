@@ -36,7 +36,6 @@ module Neo4j::Embedded
       raise Error.new("Embedded Neo4j db is already running") if running?
       puts "Start embedded Neo4j db at #{db_location}"
       factory    = Java::OrgNeo4jGraphdbFactory::GraphDatabaseFactory.new
-      require 'ruby-debug'; debugger
       db_service = factory.newEmbeddedDatabaseBuilder(db_location)
       db_service.loadPropertiesFromFile(properties_file) if properties_file
       @graph_db = db_service.newGraphDatabase()
