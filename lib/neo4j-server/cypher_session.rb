@@ -16,7 +16,8 @@ module Neo4j::Server
     # @return [Faraday]
     # @see https://github.com/lostisland/faraday
     def self.create_connection(params)
-      conn = Faraday.new do |b|
+      init_params = params[:initialize] and params.delete(:initialize)
+      conn = Faraday.new(init_params) do |b|
         b.request :basic_auth, params[:basic_auth][:username], params[:basic_auth][:password] if params[:basic_auth]
         b.request :json
         #b.response :logger

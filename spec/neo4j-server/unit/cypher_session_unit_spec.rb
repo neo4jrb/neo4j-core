@@ -118,11 +118,24 @@ module Neo4j::Server
           session = Neo4j::Session.create_session(:server_db, params)
           handlers = session.connection.builder.handlers.map(&:name)
           expect(handlers).to include('Faraday::Request::BasicAuthentication')
-
         end
-
       end
 
+      describe 'with initialization params' do
+        let(:init_params_false) { {initialize: { ssl: { verify: false }}} }
+        let(:init_params_true)  { {initialize: { ssl: { verify: true  }}} }
+        it 'passes the options through to Faraday.new' do
+          base_url = 'http://localhost:7474'
+
+          params = [base_url, init_params_false]
+          session_false = Neo4j::Session.create_session(:server_db, params)
+          expect(session_false.connection.ssl.verify).to be_falsey
+
+          params = [base_url, init_params_true]
+          session_true = Neo4j::Session.create_session(:server_db, params)
+          expect(session_true.connection.ssl.verify).to be_truthy
+        end
+      end
 
       it 'does work with two sessions' do
         base_url = 'http://localhost:7474'
