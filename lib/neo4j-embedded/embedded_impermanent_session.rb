@@ -4,6 +4,8 @@ Neo4j::Session.register_db(:impermanent_db) do |*args|
   Neo4j::Embedded::EmbeddedImpermanentSession.new(*args)
 end
 
+# newHighlyAvailableDatabaseBuilder
+
 module Neo4j::Embedded
   class EmbeddedImpermanentSession < EmbeddedSession
     def start
