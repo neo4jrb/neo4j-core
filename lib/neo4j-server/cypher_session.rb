@@ -173,7 +173,7 @@ module Neo4j::Server
     end
 
     def query(*args)
-      if [[String], [String, String]].include?(args.map(&:class))
+      if [[String], [String, Hash]].include?(args.map(&:class))
         query, params = args[0,2]
         response = _query(query, params)
         response.raise_error if response.error?

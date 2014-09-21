@@ -124,8 +124,8 @@ module Neo4j
       end
 
       # @see Neo4j::Session#query
-      def query(options = {})
-        current!.query(options)
+      def query(*args)
+        current!.query(*args)
       end
 
       # Returns a session with given name or else raise an exception
