@@ -12,6 +12,7 @@ module Neo4j::Core
   # http://docs.neo4j.org/chunked/milestone/cypher-query-lang.html
   class Query
     include Neo4j::Core::QueryClauses
+    include Neo4j::Core::QueryFindInBatches
 
     def initialize(options = {})
       @session = options[:session] || Neo4j::Session.current
@@ -113,6 +114,14 @@ module Neo4j::Core
     alias_method :offset, :skip
     alias_method :order_by, :order
 
+    # Clears out previous order clauses and allows only for those specified by args
+    def reorder(*args)
+      query = self.copy
+
+      query.remove_clause_class(OrderClause)
+      query.order(*args)
+    end
+
     # Works the same as the #set method, but when given a nested array it will set properties rather than setting entire objects
     # @example
     #    # Creates a query representing the cypher: MATCH (n:Person) SET n.age = 19
@@ -210,7 +219,7 @@ module Neo4j::Core
     end
 
     def return_query(columns)
-      query = self.dup
+      query = self.copy
       query.remove_clause_class(ReturnClause)
 
       columns = columns.map do |column_definition|
@@ -270,6 +279,15 @@ module Neo4j::Core
       end.params(other_query._params)
     end
 
+    MEMOIZED_INSTANCE_VARIABLES = [:response, :merge_params]
+    def copy
+      self.dup.tap do |query|
+        MEMOIZED_INSTANCE_VARIABLES.each do |var|
+          query.instance_variable_set("@#{var}", nil)
+        end
+      end
+    end
+
     protected
     attr_accessor :session, :options, :clauses, :_params
 
@@ -285,14 +303,14 @@ module Neo4j::Core
     private
 
     def build_deeper_query(clause_class, args = {}, options = {})
-      self.dup.tap do |new_query|
+      self.copy.tap do |new_query|
         new_query.add_clauses [nil] if [nil, WithClause].include?(clause_class)
         new_query.add_clauses clause_class.from_args(args, options) if clause_class
       end
     end
 
     def break_deeper_query
-      self.dup.tap do |new_query|
+      self.copy.tap do |new_query|
         new_query.add_clauses [nil]
       end
     end
