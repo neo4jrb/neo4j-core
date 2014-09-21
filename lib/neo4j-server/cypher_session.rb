@@ -128,6 +128,20 @@ module Neo4j::Server
       CypherLabel.new(self, name)
     end
 
+    def uniqueness_constraints(label)
+      response = @connection.get("#{@resource_url}schema/constraint/#{label}/uniqueness")
+      expect_response_code(response, 200)
+      data_resource = response.body
+
+      property_keys = data_resource.map do |row|
+        row['property_keys'].map(&:to_sym)
+      end
+
+      {
+          property_keys: property_keys
+      }
+    end
+
     def indexes(label)
       response = @connection.get("#{@resource_url}schema/index/#{label}")
       expect_response_code(response, 200)

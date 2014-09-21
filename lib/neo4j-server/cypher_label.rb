@@ -24,5 +24,9 @@ module Neo4j::Server
     def indexes
       @session.indexes(@name)
     end
+
+    def uniqueness_constraints
+      @session.uniqueness_constraints(@name)
+    end
   end
 end

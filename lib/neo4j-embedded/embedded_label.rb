@@ -53,6 +53,18 @@ module Neo4j::Embedded
     end
     tx_methods :indexes
 
+    def uniqueness_constraints()
+      {
+          property_keys: @session.graph_db.schema.constraints(as_java).select do |index_def|
+            index_def.is_a?(Java::OrgNeo4jKernelImplCoreapiSchema::PropertyUniqueConstraintDefinition)
+          end.map do |index_def|
+            index_def.property_keys.map{|x| x.to_sym}
+          end
+      }
+    end
+    tx_methods :uniqueness_constraints
+
+
     def drop_index(*properties)
       @session.graph_db.schema.indexes(as_java).each do |index_def|
         # at least one match, TODO
