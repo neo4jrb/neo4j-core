@@ -23,7 +23,8 @@ module Neo4j::Server
         #b.response :logger
         b.response :json, :content_type => "application/json"
         #b.use Faraday::Response::RaiseError
-        b.adapter  Faraday.default_adapter
+        b.use Faraday::Adapter::NetHttpPersistent
+        # b.adapter  Faraday.default_adapter
       end
       conn.headers = {'Content-Type' => 'application/json'}
       conn
