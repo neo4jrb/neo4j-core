@@ -66,6 +66,8 @@ module Neo4j::Server
         elsif value['type']
           add_entity_id(value)
           CypherRelationship.new(session, value).wrapper
+        elsif Neo4j::Node::Wrapper.wrap?(value)
+          Neo4j::Node::Wrapper.wrap(value)
         else
           value
         end
@@ -165,19 +167,5 @@ module Neo4j::Server
       end
     end
 
-    def self.create_with_tx(response)
-      raise "Unknown response code #{response.status} for #{response.request_uri}" unless response.status == 200
-
-      first_result = response.body['results'][0]
-      cr = CypherResponse.new(response, true)
-
-      if (response.body['errors'].empty?)
-        cr.set_data(first_result['data'], first_result['columns'])
-      else
-        first_error = response.body['errors'].first
-        cr.set_error(first_error['message'], first_error['status'], first_error['code'])
-      end
-      cr
-    end
   end
 end
