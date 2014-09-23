@@ -1,3 +1,8 @@
+== 3.0.0.rc.5
+* Misc fixes
+* Changes to support neo4j gem
+* Using faraday gem with net-http-persistent instead of httparty
+
 == 3.0.0.rc.4
 * Remove dependency on oj gem pending further tests.
 
