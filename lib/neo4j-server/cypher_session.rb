@@ -209,7 +209,7 @@ module Neo4j::Server
         curr_tx._query(q, params)
       else
         url = resource_url('cypher')
-        q = params.nil? ? {query: q} : {query: q, params: params}
+        q = params.nil? ? { 'query' => q } : { 'query' => q, 'params' => params}
         response = @connection.post(url, q)
         CypherResponse.create_with_no_tx(response)
       end
