@@ -63,11 +63,11 @@ module Neo4j::Server
         if value['labels']
           add_entity_id(value)
           CypherNode.new(session, value).wrapper
+        elsif value['_classname']
+          Neo4j::Node.new(session, value).wrapper
         elsif value['type']
           add_entity_id(value)
           CypherRelationship.new(session, value).wrapper
-        elsif Neo4j::Node::Wrapper.wrap?(value)
-          Neo4j::Node::Wrapper.wrap(value)
         else
           value
         end

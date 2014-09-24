@@ -21,8 +21,8 @@ module Neo4j
     include PropertyContainer
 
     # @return [Hash<Symbol, Object>] all properties of the node
-    def props()
-      raise 'not implemented'
+    def props
+      @props
     end
 
     # replace all properties with new properties
@@ -202,16 +202,17 @@ module Neo4j
       end
     end
 
-    def initialize
-      raise "Can't instantiate abstract class" if abstract_class?
+    def initialize(session, value)
+      @session = session
+      @id = value
+      @props = value
+    end
+
+    def neo_id
+      nil
     end
 
     private
-    def abstract_class?
-      self.class == Node
-    end
-
 
   end
-
 end
