@@ -4,10 +4,17 @@ module Neo4j::Server
     include Neo4j::Core::CypherTranslator
     include Neo4j::Core::ActiveEntity
 
-
     def initialize(session, values)
       @session = session
       @props = values
+    end
+
+    def delegator=(node)
+      @delegator = node
+    end
+
+    def delegator
+      @delegator || (raise 'not implemented')
     end
 
     def props
@@ -40,7 +47,7 @@ module Neo4j::Server
     end
 
     def neo_id
-      self_query.return("ID(result) as result_id").first.result_id
+      @neo_id ||= self_query.return("ID(result) as result_id").first.result_id
     end
 
     private
