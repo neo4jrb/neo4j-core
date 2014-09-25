@@ -59,8 +59,6 @@ module Neo4j::Server
       cr
     end
 
-
-
     def _delete_tx
       response = @connection.delete(@exec_url, headers: resource_headers)
       expect_response_code(response,200)
