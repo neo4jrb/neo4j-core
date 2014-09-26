@@ -51,20 +51,30 @@ module Neo4j::Server
     def to_node_enumeration(cypher = '', session = Neo4j::Session.current)
       Enumerator.new do |yielder|
         self.to_struct_enumeration(cypher).each do |row|
+          i = 0
           yielder << row.each_pair.each_with_object(@struct.new) do |(column, value), result|
-            result[column] = map_row_value(value, session)
+            result[column] = map_row_value(value, session, i)
+            i += 1
           end
         end
       end
     end
 
-    def map_row_value(value, session)
+    def map_row_value(value, session, index = nil)
       if value.is_a?(Hash)
         if value['labels']
           add_entity_id(value)
           CypherNode.new(session, value).wrapper
         elsif value['_classname']
-          value['_from_node_id'] ? CypherTransactionRelationship.new(session, value).wrapper : CypherTransactionNode.new(session, value).wrapper
+          rest_data = self.response.body['results'][0]['data'].first['rest'][index]
+          if rest_data['start']
+            neo_id       = rest_data['self'].split('/').last.to_i
+            from_node_id = rest_data['start'].split('/').last.to_i
+            to_node_id   = rest_data['end'].split('/').last.to_i
+            type         = rest_data['type']
+            rel_info = { neo_id: neo_id, from_node_id: from_node_id, to_node_id: to_node_id, type: type }
+          end
+          rest_data['start'] ? CypherTransactionRelationship.new(session, value, rel_info).wrapper : CypherTransactionNode.new(session, value).wrapper
         elsif value['type']
           add_entity_id(value)
           CypherRelationship.new(session, value).wrapper
