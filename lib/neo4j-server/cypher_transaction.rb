@@ -26,9 +26,8 @@ module Neo4j::Server
     end
 
     def _query(cypher_query, params=nil)
-      statement = {statement: cypher_query}
-      body = {statements: [statement]}
-
+      statement = { statement: cypher_query, resultDataContents: ['row', 'REST'] }
+      body = { statements: [statement] }
       if params
         # TODO can't get this working for some reason using parameters
         #props = params.keys.inject({}) do|ack, k|
@@ -48,18 +47,16 @@ module Neo4j::Server
 
     def _create_cypher_response(response)
       first_result = response.body['results'][0]
-      cr = CypherResponse.new(response, true)
 
-      if (response.body['errors'].empty?)
-        cr.set_data(first_result['data'], first_result['columns'])
-      else
+      cr = CypherResponse.new(response, true)
+      if !response.body['errors'].empty?
         first_error = response.body['errors'].first
         cr.set_error(first_error['message'], first_error['code'], first_error['code'])
+      else
+        cr.set_data(first_result['data'], first_result['columns'])
       end
       cr
     end
-
-
 
     def _delete_tx
       response = @connection.delete(@exec_url, headers: resource_headers)
