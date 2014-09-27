@@ -7,37 +7,15 @@ module Neo4j::Server
 
     def initialize(session, values, rel_info = {})
       @session = session
-      @props = values
+      @props  = values
       @_start_node_id = rel_info[:from_node_id]
       @_end_node_id   = rel_info[:to_node_id]
-      @rel_type     = rel_info[:type]
-      @neo_id       = rel_info[:neo_id]
+      @rel_type       = rel_info[:type]
+      @neo_id         = rel_info[:neo_id]
     end
 
-    alias_method :id, :neo_id
-
-    def props
-      @props
-    end
-
-    def delegator=(node)
-      @delegator = self
-    end
-
-    def delegator
-      @delegator || (raise 'unset delegator')
-    end
-
-    def transaction_rel?
-      true
-    end
-
-    private
-
-    class << self
-      def rebuild(session, values)
-        node = CypherTransactionRelationship.new(session, values).wrapper
-      end
+    def inspect
+      "CypherTransactionRelationship #{neo_id} (#{object_id})"
     end
   end
 end

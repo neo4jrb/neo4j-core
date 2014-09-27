@@ -50,34 +50,29 @@ module Neo4j::Server
 
     def to_node_enumeration(cypher = '', session = Neo4j::Session.current)
       Enumerator.new do |yielder|
+        @result_index = 0
         self.to_struct_enumeration(cypher).each do |row|
-          i = 0
+          @row_index = 0
           yielder << row.each_pair.each_with_object(@struct.new) do |(column, value), result|
-            result[column] = map_row_value(value, session, i)
-            i += 1
+            result[column] = map_row_value(value, session)
+            @row_index += 1
           end
+          @result_index += 1
         end
       end
     end
 
-    def map_row_value(value, session, index = nil)
+    def map_row_value(value, session)
       if value.is_a?(Hash)
         if value['labels']
           add_entity_id(value)
           CypherNode.new(session, value).wrapper
-        elsif value['_classname']
-          rest_data = self.response.body['results'][0]['data'].first['rest'][index]
-          if rest_data['start']
-            neo_id       = rest_data['self'].split('/').last.to_i
-            from_node_id = rest_data['start'].split('/').last.to_i
-            to_node_id   = rest_data['end'].split('/').last.to_i
-            type         = rest_data['type']
-            rel_info = { neo_id: neo_id, from_node_id: from_node_id, to_node_id: to_node_id, type: type }
-          end
-          rest_data['start'] ? CypherTransactionRelationship.new(session, value, rel_info).wrapper : CypherTransactionNode.new(session, value).wrapper
         elsif value['type']
           add_entity_id(value)
           CypherRelationship.new(session, value).wrapper
+        elsif is_transaction_response?
+          obj_type, rest_vars = rest_data['start'] ? [CypherTransactionRelationship, relationship_rest] : [CypherTransactionNode, node_rest]
+          obj_type.new(session, value, rest_vars).wrapper
         else
           value
         end
@@ -94,7 +89,6 @@ module Neo4j::Server
       @response = response
       @uncommited = uncommited
     end
-
 
     def entity_data(id=nil)
       if uncommited?
@@ -175,6 +169,54 @@ module Neo4j::Server
         else
           raise "Unknown response code #{response.status} for #{response.env[:url].to_s}"
       end
+    end
+
+    def self.create_with_tx(response)
+      raise "Unknown response code #{response.status} for #{response.request_uri}" unless response.status == 200
+
+      first_result = response.body['results'][0]
+      cr = CypherResponse.new(response, true)
+
+      if (response.body['errors'].empty?)
+        cr.set_data(first_result['data'], first_result['columns'])
+      else
+        first_error = response.body['errors'].first
+        cr.set_error(first_error['message'], first_error['status'], first_error['code'])
+      end
+      cr
+    end
+
+    private
+
+
+    def is_transaction_response?
+      self.response.body['results'][0]['data'][0].has_key?('rest')
+    end
+
+    def row_index
+      @row_index
+    end
+
+    def result_index
+      @result_index
+    end
+
+    def rest_data
+      self.response.body['results'][0]['data'][result_index]['rest'][row_index]
+    end
+
+    # return [Integer] the node's neo_id based off of the "self" key
+    def node_rest
+      rest_data['self'].split('/').last.to_i
+    end
+
+    # return [Hash] the relationship's basic information
+    def relationship_rest
+      neo_id       = rest_data['self'].split('/').last.to_i
+      from_node_id = rest_data['start'].split('/').last.to_i
+      to_node_id   = rest_data['end'].split('/').last.to_i
+      type         = rest_data['type']
+      { neo_id: neo_id, from_node_id: from_node_id, to_node_id: to_node_id, type: type }
     end
 
   end

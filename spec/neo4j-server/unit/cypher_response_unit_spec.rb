@@ -105,6 +105,43 @@ module Neo4j::Server
         expect(node_enumeration[1][:person].props).to eq({name: 'Jimmy', age: 24})
       end
 
+      it 'returns hydrated CypherTransactionNode objects' do
+        faraday = double ('A Faraday Response')
+        transaction_response = {
+          'results' => [
+            'data' => [
+              {'rest' => [ { 'self' => 'http://localhost:7474/db/data/node/18' } ]},
+              {'rest' => [ { 'self' => 'http://localhost:7474/db/data/node/19' } ]}
+            ],
+          ]
+          }
+        response = CypherResponse.new(faraday, nil)
+
+        expect(faraday).to receive(:body).at_least(1).times.and_return(transaction_response)
+        response.set_data(
+          [
+            [ {'name' => 'Billy', 'age' => 20, '_classname' => 'Student'} ],
+            [ {'name' => 'Jimmy', 'age' => 24, '_classname' => 'Student'} ]
+          ],
+          ['person']
+        )
+
+        node_enumeration = response.to_node_enumeration.to_a
+
+        billy = node_enumeration[0][:person]
+        jimmy = node_enumeration[1][:person]
+        expect(billy).to be_a Neo4j::Server::CypherTransactionNode
+        expect(jimmy).to be_a Neo4j::Server::CypherTransactionNode
+
+        expect(billy.props).to eq({ 'name' => 'Billy', 'age' => 20, '_classname' => 'Student' })
+        expect(jimmy.props).to eq({ 'name' => 'Jimmy', 'age' => 24, '_classname' => 'Student' })
+
+        expect(billy.neo_id).to eq 18
+        expect(jimmy.neo_id).to eq 19
+
+        expect(billy.inspect).to include('CypherTransactionNode')
+      end
+
       it 'returns hydrated CypherRelationship objects' do
         response = CypherResponse.new(nil,nil)
         response.set_data(
@@ -140,6 +177,59 @@ module Neo4j::Server
 
         expect(node_enumeration[0][:r].props).to eq({intensity: 2})
         expect(node_enumeration[1][:r].props).to eq({intensity: 3})
+      end
+
+      it 'returns hydrated CypherTransactionRelationship objects' do
+        faraday = double ('A Faraday Response')
+        transaction_response = {
+          'results' => [
+            'data' => [
+              {'rest' => [ {
+                'self' => 'http://localhost:7474/db/data/relationship/18',
+                'start' => 'http://localhost:7474/db/data/node/19',
+                'end'  => 'http://localhost:7474/db/data/node/20',
+                'type' => 'enrolled_in'
+              } ]},
+              {'rest' => [ {
+                'self'  => 'http://localhost:7474/db/data/relationship/25',
+                'start' => 'http://localhost:7474/db/data/node/30',
+                'end'   => 'http://localhost:7474/db/data/node/31',
+                'type'  => 'enrolled_in'
+              } ]}
+            ],
+          ]
+          }
+        response = CypherResponse.new(faraday, nil)
+
+        expect(faraday).to receive(:body).at_least(1).times.and_return(transaction_response)
+        response.set_data(
+          [
+            [ {'_classname' => 'StudentLesson'} ],
+            [ {'_classname' => 'StudentLesson'} ]
+          ],
+          ['lesson_rel']
+        )
+
+        node_enumeration = response.to_node_enumeration.to_a
+
+        first = node_enumeration[0][:lesson_rel]
+        second = node_enumeration[1][:lesson_rel]
+        expect(first).to be_a Neo4j::Server::CypherTransactionRelationship
+        expect(second).to be_a Neo4j::Server::CypherTransactionRelationship
+
+        expect(first.props).to eq({'_classname' => 'StudentLesson'})
+        expect(second.props).to eq({'_classname' => 'StudentLesson'})
+
+        expect(first.neo_id).to eq 18
+        expect(first._start_node_id).to eq 19
+        expect(first._end_node_id).to eq 20
+        expect(first.rel_type).to eq 'enrolled_in'
+        expect(first.inspect).to include('CypherTransactionRelationship')
+
+        expect(second.neo_id).to eq 25
+        expect(second._start_node_id).to eq 30
+        expect(second._end_node_id).to eq 31
+        expect(second.rel_type).to eq 'enrolled_in'
       end
 
       skip 'returns hydrated CypherPath objects?'
