@@ -64,24 +64,24 @@ module Neo4j::Server
 
     def map_row_value(value, session)
       if value.is_a?(Hash)
-        if value['labels']
-          add_entity_id(value)
-          CypherNode.new(session, value).wrapper
-        elsif value['type']
-          add_entity_id(value)
-          CypherRelationship.new(session, value).wrapper
-        elsif is_transaction_response?
-          add_transaction_entity_id
-          obj_type = rest_data['start'] ? CypherRelationship : CypherNode
-          obj_type.new(session, rest_data).wrapper
-        else
-          value
-        end
+        hash_value_as_object(value, session)
       elsif value.is_a?(Array)
         value.map {|v| map_row_value(v, session) }
       else
         value
       end
+    end
+
+    def hash_value_as_object(value, session)
+      return value unless value['labels'] || value['type'] || is_transaction_response?
+      obj_type, data = if value['labels'] || value['type']
+                        add_entity_id(value)
+                        [(value['labels'] ? CypherNode : CypherRelationship), value]
+                      else
+                        add_transaction_entity_id
+                        [(rest_data['start'] ? CypherRelationship : CypherNode), rest_data]
+                      end
+      obj_type.new(session, data).wrapper
     end
 
     attr_reader :struct
