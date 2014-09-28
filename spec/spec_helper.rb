@@ -78,5 +78,22 @@ RSpec.configure do |c|
       end
   }
 
+  c.after(:all) do
+    constraint_endpoint = 'http://localhost:7474/db/data/schema/constraint/'
+    index_endpoint = 'constraint/'
+    conn = Faraday.new(url: "http://localhost:7474")
+    response = conn.get('/db/data/schema/constraint/')
+    constraints = JSON.parse(response.body)
+    constraints.each do |constraint|
+      Neo4j::Session.query("DROP CONSTRAINT ON (label:`#{constraint['label']}`) ASSERT label.#{constraint['property_keys'].first} IS UNIQUE")
+    end
+
+    response = conn.get('/db/data/schema/index/')
+    indexes = JSON.parse(response.body)
+    indexes.each do |index|
+      Neo4j::Session.query("DROP INDEX ON :`#{index['label']}`(#{index['property_keys'].first})")
+    end
+  end
+
 end
 

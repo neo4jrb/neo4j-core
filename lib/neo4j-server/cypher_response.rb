@@ -50,30 +50,38 @@ module Neo4j::Server
 
     def to_node_enumeration(cypher = '', session = Neo4j::Session.current)
       Enumerator.new do |yielder|
+        @result_index = 0
         self.to_struct_enumeration(cypher).each do |row|
+          @row_index = 0
           yielder << row.each_pair.each_with_object(@struct.new) do |(column, value), result|
             result[column] = map_row_value(value, session)
+            @row_index += 1
           end
+          @result_index += 1
         end
       end
     end
 
     def map_row_value(value, session)
       if value.is_a?(Hash)
-        if value['labels']
-          add_entity_id(value)
-          CypherNode.new(session, value).wrapper
-        elsif value['type']
-          add_entity_id(value)
-          CypherRelationship.new(session, value).wrapper
-        else
-          value
-        end
+        hash_value_as_object(value, session)
       elsif value.is_a?(Array)
         value.map {|v| map_row_value(v, session) }
       else
         value
       end
+    end
+
+    def hash_value_as_object(value, session)
+      return value unless value['labels'] || value['type'] || is_transaction_response?
+      obj_type, data = if value['labels'] || value['type']
+                        add_entity_id(value)
+                        [(value['labels'] ? CypherNode : CypherRelationship), value]
+                      else
+                        add_transaction_entity_id
+                        [(rest_data['start'] ? CypherRelationship : CypherNode), rest_data]
+                      end
+      obj_type.new(session, data).wrapper
     end
 
     attr_reader :struct
@@ -82,7 +90,6 @@ module Neo4j::Server
       @response = response
       @uncommited = uncommited
     end
-
 
     def entity_data(id=nil)
       if uncommited?
@@ -106,6 +113,10 @@ module Neo4j::Server
 
     def add_entity_id(data)
       data.merge!({'id' => data['self'].split('/')[-1].to_i})
+    end
+
+    def add_transaction_entity_id
+      rest_data.merge!({'id' => rest_data['self'].split('/').last.to_i})
     end
 
     def error?
@@ -178,6 +189,24 @@ module Neo4j::Server
         cr.set_error(first_error['message'], first_error['status'], first_error['code'])
       end
       cr
+    end
+
+    def is_transaction_response?
+      self.response.body['results'][0]['data'][0].has_key?('rest')
+    end
+
+    private
+
+    def row_index
+      @row_index
+    end
+
+    def result_index
+      @result_index
+    end
+
+    def rest_data
+      self.response.body['results'][0]['data'][result_index]['rest'][row_index]
     end
   end
 end
