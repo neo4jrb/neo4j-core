@@ -26,21 +26,8 @@ module Neo4j::Server
     end
 
     def _query(cypher_query, params=nil)
-      statement = { statement: cypher_query, resultDataContents: ['row', 'REST'] }
+      statement = { statement: cypher_query, parameters: params, resultDataContents: ['row', 'REST'] }
       body = { statements: [statement] }
-      if params
-        # TODO can't get this working for some reason using parameters
-        #props = params.keys.inject({}) do|ack, k|
-        #  ack[k] = {name: params[k]}
-        #  ack
-        #end
-        #statement[:parameters] = props
-
-        # So we have to do this workaround
-        params.each_pair do |k,v|
-          statement[:statement].gsub!("{ #{k} }", "#{escape_value(v)}")
-        end
-      end
       response = @connection.post(@exec_url, body)
       _create_cypher_response(response)
     end

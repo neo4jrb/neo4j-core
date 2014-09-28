@@ -71,8 +71,9 @@ module Neo4j::Server
           add_entity_id(value)
           CypherRelationship.new(session, value).wrapper
         elsif is_transaction_response?
-          obj_type, rest_vars = rest_data['start'] ? [CypherTransactionRelationship, relationship_rest] : [CypherTransactionNode, node_rest]
-          obj_type.new(session, value, rest_vars).wrapper
+          add_transaction_entity_id
+          obj_type = rest_data['start'] ? CypherRelationship : CypherNode
+          obj_type.new(session, rest_data).wrapper
         else
           value
         end
@@ -112,6 +113,10 @@ module Neo4j::Server
 
     def add_entity_id(data)
       data.merge!({'id' => data['self'].split('/')[-1].to_i})
+    end
+
+    def add_transaction_entity_id
+      rest_data.merge!({'id' => rest_data['self'].split('/').last.to_i})
     end
 
     def error?
@@ -186,12 +191,11 @@ module Neo4j::Server
       cr
     end
 
-    private
-
-
     def is_transaction_response?
       self.response.body['results'][0]['data'][0].has_key?('rest')
     end
+
+    private
 
     def row_index
       @row_index
@@ -204,20 +208,5 @@ module Neo4j::Server
     def rest_data
       self.response.body['results'][0]['data'][result_index]['rest'][row_index]
     end
-
-    # return [Integer] the node's neo_id based off of the "self" key
-    def node_rest
-      rest_data['self'].split('/').last.to_i
-    end
-
-    # return [Hash] the relationship's basic information
-    def relationship_rest
-      neo_id       = rest_data['self'].split('/').last.to_i
-      from_node_id = rest_data['start'].split('/').last.to_i
-      to_node_id   = rest_data['end'].split('/').last.to_i
-      type         = rest_data['type']
-      { neo_id: neo_id, from_node_id: from_node_id, to_node_id: to_node_id, type: type }
-    end
-
   end
 end
