@@ -115,13 +115,20 @@ module Neo4j::Server
     end
 
     def load_relationship(neo_id)
-      cypher_response = _query("START r=relationship(#{neo_id}) RETURN TYPE(r)")
-      if (!cypher_response.error?)
-        CypherRelationship.new(self, neo_id, cypher_response.first_data)
-      elsif (cypher_response.error_msg =~ /not found/)  # Ugly that the Neo4j API gives us this error message
+      cypher_response = _query("MATCH ()-[r]-() WHERE ID(r) = #{neo_id} RETURN r")
+      return nil if cypher_response.data[0].nil?
+      data  = if cypher_response.is_transaction_response?
+                cypher_response.rest_data_with_id
+              else
+                cypher_response.first_data
+              end
+
+      if cypher_response.error?
+        cypher_response.raise_error
+      elsif cypher_response.error_msg =~ /not found/  # Ugly that the Neo4j API gives us this error message
         return nil
       else
-        cypher_response.raise_error
+        CypherRelationship.new(self, data)        
       end
     end
 
@@ -253,28 +260,28 @@ module Neo4j::Server
       end
     end
 
+    # This appears to be unused, old code.
+    # def search_result_to_enumerable(response, ret, map)
+    #   return [] unless response.data
 
-    def search_result_to_enumerable(response, ret, map)
-      return [] unless response.data
+    #   if (ret.size == 1)
+    #     Enumerator.new do |yielder|
+    #       response.data.each do |data|
+    #         yielder << map_column(key, map, data[0])
+    #       end
+    #     end
 
-      if (ret.size == 1)
-        Enumerator.new do |yielder|
-          response.data.each do |data|
-            yielder << map_column(key, map, data[0])
-          end
-        end
-
-      else
-        Enumerator.new do |yielder|
-          response.data.each do |data|
-            hash = {}
-            ret.each_with_index do |key, i|
-              hash[key] = map_column(key, map, data[i])
-            end
-            yielder << hash
-          end
-        end
-      end
-    end
+    #   else
+    #     Enumerator.new do |yielder|
+    #       response.data.each do |data|
+    #         hash = {}
+    #         ret.each_with_index do |key, i|
+    #           hash[key] = map_column(key, map, data[i])
+    #         end
+    #         yielder << hash
+    #       end
+    #     end
+    #   end
+    # end
   end
 end

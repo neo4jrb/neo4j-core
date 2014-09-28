@@ -166,7 +166,7 @@ module Neo4j::Server
         node = Neo4j::Node.create(name: 'andreas')
         expect(tx.close.status).to eq(200)
         expect(node['name']).to eq('andreas')
-        #tx.close
+        # tx.close
       end
     end
 

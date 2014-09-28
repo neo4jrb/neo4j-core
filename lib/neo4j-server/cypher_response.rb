@@ -79,7 +79,7 @@ module Neo4j::Server
                         [(value['labels'] ? CypherNode : CypherRelationship), value]
                       else
                         add_transaction_entity_id
-                        [(rest_data['start'] ? CypherRelationship : CypherNode), rest_data]
+                        [(mapped_rest_data['start'] ? CypherRelationship : CypherNode), mapped_rest_data]
                       end
       obj_type.new(session, data).wrapper
     end
@@ -116,7 +116,7 @@ module Neo4j::Server
     end
 
     def add_transaction_entity_id
-      rest_data.merge!({'id' => rest_data['self'].split('/').last.to_i})
+      mapped_rest_data.merge!({'id' => mapped_rest_data['self'].split('/').last.to_i})
     end
 
     def error?
@@ -125,6 +125,10 @@ module Neo4j::Server
 
     def uncommited?
       @uncommited
+    end
+
+    def has_data?
+      !response.body['data'].nil?
     end
 
     def raise_unless_response_code(code)
@@ -192,7 +196,16 @@ module Neo4j::Server
     end
 
     def is_transaction_response?
-      self.response.body['results'][0]['data'][0].has_key?('rest')
+      !self.response.body['results'].nil?
+    end
+
+    def rest_data
+      @result_index = @row_index = 0
+      mapped_rest_data
+    end
+
+    def rest_data_with_id
+      rest_data.merge!({'id' => mapped_rest_data['self'].split('/').last.to_i})
     end
 
     private
@@ -205,7 +218,7 @@ module Neo4j::Server
       @result_index
     end
 
-    def rest_data
+    def mapped_rest_data
       self.response.body['results'][0]['data'][result_index]['rest'][row_index]
     end
   end

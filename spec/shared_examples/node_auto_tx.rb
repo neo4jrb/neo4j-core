@@ -9,9 +9,9 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
     # before(:each) do
     #   @tx = Neo4j::Transaction.new
     # end
-    #
+    
     # after(:each) do
-    #   @tx.finish
+    #   @tx.close
     # end
 
     describe "class methods" do
@@ -129,7 +129,7 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
 
         it 'returns all labels for the node' do
           n = Neo4j::Node.create({}, :label1, :label2)
-          expect(n.labels.to_a).to eq([:label1, :label2])
+          expect(n.labels.to_a).to include(:label1, :label2)
         end
       end
 

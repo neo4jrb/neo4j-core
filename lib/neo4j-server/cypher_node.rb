@@ -33,7 +33,8 @@ module Neo4j::Server
     def create_rel(type, other_node, props = nil)
       q = "START a=node(#{neo_id}), b=node(#{other_node.neo_id}) CREATE (a)-[r:`#{type}` #{cypher_prop_list(props)}]->(b) RETURN ID(r)"
       id = @session._query_or_fail(q, true)
-      CypherRelationship.new(@session, id, type)
+      data_hash = { 'type' => type, 'data' => props, 'start' => self.neo_id.to_s, 'end' => other_node.neo_id.to_s, 'id' => id }
+      CypherRelationship.new(@session, data_hash)
     end
 
     # (see Neo4j::Node#props)
