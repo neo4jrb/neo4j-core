@@ -5,21 +5,14 @@ module Neo4j::Server
     include Neo4j::Core::CypherTranslator
     include Neo4j::Core::ActiveEntity
 
-    def initialize(session, value, rel_type = nil)
+    def initialize(session, value)
       @session = session
-
-      @id = if value.is_a?(Hash)
-        @response_hash = value
-        @rel_type = @response_hash['type']
-        @props = @response_hash['data']
-        @start_node_neo_id = @response_hash['start'].match(/\d+$/)[0].to_i
-        @end_node_neo_id = @response_hash['end'].match(/\d+$/)[0].to_i
-        @response_hash['id']
-      else
-        @rel_type = rel_type
-
-        value
-      end
+      @response_hash = value
+      @rel_type = @response_hash['type']
+      @props = @response_hash['data']
+      @start_node_neo_id = @response_hash['start'].match(/\d+$/)[0].to_i
+      @end_node_neo_id = @response_hash['end'].match(/\d+$/)[0].to_i
+      @id = @response_hash['id']
     end
 
     def ==(o)
@@ -66,10 +59,12 @@ module Neo4j::Server
     end
 
     def _end_node
+      load_resource
       @_end_node ||= Neo4j::Node._load(end_node_neo_id)
     end
 
     def get_node_id(direction)
+      load_resource
       resource_url_id(resource_url(direction))
     end
 

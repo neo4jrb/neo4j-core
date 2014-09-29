@@ -14,6 +14,7 @@ RSpec.shared_examples "Neo4j::Session" do
     it 'creates a Neo4j::Session' do
       session = open_session
       expect(session).to be_a_kind_of(Neo4j::Session)
+      session.close
     end
   end
 
@@ -64,7 +65,6 @@ RSpec.shared_examples "Neo4j::Session" do
         @andreas1 = Neo4j::Node.create({name: 'andreas', age: 1}, @label)
         @zebbe = Neo4j::Node.create({name: 'zebbe', age: 3}, @label)
       end
-
 
       describe 'finds with :conditions' do
         it 'finds all nodes matching condition' do
@@ -161,7 +161,6 @@ RSpec.shared_examples "Neo4j::Session" do
               expect { subject.response }.to raise_error(Neo4j::Session::CypherError)
             end
           end
-
         end
       end
 
@@ -299,12 +298,7 @@ RSpec.shared_examples "Neo4j::Session" do
             session.query("MATCH (n) WWHERE ID(n) = 42 RETURN n").first
           end.to raise_error(/Invalid input 'W'/)
         end
-
       end
-
     end
-
   end
-
-
 end

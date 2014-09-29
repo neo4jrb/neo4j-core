@@ -104,19 +104,16 @@ module Neo4j::Server
 
     def load_node(neo_id)
       cypher_response = _query("START n=node(#{neo_id}) RETURN n")
-      if (!cypher_response.error?)
-        result = cypher_response.entity_data(neo_id)
-        CypherNode.new(self, result)
-      elsif (cypher_response.error_status =~ /EntityNotFound/)
-        return nil
-      else
-        cypher_response.raise_error
-      end
+      load_entity(CypherNode, cypher_response)
     end
 
     def load_relationship(neo_id)
-      cypher_response = _query("MATCH ()-[r]-() WHERE ID(r) = #{neo_id} RETURN r")
-      return nil if cypher_response.data[0].nil?
+      cypher_response = _query("START r=relationship(#{neo_id}) RETURN r")
+      load_entity(CypherRelationship, cypher_response)
+    end
+
+    def load_entity(clazz, cypher_response)
+      return nil if cypher_response.data.nil? || cypher_response.data[0].nil?
       data  = if cypher_response.is_transaction_response?
                 cypher_response.rest_data_with_id
               else
@@ -128,7 +125,7 @@ module Neo4j::Server
       elsif cypher_response.error_msg =~ /not found/  # Ugly that the Neo4j API gives us this error message
         return nil
       else
-        CypherRelationship.new(self, data)        
+        clazz.new(self, data)
       end
     end
 
@@ -260,7 +257,7 @@ module Neo4j::Server
       end
     end
 
-    # This appears to be unused, old code.
+
     # def search_result_to_enumerable(response, ret, map)
     #   return [] unless response.data
 
