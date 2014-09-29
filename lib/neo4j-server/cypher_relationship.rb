@@ -5,23 +5,14 @@ module Neo4j::Server
     include Neo4j::Core::CypherTranslator
     include Neo4j::Core::ActiveEntity
 
-    attr_reader :start_node_neo_id, :end_node_neo_id
-
-    def initialize(session, value, rel_type = nil)
+    def initialize(session, value)
       @session = session
-
-      @id = if value.is_a?(Hash)
-        @response_hash = value
-        @rel_type = @response_hash['type']
-        @props = @response_hash['data']
-        @start_node_neo_id = @response_hash['start'].match(/\d+$/)[0].to_i
-        @end_node_neo_id = @response_hash['end'].match(/\d+$/)[0].to_i
-        @response_hash['id']
-      else
-        @rel_type = rel_type
-
-        value
-      end
+      @response_hash = value
+      @rel_type = @response_hash['type']
+      @props = @response_hash['data']
+      @start_node_neo_id = @response_hash['start'].match(/\d+$/)[0].to_i
+      @end_node_neo_id = @response_hash['end'].match(/\d+$/)[0].to_i
+      @id = @response_hash['id']
     end
 
     def ==(o)
@@ -29,8 +20,12 @@ module Neo4j::Server
     end
     alias_method :eql?, :==
 
-    def neo_id
+    def id
       @id
+    end
+
+    def neo_id
+      id
     end
 
     def inspect
@@ -38,10 +33,17 @@ module Neo4j::Server
     end
 
     def load_resource
-      id = neo_id
-      unless @resource_data
+      if resource_data.nil? || resource_data.empty?
         @resource_data = @session._query_or_fail("START n=relationship(#{id}) RETURN n", true) # r.first_data
       end
+    end
+
+    def start_node_neo_id
+      @start_node_neo_id
+    end
+
+    def end_node_neo_id
+      @end_node_neo_id
     end
 
     def _start_node_id
@@ -53,15 +55,12 @@ module Neo4j::Server
     end
 
     def _start_node
-      load_resource
-      id = resource_url_id(resource_url(:start))
-      Neo4j::Node._load(id)
+      @_start_node ||= Neo4j::Node._load(start_node_neo_id)
     end
 
     def _end_node
       load_resource
-      id = resource_url_id(resource_url(:end))
-      Neo4j::Node._load(id)
+      @_end_node ||= Neo4j::Node._load(end_node_neo_id)
     end
 
     def get_node_id(direction)
@@ -70,17 +69,14 @@ module Neo4j::Server
     end
 
     def get_property(key)
-      id = neo_id
       @session._query_or_fail("START n=relationship(#{id}) RETURN n.`#{key}`", true)
     end
 
     def set_property(key,value)
-      id = neo_id
       @session._query_or_fail("START n=relationship(#{id}) SET n.`#{key}` = {value}", false, {value: value})
     end
 
     def remove_property(key)
-      id = neo_id
       @session._query_or_fail("START n=relationship(#{id}) REMOVE n.`#{key}`")
     end
 

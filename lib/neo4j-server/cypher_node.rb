@@ -33,7 +33,8 @@ module Neo4j::Server
     def create_rel(type, other_node, props = nil)
       q = "START a=node(#{neo_id}), b=node(#{other_node.neo_id}) CREATE (a)-[r:`#{type}` #{cypher_prop_list(props)}]->(b) RETURN ID(r)"
       id = @session._query_or_fail(q, true)
-      CypherRelationship.new(@session, id, type)
+      data_hash = { 'type' => type, 'data' => props, 'start' => self.neo_id.to_s, 'end' => other_node.neo_id.to_s, 'id' => id }
+      CypherRelationship.new(@session, data_hash)
     end
 
     # (see Neo4j::Node#props)
@@ -158,33 +159,33 @@ module Neo4j::Server
 
     # (see Neo4j::Node#node)
     def node(match={})
-      result = match(CypherNode, "ID(p)", match)
+      result = match(CypherNode, "p as result LIMIT 2", match)
       raise "Expected to only find one relationship from node #{neo_id} matching #{match.inspect} but found #{result.count}" if result.count > 1
       result.first
     end
 
     # (see Neo4j::Node#rel)
     def rel(match={})
-      result = match(CypherRelationship, "ID(r), TYPE(r)", match)
+      result = match(CypherRelationship, "r as result LIMIT 2", match)
       raise "Expected to only find one relationship from node #{neo_id} matching #{match.inspect} but found #{result.count}" if result.count > 1
       result.first
     end
 
     # (see Neo4j::Node#rel?)
     def rel?(match={})
-      result = match(CypherRelationship, "ID(r), TYPE(r)", match)
+      result = match(CypherRelationship, "r as result", match)
       !!result.first
     end
 
     # (see Neo4j::Node#nodes)
     def nodes(match={})
-      match(CypherNode, "ID(p)", match)
+      match(CypherNode, "p as result", match)
     end
 
 
     # (see Neo4j::Node#rels)
     def rels(match = {dir: :both})
-      match(CypherRelationship, "ID(r), TYPE(r)", match)
+      match(CypherRelationship, "r as result", match)
     end
 
     # @private
@@ -199,17 +200,11 @@ module Neo4j::Server
       cypher = "START n=node(#{neo_id}) #{between_id} MATCH (n)#{dir_func.call(cypher_rel)}(p) RETURN #{returns}"
       r = @session._query(cypher)
       r.raise_error if r.error?
-      _map_result(r, clazz)
+      _map_result(r)
     end
 
-    # @private
-    def _map_result(r, clazz)
-      r.data.map do |rel|
-        next if r.uncommited? ? rel['row'].first.nil? : rel.first.nil?
-        row = r.uncommited? ? rel['row'] : rel
-        clazz.new(@session, *row).wrapper
-      end.compact
+    def _map_result(r)
+      r.to_node_enumeration.map { |rel| rel.result }
     end
-
   end
 end
