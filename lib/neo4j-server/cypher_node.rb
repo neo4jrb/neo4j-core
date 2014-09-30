@@ -143,6 +143,9 @@ module Neo4j::Server
       @session._query_or_fail("START n = node(#{neo_id}) MATCH n-[r]-() DELETE r")
       @session._query_or_fail("START n = node(#{neo_id}) DELETE n")
     end
+    alias_method :delete, :del
+    alias_method :destroy, :del
+
 
     # (see Neo4j::Node#exist?)
     def exist?

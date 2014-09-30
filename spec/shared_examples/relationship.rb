@@ -115,6 +115,18 @@ RSpec.shared_examples "Neo4j::Relationship" do
       rel_a.del
       expect(rel_a.exist?).to be false
     end
+
+    it 'does not exist after destroy' do
+      expect(rel_a.exist?).to be true
+      rel_a.destroy
+      expect(rel_a.exist?).to be false
+    end
+
+    it 'does not exist after delete' do
+      expect(rel_a.exist?).to be true
+      rel_a.delete
+      expect(rel_a.exist?).to be false
+    end
   end
 
   describe 'update_props' do
