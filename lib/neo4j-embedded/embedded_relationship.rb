@@ -47,6 +47,10 @@ module Neo4j::Embedded
             delete
           end
           tx_methods :del
+          tx_methods :delete
+
+          alias_method :destroy, :del
+          tx_methods :destroy
 
           def other_node(n)
             _other_node(n.neo4j_obj).wrapper

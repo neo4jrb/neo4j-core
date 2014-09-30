@@ -113,6 +113,10 @@ module Neo4j::Embedded
             nil
           end
           tx_methods :del
+          tx_methods :delete
+
+          alias_method :destroy, :del
+          tx_methods :destroy
 
           def create_rel(type, other_node, props = nil)
             rel = create_relationship_to(other_node.neo4j_obj, ToJava.type_to_java(type))

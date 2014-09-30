@@ -114,6 +114,8 @@ module Neo4j::Server
       id = neo_id
       @session._query("START n=relationship(#{id}) DELETE n").raise_unless_response_code(200)
     end
+    alias_method :delete, :del
+    alias_method :destroy, :del
 
     def exist?
       id = neo_id
