@@ -134,7 +134,11 @@ module Neo4j::Core
 
       def attributes_string(attributes)
         attributes_string = attributes.map do |key, value|
-          v = value.to_s.match(/^{.+}$/) ? value : value.inspect
+          v = if value.nil?
+                'null'
+              else
+                value.to_s.match(/^{.+}$/) ? value : value.inspect
+              end
           "#{key}: #{v}"
         end.join(', ')
 
