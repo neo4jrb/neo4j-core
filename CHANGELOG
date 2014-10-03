@@ -1,3 +1,6 @@
+== 3.0.1
+* Improved handling of cypher responses, particularly within transactions
+
 == 3.0.0
 No changes from rc 5
 
