@@ -6,6 +6,17 @@ describe Neo4j::Server::CypherNode, api: :server do
   it_behaves_like "Neo4j::Node with tx"
 
   describe 'transactions' do
+    around(:each) do |example|
+      begin
+        Neo4j::Transaction.run do |tx|
+          example.run
+        end
+      rescue RuntimeError
+      end
+    end
+
+    it_behaves_like "Neo4j::Node auto tx"
+
     let!(:bob)   { Neo4j::Node.create({ name: 'bob' }, :person)  }
     let!(:jim)   { Neo4j::Node.create({ name: 'jim' }, :person)  }
 

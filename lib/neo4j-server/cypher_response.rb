@@ -74,13 +74,13 @@ module Neo4j::Server
 
     def hash_value_as_object(value, session)
       return value unless value['labels'] || value['type'] || is_transaction_response?
-      obj_type, data = if value['labels'] || value['type']
-                        add_entity_id(value)
-                        [(value['labels'] ? CypherNode : CypherRelationship), value]
-                      else
-                        add_transaction_entity_id
-                        [(mapped_rest_data['start'] ? CypherRelationship : CypherNode), mapped_rest_data]
-                      end
+      obj_type, data =  if is_transaction_response?
+                          add_transaction_entity_id
+                          [(mapped_rest_data['start'] ? CypherRelationship : CypherNode), mapped_rest_data]
+                        else value['labels'] || value['type']
+                          add_entity_id(value)
+                          [(value['labels'] ? CypherNode : CypherRelationship), value]
+                        end
       obj_type.new(session, data).wrapper
     end
 
@@ -196,7 +196,7 @@ module Neo4j::Server
     end
 
     def is_transaction_response?
-      !self.response.body['results'].nil?
+      self.response.respond_to?('body') && !self.response.body['commit'].nil?
     end
 
     def rest_data
