@@ -26,7 +26,7 @@ module Neo4j::Server
         b.use Faraday::Adapter::NetHttpPersistent
         # b.adapter  Faraday.default_adapter
       end
-      conn.headers = {'Content-Type' => 'application/json'}
+      conn.headers = {'Content-Type' => 'application/json', 'User-Agent' => ::Neo4j::Session.user_agent_string}
       conn
     end
 

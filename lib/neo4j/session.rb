@@ -150,6 +150,17 @@ module Neo4j
         end
       end
 
+      def user_agent_string
+        gem, version = if defined?(::Neo4j::ActiveNode)
+                         ['neo4j', ::Neo4j::VERSION]
+                       else
+                         ['neo4j-core', ::Neo4j::Core::VERSION]
+                       end
+
+
+        "#{gem} gem/#{version} (https://github.com/neo4jrb/#{gem})"
+      end
+
       # @private
       def add_listener(&listener)
         self._listeners << listener

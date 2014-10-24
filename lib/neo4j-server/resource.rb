@@ -49,7 +49,7 @@ module Neo4j
       end
 
       def resource_headers
-        {'Content-Type' => 'application/json', 'Accept' => 'application/json'}
+        {'Content-Type' => 'application/json', 'Accept' => 'application/json', 'User-Agent' => ::Neo4j::Session.user_agent_string}
       end
 
       def resource_url_id(url = resource_url)
