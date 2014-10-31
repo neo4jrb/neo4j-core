@@ -520,6 +520,10 @@ describe Neo4j::Core::Query do
       it_generates "ON CREATE SET n = {name: \"Brian\"}"
     end
 
+    describe ".on_create_set(n: {})" do
+      it_generates "", {}
+    end
+
     describe ".on_create_set(n: {name: 'Brian', age: 30})" do
       it_generates "ON CREATE SET n.name = {setter_n_name}, n.age = {setter_n_age}", {setter_n_name: 'Brian', setter_n_age: 30}
     end
@@ -536,6 +540,10 @@ describe Neo4j::Core::Query do
   describe "#on_match_set" do
     describe ".on_match_set('n = {name: \"Brian\"}')" do
       it_generates "ON MATCH SET n = {name: \"Brian\"}"
+    end
+
+    describe ".on_match_set(n: {})" do
+      it_generates "", {}
     end
 
     describe ".on_match_set(n: {name: 'Brian', age: 30})" do

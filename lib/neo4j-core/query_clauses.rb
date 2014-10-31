@@ -106,7 +106,9 @@ module Neo4j::Core
         end
 
         def to_cypher(clauses)
-          "#{@keyword} #{clause_string(clauses)}"
+          string = clause_string(clauses)
+
+          "#{@keyword} #{string}" if string.to_s.strip.size > 0
         end
       end
 
