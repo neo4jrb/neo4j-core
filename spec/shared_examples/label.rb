@@ -36,18 +36,21 @@ RSpec.shared_examples "Neo4j::Label" do
       it 'replace old labels with new ones' do
         node = Neo4j::Node.create({}, :one, :two)
         node.set_label(:three)
+        node = Neo4j::Node.load(node.neo_id)
         expect(node.labels).to eq([:three])
       end
 
       it 'can allows setting several labels in one go' do
         node = Neo4j::Node.create({}, :one, :two)
         node.set_label(:two, :three, :four)
+        node = Neo4j::Node.load(node.neo_id)
         expect(node.labels).to match_array([:two, :three, :four])
       end
 
       it 'can remove all labels' do
         node = Neo4j::Node.create({}, :one, :two)
         node.set_label
+        node = Neo4j::Node.load(node.neo_id)
         expect(node.labels).to eq([])
       end
 
@@ -60,6 +63,7 @@ RSpec.shared_examples "Neo4j::Label" do
       it "can set labels without removing any labels" do
         node = Neo4j::Node.create()
         node.set_label(:one, :two)
+        node = Neo4j::Node.load(node.neo_id)
         expect(node.labels).to match_array([:one, :two])
       end
     end
