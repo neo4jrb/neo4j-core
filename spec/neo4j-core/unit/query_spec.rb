@@ -25,6 +25,58 @@ describe Neo4j::Core::Query do
     CYPHER_LABEL = 'GreatNote' 
   end
 
+  describe 'batch finding' do
+    before(:all) do
+      Neo4j::Session.open(:server_db)
+    end
+    before(:each) do
+      Neo4j::Core::Query.new.match(foo: :Foo, bar: :Bar).delete(:foo, :bar).exec
+
+      5.times do
+        Neo4j::Node.create({uuid: SecureRandom.uuid}, :Foo)
+      end
+      2.times do
+        Neo4j::Node.create({uuid: SecureRandom.uuid}, :Bar)
+      end
+    end
+
+    describe 'find_in_batches' do
+      {
+        1 => 5,
+        2 => 3,
+        3 => 2,
+        4 => 2,
+        5 => 1,
+        6 => 1
+      }.each do |batch_size, expected_yields|
+        context "batch_size of #{batch_size}" do
+          it 'yields three times for five nodes and a batch size of two' do
+            expect do |block|
+              Neo4j::Core::Query.new.match(f: :Foo).return(:f).find_in_batches(:f, :uuid, batch_size: batch_size, &block)
+            end.to yield_control.exactly(expected_yields).times
+          end
+        end
+      end
+    end
+
+    describe 'find_each' do
+      {
+        1 => 5,
+        2 => 5,
+        3 => 5,
+        4 => 5,
+        5 => 5,
+        6 => 5
+      }.each do |batch_size, expected_yields|
+        it 'yields five times for five nodes and a batch size of two' do
+          expect do |block|
+            Neo4j::Core::Query.new.match(f: :Foo).return(:f).find_each(:f, :uuid, batch_size: 2, &block)
+          end.to yield_control.exactly(5).times
+        end
+      end
+    end
+  end
+
   def expects_cypher(cypher, params = nil)
     query = eval("Neo4j::Core::Query.new#{self.class.description}")
     expect(query.to_cypher).to eq(cypher)
