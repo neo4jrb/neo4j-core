@@ -1,3 +1,17 @@
+== 3.0.2
+* Improved detection of transaction responses to prevent conflicts with property names
+
+== 3.0.1
+* Improved handling of cypher responses, particularly within transactions
+
+== 3.0.0
+No changes from rc 5
+
+== 3.0.0.rc.5
+* Misc fixes
+* Changes to support neo4j gem
+* Using faraday gem with net-http-persistent instead of httparty
+
 == 3.0.0.rc.4
 * Remove dependency on oj gem pending further tests.
 

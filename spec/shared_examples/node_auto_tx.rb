@@ -6,14 +6,6 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
 
 
   context "with auto commit" do
-    # before(:each) do
-    #   @tx = Neo4j::Transaction.new
-    # end
-    #
-    # after(:each) do
-    #   @tx.finish
-    # end
-
     describe "class methods" do
       describe 'create()' do
 
@@ -97,27 +89,41 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
       end
 
       describe 'del' do
+        let(:n) { Neo4j::Node.create }
         it "deletes the node" do
-          n = Neo4j::Node.create
           expect(n).to exist
           n.del
+          Neo4j::Transaction.current.close if Neo4j::Transaction.current
           expect(n).not_to exist
         end
 
         it 'raise an exception if node does not exist' do
-          n = Neo4j::Node.create
           n.del
+          Neo4j::Transaction.current.close if Neo4j::Transaction.current
           expect { n.del }.to raise_error
         end
 
         it 'does delete its relationships as well' do
-          n = Neo4j::Node.create
           m = Neo4j::Node.create
           rel = n.create_rel(:friends, m)
           expect(rel).to exist
           n.del
+          Neo4j::Transaction.current.close if Neo4j::Transaction.current
           expect(n).not_to exist
           expect(rel).not_to exist
+        end
+
+        it 'is aliased to delete' do
+          n
+          n.delete
+          Neo4j::Transaction.current.close if Neo4j::Transaction.current
+          expect(n).not_to exist
+        end
+
+        it 'is aliased to destroy' do
+          n.destroy
+          Neo4j::Transaction.current.close if Neo4j::Transaction.current
+          expect(n).not_to exist
         end
       end
 
@@ -129,7 +135,7 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
 
         it 'returns all labels for the node' do
           n = Neo4j::Node.create({}, :label1, :label2)
-          expect(n.labels.to_a).to eq([:label1, :label2])
+          expect(n.labels.to_a).to include(:label1, :label2)
         end
       end
 

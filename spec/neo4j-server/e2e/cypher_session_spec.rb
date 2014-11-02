@@ -95,6 +95,11 @@ module Neo4j::Server
       end
     end
 
+    subject { Neo4j::Session.current.to_s }
+    it { is_expected.to include "Neo4j::Server::CypherSession url:" }
+
+    subject { Neo4j::Session.current.inspect }
+    it { is_expected.to include "Neo4j::Server::CypherSession url:"}
   end
 
 end

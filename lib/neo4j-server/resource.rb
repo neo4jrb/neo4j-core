@@ -16,8 +16,9 @@ module Neo4j
       end
 
 
-      def wrap_resource(db, rel, resource_class, verb=:get, payload={}, connection)
+      def wrap_resource(db, rel, resource_class, verb = :get, statement = {}, connection)
         url = resource_url(rel)
+        payload = statement.empty? ? nil : statement
         response = case verb
           when :get then connection.get(url, payload)
           when :post then connection.post(url, payload)
@@ -26,9 +27,9 @@ module Neo4j
         response.status == 404 ? nil : resource_class.new(db, response, url, connection)
       end
 
-      def resource_url(rel=nil)
-        return @resource_url unless rel
-        url = @resource_data[rel.to_s]
+      def resource_url(rel = nil)
+        return @resource_url if rel.nil?
+        url = resource_data[rel.to_s]
         raise "No resource rel '#{rel}', available #{@resource_data.keys.inspect}" unless url
         url
       end
@@ -48,10 +49,10 @@ module Neo4j
       end
 
       def resource_headers
-        {'Content-Type' => 'application/json', 'Accept' => 'application/json'}
+        {'Content-Type' => 'application/json', 'Accept' => 'application/json', 'User-Agent' => ::Neo4j::Session.user_agent_string}
       end
 
-      def resource_url_id(url = @resource_url)
+      def resource_url_id(url = resource_url)
         url.match(/\/(\d+)$/)[1].to_i
       end
 

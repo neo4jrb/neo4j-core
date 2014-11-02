@@ -106,7 +106,9 @@ module Neo4j::Core
         end
 
         def to_cypher(clauses)
-          "#{@keyword} #{clause_string(clauses)}"
+          string = clause_string(clauses)
+
+          "#{@keyword} #{string}" if string.to_s.strip.size > 0
         end
       end
 
@@ -134,7 +136,11 @@ module Neo4j::Core
 
       def attributes_string(attributes)
         attributes_string = attributes.map do |key, value|
-          v = value.to_s.match(/^{.+}$/) ? value : value.inspect
+          v = if value.nil?
+                'null'
+              else
+                value.to_s.match(/^{.+}$/) ? value : value.inspect
+              end
           "#{key}: #{v}"
         end.join(', ')
 
