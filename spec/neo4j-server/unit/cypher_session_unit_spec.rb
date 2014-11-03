@@ -2,7 +2,7 @@ require 'spec_helper'
 
 module Neo4j::Server
   describe CypherSession do
-    
+
     let(:connection) do
       double('connection')
     end
@@ -121,6 +121,15 @@ module Neo4j::Server
         end
       end
 
+      describe 'with auth params inside URL' do
+        it 'creates session with basic auth params' do
+          url = 'http://username:password@localhost:7474'
+          session = Neo4j::Session.create_session(:server_db, url)
+          handlers = session.connection.builder.handlers.map(&:name)
+          expect(handlers).to include('Faraday::Request::BasicAuthentication')
+        end
+      end
+
       describe 'with initialization params' do
         let(:init_params_false) { {initialize: { ssl: { verify: false }}} }
         let(:init_params_true)  { {initialize: { ssl: { verify: true  }}} }
@@ -204,7 +213,7 @@ module Neo4j::Server
           response = double('response2', headers: {'Location' => 'http://tx/42'}, status: 201, body: {'commit' => 'http://tx/42/commit'})
           expect(session).to receive(:resource_url).with('transaction').and_return('http://new.tx')
           expect(connection).to receive(:post).with('http://new.tx', anything).and_return(response)
-          
+
           tx = session.begin_tx
           expect(tx.commit_url).to eq('http://tx/42/commit')
           expect(tx.exec_url).to eq('http://tx/42')
@@ -243,7 +252,7 @@ module Neo4j::Server
       end
 
       describe 'find_nodes' do
-        
+
         before do
           # session.stub(:resource_url).and_return
           # session.should_receive(:search_result_to_enumerable).with(cypher_response).and_return
@@ -273,5 +282,5 @@ module Neo4j::Server
 
     end
   end
-  
+
 end
