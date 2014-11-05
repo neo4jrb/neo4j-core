@@ -32,6 +32,12 @@ module Neo4j::Embedded
       "#{self.class} db_location: '#{@db_location}', running: #{running?}"
     end
 
+    def version
+      # Wow
+      version_string = graph_db.to_java(Java::OrgNeo4jKernel::GraphDatabaseAPI).getDependencyResolver().resolveDependency(Java::OrgNeo4jKernel::KernelData.java_class).version().to_s
+      version_string.split(' ')[-1]
+    end
+
     def start
       raise Error.new("Embedded Neo4j db is already running") if running?
       puts "Start embedded Neo4j db at #{db_location}"
