@@ -556,15 +556,15 @@ describe Neo4j::Core::Query do
     end
 
     describe ".set(n: {name: 'Brian', age: 30})" do
-      it_generates "SET n.name = {setter_n_name}, n.age = {setter_n_age}", {setter_n_name: 'Brian', setter_n_age: 30}
+      it_generates "SET n.`name` = {setter_n_name}, n.`age` = {setter_n_age}", {setter_n_name: 'Brian', setter_n_age: 30}
     end
 
     describe ".set(n: {name: 'Brian', age: 30}, o: {age: 29})" do
-      it_generates "SET n.name = {setter_n_name}, n.age = {setter_n_age}, o.age = {setter_o_age}", {setter_n_name: 'Brian', setter_n_age: 30, setter_o_age: 29}
+      it_generates "SET n.`name` = {setter_n_name}, n.`age` = {setter_n_age}, o.`age` = {setter_o_age}", {setter_n_name: 'Brian', setter_n_age: 30, setter_o_age: 29}
     end
 
     describe ".set(n: {name: 'Brian', age: 30}).set_props('o.age = 29')" do
-      it_generates "SET n.name = {setter_n_name}, n.age = {setter_n_age}, o.age = 29", {setter_n_name: 'Brian', setter_n_age: 30}
+      it_generates "SET n.`name` = {setter_n_name}, n.`age` = {setter_n_age}, o.age = 29", {setter_n_name: 'Brian', setter_n_age: 30}
     end
   end
 
@@ -579,15 +579,15 @@ describe Neo4j::Core::Query do
     end
 
     describe ".on_create_set(n: {name: 'Brian', age: 30})" do
-      it_generates "ON CREATE SET n.name = {setter_n_name}, n.age = {setter_n_age}", {setter_n_name: 'Brian', setter_n_age: 30}
+      it_generates "ON CREATE SET n.`name` = {setter_n_name}, n.`age` = {setter_n_age}", {setter_n_name: 'Brian', setter_n_age: 30}
     end
 
     describe ".on_create_set(n: {name: 'Brian', age: 30}, o: {age: 29})" do
-      it_generates "ON CREATE SET n.name = {setter_n_name}, n.age = {setter_n_age}, o.age = {setter_o_age}", {setter_n_name: 'Brian', setter_n_age: 30, setter_o_age: 29}
+      it_generates "ON CREATE SET n.`name` = {setter_n_name}, n.`age` = {setter_n_age}, o.`age` = {setter_o_age}", {setter_n_name: 'Brian', setter_n_age: 30, setter_o_age: 29}
     end
 
     describe ".on_create_set(n: {name: 'Brian', age: 30}).on_create_set('o.age = 29')" do
-      it_generates "ON CREATE SET n.name = {setter_n_name}, n.age = {setter_n_age}, o.age = 29", {setter_n_name: 'Brian', setter_n_age: 30}
+      it_generates "ON CREATE SET n.`name` = {setter_n_name}, n.`age` = {setter_n_age}, o.age = 29", {setter_n_name: 'Brian', setter_n_age: 30}
     end
   end
 
@@ -601,15 +601,15 @@ describe Neo4j::Core::Query do
     end
 
     describe ".on_match_set(n: {name: 'Brian', age: 30})" do
-      it_generates "ON MATCH SET n.name = {setter_n_name}, n.age = {setter_n_age}", {setter_n_name: 'Brian', setter_n_age: 30}
+      it_generates "ON MATCH SET n.`name` = {setter_n_name}, n.`age` = {setter_n_age}", {setter_n_name: 'Brian', setter_n_age: 30}
     end
 
     describe ".on_match_set(n: {name: 'Brian', age: 30}, o: {age: 29})" do
-      it_generates "ON MATCH SET n.name = {setter_n_name}, n.age = {setter_n_age}, o.age = {setter_o_age}", {setter_n_name: 'Brian', setter_n_age: 30, setter_o_age: 29}
+      it_generates "ON MATCH SET n.`name` = {setter_n_name}, n.`age` = {setter_n_age}, o.`age` = {setter_o_age}", {setter_n_name: 'Brian', setter_n_age: 30, setter_o_age: 29}
     end
 
     describe ".on_match_set(n: {name: 'Brian', age: 30}).on_match_set('o.age = 29')" do
-      it_generates "ON MATCH SET n.name = {setter_n_name}, n.age = {setter_n_age}, o.age = 29", {setter_n_name: 'Brian', setter_n_age: 30}
+      it_generates "ON MATCH SET n.`name` = {setter_n_name}, n.`age` = {setter_n_age}, o.age = 29", {setter_n_name: 'Brian', setter_n_age: 30}
     end
   end
 

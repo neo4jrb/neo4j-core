@@ -13,7 +13,7 @@ gem 'simplecov-html', require: false
 group 'development' do
   gem 'yard'
   gem 'simplecov'
-#  gem 'pry'
+  gem 'pry'
 end
 
 group 'test' do
