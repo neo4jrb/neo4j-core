@@ -8,7 +8,7 @@ module Neo4j::Server
   class CypherSession < Neo4j::Session
     include Resource
     include Neo4j::Core::CypherTranslator
-    
+
     alias_method :super_query, :query
     attr_reader :connection
 
@@ -36,6 +36,7 @@ module Neo4j::Server
     # @param [String] endpoint_url - the url to the neo4j server, defaults to 'http://localhost:7474'
     # @param [Hash] params faraday params, see #create_connection or an already created faraday connection
     def self.open(endpoint_url=nil, params = {})
+      extract_basic_auth(endpoint_url, params)
       connection = params[:connection] || create_connection(params)
       url = endpoint_url || 'http://localhost:7474'
       response = connection.get(url)
@@ -47,6 +48,15 @@ module Neo4j::Server
 
       CypherSession.new(data_url, connection)
     end
+
+    def self.extract_basic_auth(url, params)
+      return unless url && URI(url).userinfo
+      params[:basic_auth] = {
+        username: URI(url).user,
+        password: URI(url).password
+      }
+    end
+    private_class_method :extract_basic_auth
 
     def initialize(data_url, connection)
       @connection = connection
@@ -168,7 +178,7 @@ module Neo4j::Server
 
     def find_nodes(label_name, key, value)
       value = "'#{value}'" if value.is_a? String
-      
+
       response = _query_or_fail <<-CYPHER
         MATCH (n:`#{label_name}`)
         WHERE n.#{key} = #{value}

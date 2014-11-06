@@ -85,7 +85,7 @@ module Neo4j::Server
     end
 
     attr_reader :struct
-    
+
     def initialize(response, uncommited = false)
       @response = response
       @uncommited = uncommited

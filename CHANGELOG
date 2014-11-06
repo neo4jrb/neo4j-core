@@ -1,3 +1,13 @@
+== 3.0.5
+* Bug fix: automatic parsing of basic auth params in URL (Thanks, Miha Rekar!)
+* Adds find_in_batches method, see github wiki for documentation: https://github.com/neo4jrb/neo4j-core/wiki
+
+== 3.0.4
+* Bug fixes to sanitize params and remove blank clauses 
+
+== 3.0.3
+* Adds a user agent string to connections to identify the driver with the server
+
 == 3.0.2
 * Improved detection of transaction responses to prevent conflicts with property names
 

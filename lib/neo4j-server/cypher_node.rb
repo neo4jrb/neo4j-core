@@ -10,6 +10,7 @@ module Neo4j::Server
       @id = if value.is_a?(Hash)
         hash = value['data']
         @props = Hash[hash.map{ |k, v| [k.to_sym, v] }]
+        @labels = value['metadata']['labels'].map(&:to_sym) if value['metadata']
         value['id'] # value['self'].match(/\d+$/)[0].to_i
       else
         value
@@ -106,8 +107,9 @@ module Neo4j::Server
 
     # (see Neo4j::Node#labels)
     def labels
-      r = @session._query_or_fail("START n=node(#{neo_id}) RETURN labels(n) as labels", true)
-      r.map(&:to_sym)
+      @labels ||= @session._query_or_fail("START n=node(#{neo_id}) RETURN labels(n) as labels", true)
+
+      @labels.map(&:to_sym)
     end
 
     def _cypher_label_list(labels)
