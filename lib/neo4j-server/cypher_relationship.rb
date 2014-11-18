@@ -34,7 +34,7 @@ module Neo4j::Server
 
     def load_resource
       if resource_data.nil? || resource_data.empty?
-        @resource_data = @session._query_or_fail("START n=relationship(#{id}) RETURN n", true) # r.first_data
+        @resource_data = @session._query_or_fail("#{match_start} RETURN n", true) # r.first_data
       end
     end
 
@@ -69,15 +69,15 @@ module Neo4j::Server
     end
 
     def get_property(key)
-      @session._query_or_fail("START n=relationship(#{id}) RETURN n.`#{key}`", true)
+      @session._query_or_fail("#{match_start} RETURN n.`#{key}`", true)
     end
 
     def set_property(key,value)
-      @session._query_or_fail("START n=relationship(#{id}) SET n.`#{key}` = {value}", false, {value: value})
+      @session._query_or_fail("#{match_start} SET n.`#{key}` = {value}", false, {value: value})
     end
 
     def remove_property(key)
-      @session._query_or_fail("START n=relationship(#{id}) REMOVE n.`#{key}`")
+      @session._query_or_fail("#{match_start} REMOVE n.`#{key}`")
     end
 
     # (see Neo4j::Relationship#props)
@@ -85,21 +85,21 @@ module Neo4j::Server
       if @props
         @props
       else
-        hash = @session._query_entity_data("START n=relationship(#{neo_id}) RETURN n")
+        hash = @session._query_entity_data("#{match_start} RETURN n")
         @props = Hash[hash['data'].map{ |k, v| [k.to_sym, v] }]
       end
     end
 
     # (see Neo4j::Relationship#props=)
     def props=(properties)
-      @session._query_or_fail("START n=relationship(#{neo_id}) SET n = { props }", false, {props: properties})
+      @session._query_or_fail("#{match_start} SET n = { props }", false, {props: properties})
       properties
     end
 
     # (see Neo4j::Relationship#update_props)
     def update_props(properties)
       return if properties.empty?
-      q = "START n=relationship(#{neo_id}) SET " + properties.keys.map do |k|
+      q = "#{match_start} SET " + properties.keys.map do |k|
         "n.`#{k}`= #{escape_value(properties[k])}"
       end.join(',')
       @session._query_or_fail(q)
@@ -111,24 +111,20 @@ module Neo4j::Server
     end
 
     def del
-      id = neo_id
-      @session._query("START n=relationship(#{id}) DELETE n").raise_unless_response_code(200)
+      @session._query("#{match_start} DELETE n").raise_unless_response_code(200)
     end
     alias_method :delete, :del
     alias_method :destroy, :del
 
     def exist?
-      id = neo_id
-      response = @session._query("START n=relationship(#{id}) RETURN n")
-
-      if (!response.error?)
-        return true
-      elsif (response.error_status == 'BadInputException') # TODO see github issue neo4j/1061
-        return false
-      else
-        response.raise_error
-      end
+      response = @session._query("#{match_start} RETURN n")
+      response.data.empty? ? false : true
     end
 
+    private
+
+    def match_start(identifier = 'n')
+      "MATCH (node)-[#{identifier}]-() WHERE ID(#{identifier}) = #{neo_id}"
+    end
   end
 end

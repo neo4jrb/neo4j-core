@@ -97,10 +97,10 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
           expect(n).not_to exist
         end
 
-        it 'raise an exception if node does not exist' do
+        it 'does not raise an exception if node does not exist' do
           n.del
           Neo4j::Transaction.current.close if Neo4j::Transaction.current
-          expect { n.del }.to raise_error
+          expect { n.del }.not_to raise_error
         end
 
         it 'does delete its relationships as well' do

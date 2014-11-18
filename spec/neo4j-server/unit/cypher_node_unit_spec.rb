@@ -12,6 +12,8 @@ module Neo4j::Server
       double('connection')
     end
 
+    let(:match_string) { "MATCH (n) WHERE ID(n) = 42" }
+
     describe 'instance methods' do
 
       describe 'props' do
@@ -49,7 +51,7 @@ module Neo4j::Server
 
         it "returns all properties" do
           node = CypherNode.new(session, 42)
-          expect(session).to receive(:_query_entity_data).with("START n=node(42) RETURN n").and_return({'data'=> {'name'=>'andreas'}})
+          expect(session).to receive(:_query_entity_data).with("#{match_string} RETURN n").and_return({'data'=> {'name'=>'andreas'}})
           expect(node.props).to eq({name: 'andreas'})
         end
       end
@@ -57,35 +59,22 @@ module Neo4j::Server
       describe 'exist?' do
         it "generates correct cypher" do
           cypher_response = double("cypher response", error?: false)
-          expect(session).to receive(:_query).with('START n=node(42) RETURN ID(n)').and_return(cypher_response)
+          expect(session).to receive(:_query).with("#{match_string} RETURN ID(n)").and_return(cypher_response)
           node = CypherNode.new(session, 42)
           node.init_resource_data('data', 'http://bla/42')
-
+          expect(cypher_response).to receive(:data).and_return([])
           # when
           node.exist?
         end
 
-        it "returns true if HTTP 200" do
+        it "returns true if response contains node data" do
           node = CypherNode.new(session, 42)
           node.init_resource_data('data', 'http://bla/42')
-          expect(session).to receive(:_query).and_return(double('response', error?: false))
+          response = double('response', error?: false)
+          expect(session).to receive(:_query).and_return(response)
+          expect(response).to receive(:data).and_return([:foo])
 
           expect(node.exist?).to be true
-        end
-
-        it "raise exception if unexpected response" do
-          node = CypherNode.new(session, 42)
-          response = double('response', error?: true, error_status: 'Unknown')
-          expect(response).to receive(:raise_error)
-          expect(session).to receive(:_query).with('START n=node(42) RETURN ID(n)').and_return(response)
-          node.exist?
-        end
-
-        it "returns false if HTTP 400 is received with EntityNotFoundException exception" do
-          node = CypherNode.new(session, 42)
-          response = double("response", error?: true, error_status: 'EntityNotFoundException')
-          expect(session).to receive(:_query).with('START n=node(42) RETURN ID(n)').and_return(response)
-          expect(node.exist?).to be false
         end
       end
 
@@ -93,14 +82,14 @@ module Neo4j::Server
         it 'generates correct cypher' do
           node = CypherNode.new(session, 42)
           response = double("cypher response", error?: false)
-          expect(session).to receive(:_query).with('START n=node(42) SET n.`name` = { value }', {value: 'andreas'}).and_return(response)
+          expect(session).to receive(:_query).with("#{match_string} SET n.`name` = { value }", { value: 'andreas' }).and_return(response)
           node['name'] = 'andreas'
         end
 
         it 'removed property if setting it to a nil value' do
           node = CypherNode.new(session, 42)
           response = double("cypher response", error?: false)
-          expect(session).to receive(:_query).with('START n=node(42) REMOVE n.`name`',nil).and_return(response)
+          expect(session).to receive(:_query).with("#{match_string} REMOVE n.`name`",nil).and_return(response)
           node['name'] = nil
         end
       end
@@ -109,7 +98,7 @@ module Neo4j::Server
         it 'generates correct cypher' do
           node = CypherNode.new(session, 42)
           response = double('cypher response',first_data: 'andreas', error?: false)
-          expect(session).to receive(:_query).with('START n=node(42) RETURN n.`name`',nil).and_return(response)
+          expect(session).to receive(:_query).with("#{match_string} RETURN n.`name`",nil).and_return(response)
           expect(node['name']).to eq('andreas')
         end
       end
