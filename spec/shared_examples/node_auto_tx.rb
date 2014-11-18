@@ -100,7 +100,11 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
         it 'does not raise an exception if node does not exist' do
           n.del
           Neo4j::Transaction.current.close if Neo4j::Transaction.current
-          expect { n.del }.not_to raise_error
+          if Neo4j::Session.current.db_type == :server_db
+            expect { n.del }.not_to raise_error
+          else
+            expect { n.del }.to raise_error
+          end
         end
 
         it 'does delete its relationships as well' do
