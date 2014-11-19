@@ -3,8 +3,8 @@ module Neo4j::Core
     # Cypher Helper
      def escape_value(value)
        result = case value
-         when String
-           sanitized = sanitize_escape_sequences(value)
+         when String, Symbol
+           sanitized = sanitize_escape_sequences(value.to_s)
            "'#{escape_quotes(sanitized)}'"
          else
            value

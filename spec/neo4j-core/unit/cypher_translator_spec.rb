@@ -3,6 +3,14 @@ require 'spec_helper'
 describe Neo4j::Core::CypherTranslator do
   let(:klass) { Class.new.extend Neo4j::Core::CypherTranslator }
 
+  context '#escape_value' do
+    context 'with symbol' do
+      it "stringifies symbol" do
+        expect(klass.escape_value(:"matt's")).to eq('\'matt\\\'s\'')
+      end
+    end
+  end
+
   context '#sanitize_escape_sequences' do
     context 'with valid strings' do
       [
