@@ -113,12 +113,12 @@ module Neo4j::Server
     end
 
     def load_node(neo_id)
-      cypher_response = _query("START n=node(#{neo_id}) RETURN n")
+      cypher_response = _query("MATCH (n) WHERE ID(n) = #{neo_id} RETURN n")
       load_entity(CypherNode, cypher_response)
     end
 
     def load_relationship(neo_id)
-      cypher_response = _query("START r=relationship(#{neo_id}) RETURN r")
+      cypher_response = _query("MATCH (n)-[r]-() WHERE ID(r) = #{neo_id} RETURN r")
       load_entity(CypherRelationship, cypher_response)
     end
 
