@@ -110,13 +110,11 @@ module Neo4j::Server
     end
 
     def load_node(neo_id)
-      cypher_response = _query("MATCH (n) WHERE ID(n) = #{neo_id} RETURN n")
-      load_entity(CypherNode, cypher_response)
+      load_entity(CypherNode, _query("MATCH (n) WHERE ID(n) = #{neo_id} RETURN n"))
     end
 
     def load_relationship(neo_id)
-      cypher_response = _query("MATCH (n)-[r]-() WHERE ID(r) = #{neo_id} RETURN r")
-      load_entity(CypherRelationship, cypher_response)
+      load_entity(CypherRelationship, _query("MATCH (n)-[r]-() WHERE ID(r) = #{neo_id} RETURN r"))
     end
 
     def load_entity(clazz, cypher_response)
@@ -141,36 +139,21 @@ module Neo4j::Server
     end
 
     def uniqueness_constraints(label)
-      response = @connection.get("#{@resource_url}schema/constraint/#{label}/uniqueness")
-      expect_response_code(response, 200)
-      data_resource = response.body
-
-      property_keys = data_resource.map do |row|
-        row['property_keys'].map(&:to_sym)
-      end
-
-      {
-          property_keys: property_keys
-      }
+      schema_properties("#{@resource_url}schema/constraint/#{label}/uniqueness")
     end
 
     def indexes(label)
-      response = @connection.get("#{@resource_url}schema/index/#{label}")
+      schema_properties("#{@resource_url}schema/index/#{label}")
+    end
+
+    def schema_properties(query_string)
+      response = @connection.get(query_string)
       expect_response_code(response, 200)
-      data_resource = response.body
-
-      property_keys = data_resource.map do |row|
-        row['property_keys'].map(&:to_sym)
-      end
-
-      {
-          property_keys: property_keys
-      }
+      { property_keys: response.body.map { |row| row['property_keys'].map(&:to_sym) } }
     end
 
     def find_all_nodes(label_name)
-      response = _query_or_fail("MATCH (n:`#{label_name}`) RETURN ID(n)")
-      search_result_to_enumerable_first_column(response)
+      search_result_to_enumerable_first_column(_query_or_fail("MATCH (n:`#{label_name}`) RETURN ID(n)"))
     end
 
     def find_nodes(label_name, key, value)
