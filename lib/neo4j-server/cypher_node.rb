@@ -32,10 +32,13 @@ module Neo4j::Server
 
     # (see Neo4j::Node#create_rel)
     def create_rel(type, other_node, props = nil)
-      q = "MATCH (a), (b) WHERE ID(a) = #{neo_id} AND ID(b) = #{other_node.neo_id} CREATE (a)-[r:`#{type}` #{cypher_prop_list(props)}]->(b) RETURN ID(r)"
-      id = @session._query_or_fail(q, true)
+      id = @session._query_or_fail(rel_string(type, other_node, props), true, cypher_prop_list(props))
       data_hash = { 'type' => type, 'data' => props, 'start' => self.neo_id.to_s, 'end' => other_node.neo_id.to_s, 'id' => id }
       CypherRelationship.new(@session, data_hash)
+    end
+
+    def rel_string(type, other_node, props)
+      "MATCH (a), (b) WHERE ID(a) = #{neo_id} AND ID(b) = #{other_node.neo_id} CREATE (a)-[r:`#{type}` #{prop_identifier(props)}]->(b) RETURN ID(r)"
     end
 
     # (see Neo4j::Node#props)
@@ -108,7 +111,6 @@ module Neo4j::Server
     # (see Neo4j::Node#labels)
     def labels
       @labels ||= @session._query_or_fail("#{match_start} RETURN labels(n) as labels", true)
-
       @labels.map(&:to_sym)
     end
 
@@ -151,8 +153,7 @@ module Neo4j::Server
 
     # (see Neo4j::Node#exist?)
     def exist?
-      response = @session._query("#{match_start} RETURN ID(n)")
-      response.data.empty? ? false : true
+      @session._query("#{match_start} RETURN ID(n)").data.empty? ? false : true
     end
 
 

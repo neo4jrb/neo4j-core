@@ -105,11 +105,8 @@ module Neo4j::Server
       Neo4j::Transaction.current
     end
 
-    def create_node(props=nil, labels=[])
-      l = labels.empty? ? "" : ":" + labels.map{|k| "`#{k}`"}.join(':')
-      q = "CREATE (n#{l} #{cypher_prop_list(props)}) RETURN ID(n)"
-      cypher_response = _query_or_fail(q, true)
-      CypherNode.new(self, cypher_response)
+    def create_node(props = nil, labels = [])
+      CypherNode.new self, _query_or_fail(cypher_string(labels, props), true, cypher_prop_list(props))
     end
 
     def load_node(neo_id)
@@ -254,41 +251,16 @@ module Neo4j::Server
           yielder << CypherNode.new(self, data[0]).wrapper
         end
       end
-  end
-
-    def map_column(key, map, data)
-      case map[key]
-        when :node
-          CypherNode.new(self, data).wrapper
-        when :rel, :relationship
-          CypherRelationship.new(self, data)
-        else
-          data
-      end
     end
 
-
-    # def search_result_to_enumerable(response, ret, map)
-    #   return [] unless response.data
-
-    #   if (ret.size == 1)
-    #     Enumerator.new do |yielder|
-    #       response.data.each do |data|
-    #         yielder << map_column(key, map, data[0])
-    #       end
-    #     end
-
-    #   else
-    #     Enumerator.new do |yielder|
-    #       response.data.each do |data|
-    #         hash = {}
-    #         ret.each_with_index do |key, i|
-    #           hash[key] = map_column(key, map, data[i])
-    #         end
-    #         yielder << hash
-    #       end
-    #     end
-    #   end
-    # end
+    def map_column(key, map, data)
+      if map[key] == :node
+        CypherNode.new(self, data).wrapper
+      elsif map[key] == :rel || map[:key] || :relationship
+        CypherRelationship.new(self, data)
+      else
+        data
+      end
+    end
   end
 end
