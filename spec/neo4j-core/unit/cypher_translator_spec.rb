@@ -49,7 +49,7 @@ describe Neo4j::Core::CypherTranslator do
   context "#cyper_prop_list" do
     it "drops nil properties" do
       items = klass.cypher_prop_list({one: 1, two: 2, three: nil})
-      expect(items).to eq("{one : 1,two : 2}")
+      expect(items).to eq({:props=>{:one=>1, :two=>2}})
     end
   end
 

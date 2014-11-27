@@ -236,12 +236,12 @@ module Neo4j::Server
         end
 
         it 'create_node(name: "jimmy") generates ' do
-          expect(session).to receive(:_query).with("CREATE (n {name : 'jimmy'}) RETURN ID(n)",nil).and_return(cypher_response)
+          expect(session).to receive(:_query).with("CREATE (n {props}) RETURN ID(n)", {:props=>{:name=>"jimmy"}}).and_return(cypher_response)
           session.create_node(name: 'jimmy')
         end
 
         it 'create_node({}, [:person])' do
-          expect(session).to receive(:_query).with("CREATE (n:`person` {}) RETURN ID(n)",nil).and_return(cypher_response)
+          expect(session).to receive(:_query).with("CREATE (n:`person` {props}) RETURN ID(n)", {:props=>{}}).and_return(cypher_response)
           session.create_node({}, [:person])
         end
 

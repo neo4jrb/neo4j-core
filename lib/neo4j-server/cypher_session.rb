@@ -105,21 +105,16 @@ module Neo4j::Server
       Neo4j::Transaction.current
     end
 
-    def create_node(props=nil, labels=[])
-      l = labels.empty? ? "" : ":" + labels.map{|k| "`#{k}`"}.join(':')
-      q = "CREATE (n#{l} #{cypher_prop_list(props)}) RETURN ID(n)"
-      cypher_response = _query_or_fail(q, true)
-      CypherNode.new(self, cypher_response)
+    def create_node(props = nil, labels = [])
+      CypherNode.new self, _query_or_fail(cypher_string(labels, props), true, cypher_prop_list(props))
     end
 
     def load_node(neo_id)
-      cypher_response = _query("MATCH (n) WHERE ID(n) = #{neo_id} RETURN n")
-      load_entity(CypherNode, cypher_response)
+      load_entity(CypherNode, _query("MATCH (n) WHERE ID(n) = #{neo_id} RETURN n"))
     end
 
     def load_relationship(neo_id)
-      cypher_response = _query("MATCH (n)-[r]-() WHERE ID(r) = #{neo_id} RETURN r")
-      load_entity(CypherRelationship, cypher_response)
+      load_entity(CypherRelationship, _query("MATCH (n)-[r]-() WHERE ID(r) = #{neo_id} RETURN r"))
     end
 
     def load_entity(clazz, cypher_response)
@@ -144,36 +139,21 @@ module Neo4j::Server
     end
 
     def uniqueness_constraints(label)
-      response = @connection.get("#{@resource_url}schema/constraint/#{label}/uniqueness")
-      expect_response_code(response, 200)
-      data_resource = response.body
-
-      property_keys = data_resource.map do |row|
-        row['property_keys'].map(&:to_sym)
-      end
-
-      {
-          property_keys: property_keys
-      }
+      schema_properties("#{@resource_url}schema/constraint/#{label}/uniqueness")
     end
 
     def indexes(label)
-      response = @connection.get("#{@resource_url}schema/index/#{label}")
+      schema_properties("#{@resource_url}schema/index/#{label}")
+    end
+
+    def schema_properties(query_string)
+      response = @connection.get(query_string)
       expect_response_code(response, 200)
-      data_resource = response.body
-
-      property_keys = data_resource.map do |row|
-        row['property_keys'].map(&:to_sym)
-      end
-
-      {
-          property_keys: property_keys
-      }
+      { property_keys: response.body.map { |row| row['property_keys'].map(&:to_sym) } }
     end
 
     def find_all_nodes(label_name)
-      response = _query_or_fail("MATCH (n:`#{label_name}`) RETURN ID(n)")
-      search_result_to_enumerable_first_column(response)
+      search_result_to_enumerable_first_column(_query_or_fail("MATCH (n:`#{label_name}`) RETURN ID(n)"))
     end
 
     def find_nodes(label_name, key, value)
@@ -254,41 +234,16 @@ module Neo4j::Server
           yielder << CypherNode.new(self, data[0]).wrapper
         end
       end
-  end
-
-    def map_column(key, map, data)
-      case map[key]
-        when :node
-          CypherNode.new(self, data).wrapper
-        when :rel, :relationship
-          CypherRelationship.new(self, data)
-        else
-          data
-      end
     end
 
-
-    # def search_result_to_enumerable(response, ret, map)
-    #   return [] unless response.data
-
-    #   if (ret.size == 1)
-    #     Enumerator.new do |yielder|
-    #       response.data.each do |data|
-    #         yielder << map_column(key, map, data[0])
-    #       end
-    #     end
-
-    #   else
-    #     Enumerator.new do |yielder|
-    #       response.data.each do |data|
-    #         hash = {}
-    #         ret.each_with_index do |key, i|
-    #           hash[key] = map_column(key, map, data[i])
-    #         end
-    #         yielder << hash
-    #       end
-    #     end
-    #   end
-    # end
+    def map_column(key, map, data)
+      if map[key] == :node
+        CypherNode.new(self, data).wrapper
+      elsif map[key] == :rel || map[:key] || :relationship
+        CypherRelationship.new(self, data)
+      else
+        data
+      end
+    end
   end
 end
