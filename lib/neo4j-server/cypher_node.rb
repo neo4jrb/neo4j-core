@@ -147,28 +147,23 @@ module Neo4j::Server
       @session._query_or_fail("#{match_start} MATCH n-[r]-() DELETE r")
       @session._query_or_fail("#{match_start} DELETE n")
     end
+
     alias_method :delete, :del
     alias_method :destroy, :del
-
 
     # (see Neo4j::Node#exist?)
     def exist?
       @session._query("#{match_start} RETURN ID(n)").data.empty? ? false : true
     end
 
-
     # (see Neo4j::Node#node)
     def node(match={})
-      result = match(CypherNode, "p as result LIMIT 2", match)
-      raise "Expected to only find one relationship from node #{neo_id} matching #{match.inspect} but found #{result.count}" if result.count > 1
-      result.first
+      ensure_single_relationship { match(CypherNode, "p as result LIMIT 2", match) }
     end
 
     # (see Neo4j::Node#rel)
     def rel(match={})
-      result = match(CypherRelationship, "r as result LIMIT 2", match)
-      raise "Expected to only find one relationship from node #{neo_id} matching #{match.inspect} but found #{result.count}" if result.count > 1
-      result.first
+      ensure_single_relationship { match(CypherRelationship, "r as result LIMIT 2", match) }
     end
 
     # (see Neo4j::Node#rel?)
@@ -181,7 +176,6 @@ module Neo4j::Server
     def nodes(match={})
       match(CypherNode, "p as result", match)
     end
-
 
     # (see Neo4j::Node#rels)
     def rels(match = {dir: :both})
@@ -208,6 +202,12 @@ module Neo4j::Server
     end
 
     private
+
+    def ensure_single_relationship(&block)
+      result = yield
+      raise "Expected to only find one relationship from node #{neo_id} matching #{match.inspect} but found #{result.count}" if result.count > 1
+      result.first
+    end
 
     def match_start(identifier = 'n')
       "MATCH (#{identifier}) WHERE ID(#{identifier}) = #{neo_id}"
