@@ -127,18 +127,7 @@ module Neo4j::Server
     end
 
     def set_label(*label_names)
-      label_as_symbols = label_names.map(&:to_sym)
-      to_keep = labels & label_as_symbols
-      to_remove = labels - to_keep
-      to_set = label_as_symbols - to_keep
-
-      # no change ?
-      return if to_set.empty? && to_remove.empty?
-
-      q = "#{match_start}"
-      q += " SET n #{_cypher_label_list(to_set)}" unless to_set.empty?
-      q += " REMOVE n #{_cypher_label_list(to_remove)}" unless to_remove.empty?
-
+      q = "#{match_start} #{remove_labels_if_needed} #{set_labels_if_needed(label_names)}" 
       @session._query_or_fail(q)
     end
 
@@ -202,6 +191,22 @@ module Neo4j::Server
     end
 
     private
+
+    def remove_labels_if_needed
+      if labels.empty?
+        ""
+      else
+        " REMOVE n #{_cypher_label_list(labels)}"
+      end
+    end
+
+    def set_labels_if_needed(label_names)
+      if label_names.empty?
+        ""
+      else
+        " SET n #{_cypher_label_list(label_names.map(&:to_sym).uniq)}"
+      end
+    end
 
     def ensure_single_relationship(&block)
       result = yield
