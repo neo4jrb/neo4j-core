@@ -40,7 +40,7 @@ RSpec.shared_examples "Neo4j::Label" do
         expect(node.labels).to eq([:three])
       end
 
-      it 'can allows setting several labels in one go' do
+      it 'allows setting several labels in one go' do
         node = Neo4j::Node.create({}, :one, :two)
         node.set_label(:two, :three, :four)
         node = Neo4j::Node.load(node.neo_id)
@@ -54,7 +54,7 @@ RSpec.shared_examples "Neo4j::Label" do
         expect(node.labels).to eq([])
       end
 
-      it "does not change lables if there is no change" do
+      it "does not change labels if there is no change" do
         node = Neo4j::Node.create({}, :one, :two)
         node.set_label(:one, :two)
         expect(node.labels).to match_array([:one, :two])
