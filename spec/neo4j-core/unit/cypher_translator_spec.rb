@@ -26,6 +26,8 @@ describe Neo4j::Core::CypherTranslator do
         "a\b",
         '\u00b5',
         "\u00b5",
+        'test\\usomething',
+        "D'Amore-Schamberger",
       ].each do |s|
         it "does not change #{s}" do
           expect(klass.sanitize_escape_sequences(s)).to eq(s)

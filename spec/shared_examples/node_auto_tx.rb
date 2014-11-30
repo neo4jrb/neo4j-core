@@ -8,20 +8,16 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
   context "with auto commit" do
     describe "class methods" do
       describe 'create()' do
+        subject { Neo4j::Node.create }
 
-        subject do
-          Neo4j::Node.create
-        end
         its(:exist?) { should be true }
         its(:neo_id) { should be_a(Fixnum) }
         its(:props) { should == {} }
       end
 
       describe 'create(name: "kalle", age: 42)' do
+        subject { Neo4j::Node.create(name: 'kalle', age: 42) }
 
-        subject do
-          Neo4j::Node.create(name: 'kalle', age: 42)
-        end
         its(:exist?) { should be true }
         its(:neo_id) { should be_a(Fixnum) }
         its(:props) { should == { name: 'kalle', age: 42} }
@@ -32,12 +28,23 @@ RSpec.shared_examples "Neo4j::Node auto tx" do
         end
       end
 
+      describe "create(name: 'D\'Amore-Schamberger')" do
+        subject { Neo4j::Node.create(name: "D'Amore-Schamberger") }
+
+        it { is_expected.to be_persisted }
+        its(:props) { is_expected.to eq({ name: "D'Amore-Schamberger" }) }
+      end
+
+      describe 'create(name: "test\\usomething")' do
+        subject { Neo4j::Node.create(name: "test\\usomething") }
+
+        it { is_expected.to be_persisted }
+        its(:props) { is_expected.to eq({ name: "test\\usomething" }) }
+      end
 
       describe 'create(name: "kalle", age: nil)' do
+        subject { Neo4j::Node.create(name: 'kalle', age: nil) }
 
-        subject do
-          Neo4j::Node.create(name: 'kalle', age: nil)
-        end
         it 'read the properties using []' do
           expect(subject[:name]).to eq('kalle')
           expect(subject[:age]).to be_nil

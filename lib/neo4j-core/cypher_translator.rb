@@ -9,9 +9,10 @@ module Neo4j::Core
       end
     end
 
+    # Like escape_value but it does not wrap the value in quotes
     def create_escape_value(value)
       if value.is_a?(String) || value.is_a?(Symbol)
-        "#{escape_quotes(sanitize_escape_sequences(value.to_s))}"
+        "#{sanitize_escape_sequences(value.to_s)}"
       else
         value
       end
