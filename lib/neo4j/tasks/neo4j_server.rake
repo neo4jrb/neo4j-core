@@ -6,24 +6,18 @@ require 'httparty'
 require File.expand_path("../config_server", __FILE__)
 
 namespace :neo4j do
-
   def download_neo4j(file)
-    if OS::Underlying.windows? then
-      file_name = "neo4j.zip"
-      download_url = "http://dist.neo4j.org/neo4j-#{file}-windows.zip"
-    else
-      file_name = "neo4j-unix.tar.gz"
-      download_url = "http://dist.neo4j.org/neo4j-#{file}-unix.tar.gz"
-    end
+    file_name, download_url = if OS::Underlying.windows?
+                                ["neo4j.zip", "http://dist.neo4j.org/neo4j-#{file}-windows.zip"]
+                              else
+                                ["neo4j-unix.tar.gz", "http://dist.neo4j.org/neo4j-#{file}-unix.tar.gz"]
+                              end
 
     unless File.exist?(file_name)
       # check if file is available
       status = HTTParty.head(download_url).code
       raise "#{file} is not available to download, try a different version" if status < 200 || status >= 300
-
       df = File.open(file_name, 'wb')
-
-
       success = false
       begin
         df << HTTParty.get(download_url)
@@ -33,8 +27,6 @@ namespace :neo4j do
         File.delete(file_name) unless success
       end
     end
-
-
 
     # # http://download.neo4j.org/artifact?edition=community&version=2.1.2&distribution=tarball&dlid=3462770&_ga=1.110610309.1220184053.1399636580
     #
@@ -74,18 +66,18 @@ namespace :neo4j do
     puts "Installing Neo4j-#{file} environment: #{environment}"
 
     downloaded_file = download_neo4j file
-    
+
     if OS::Underlying.windows?
       # Extract and move to neo4j directory
       unless File.exist?(install_location(args))
         Zip::ZipFile.open(downloaded_file) do |zip_file|
           zip_file.each do |f|
-           f_path=File.join(".", f.name)
+           f_path = File.join(".", f.name)
            FileUtils.mkdir_p(File.dirname(f_path))
            begin
              zip_file.extract(f, f_path) unless File.exist?(f_path)
            rescue
-             puts f.name + " failed to extract."
+             puts "#{f.name} failed to extract."
            end
           end
         end
@@ -107,17 +99,17 @@ namespace :neo4j do
     end
     puts "Type 'rake neo4j:start' or 'rake neo4j:start[ENVIRONMENT]' to start it\nType 'neo4j:config[ENVIRONMENT,PORT]' for changing server port, (default 7474)"
   end
-  
+
   desc "Start the Neo4j Server"
   task :start, :environment do |_, args|
     puts "Starting Neo4j #{get_environment(args)}..."
-    if OS::Underlying.windows? 
-      if %x[reg query "HKU\\S-1-5-19"].size > 0 
+    if OS::Underlying.windows?
+      if %x[reg query "HKU\\S-1-5-19"].size > 0
         %x[#{install_location(args)}/bin/Neo4j.bat start]  #start service
       else
         puts "Starting Neo4j directly, not as a service."
         %x[#{install_location(args)}/bin/Neo4j.bat]
-      end      
+      end
     else
       %x[#{install_location(args)}/bin/neo4j start]
     end
@@ -138,13 +130,13 @@ namespace :neo4j do
   desc "Stop the Neo4j Server"
   task :stop, :environment do |_, args|
     puts "Stopping Neo4j #{get_environment(args)}..."
-    if OS::Underlying.windows? 
+    if OS::Underlying.windows?
       if %x[reg query "HKU\\S-1-5-19"].size > 0
          %x[#{install_location(args)}/bin/Neo4j.bat stop]  #stop service
       else
-        puts "You do not have administrative rights to stop the Neo4j Service"   
+        puts "You do not have administrative rights to stop the Neo4j Service"
       end
-    else  
+    else
       %x[#{install_location(args)}/bin/neo4j stop]
     end
   end
@@ -166,13 +158,13 @@ namespace :neo4j do
   desc "Restart the Neo4j Server"
   task :restart, :environment do |_, args|
     puts "Restarting Neo4j #{get_environment(args)}..."
-    if OS::Underlying.windows? 
+    if OS::Underlying.windows?
       if %x[reg query "HKU\\S-1-5-19"].size > 0
          %x[#{install_location(args)}/bin/Neo4j.bat restart]
       else
-        puts "You do not have administrative rights to restart the Neo4j Service"   
+        puts "You do not have administrative rights to restart the Neo4j Service"
       end
-    else  
+    else
       %x[#{install_location(args)}/bin/neo4j restart]
     end
   end
@@ -180,36 +172,78 @@ namespace :neo4j do
   desc "Reset the Neo4j Server"
   task :reset_yes_i_am_sure, :environment do |_, args|
     # Stop the server
-    if OS::Underlying.windows? 
+    if OS::Underlying.windows?
       if %x[reg query "HKU\\S-1-5-19"].size > 0
          %x[#{install_location(args)}/bin/Neo4j.bat stop]
-         
+
         # Reset the database
         FileUtils.rm_rf("#{install_location(args)}/data/graph.db")
         FileUtils.mkdir("#{install_location(args)}/data/graph.db")
-        
+
         # Remove log files
         FileUtils.rm_rf("#{install_location(args)}/data/log")
         FileUtils.mkdir("#{install_location(args)}/data/log")
 
         %x[#{install_location(args)}/bin/Neo4j.bat start]
       else
-        puts "You do not have administrative rights to reset the Neo4j Service"   
+        puts "You do not have administrative rights to reset the Neo4j Service"
       end
-    else  
+    else
       %x[#{install_location(args)}/bin/neo4j stop]
-      
+
       # Reset the database
       FileUtils.rm_rf("#{install_location(args)}/data/graph.db")
       FileUtils.mkdir("#{install_location(args)}/data/graph.db")
-      
+
       # Remove log files
       FileUtils.rm_rf("#{install_location(args)}/data/log")
       FileUtils.mkdir("#{install_location(args)}/data/log")
-      
+
       # Start the server
       %x[#{install_location(args)}/bin/neo4j start]
     end
   end
 
-end  
+  desc "Neo4j 2.2: Change connection password"
+  task :change_password do |_, args|
+    puts "This will change the password for a Neo4j server"
+    puts "Enter target IP address or host name without protocal and port, press enter for http://localhost:7474"
+    address = STDIN.gets.chomp
+    target_address = address.empty? ? "http://localhost:7474" : address
+
+    puts "Input current password. Leave blank if this is a fresh installation of Neo4j."
+    password = STDIN.gets.chomp
+    old_password = password.empty? ? "neo4j" : password
+
+    puts "Input new password."
+    new_password = STDIN.gets.chomp
+    raise 'A new password is required' if new_password.empty?
+
+    uri = URI.parse("#{target_address}/user/neo4j/password")
+    response = Net::HTTP.post_form(uri, { 'password' => old_password, 'new_password' => new_password })
+    body = JSON.parse(response.body)
+    if body['errors']
+      puts "An error was returned: #{body['errors'][0]['message']}"
+    else
+      puts "Password changed successfully! Please update your app to use:"
+      puts "username: neo4j"
+      puts "password: #{new_password}"
+    end
+  end
+
+  desc "Neo4j 2.2: Disable Auth"
+  task :disable_auth, :environment do |_, args|
+    location = "#{install_location(args)}/conf/neo4j-server.properties"
+    text = File.read(location)
+    replace = Neo4j::Tasks::ConfigServer.disable_auth(text)
+    File.open(location, "w") {|file| file.puts replace}
+  end
+
+  desc "Neo4j 2.2: Enable Auth"
+  task :enable_auth, :environment do |_, args|
+    location = "#{install_location(args)}/conf/neo4j-server.properties"
+    text = File.read(location)
+    replace = Neo4j::Tasks::ConfigServer.enable_auth(text)
+    File.open(location, "w") {|file| file.puts replace}
+  end
+end
