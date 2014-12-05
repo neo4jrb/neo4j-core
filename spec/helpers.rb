@@ -16,7 +16,6 @@ module Helpers
     Neo4j::Session.current
   end
 
-
   def unique_random_number
     "#{Time.now.year}#{Time.now.to_i}#{Time.now.usec.to_s[0..2]}".to_i
   end
