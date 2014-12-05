@@ -134,10 +134,10 @@ describe 'Neo4j::Server::CypherAuthentication', if: (ENV['TEST_AUTHENTICATION'] 
         Neo4j::Session.open(:server_db, 'http://localhost:7474', basic_auth: { username: 'neo4j', password: 'neo4jrb rules, ok?' })
         node = Neo4j::Node.create({ name: 'foo' }, :foo)
         expect(node.neo_id).to be_a(Integer)
-#         expect { Neo4j::Node.load(node.neo_id) }.not_to raise_error
-#         auth_object.invalidate_token('neo4jrb rules, ok?')
-#         expect { Neo4j::Node.load(node.neo_id) }.to raise_error
-#       end
-#     end
-#   end
-# end
+        expect { Neo4j::Node.load(node.neo_id) }.not_to raise_error
+        auth_object.invalidate_token('neo4jrb rules, ok?')
+        expect { Neo4j::Node.load(node.neo_id) }.to raise_error
+      end
+    end
+  end
+end
