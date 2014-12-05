@@ -4,6 +4,7 @@ require 'httparty'
 require 'zip'
 require 'httparty'
 require File.expand_path("../config_server", __FILE__)
+load File.expand_path("../auth_test_setup.rake", __FILE__) if ENV['TEST_AUTHENTICATION'] == 'true'
 
 namespace :neo4j do
   def download_neo4j(file)
@@ -59,7 +60,11 @@ namespace :neo4j do
     "db/neo4j/#{get_environment(args)}"
   end
 
-  desc "Install Neo4j, example neo4j:install[community-2.1.3,development]"
+  def config_location(args)
+    "#{install_location(args)}/conf/neo4j-server.properties"
+  end
+
+  desc "Install Neo4j with auth disabled in v2.2+, example neo4j:install[community-2.1.3,development]"
   task :install, :edition, :environment do |_, args|
     file = args[:edition]
     environment = get_environment(args)
@@ -97,6 +102,7 @@ namespace :neo4j do
       %x[rm #{downloaded_file}]
       puts "Neo4j Installed in to neo4j directory."
     end
+    rake_auth_toggle(args, :disable) unless /-2\.0|1\.[0-9]/.match(args[:edition])
     puts "Type 'rake neo4j:start' or 'rake neo4j:start[ENVIRONMENT]' to start it\nType 'neo4j:config[ENVIRONMENT,PORT]' for changing server port, (default 7474)"
   end
 
@@ -121,7 +127,7 @@ namespace :neo4j do
     port = args[:port]
     raise "no port given" unless port
     puts "Config Neo4j #{get_environment(args)} for port #{port}"
-    location = "#{install_location(args)}/conf/neo4j-server.properties"
+    location = config_location(args)
     text = File.read(location)
     replace = Neo4j::Tasks::ConfigServer.config(text, port)
     File.open(location, "w") {|file| file.puts replace}
@@ -219,9 +225,7 @@ namespace :neo4j do
     new_password = STDIN.gets.chomp
     raise 'A new password is required' if new_password.empty?
 
-    uri = URI.parse("#{target_address}/user/neo4j/password")
-    response = Net::HTTP.post_form(uri, { 'password' => old_password, 'new_password' => new_password })
-    body = JSON.parse(response.body)
+    body = Neo4j::Tasks::ConfigServer.change_password(target_address, old_password, new_password)
     if body['errors']
       puts "An error was returned: #{body['errors'][0]['message']}"
     else
@@ -231,19 +235,26 @@ namespace :neo4j do
     end
   end
 
-  desc "Neo4j 2.2: Disable Auth"
-  task :disable_auth, :environment do |_, args|
-    location = "#{install_location(args)}/conf/neo4j-server.properties"
+  def rake_auth_toggle(args, status)
+    location = config_location(args)
     text = File.read(location)
-    replace = Neo4j::Tasks::ConfigServer.disable_auth(text)
+    replace = Neo4j::Tasks::ConfigServer.toggle_auth(status, text)
     File.open(location, "w") {|file| file.puts replace}
+  end
+
+  def auth_toggle_complete(status)
+    puts "Neo4j basic authentication #{status}. Restart server to take effect."
   end
 
   desc "Neo4j 2.2: Enable Auth"
   task :enable_auth, :environment do |_, args|
-    location = "#{install_location(args)}/conf/neo4j-server.properties"
-    text = File.read(location)
-    replace = Neo4j::Tasks::ConfigServer.enable_auth(text)
-    File.open(location, "w") {|file| file.puts replace}
+    rake_auth_toggle(args, :enable)
+    auth_toggle_complete('enabled')
+  end
+
+  desc "Neo4j 2.2: Disable Auth"
+  task :disable_auth, :environment do |_, args|
+    rake_auth_toggle(args, :disable)
+    auth_toggle_complete('disabled')
   end
 end
