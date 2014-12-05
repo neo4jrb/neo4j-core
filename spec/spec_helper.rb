@@ -87,11 +87,10 @@ RSpec.configure do |c|
     Neo4j::Session.current || create_server_session
   end
 
-  # Make sure embedded specs are not run by MRI
   c.exclusion_filter = {
-    api:  lambda { |ed| RUBY_PLATFORM != 'java' && ed == :embedded },
-    type: lambda { |type| ENV['TEST_AUTHENTICATION'] != 'true' && type == :authentication }
+      :api => lambda do |ed|
+        RUBY_PLATFORM != 'java' && ed == :embedded
+      end
   }
 
 end
-
