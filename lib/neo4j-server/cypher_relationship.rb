@@ -118,7 +118,8 @@ module Neo4j::Server
 
     def exist?
       response = @session._query("#{match_start} RETURN n")
-      response.data.empty? ? false : true
+      # binding.pry
+      (response.data.nil? || response.data.empty?) ? false : true
     end
 
     private

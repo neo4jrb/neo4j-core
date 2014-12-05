@@ -108,7 +108,10 @@ RSpec.shared_examples "Neo4j::Relationship" do
   end
 
   describe 'del' do
-    let(:rel_a) { node_a.create_rel(:best_friend, node_b) }
+    require 'pry'
+    let(:rel_a) do
+      node_a.create_rel(:best_friend, node_b)
+    end
 
     it 'does not exist after del' do
       expect(rel_a.exist?).to be true

@@ -73,14 +73,14 @@ module Neo4j::Server
       end
 
       it 'returns a result containing data,columns and error?' do
-        result = session._query("START n=node(#{a_node_id}) RETURN ID(n)")
+        result = session._query("MATCH (n) WHERE ID(n) = #{a_node_id} RETURN ID(n)")
         expect(result.data).to eq([[a_node_id]])
         expect(result.columns).to eq(['ID(n)'])
         expect(result.error?).to be false
       end
 
       it "allows you to specify parameters" do
-        result = session._query("START n=node({myparam}) RETURN ID(n)", myparam: a_node_id)
+        result = session._query("MATCH (n) WHERE ID(n) = {id_param} RETURN ID(n)", id_param: a_node_id)
         expect(result.data).to eq([[a_node_id]])
         expect(result.columns).to eq(['ID(n)'])
         expect(result.error?).to be false

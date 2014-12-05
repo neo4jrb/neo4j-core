@@ -22,8 +22,7 @@ module Neo4j::Server
       id = session.query.create("(n)").return("ID(n) AS id").first[:id]
 
       tx = session.begin_tx
-
-      q = tx._query("START n=node(#{id}) RETURN ID(n)")
+      q = tx._query("MATCH (n) WHERE ID(n) = #{id} RETURN ID(n)")
       expect(q.response.body['results']).to eq([ { "columns"=>["ID(n)"], "data"=>[{ "row"=>[id], "rest"=>[id] }]}])
     end
 
