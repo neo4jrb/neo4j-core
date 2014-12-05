@@ -243,7 +243,7 @@ namespace :neo4j do
   end
 
   def auth_toggle_complete(status)
-    puts "Neo4j basic authentication #{status}. Restart server to take effect."
+    puts "Neo4j basic authentication #{status}. Restart server to apply."
   end
 
   desc "Neo4j 2.2: Enable Auth"
