@@ -1,3 +1,16 @@
+== 3.1.0
+* Swapped out `START n=node...` for `MATCH (n) WHERE ID(n)...` for compatibility with Neo4j 2.2.
+* Added a new class, CypherAuthentication, to support Neo4j 2.2's new authentication endpoint.
+* Modified the `neo4j:install` rake task to disable authentication in Neo4j 2.2.
+* New rake tasks that do exactly what you expect: `neo4j:enable_auth`, `neo4j:disable_auth`, `neo4j:change_password`. All 2.2 only, of course.
+* Travis-CI will run against its MRI specs against Neo4j 2.2 with Ruby 2.1.5.
+* Use params for all `create` actions to improve performance and security.
+* More tweaks to the string escaping process.
+* Mild refactoring for DRY and performance.
+
+== 3.0.8
+* Small bugfix. Releasing so neo4jrb/neo4j doesn't need to pull from master in its new release.
+
 == 3.0.7
 * Move improved escaping of Cypher params
 
