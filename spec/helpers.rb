@@ -5,7 +5,7 @@ module Helpers
   end
 
   def create_server_session
-    Neo4j::Session.open(:server_db, "http://localhost:7474")
+    Neo4j::Session.open(:server_db, "http://localhost:7474", basic_auth: { username: 'neo4j', password: 'neo4jrb rules, ok?' })
   end
 
   def create_named_server_session(name, default = nil)
@@ -15,7 +15,6 @@ module Helpers
   def session
     Neo4j::Session.current
   end
-
 
   def unique_random_number
     "#{Time.now.year}#{Time.now.to_i}#{Time.now.usec.to_s[0..2]}".to_i

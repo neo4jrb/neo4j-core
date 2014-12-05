@@ -1,6 +1,8 @@
 # To run coverage via travis
 require 'coveralls'
 Coveralls.wear!
+# require 'simplecov'
+# SimpleCov.start
 
 # To run it manually via Rake
 if ENV['COVERAGE']
@@ -58,6 +60,20 @@ RSpec.configure do |c|
     Neo4j::Session.current.start unless Neo4j::Session.current.running?
   end
 
+  # if ENV['TEST_AUTHENTICATION'] == 'true'
+  #   uri = URI.parse("http://localhost:7474/user/neo4j/password")
+  #   db_default = 'neo4j'
+  #   suite_default = 'neo4jrb rules, ok?'
+
+  #   c.before(:suite, api: :server) do
+  #     Net::HTTP.post_form(uri, { 'password' => db_default, 'new_password' => suite_default })
+  #   end
+
+  #   c.after(:suite, api: :server) do
+  #     Net::HTTP.post_form(uri, { 'password' => suite_default, 'new_password' => db_default })
+  #   end
+  # end
+
   c.before(:each, api: :embedded) do
     curr_session = Neo4j::Session.current
     curr_session.close if curr_session && !curr_session.kind_of?(Neo4j::Embedded::EmbeddedSession)
@@ -71,7 +87,6 @@ RSpec.configure do |c|
     Neo4j::Session.current || create_server_session
   end
 
-  # Make sure embedded specs are not run by MRI
   c.exclusion_filter = {
       :api => lambda do |ed|
         RUBY_PLATFORM != 'java' && ed == :embedded
@@ -79,4 +94,3 @@ RSpec.configure do |c|
   }
 
 end
-

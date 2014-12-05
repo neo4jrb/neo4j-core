@@ -3,13 +3,9 @@ require 'spec_helper'
 module Neo4j::Server
   describe CypherSession do
 
-    let(:connection) do
-      double('connection')
-    end
-
-    let(:cypher_response) do
-      double('cypher response', error?: false, first_data: [28])
-    end
+    let(:connection) { double('connection') }
+    let(:cypher_response) { double('cypher response', error?: false, first_data: [28]) }
+    let(:auth_object) { double('an empty auth object', body: []) }
 
     let(:session) do
       allow_any_instance_of(CypherSession).to receive(:initialize_resource).and_return(nil)
@@ -29,6 +25,7 @@ module Neo4j::Server
       def request_uri
         ""
       end
+
       def request
         return Struct.new(:path).new('bla')
       end
@@ -59,6 +56,7 @@ module Neo4j::Server
           expect(CypherSession).to receive(:create_connection).and_return(connection)
           expect(connection).to receive(:get).with('http://localhost:7474').and_return(TestResponse.new(root_resource_with_slash))
           expect(connection).to receive(:get).with("http://localhost:7474/db/data/").and_return(TestResponse.new(data_resource))
+          allow(connection).to receive(:get).with('http://localhost:7474/authentication').and_return(auth_object)
         end
 
         it 'allow root resource with urls ending with slash' do
@@ -91,9 +89,7 @@ module Neo4j::Server
         end
 
         describe 'add_listener' do
-          after do
-            Neo4j::Session._listeners.clear
-          end
+          after { Neo4j::Session._listeners.clear }
 
           it 'notify listener when session is created' do
             data, event = nil
@@ -101,7 +97,6 @@ module Neo4j::Server
               event = e
               data = d
             end
-
             session = Neo4j::Session.create_session(:server_db)
             expect(event).to eq(:session_available)
             expect(data).to eq(session)
@@ -156,6 +151,7 @@ module Neo4j::Server
           .and_return(TestResponse.new(root_resource_with_slash))
         expect(connection).to receive(:get).with("http://localhost:7474/db/data/")
           .and_return(TestResponse.new(data_resource))
+        allow(connection).to receive(:get).with('http://localhost:7474/authentication').and_return(auth_object)
 
         Neo4j::Session.create_session(:server_db, params)
 

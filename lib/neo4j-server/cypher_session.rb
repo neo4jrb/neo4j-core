@@ -10,7 +10,15 @@ module Neo4j::Server
     include Neo4j::Core::CypherTranslator
 
     alias_method :super_query, :query
-    attr_reader :connection
+    attr_reader :connection, :auth
+
+    def initialize(data_url, connection, auth_obj = nil)
+      @connection = connection
+      @auth = auth_obj if auth_obj
+      Neo4j::Session.register(self)
+      initialize_resource(data_url)
+      Neo4j::Session._notify_listeners(:session_available, self)
+    end
 
     # @param [Hash] params could be empty or contain basic authentication user and password
     # @return [Faraday]
@@ -26,7 +34,7 @@ module Neo4j::Server
         b.use Faraday::Adapter::NetHttpPersistent
         # b.adapter  Faraday.default_adapter
       end
-      conn.headers = {'Content-Type' => 'application/json', 'User-Agent' => ::Neo4j::Session.user_agent_string}
+      conn.headers = { 'Content-Type' => 'application/json', 'User-Agent' => ::Neo4j::Session.user_agent_string }
       conn
     end
 
@@ -35,18 +43,21 @@ module Neo4j::Server
     #
     # @param [String] endpoint_url - the url to the neo4j server, defaults to 'http://localhost:7474'
     # @param [Hash] params faraday params, see #create_connection or an already created faraday connection
-    def self.open(endpoint_url=nil, params = {})
+    def self.open(endpoint_url = nil, params = {})
       extract_basic_auth(endpoint_url, params)
       connection = params[:connection] || create_connection(params)
       url = endpoint_url || 'http://localhost:7474'
+      auth_obj = CypherAuthentication.new(url, connection, params)
+      auth_obj.authenticate
       response = connection.get(url)
       raise "Server not available on #{url} (response code #{response.status})" unless response.status == 200
+      establish_session(response.body, connection, auth_obj)
+    end
 
-      root_data = response.body
+    def self.establish_session(root_data, connection, auth_obj)
       data_url = root_data['data']
       data_url << '/' unless data_url.end_with?('/')
-
-      CypherSession.new(data_url, connection)
+      CypherSession.new(data_url, connection, auth_obj)
     end
 
     def self.extract_basic_auth(url, params)
@@ -56,14 +67,8 @@ module Neo4j::Server
         password: URI(url).password
       }
     end
-    private_class_method :extract_basic_auth
 
-    def initialize(data_url, connection)
-      @connection = connection
-      Neo4j::Session.register(self)
-      initialize_resource(data_url)
-      Neo4j::Session._notify_listeners(:session_available, self)
-    end
+    private_class_method :extract_basic_auth
 
     def db_type
       :server_db
