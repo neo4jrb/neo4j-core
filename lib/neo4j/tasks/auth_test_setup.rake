@@ -1,3 +1,4 @@
+# :nocov:
 require File.expand_path("../config_server", __FILE__)
 
 namespace :neo4j do

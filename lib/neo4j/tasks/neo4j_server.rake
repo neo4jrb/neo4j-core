@@ -1,3 +1,4 @@
+# :nocov:
 # borrowed from architect4r
 require 'os'
 require 'httparty'
