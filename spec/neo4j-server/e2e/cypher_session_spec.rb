@@ -28,13 +28,12 @@ module Neo4j::Server
         connection = Faraday.new do |b|
           b.request :json
           b.response :json, :content_type => "application/json"
-          b.use Faraday::Response::RaiseError
           b.adapter  Faraday.default_adapter
         end
         connection.headers = {'Content-Type' => 'application/json'}
 
         expect(connection).to receive(:get).at_least(:once).and_call_original
-        session = Neo4j::Session.open(:server_db, 'http://localhost:7474', {connection: connection})
+        session = Neo4j::Session.open(:server_db, 'http://localhost:7474', { connection: connection })
       end
     end
 
