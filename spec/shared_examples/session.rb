@@ -233,7 +233,7 @@ RSpec.shared_examples "Neo4j::Session" do
 
       describe 'cypher parameters' do
         it 'allows {VAR_NAME}' do
-          r = session.query.start(n: 'node({my_var})').return("ID(n) AS id").params(my_var: @jimmy.neo_id)
+          r = session.query.match(:n).where('ID(n) = {my_var}').return("ID(n) AS id").params(my_var: @jimmy.neo_id)
           expect(r.first[:id]).to eq(@jimmy.neo_id)
         end
       end

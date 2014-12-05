@@ -14,6 +14,8 @@ group 'development' do
   gem 'yard'
   gem 'simplecov'
   gem 'pry'
+  gem 'pry-rescue'
+  gem 'pry-stack_explorer', platform: :ruby
 end
 
 group 'test' do
@@ -21,4 +23,3 @@ group 'test' do
   gem "rspec", "~> 3.0"
   gem 'rspec-its'
 end
-
