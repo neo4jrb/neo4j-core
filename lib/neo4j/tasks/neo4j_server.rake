@@ -5,7 +5,6 @@ require 'httparty'
 require 'zip'
 require 'httparty'
 require File.expand_path("../config_server", __FILE__)
-load File.expand_path("../auth_test_setup.rake", __FILE__) if ENV['TEST_AUTHENTICATION'] == 'true'
 
 namespace :neo4j do
   def download_neo4j(file)

@@ -1,8 +1,6 @@
 require 'spec_helper'
 
 module Neo4j::Server
-
-
   describe CypherSession, api: :server do
 
     def open_session
@@ -100,5 +98,4 @@ module Neo4j::Server
     subject { Neo4j::Session.current.inspect }
     it { is_expected.to include "Neo4j::Server::CypherSession url:"}
   end
-
 end

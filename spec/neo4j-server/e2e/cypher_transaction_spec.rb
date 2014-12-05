@@ -3,15 +3,12 @@ require 'spec_helper'
 module Neo4j::Server
   describe CypherTransaction, api: :server do
 
-    before do
-      session || create_server_session
-    end
+    before { session || create_server_session }
 
     after do
       session && session.close
       Neo4j::Transaction.current && Neo4j::Transaction.current.close
     end
-
 
     it "can open and commit a transaction" do
       tx = session.begin_tx
@@ -41,8 +38,6 @@ module Neo4j::Server
       response = tx.close
       expect(response.status).to eq(200)
     end
-
-
 
     it 'can rollback' do
       node = Neo4j::Node.create(name: 'andreas')
@@ -74,11 +69,8 @@ module Neo4j::Server
       expect(node['name']).to eq('andreas')
     end
 
-
     describe Neo4j::Label do
-
       describe '.find_nodes' do
-
         it 'find and can load them' do
           begin
             tx = Neo4j::Transaction.new
@@ -94,9 +86,7 @@ module Neo4j::Server
       end
     end
 
-
     describe Neo4j::Node do
-
       describe '.load' do
         it 'can load existing node' do
           begin
@@ -155,9 +145,7 @@ module Neo4j::Server
           tx.close
         end
       end
-
     end
-
 
     describe '.create' do
       it "creates a node" do
@@ -196,6 +184,5 @@ module Neo4j::Server
         expect(node[:name]).to eq('bar')
       end
     end
-
   end
 end
