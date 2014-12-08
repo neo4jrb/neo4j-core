@@ -37,9 +37,15 @@ module Neo4j::Server
     def authenticate
       auth_response = connection.get("#{url}/authentication")
       return nil if auth_response.body.empty?
-      auth_body = JSON.parse(auth_response.body)
-      token = auth_body['errors'][0]['code'] == 'Neo.ClientError.Security.AuthorizationFailed' ? obtain_token : nil
-      add_auth_headers(token) unless token.nil?
+      if auth_response.body.is_a?(String)
+        auth_body = JSON.parse(auth_response.body)
+        token = auth_body['errors'][0]['code'] == 'Neo.ClientError.Security.AuthorizationFailed' ? obtain_token : nil
+        add_auth_headers(token) unless token.nil?
+      elsif auth_response.body.is_a?(Hash)
+        add_auth_headers(auth_response.body['authorization_token'])
+      else
+        raise 'Unexpected auth response, please open an issue at https://github.com/neo4jrb/neo4j-core/issues'
+      end
     end
 
     # Invalidates the existing token, which will invalidate all conncetions using this token, applies for a new token, adds this into

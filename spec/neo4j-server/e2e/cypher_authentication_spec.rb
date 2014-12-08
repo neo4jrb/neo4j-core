@@ -80,6 +80,14 @@ describe 'Neo4j::Server::CypherAuthentication', if: (ENV['TEST_AUTHENTICATION'] 
         expect { Neo4j::Session.open(:server_db, 'http://localhost:7474', basic_auth: { username: 'neo4j', password: @suite_default }) }
           .to raise_error Neo4j::Server::CypherAuthentication::PasswordChangeRequiredError
       end
+
+      it 'can process a hash response instead of string' do
+        Neo4j::Session.open(:server_db, 'http://localhost:7474', basic_auth: { username: 'neo4j', password: @suite_default })
+        token = Neo4j::Session.current.auth.token
+        Neo4j::Session.current.close
+        expect { Neo4j::Session.open(:server_db, 'http://localhost:7474', basic_auth: { username: 'foo', password: token }) }.not_to raise_error
+        expect(Neo4j::Session.current).not_to be_nil
+      end
     end
 
     describe 'reauthentication' do
