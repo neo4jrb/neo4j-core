@@ -190,7 +190,7 @@ module Neo4j::Server
     private
 
     def cypher_properties(properties_to_set)
-      properties_to_set.map { |k| "n.`#{k}` = {`#{k}`}"}.join(',')
+      properties_to_set.map! { |k| "n.`#{k}` = {`#{k}`}"}.join(',')
     end
 
     def remove_labels_if_needed
