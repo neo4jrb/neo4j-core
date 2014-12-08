@@ -203,7 +203,6 @@ module Neo4j::Server
     end
 
     def _query(q, params = nil)
-      # binding.pry
       curr_tx = Neo4j::Transaction.current
       if (curr_tx)
         curr_tx._query(q, params)
