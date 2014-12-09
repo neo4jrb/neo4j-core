@@ -92,10 +92,7 @@ module Neo4j::Server
       remove_properties(removed_keys) unless removed_keys.empty?
       properties_to_set = properties.keys - removed_keys
       return if properties_to_set.empty?
-      q = "#{match_start} SET " + properties_to_set.map do |k|
-        "n.`#{k}`= #{escape_value(properties[k])}"
-      end.join(',')
-      @session._query_or_fail(q)
+      @session._query_or_fail("#{match_start} SET #{cypher_properties(properties_to_set)}", false, cypher_prop_list(properties)[:props])
       properties
     end
 
@@ -127,7 +124,7 @@ module Neo4j::Server
     end
 
     def set_label(*label_names)
-      q = "#{match_start} #{remove_labels_if_needed} #{set_labels_if_needed(label_names)}" 
+      q = "#{match_start} #{remove_labels_if_needed} #{set_labels_if_needed(label_names)}"
       @session._query_or_fail(q)
     end
 
@@ -191,6 +188,10 @@ module Neo4j::Server
     end
 
     private
+
+    def cypher_properties(properties_to_set)
+      properties_to_set.map! { |k| "n.`#{k}` = {`#{k}`}"}.join(',')
+    end
 
     def remove_labels_if_needed
       if labels.empty?
