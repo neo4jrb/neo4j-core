@@ -10,6 +10,15 @@ end
 # suite because they are not compatible with all recent versions of the database, cause a stop/start of the DB, and require a pristine
 # configuration.
 describe 'Neo4j::Server::CypherAuthentication', if: (ENV['TEST_AUTHENTICATION'] == 'true' && RUBY_PLATFORM != 'java') do
+  context 'with auth disabled' do
+    after { Neo4j::Session.current.close }
+
+    it 'establishes a session without auth creds' do
+      expect { Neo4j::Session.open(:server_db, 'http://localhost:7474') }
+        .not_to raise_error
+    end
+  end
+
   context 'when running Neo4j 2.2', if: is_compatible_version do
     require 'rake'
 
@@ -50,6 +59,7 @@ describe 'Neo4j::Server::CypherAuthentication', if: (ENV['TEST_AUTHENTICATION'] 
     end
 
     before { Neo4j::Session.current.close if Neo4j::Session.current }
+    let(:default_auth) { Neo4j::Session.open(:server_db, 'http://localhost:7474', basic_auth: { username: 'neo4j', password: 'neo4jrb rules, ok?' }) }
 
     describe 'login process' do
       it 'successfully authenticates against the database' do
@@ -92,7 +102,7 @@ describe 'Neo4j::Server::CypherAuthentication', if: (ENV['TEST_AUTHENTICATION'] 
 
     describe 'reauthentication' do
       it 'changes the token' do
-        Neo4j::Session.open(:server_db, 'http://localhost:7474', basic_auth: { username: 'neo4j', password: 'neo4jrb rules, ok?' })
+        default_auth
         expect(Neo4j::Session.current.auth.token).not_to be_nil
         starting_token = Neo4j::Session.current.auth.token
         Neo4j::Session.current.auth.reauthenticate('neo4jrb rules, ok?')
@@ -102,7 +112,7 @@ describe 'Neo4j::Server::CypherAuthentication', if: (ENV['TEST_AUTHENTICATION'] 
     end
 
     describe 'password change' do
-      let(:session) { Neo4j::Session.open(:server_db, 'http://localhost:7474', basic_auth: { username: 'neo4j', password: 'neo4jrb rules, ok?' }) }
+      let(:session) { default_auth }
 
       context 'with valid password' do
         after { Net::HTTP.post_form(@uri, { 'password' => 'neo4j', 'new_password' => @suite_default }) }
@@ -119,6 +129,16 @@ describe 'Neo4j::Server::CypherAuthentication', if: (ENV['TEST_AUTHENTICATION'] 
           response = session.auth.change_password('neo4jrb rules, okzzz?', 'neo4j')
           expect(response).to be_a(Hash)
           expect(response['errors'][0]['code']).to eq 'Neo.ClientError.Security.AuthenticationFailed'
+        end
+      end
+    end
+
+    describe 'token_or_error' do
+      context 'with invalid response' do
+
+        it 'raises an error' do
+          omg = Neo4j::Server::CypherAuthentication.new('http://localhost:7474')
+          expect { omg.token_or_error("this will die") }.to raise_error RuntimeError
         end
       end
     end
@@ -147,7 +167,7 @@ describe 'Neo4j::Server::CypherAuthentication', if: (ENV['TEST_AUTHENTICATION'] 
         # We establish a new session, create a node, prove that it is valid and can be loaded, invalidate the token, and then get an error when we try
         # something that worked just a moment before.
         it 'invalidates existing tokens, breaking established connections' do
-          Neo4j::Session.open(:server_db, 'http://localhost:7474', basic_auth: { username: 'neo4j', password: 'neo4jrb rules, ok?' })
+          default_auth
           node = Neo4j::Node.create({ name: 'foo' }, :foo)
           expect(node.neo_id).to be_a(Integer)
           expect { Neo4j::Node.load(node.neo_id) }.not_to raise_error
