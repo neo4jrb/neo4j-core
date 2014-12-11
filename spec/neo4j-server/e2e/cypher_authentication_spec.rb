@@ -49,6 +49,11 @@ describe 'Neo4j::Server::CypherAuthentication', if: (ENV['TEST_AUTHENTICATION'] 
       @suite_default = 'neo4jrb rules, ok?'
       @uri = URI.parse("http://localhost:7474/user/neo4j/password")
       Net::HTTP.post_form(@uri, { 'password' => @default_password, 'new_password' => @suite_default })
+
+      # It appears that in 2.2.0-M01, you need to change the token at least once after changing your password or you will be unable to authenticate with token alone.
+      # Above, we change the password; here, we change the token.
+      token_uri = URI.parse("http://localhost:7474/user/neo4j/authorization_token")
+      Net::HTTP.post_form(token_uri, { 'password' => @suite_default })
     end
 
     after(:all) do
@@ -91,8 +96,6 @@ describe 'Neo4j::Server::CypherAuthentication', if: (ENV['TEST_AUTHENTICATION'] 
 
       it 'can process a hash response instead of string' do
         Neo4j::Session.open(:server_db, 'http://localhost:7474', basic_auth: { username: 'neo4j', password: @suite_default })
-        # This next line is required due to a bug in 2.2.0-M01. Can probably be removed in the future.
-        Neo4j::Session.current.auth.reauthenticate(@suite_default)
         token = Neo4j::Session.current.auth.token
         Neo4j::Session.current.close
         expect { Neo4j::Session.open(:server_db, 'http://localhost:7474', basic_auth: { username: 'foo', password: token }) }.not_to raise_error

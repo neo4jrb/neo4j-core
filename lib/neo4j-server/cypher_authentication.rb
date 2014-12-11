@@ -117,7 +117,7 @@ module Neo4j::Server
     end
 
     def token_hash(token)
-      Base64.strict_encode64(":#{token}")
+      ::Base64.strict_encode64(":#{token}")
     end
   end
 end
