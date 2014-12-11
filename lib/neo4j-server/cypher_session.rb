@@ -56,7 +56,7 @@ module Neo4j::Server
 
     def self.establish_session(root_data, connection, auth_obj)
       data_url = root_data['data']
-      data_url << '/' unless data_url.end_with?('/')
+      data_url << '/' unless data_url.nil? || data_url.end_with?('/')
       CypherSession.new(data_url, connection, auth_obj)
     end
 

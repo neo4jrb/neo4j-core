@@ -35,11 +35,16 @@ module Neo4j::Server
     # Uses the given username and password to obtain a token, then adds the token to the connection's parameters.
     # @return [String] An access token provided by the server.
     def authenticate
-      auth_response = connection.get("#{url}/authentication")
-      return nil if auth_response.body.empty?
-      auth_body = JSON.parse(auth_response.body)
-      token = auth_body['errors'][0]['code'] == 'Neo.ClientError.Security.AuthorizationFailed' ? obtain_token : nil
-      add_auth_headers(token) unless token.nil?
+      auth_response = auth_connection("#{url}/authentication")
+      auth_hash = if auth_response.body.empty?
+                    nil
+                  elsif auth_response.body.is_a?(String)
+                    JSON.parse(auth_response.body)['errors'][0]['code'] == 'Neo.ClientError.Security.AuthorizationFailed' ? auth_attempt : nil
+                  else
+                    auth_response
+                  end
+      return nil if auth_hash.nil?
+      add_auth_headers(token_or_error(auth_hash))
     end
 
     # Invalidates the existing token, which will invalidate all conncetions using this token, applies for a new token, adds this into
@@ -47,21 +52,32 @@ module Neo4j::Server
     # @param [String] password The current server password.
     def reauthenticate(password)
       invalidate_token(password)
-      add_auth_headers(obtain_token)
+      add_auth_headers(token_or_error(auth_attempt))
     end
 
     # Requests a token from the authentication endpoint using the given username and password.
-    # @return [String] A plain-text token.
-    def obtain_token
+    # @return [Faraday::Response] The server's response, to be interpreted.
+    def auth_attempt
       begin
         user = params[:basic_auth][:username]
         pass = params[:basic_auth][:password]
       rescue NoMethodError
         raise MissingCredentialsError, 'Neo4j authentication is enabled, username/password are required but missing'
       end
-      auth_response = connection.post("#{url}/authentication", { 'username' => user, 'password' => pass })
-      raise PasswordChangeRequiredError, "Server requires a password change, please visit #{url}" if auth_response.body['password_change_required']
-      raise InvalidPasswordError, "Neo4j server responded with: #{auth_response.body['errors'][0]['message']}" if auth_response.status.to_i == 422
+      connection.post("#{url}/authentication", { 'username' => user, 'password' => pass })
+    end
+
+    # Takes a response object from the server and returns a token or fails with an error.
+    # Todo: more error states!
+    # @param [Farday::Response] auth_response The response after attempting authentication
+    # @return [String] An authentication token.
+    def token_or_error(auth_response)
+      begin
+        raise PasswordChangeRequiredError, "Server requires a password change, please visit #{url}" if auth_response.body['password_change_required']
+        raise InvalidPasswordError, "Neo4j server responded with: #{auth_response.body['errors'][0]['message']}" if auth_response.status.to_i == 422
+      rescue NoMethodError
+        raise 'Unexpected auth response, please open an issue at https://github.com/neo4jrb/neo4j-core/issues'
+      end
       auth_response.body['authorization_token']
     end
 
@@ -72,6 +88,7 @@ module Neo4j::Server
     end
 
     # Stores an authentication token in the properly-formatted header.
+    # This does not do any checking that what it has been given is a token. Whatever param is given will be base64 encoded and used as the header.
     # @param [String] token The authentication token provided by the database.
     def add_auth_headers(token)
       @token = token
@@ -79,6 +96,11 @@ module Neo4j::Server
     end
 
     private
+
+    # Makes testing easier, we can stub this method to simulate different responses
+    def auth_connection(url)
+      connection.get(url)
+    end
 
     def self.new_connection
       conn = Faraday.new do |b|
@@ -95,7 +117,7 @@ module Neo4j::Server
     end
 
     def token_hash(token)
-      Base64.strict_encode64(":#{token}")
+      ::Base64.strict_encode64(":#{token}")
     end
   end
 end
