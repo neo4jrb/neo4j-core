@@ -11,8 +11,6 @@ end
 # configuration.
 describe 'Neo4j::Server::CypherAuthentication', if: (ENV['TEST_AUTHENTICATION'] == 'true' && RUBY_PLATFORM != 'java') do
   context 'with auth disabled' do
-    after { Neo4j::Session.current.close }
-
     it 'establishes a session without auth creds' do
       expect { Neo4j::Session.open(:server_db, 'http://localhost:7474') }
         .not_to raise_error
@@ -93,6 +91,8 @@ describe 'Neo4j::Server::CypherAuthentication', if: (ENV['TEST_AUTHENTICATION'] 
 
       it 'can process a hash response instead of string' do
         Neo4j::Session.open(:server_db, 'http://localhost:7474', basic_auth: { username: 'neo4j', password: @suite_default })
+        # This next line is required due to a bug in 2.2.0-M01. Can probably be removed in the future.
+        Neo4j::Session.current.auth.reauthenticate(@suite_default)
         token = Neo4j::Session.current.auth.token
         Neo4j::Session.current.close
         expect { Neo4j::Session.open(:server_db, 'http://localhost:7474', basic_auth: { username: 'foo', password: token }) }.not_to raise_error
