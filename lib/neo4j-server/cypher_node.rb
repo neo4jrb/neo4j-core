@@ -46,7 +46,7 @@ module Neo4j::Server
       if @props
         @props
       else
-        hash = @session._query_entity_data("#{match_start} RETURN n")
+        hash = @session._query_entity_data("#{match_start} RETURN n", nil, neo_id: neo_id)
         @props = Hash[hash['data'].map{ |k, v| [k.to_sym, v] }]
       end
     end
@@ -58,20 +58,20 @@ module Neo4j::Server
     # (see Neo4j::Node#remove_property)
     def remove_property(key)
       refresh
-      @session._query_or_fail("#{match_start} REMOVE n.`#{key}`")
+      @session._query_or_fail("#{match_start} REMOVE n.`#{key}`", false, { neo_id: neo_id })
     end
 
     # (see Neo4j::Node#set_property)
     def set_property(key,value)
       refresh
-      @session._query_or_fail("#{match_start} SET n.`#{key}` = { value }", false, value: value)
+      @session._query_or_fail("#{match_start} SET n.`#{key}` = { value }", false, { value: value, neo_id: neo_id })
       value
     end
 
     # (see Neo4j::Node#props=)
     def props=(properties)
       refresh
-      @session._query_or_fail("#{match_start} SET n = { props }", false, {props: properties})
+      @session._query_or_fail("#{match_start} SET n = { props }", false, { props: properties, neo_id: neo_id })
       properties
     end
 
@@ -80,7 +80,7 @@ module Neo4j::Server
       q = "#{match_start} REMOVE " + properties.map do |k|
         "n.`#{k}`"
       end.join(', ')
-      @session._query_or_fail(q)
+      @session._query_or_fail(q, false, neo_id: neo_id)
     end
 
     # (see Neo4j::Node#update_props)
@@ -92,22 +92,19 @@ module Neo4j::Server
       remove_properties(removed_keys) unless removed_keys.empty?
       properties_to_set = properties.keys - removed_keys
       return if properties_to_set.empty?
-      @session._query_or_fail("#{match_start} SET #{cypher_properties(properties_to_set)}", false, cypher_prop_list(properties)[:props])
+      props_list = cypher_prop_list(properties)[:props].merge({ neo_id: neo_id })
+      @session._query_or_fail("#{match_start} SET #{cypher_properties(properties_to_set)}", false, props_list)
       properties
     end
 
     # (see Neo4j::Node#get_property)
     def get_property(key)
-      if @props
-        @props[key.to_sym]
-      else
-        @session._query_or_fail("#{match_start} RETURN n.`#{key}`", true)
-      end
+      @props ? @props[key.to_sym] : @session._query_or_fail("#{match_start} RETURN n.`#{key}`", true, neo_id: neo_id)
     end
 
     # (see Neo4j::Node#labels)
     def labels
-      @labels ||= @session._query_or_fail("#{match_start} RETURN labels(n) as labels", true)
+      @labels ||= @session._query_or_fail("#{match_start} RETURN labels(n) as labels", true, neo_id: neo_id)
       @labels.map(&:to_sym)
     end
 
@@ -116,22 +113,21 @@ module Neo4j::Server
     end
 
     def add_label(*labels)
-      @session._query_or_fail("#{match_start} SET n #{_cypher_label_list(labels)}")
+      @session._query_or_fail("#{match_start} SET n #{_cypher_label_list(labels)}", false, neo_id: neo_id)
     end
 
     def remove_label(*labels)
-      @session._query_or_fail("#{match_start} REMOVE n #{_cypher_label_list(labels)}")
+      @session._query_or_fail("#{match_start} REMOVE n #{_cypher_label_list(labels)}", false, neo_id: neo_id)
     end
 
     def set_label(*label_names)
       q = "#{match_start} #{remove_labels_if_needed} #{set_labels_if_needed(label_names)}"
-      @session._query_or_fail(q)
+      @session._query_or_fail(q, false, neo_id: neo_id)
     end
 
     # (see Neo4j::Node#del)
     def del
-      @session._query_or_fail("#{match_start} MATCH n-[r]-() DELETE r")
-      @session._query_or_fail("#{match_start} DELETE n")
+      @session._query_or_fail("#{match_start} OPTIONAL MATCH n-[r]-() DELETE n, r", false, neo_id: neo_id)
     end
 
     alias_method :delete, :del
@@ -139,7 +135,7 @@ module Neo4j::Server
 
     # (see Neo4j::Node#exist?)
     def exist?
-      @session._query("#{match_start} RETURN ID(n)").data.empty? ? false : true
+      @session._query("#{match_start} RETURN ID(n)", neo_id: neo_id).data.empty? ? false : true
     end
 
     # (see Neo4j::Node#node)
@@ -178,7 +174,7 @@ module Neo4j::Server
       between_id = match[:between] ? "MATCH (p) WHERE ID(p) = #{match[:between].neo_id}" : ""
       dir_func = to_dir[match[:dir] || :both]
       cypher = "#{match_start} #{between_id} MATCH (n)#{dir_func.call(cypher_rel)}(p) RETURN #{returns}"
-      r = @session._query(cypher)
+      r = @session._query(cypher, neo_id: neo_id)
       r.raise_error if r.error?
       _map_result(r)
     end
@@ -216,7 +212,7 @@ module Neo4j::Server
     end
 
     def match_start(identifier = 'n')
-      "MATCH (#{identifier}) WHERE ID(#{identifier}) = #{neo_id}"
+      "MATCH (#{identifier}) WHERE ID(#{identifier}) = {neo_id}"
     end
   end
 end

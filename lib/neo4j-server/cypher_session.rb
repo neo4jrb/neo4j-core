@@ -196,8 +196,8 @@ module Neo4j::Server
       single_row ? response.first_data : response
     end
 
-    def _query_entity_data(q, id=nil)
-      response = _query(q)
+    def _query_entity_data(q, id = nil, params = nil)
+      response = _query(q, params)
       response.raise_error if response.error?
       response.entity_data(id)
     end
