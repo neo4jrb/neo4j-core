@@ -10,8 +10,8 @@ module Neo4j::Server
       @response_hash = value
       @rel_type = @response_hash['type']
       @props = @response_hash['data']
-      @start_node_neo_id = @response_hash['start'].match(/\d+$/)[0].to_i
-      @end_node_neo_id = @response_hash['end'].match(/\d+$/)[0].to_i
+      @start_node_neo_id = @response_hash['start'].is_a?(Integer) ? @response_hash['start'] : @response_hash['start'].match(/\d+$/)[0].to_i
+      @end_node_neo_id = @response_hash['end'].is_a?(Integer) ? @response_hash['end'] : @response_hash['end'].match(/\d+$/)[0].to_i
       @id = @response_hash['id']
     end
 

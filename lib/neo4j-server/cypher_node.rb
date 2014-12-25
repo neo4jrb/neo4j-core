@@ -10,7 +10,7 @@ module Neo4j::Server
       @id = if value.is_a?(Hash)
         hash = value['data']
         @props = Hash[hash.map{ |k, v| [k.to_sym, v] }]
-        @labels = value['metadata']['labels'].map(&:to_sym) if value['metadata']
+        @labels = value['metadata']['labels'].map!(&:to_sym) if value['metadata']
         value['id'] # value['self'].match(/\d+$/)[0].to_i
       else
         value
@@ -32,13 +32,15 @@ module Neo4j::Server
 
     # (see Neo4j::Node#create_rel)
     def create_rel(type, other_node, props = nil)
-      id = @session._query_or_fail(rel_string(type, other_node, props), true, cypher_prop_list(props))
-      data_hash = { 'type' => type, 'data' => props, 'start' => self.neo_id.to_s, 'end' => other_node.neo_id.to_s, 'id' => id }
+      ids_hash = { start_neo_id: neo_id, end_neo_id: other_node.neo_id }
+      props_with_ids = props.nil? ? ids_hash : cypher_prop_list(props).merge(ids_hash)
+      id = @session._query_or_fail(rel_string(type, other_node, props), true, props_with_ids)
+      data_hash = { 'type' => type, 'data' => props, 'start' => self.neo_id, 'end' => other_node.neo_id, 'id' => id }
       CypherRelationship.new(@session, data_hash)
     end
 
     def rel_string(type, other_node, props)
-      "MATCH (a), (b) WHERE ID(a) = #{neo_id} AND ID(b) = #{other_node.neo_id} CREATE (a)-[r:`#{type}` #{prop_identifier(props)}]->(b) RETURN ID(r)"
+      "MATCH (a), (b) WHERE ID(a) = {start_neo_id} AND ID(b) = {end_neo_id} CREATE (a)-[r:`#{type}` #{prop_identifier(props)}]->(b) RETURN ID(r)"
     end
 
     # (see Neo4j::Node#props)
@@ -104,20 +106,21 @@ module Neo4j::Server
 
     # (see Neo4j::Node#labels)
     def labels
-      @labels ||= @session._query_or_fail("#{match_start} RETURN labels(n) as labels", true, neo_id: neo_id)
-      @labels.map(&:to_sym)
+      @labels ||= @session._query_or_fail("#{match_start} RETURN labels(n) as labels", true, neo_id: neo_id).map!(&:to_sym)
     end
 
-    def _cypher_label_list(labels)
-      ':' + labels.map{|label| "`#{label}`"}.join(':')
+    def _cypher_label_list(labels_list)
+      ':' + labels_list.map{|label| "`#{label}`"}.join(':')
     end
 
-    def add_label(*labels)
-      @session._query_or_fail("#{match_start} SET n #{_cypher_label_list(labels)}", false, neo_id: neo_id)
+    def add_label(*new_labels)
+      @session._query_or_fail("#{match_start} SET n #{_cypher_label_list(new_labels)}", false, neo_id: neo_id)
+      new_labels.each { |label| labels << label }
     end
 
-    def remove_label(*labels)
-      @session._query_or_fail("#{match_start} REMOVE n #{_cypher_label_list(labels)}", false, neo_id: neo_id)
+    def remove_label(*target_labels)
+      @session._query_or_fail("#{match_start} REMOVE n #{_cypher_label_list(target_labels)}", false, neo_id: neo_id)
+      target_labels.each { |label| labels.delete(label) } unless labels.nil?
     end
 
     def set_label(*label_names)

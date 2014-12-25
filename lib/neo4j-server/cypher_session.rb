@@ -111,7 +111,9 @@ module Neo4j::Server
     end
 
     def create_node(props = nil, labels = [])
-      CypherNode.new self, _query_or_fail(cypher_string(labels, props), true, cypher_prop_list(props))
+      id = _query_or_fail(cypher_string(labels, props), true, cypher_prop_list(props))
+      value = props.nil? ? id : { 'id' => id, 'metadata' => { 'labels' => labels }, 'data' => props }
+      CypherNode.new(self, value)
     end
 
     def load_node(neo_id)
