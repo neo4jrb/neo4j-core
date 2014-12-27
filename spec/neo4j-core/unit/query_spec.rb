@@ -22,7 +22,7 @@ describe Neo4j::Core::Query do
   end
 
   class Note
-    CYPHER_LABEL = 'GreatNote' 
+    CYPHER_LABEL = 'GreatNote'
   end
 
   describe 'batch finding' do
@@ -393,15 +393,15 @@ describe Neo4j::Core::Query do
 
   describe '#limit' do
     describe ".limit(3)" do
-      it_generates "LIMIT 3"
+      it_generates "LIMIT {limit_3}"
     end
 
     describe ".limit('3')" do
-      it_generates "LIMIT 3"
+      it_generates "LIMIT {limit_3}"
     end
 
     describe ".limit(3).limit(5)" do
-      it_generates "LIMIT 5"
+      it_generates "LIMIT {limit_5}"
     end
   end
 
@@ -409,19 +409,19 @@ describe Neo4j::Core::Query do
 
   describe '#skip' do
     describe ".skip(5)" do
-      it_generates "SKIP 5"
+      it_generates "SKIP {skip_5}"
     end
 
     describe ".skip('5')" do
-      it_generates "SKIP 5"
+      it_generates "SKIP {skip_5}"
     end
 
     describe ".skip(5).skip(10)" do
-      it_generates "SKIP 10"
+      it_generates "SKIP {skip_10}"
     end
 
     describe ".offset(6)" do
-      it_generates "SKIP 6"
+      it_generates "SKIP {skip_6}"
     end
   end
 

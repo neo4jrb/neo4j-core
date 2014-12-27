@@ -205,6 +205,7 @@ module Neo4j::Server
     end
 
     def _query(q, params = nil)
+      # puts "q #{q}"
       curr_tx = Neo4j::Transaction.current
       if (curr_tx)
         curr_tx._query(q, params)

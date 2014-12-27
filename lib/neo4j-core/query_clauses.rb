@@ -107,15 +107,18 @@ module Neo4j::Core
 
         def to_cypher(clauses)
           string = clause_string(clauses)
+          string.strip!
 
-          "#{@keyword} #{string}" if string.to_s.strip.size > 0
+          "#{@keyword} #{string}" if string.size > 0
         end
       end
 
       private
 
       def key_value_string(key, value, previous_keys = [], force_equals = false)
-        param = (previous_keys + [key]).join('_').gsub(/[^a-z0-9]+/i, '_').gsub(/^_+|_+$/, '')
+        param = (previous_keys << key).join('_')
+        param.gsub!(/[^a-z0-9]+/i, '_')
+        param.gsub!(/^_+|_+$/, '')
         @params[param.to_sym] = value
 
         if !value.is_a?(Array) || force_equals
@@ -126,7 +129,8 @@ module Neo4j::Core
       end
 
       def format_label(label_string)
-        label_string = label_string.to_s.strip
+        label_string = label_string.to_s
+        label_string.strip!
         if !label_string.empty? && label_string[0] != ':'
           label_string = "`#{label_string}`" unless label_string.match(' ')
           label_string = ":#{label_string}"
@@ -166,7 +170,7 @@ module Neo4j::Core
 
       class << self
         def clause_string(clauses)
-          clauses.map(&:value).join(', ')
+          clauses.map!(&:value).join(', ')
         end
       end
     end
@@ -181,7 +185,7 @@ module Neo4j::Core
             if k.to_sym == :neo_id
               "ID(#{key}) = #{v.to_i}"
             else
-              key.to_s + '.' + from_key_and_value(k, v, previous_keys + [key])
+              "#{key}.#{from_key_and_value(k, v, previous_keys + [key])}"
             end
           end.join(' AND ')
         when NilClass
@@ -198,7 +202,7 @@ module Neo4j::Core
 
       class << self
         def clause_string(clauses)
-          clauses.map(&:value).join(' AND ')
+          clauses.map!(&:value).join(' AND ')
         end
       end
     end
@@ -217,7 +221,7 @@ module Neo4j::Core
 
       class << self
         def clause_string(clauses)
-          clauses.map(&:value).join(', ')
+          clauses.map!(&:value).join(', ')
         end
       end
     end
@@ -239,7 +243,7 @@ module Neo4j::Core
 
       class << self
         def clause_string(clauses)
-          clauses.map(&:value).join(', ')
+          clauses.map!(&:value).join(', ')
         end
       end
     end
@@ -249,7 +253,7 @@ module Neo4j::Core
 
       class << self
         def clause_string(clauses)
-          clauses.map(&:value).join(" #{@keyword} ")
+          clauses.map!(&:value).join(" #{@keyword} ")
         end
       end
     end
@@ -281,7 +285,7 @@ module Neo4j::Core
 
       class << self
         def clause_string(clauses)
-          clauses.map(&:value).join(', ')
+          clauses.map!(&:value).join(', ')
         end
       end
     end
@@ -303,7 +307,7 @@ module Neo4j::Core
 
       class << self
         def clause_string(clauses)
-          clauses.map(&:value).join(', ')
+          clauses.map!(&:value).join(', ')
         end
       end
     end
@@ -336,7 +340,7 @@ module Neo4j::Core
 
       class << self
         def clause_string(clauses)
-          clauses.map(&:value).join(', ')
+          clauses.map!(&:value).join(', ')
         end
       end
     end
@@ -345,11 +349,15 @@ module Neo4j::Core
       @keyword = 'LIMIT'
 
       def from_string(value)
-        value.to_i
+        clause_id = "#{self.class.keyword.downcase}_#{value}"
+        @params[clause_id] = value.to_i
+        "{#{clause_id}}"
       end
 
       def from_integer(value)
-        value
+        clause_id = "#{self.class.keyword.downcase}_#{value}"
+        @params[clause_id] = value
+        "{#{clause_id}}"
       end
 
       class << self
@@ -363,11 +371,15 @@ module Neo4j::Core
       @keyword = 'SKIP'
 
       def from_string(value)
-        value.to_i
+        clause_id = "#{self.class.keyword.downcase}_#{value}"
+        @params[clause_id] = value.to_i
+        "{#{clause_id}}"
       end
 
       def from_integer(value)
-        value
+        clause_id = "#{self.class.keyword.downcase}_#{value}"
+        @params[clause_id] = value
+        "{#{clause_id}}"
       end
 
       class << self
@@ -400,7 +412,7 @@ module Neo4j::Core
 
       class << self
         def clause_string(clauses)
-          clauses.map(&:value).join(', ')
+          clauses.map!(&:value).join(', ')
         end
       end
     end
@@ -437,7 +449,7 @@ module Neo4j::Core
 
       class << self
         def clause_string(clauses)
-          clauses.map(&:value).join(', ')
+          clauses.map!(&:value).join(', ')
         end
       end
     end
@@ -458,7 +470,7 @@ module Neo4j::Core
 
       class << self
         def clause_string(clauses)
-          clauses.map(&:value).join(' UNWIND ')
+          clauses.map!(&:value).join(' UNWIND ')
         end
       end
     end
@@ -485,12 +497,9 @@ module Neo4j::Core
 
       class << self
         def clause_string(clauses)
-          clauses.map(&:value).join(', ')
+          clauses.map!(&:value).join(', ')
         end
       end
     end
-
-
   end
 end
-
