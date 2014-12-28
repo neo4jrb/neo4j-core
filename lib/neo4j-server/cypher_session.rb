@@ -111,7 +111,9 @@ module Neo4j::Server
     end
 
     def create_node(props = nil, labels = [])
-      CypherNode.new self, _query_or_fail(cypher_string(labels, props), true, cypher_prop_list(props))
+      id = _query_or_fail(cypher_string(labels, props), true, cypher_prop_list(props))
+      value = props.nil? ? id : {'id' => id, 'metadata' => {'labels' => labels}, 'data' => props}
+      CypherNode.new(self, value)
     end
 
     def load_node(neo_id)
@@ -196,13 +198,14 @@ module Neo4j::Server
       single_row ? response.first_data : response
     end
 
-    def _query_entity_data(q, id = nil)
-      response = _query(q)
+    def _query_entity_data(q, id = nil, params = nil)
+      response = _query(q, params)
       response.raise_error if response.error?
       response.entity_data(id)
     end
 
     def _query(q, params = nil)
+      # puts "q #{q}"
       curr_tx = Neo4j::Transaction.current
       if curr_tx
         curr_tx._query(q, params)

@@ -6,13 +6,12 @@ require 'neo4j-core/version'
 Gem::Specification.new do |s|
   s.name     = 'neo4j-core'
   s.version  = Neo4j::Core::VERSION
-  s.required_ruby_version = '>= 1.8.7'
+  s.required_ruby_version = '>= 1.9.3'
 
-  s.authors  = 'Andreas Ronge'
-  s.email    = 'andreas.ronge@gmail.com'
+  s.authors  = 'Andreas Ronge, Chris Grigg, Brian Underwood'
+  s.email    = 'andreas.ronge@gmail.com, chris@subvertallmedia.com, brian@brian-underwood.codes'
   s.homepage = 'https://github.com/neo4jrb/neo4j-core'
-  s.rubyforge_project = 'neo4j-core'
-  s.summary = 'A graph database for Ruby'
+  s.summary = 'A basic library to work with the graph database Neo4j.'
   s.license = 'MIT'
 
   s.description = <<-EOF

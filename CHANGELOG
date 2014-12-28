@@ -1,3 +1,7 @@
+== 3.1.1
+* Force more basic, common queries to use params. Early benchmarks suggest big performance improvements.
+* Auth improvements. You can now use a valid Neo4j token with any username to authenticate.
+
 == 3.1.0
 * Swapped out `START n=node...` for `MATCH (n) WHERE ID(n)...` for compatibility with Neo4j 2.2.
 * Added a new class, CypherAuthentication, to support Neo4j 2.2's new authentication endpoint.

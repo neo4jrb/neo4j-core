@@ -74,7 +74,7 @@ module Neo4j::Server
         it 'find and can load them' do
           begin
             tx = Neo4j::Transaction.new
-            label_name = unique_random_number
+            label_name = unique_random_number.to_s
             n = Neo4j::Node.create({name: 'andreas'}, label_name)
             found = Neo4j::Label.find_nodes(label_name, :name, 'andreas').to_a.first
             expect(found[:name]).to eq('andreas')
