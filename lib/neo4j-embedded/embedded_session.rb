@@ -134,7 +134,7 @@ module Neo4j::Embedded
     def _query(q, params = {})
       @engine ||= Java::OrgNeo4jCypherJavacompat::ExecutionEngine.new(@graph_db)
       @engine.execute(q, Neo4j::Core::HashWithIndifferentAccess.new(params))
-    rescue Exception => e
+    rescue StandardError => e
       raise Neo4j::Session::CypherError.new(e.message, e.class, 'cypher error')
     end
 

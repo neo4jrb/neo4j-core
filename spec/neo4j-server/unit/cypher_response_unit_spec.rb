@@ -12,7 +12,19 @@ module Neo4j::Server
           'columns' => ['n'],
           'data' => [[{'labels' => 'http://localhost:7474/db/data/node/625/labels',
                        'outgoing_relationships' => 'http://localhost:7474/db/data/node/625/relationships/out',
-                       'data' => {'name' => 'Brian', 'hat' => 'fancy'}, 'traverse' => 'http://localhost:7474/db/data/node/625/traverse/{returnType}', 'all_typed_relationships' => 'http://localhost:7474/db/data/node/625/relationships/all/{-list|&|types}', 'property' => 'http://localhost:7474/db/data/node/625/properties/{key}', 'self' => 'http://localhost:7474/db/data/node/625', 'properties' => 'http://localhost:7474/db/data/node/625/properties', 'outgoing_typed_relationships' => 'http://localhost:7474/db/data/node/625/relationships/out/{-list|&|types}', 'incoming_relationships' => 'http://localhost:7474/db/data/node/625/relationships/in', 'extensions' => {}, 'create_relationship' => 'http://localhost:7474/db/data/node/625/relationships', 'paged_traverse' => 'http://localhost:7474/db/data/node/625/paged/traverse/{returnType}{?pageSize,leaseTime}', 'all_relationships' => 'http://localhost:7474/db/data/node/625/relationships/all', 'incoming_typed_relationships' => 'http://localhost:7474/db/data/node/625/relationships/in/{-list|&|types}'}]]
+                       'data' => {'name' => 'Brian', 'hat' => 'fancy'},
+                       'traverse' => 'http://localhost:7474/db/data/node/625/traverse/{returnType}',
+                       'all_typed_relationships' => 'http://localhost:7474/db/data/node/625/relationships/all/{-list|&|types}',
+                       'property' => 'http://localhost:7474/db/data/node/625/properties/{key}',
+                       'self' => 'http://localhost:7474/db/data/node/625',
+                       'properties' => 'http://localhost:7474/db/data/node/625/properties',
+                       'outgoing_typed_relationships' => 'http://localhost:7474/db/data/node/625/relationships/out/{-list|&|types}',
+                       'incoming_relationships' => 'http://localhost:7474/db/data/node/625/relationships/in',
+                       'extensions' => {},
+                       'create_relationship' => 'http://localhost:7474/db/data/node/625/relationships',
+                       'paged_traverse' => 'http://localhost:7474/db/data/node/625/paged/traverse/{returnType}{?pageSize,leaseTime}',
+                       'all_relationships' => 'http://localhost:7474/db/data/node/625/relationships/all',
+                       'incoming_typed_relationships' => 'http://localhost:7474/db/data/node/625/relationships/in/{-list|&|types}'}]]
         }
       end
 

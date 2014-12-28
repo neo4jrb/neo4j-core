@@ -20,10 +20,10 @@ module Neo4j
         url = resource_url(rel)
         payload = statement.empty? ? nil : statement
         response = case verb
-        when :get then connection.get(url, payload)
-        when :post then connection.post(url, payload)
-        else fail "Illegal verb #{verb}"
-        end
+                   when :get then connection.get(url, payload)
+                   when :post then connection.post(url, payload)
+                   else fail "Illegal verb #{verb}"
+                   end
         response.status == 404 ? nil : resource_class.new(db, response, url, connection)
       end
 
@@ -35,7 +35,7 @@ module Neo4j
       end
 
       def handle_response_error(response, msg = 'Error for request')
-        fail ServerException.new("#{msg} #{response.env && response.env[:url].to_s}, #{response.status}, #{response.status}")
+        fail ServerException, "#{msg} #{response.env && response.env[:url].to_s}, #{response.status}, #{response.status}"
       end
 
       def expect_response_code(response, expected_code, msg = 'Error for request')
