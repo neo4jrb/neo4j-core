@@ -39,7 +39,7 @@ module Neo4j::Embedded
           end
 
           def _rel_type
-            getType().name().to_sym
+            getType.name.to_sym
           end
           tx_methods :rel_type
 

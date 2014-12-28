@@ -5,11 +5,11 @@ module Helpers
   end
 
   def create_server_session
-    Neo4j::Session.open(:server_db, "http://localhost:7474", basic_auth: { username: 'neo4j', password: 'neo4jrb rules, ok?' })
+    Neo4j::Session.open(:server_db, 'http://localhost:7474', basic_auth: {username: 'neo4j', password: 'neo4jrb rules, ok?'})
   end
 
   def create_named_server_session(name, default = nil)
-    Neo4j::Session.open_named(:server_db, name, default, "http://localhost:7474")
+    Neo4j::Session.open_named(:server_db, name, default, 'http://localhost:7474')
   end
 
   def session

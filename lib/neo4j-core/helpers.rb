@@ -3,7 +3,7 @@ module Neo4j::Core
   module ArgumentHelper
 
     def self.session(args)
-      args.last.kind_of?(Neo4j::Session) ? args.pop : Neo4j::Session.current!
+      args.last.is_a?(Neo4j::Session) ? args.pop : Neo4j::Session.current!
     end
   end
 

@@ -8,13 +8,13 @@ module Neo4j::Server
       @session = session
 
       @id = if value.is_a?(Hash)
-        hash = value['data']
-        @props = Hash[hash.map{ |k, v| [k.to_sym, v] }]
-        @labels = value['metadata']['labels'].map(&:to_sym) if value['metadata']
-        value['id'] # value['self'].match(/\d+$/)[0].to_i
-      else
-        value
-      end
+              hash = value['data']
+              @props = Hash[hash.map { |k, v| [k.to_sym, v] }]
+              @labels = value['metadata']['labels'].map(&:to_sym) if value['metadata']
+              value['id'] # value['self'].match(/\d+$/)[0].to_i
+            else
+              value
+            end
     end
 
     def neo_id
@@ -33,7 +33,7 @@ module Neo4j::Server
     # (see Neo4j::Node#create_rel)
     def create_rel(type, other_node, props = nil)
       id = @session._query_or_fail(rel_string(type, other_node, props), true, cypher_prop_list(props))
-      data_hash = { 'type' => type, 'data' => props, 'start' => self.neo_id.to_s, 'end' => other_node.neo_id.to_s, 'id' => id }
+      data_hash = {'type' => type, 'data' => props, 'start' => self.neo_id.to_s, 'end' => other_node.neo_id.to_s, 'id' => id}
       CypherRelationship.new(@session, data_hash)
     end
 
@@ -47,7 +47,7 @@ module Neo4j::Server
         @props
       else
         hash = @session._query_entity_data("#{match_start} RETURN n")
-        @props = Hash[hash['data'].map{ |k, v| [k.to_sym, v] }]
+        @props = Hash[hash['data'].map { |k, v| [k.to_sym, v] }]
       end
     end
 
@@ -62,7 +62,7 @@ module Neo4j::Server
     end
 
     # (see Neo4j::Node#set_property)
-    def set_property(key,value)
+    def set_property(key, value)
       refresh
       @session._query_or_fail("#{match_start} SET n.`#{key}` = { value }", false, value: value)
       value
@@ -71,7 +71,7 @@ module Neo4j::Server
     # (see Neo4j::Node#props=)
     def props=(properties)
       refresh
-      @session._query_or_fail("#{match_start} SET n = { props }", false, {props: properties})
+      @session._query_or_fail("#{match_start} SET n = { props }", false, props: properties)
       properties
     end
 
@@ -88,7 +88,7 @@ module Neo4j::Server
       refresh
       return if properties.empty?
 
-      removed_keys = properties.keys.select{|k| properties[k].nil?}
+      removed_keys = properties.keys.select { |k| properties[k].nil? }
       remove_properties(removed_keys) unless removed_keys.empty?
       properties_to_set = properties.keys - removed_keys
       return if properties_to_set.empty?
@@ -112,7 +112,7 @@ module Neo4j::Server
     end
 
     def _cypher_label_list(labels)
-      ':' + labels.map{|label| "`#{label}`"}.join(':')
+      ':' + labels.map { |label| "`#{label}`" }.join(':')
     end
 
     def add_label(*labels)
@@ -143,39 +143,39 @@ module Neo4j::Server
     end
 
     # (see Neo4j::Node#node)
-    def node(match={})
-      ensure_single_relationship { match(CypherNode, "p as result LIMIT 2", match) }
+    def node(match = {})
+      ensure_single_relationship { match(CypherNode, 'p as result LIMIT 2', match) }
     end
 
     # (see Neo4j::Node#rel)
-    def rel(match={})
-      ensure_single_relationship { match(CypherRelationship, "r as result LIMIT 2", match) }
+    def rel(match = {})
+      ensure_single_relationship { match(CypherRelationship, 'r as result LIMIT 2', match) }
     end
 
     # (see Neo4j::Node#rel?)
-    def rel?(match={})
-      result = match(CypherRelationship, "r as result", match)
+    def rel?(match = {})
+      result = match(CypherRelationship, 'r as result', match)
       !!result.first
     end
 
     # (see Neo4j::Node#nodes)
-    def nodes(match={})
-      match(CypherNode, "p as result", match)
+    def nodes(match = {})
+      match(CypherNode, 'p as result', match)
     end
 
     # (see Neo4j::Node#rels)
     def rels(match = {dir: :both})
-      match(CypherRelationship, "r as result", match)
+      match(CypherRelationship, 'r as result', match)
     end
 
     # @private
-    def match(clazz, returns, match={})
-      to_dir = {outgoing: ->(rel) {"-#{rel}->"},
-                incoming: ->(rel) {"<-#{rel}-"},
-                both:     ->(rel) {"-#{rel}-"} }
+    def match(clazz, returns, match = {})
+      to_dir = {outgoing: ->(rel) { "-#{rel}->" },
+                incoming: ->(rel) { "<-#{rel}-" },
+                both:     ->(rel) { "-#{rel}-" }}
 
       cypher_rel = match[:type] ? "[r:`#{match[:type]}`]" : '[r]'
-      between_id = match[:between] ? "MATCH (p) WHERE ID(p) = #{match[:between].neo_id}" : ""
+      between_id = match[:between] ? "MATCH (p) WHERE ID(p) = #{match[:between].neo_id}" : ''
       dir_func = to_dir[match[:dir] || :both]
       cypher = "#{match_start} #{between_id} MATCH (n)#{dir_func.call(cypher_rel)}(p) RETURN #{returns}"
       r = @session._query(cypher)
@@ -184,18 +184,18 @@ module Neo4j::Server
     end
 
     def _map_result(r)
-      r.to_node_enumeration.map { |rel| rel.result }
+      r.to_node_enumeration.map(&:result)
     end
 
     private
 
     def cypher_properties(properties_to_set)
-      properties_to_set.map! { |k| "n.`#{k}` = {`#{k}`}"}.join(',')
+      properties_to_set.map! { |k| "n.`#{k}` = {`#{k}`}" }.join(',')
     end
 
     def remove_labels_if_needed
       if labels.empty?
-        ""
+        ''
       else
         " REMOVE n #{_cypher_label_list(labels)}"
       end
@@ -203,7 +203,7 @@ module Neo4j::Server
 
     def set_labels_if_needed(label_names)
       if label_names.empty?
-        ""
+        ''
       else
         " SET n #{_cypher_label_list(label_names.map(&:to_sym).uniq)}"
       end
@@ -211,7 +211,7 @@ module Neo4j::Server
 
     def ensure_single_relationship(&block)
       result = yield
-      raise "Expected to only find one relationship from node #{neo_id} matching #{match.inspect} but found #{result.count}" if result.count > 1
+      fail "Expected to only find one relationship from node #{neo_id} matching #{match.inspect} but found #{result.count}" if result.count > 1
       result.first
     end
 

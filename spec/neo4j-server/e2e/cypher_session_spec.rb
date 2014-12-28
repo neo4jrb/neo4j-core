@@ -11,7 +11,7 @@ module Neo4j::Server
       create_named_server_session(name, default)
     end
 
-    it_behaves_like "Neo4j::Session"
+    it_behaves_like 'Neo4j::Session'
 
     describe '.open' do
       before(:all) do
@@ -25,13 +25,13 @@ module Neo4j::Server
       it 'can use a user supplied faraday connection for a new session' do
         connection = Faraday.new do |b|
           b.request :json
-          b.response :json, :content_type => "application/json"
-          b.adapter  Faraday.default_adapter
+          b.response :json, content_type: 'application/json'
+          b.adapter Faraday.default_adapter
         end
         connection.headers = {'Content-Type' => 'application/json'}
 
         expect(connection).to receive(:get).at_least(:once).and_call_original
-        session = Neo4j::Session.open(:server_db, 'http://localhost:7474', { connection: connection })
+        session = Neo4j::Session.open(:server_db, 'http://localhost:7474',  connection: connection)
       end
     end
 
@@ -66,7 +66,7 @@ module Neo4j::Server
 
     describe '_query' do
       let(:a_node_id) do
-        session.query.create("(n)").return("ID(n) AS id").first[:id]
+        session.query.create('(n)').return('ID(n) AS id').first[:id]
       end
 
       it 'returns a result containing data,columns and error?' do
@@ -76,15 +76,15 @@ module Neo4j::Server
         expect(result.error?).to be false
       end
 
-      it "allows you to specify parameters" do
-        result = session._query("MATCH (n) WHERE ID(n) = {id_param} RETURN ID(n)", id_param: a_node_id)
+      it 'allows you to specify parameters' do
+        result = session._query('MATCH (n) WHERE ID(n) = {id_param} RETURN ID(n)', id_param: a_node_id)
         expect(result.data).to eq([[a_node_id]])
         expect(result.columns).to eq(['ID(n)'])
         expect(result.error?).to be false
       end
 
       it 'returns error codes if not a valid cypher query' do
-        result = session._query("SSTART n=node(0) RETURN ID(n)")
+        result = session._query('SSTART n=node(0) RETURN ID(n)')
         expect(result.error?).to be true
         expect(result.error_msg).to match(/Invalid input/)
         expect(result.error_status).to eq('SyntaxException')
@@ -93,9 +93,9 @@ module Neo4j::Server
     end
 
     subject { Neo4j::Session.current.to_s }
-    it { is_expected.to include "Neo4j::Server::CypherSession url:" }
+    it { is_expected.to include 'Neo4j::Server::CypherSession url:' }
 
     subject { Neo4j::Session.current.inspect }
-    it { is_expected.to include "Neo4j::Server::CypherSession url:"}
+    it { is_expected.to include 'Neo4j::Server::CypherSession url:' }
   end
 end

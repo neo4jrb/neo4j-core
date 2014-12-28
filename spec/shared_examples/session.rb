@@ -1,8 +1,8 @@
-RSpec.shared_examples "Neo4j::Session" do
+RSpec.shared_examples 'Neo4j::Session' do
 
   describe 'open and close' do
-    before { Neo4j::Session.current && Neo4j::Session.current.close}
-    after { Neo4j::Session.current && Neo4j::Session.current.close}
+    before { Neo4j::Session.current && Neo4j::Session.current.close }
+    after { Neo4j::Session.current && Neo4j::Session.current.close }
 
     it 'stores the current session in Neo4j::Session.current' do
       session = open_session
@@ -31,7 +31,7 @@ RSpec.shared_examples "Neo4j::Session" do
 
       def verify(node)
         expect(node[:id]).to eq(2)
-        expect(node[:name]).to eq("test")
+        expect(node[:name]).to eq('test')
         expect(node[:version]).to eq(1.1)
       end
 
@@ -41,7 +41,7 @@ RSpec.shared_examples "Neo4j::Session" do
       end
 
       it 'allows finding nodes by a key with a String value' do
-        node = session.find_nodes(:label, :name, "test").first
+        node = session.find_nodes(:label, :name, 'test').first
         verify node
       end
 
@@ -59,7 +59,7 @@ RSpec.shared_examples "Neo4j::Session" do
         @andreas_jimmy_rel = @andreas.create_rel(:friends, @jimmy)
 
         r = Random.new
-        @label = ("R3" + r.rand(0..1000000).to_s).to_sym
+        @label = ('R3' + r.rand(0..1_000_000).to_s).to_sym
         @kalle = Neo4j::Node.create({name: 'kalle', age: 4}, @label)
         @andreas2 = Neo4j::Node.create({name: 'andreas', age: 2}, @label)
         @andreas1 = Neo4j::Node.create({name: 'andreas', age: 1}, @label)
@@ -95,18 +95,18 @@ RSpec.shared_examples "Neo4j::Session" do
           expect(Neo4j::Session.query.match(n: @label).where(n: {namqe: 'andreas'}).return(:n).count).to eq(0)
         end
 
-        #it 'does a greater than query for .gt keys' do
+        # it 'does a greater than query for .gt keys' do
         #  skip
         #  # Not sure about this query syntax using a Hash, but this is a bit similar to mongoid API
         #  # Maybe it was better like it was in the old neo4j-core API with a fluent API instead
         #  result = Neo4j::Session.query(label: @label, conditions: {:age => {gt: 18, lt: 4}})
-        #end
+        # end
       end
 
       describe 'finds with :match' do
         before(:all) do
           r = Random.new
-          @label = ("R3" + r.rand(0..1000000).to_s).to_sym
+          @label = ('R3' + r.rand(0..1_000_000).to_s).to_sym
           @kalle = Neo4j::Node.create({name: 'kalle', age: 4}, @label)
           @andreas2 = Neo4j::Node.create({name: 'andreas', age: 2}, @label)
           @andreas1 = Neo4j::Node.create({name: 'andreas', age: 1}, @label)
@@ -167,7 +167,7 @@ RSpec.shared_examples "Neo4j::Session" do
       describe 'pluck' do
         before(:all) do
           r = Random.new
-          @label = ("R3" + r.rand(0..1000000).to_s).to_sym
+          @label = ('R3' + r.rand(0..1_000_000).to_s).to_sym
           @kalle = Neo4j::Node.create({name: 'kalle', age: 4}, @label)
           @andreas2 = Neo4j::Node.create({name: 'andreas', age: 2}, @label)
           @andreas1 = Neo4j::Node.create({name: 'andreas', age: 1}, @label)
@@ -182,32 +182,32 @@ RSpec.shared_examples "Neo4j::Session" do
         it 'sorts with: order: :name' do
           result = Neo4j::Session.query.match(n: @label).order(n: :name).pluck(:n)
           expect(result.count).to eq(4)
-          expect(result.to_a.map {|o| o[:name] }).to eq(%w[andreas andreas kalle zebbe])
+          expect(result.to_a.map { |o| o[:name] }).to eq(%w(andreas andreas kalle zebbe))
         end
 
         it 'sorts with: order: [:name, :age]' do
           result = Neo4j::Session.query.match(n: @label).order(n: [:name, :age]).pluck(:n)
           expect(result.count).to eq(4)
-          expect(result.map {|o| o[:name] }).to eq(%w[andreas andreas kalle zebbe])
-          expect(result.map {|o| o[:age] }).to eq([1, 2, 4, 3])
+          expect(result.map { |o| o[:name] }).to eq(%w(andreas andreas kalle zebbe))
+          expect(result.map { |o| o[:age] }).to eq([1, 2, 4, 3])
         end
 
         it 'sorts with order: {name: :desc}' do
           result = Neo4j::Session.query.match(n: @label).order(n: {name: :desc}).pluck(:n)
-          expect(result.map {|o| o[:name] }).to eq(%w[zebbe kalle andreas andreas])
+          expect(result.map { |o| o[:name] }).to eq(%w(zebbe kalle andreas andreas))
 
           result = Neo4j::Session.query.match(n: @label).order(n: {name: :asc}).pluck(:n)
-          expect(result.map {|o| o[:name] }).to eq(%w[andreas andreas kalle zebbe])
+          expect(result.map { |o| o[:name] }).to eq(%w(andreas andreas kalle zebbe))
         end
 
         it 'sorts with order: [:name, {age: :desc}]' do
           result = Neo4j::Session.query.match(n: @label).order(n: [:name, {age: :desc}]).pluck(:n)
-          expect(result.map {|o| o[:name] }).to eq(%w[andreas andreas kalle zebbe])
-          expect(result.map {|o| o[:age] }).to eq([2, 1, 4, 3])
+          expect(result.map { |o| o[:name] }).to eq(%w(andreas andreas kalle zebbe))
+          expect(result.map { |o| o[:age] }).to eq([2, 1, 4, 3])
 
           result = Neo4j::Session.query.match(n: @label).order(n: [:name, {age: :asc}]).pluck(:n)
-          expect(result.map {|o| o[:name] }).to eq(%w[andreas andreas kalle zebbe])
-          expect(result.map {|o| o[:age] }).to eq([1, 2, 4, 3])
+          expect(result.map { |o| o[:name] }).to eq(%w(andreas andreas kalle zebbe))
+          expect(result.map { |o| o[:age] }).to eq([1, 2, 4, 3])
         end
 
       end
@@ -220,20 +220,20 @@ RSpec.shared_examples "Neo4j::Session" do
 
         it 'limits number of results returned when combined with sort' do
           result = Neo4j::Session.query.match(n: @label).order(n: :name).limit(3).pluck(:n)
-          expect(result.map {|o| o[:name] }).to eq(%w[andreas andreas kalle])
+          expect(result.map { |o| o[:name] }).to eq(%w(andreas andreas kalle))
           expect(result.count).to eq(3)
         end
       end
 
       describe 'invalid cypher' do
         it 'raise Neo4j::Server::CypherResponse::ResponseError' do
-          expect { session.query.start("n=nuode(0)").return("ID(n)").response }.to raise_error(Neo4j::Session::CypherError)
+          expect { session.query.start('n=nuode(0)').return('ID(n)').response }.to raise_error(Neo4j::Session::CypherError)
         end
       end
 
       describe 'cypher parameters' do
         it 'allows {VAR_NAME}' do
-          r = session.query.match(:n).where('ID(n) = {my_var}').return("ID(n) AS id").params(my_var: @jimmy.neo_id)
+          r = session.query.match(:n).where('ID(n) = {my_var}').return('ID(n) AS id').params(my_var: @jimmy.neo_id)
           expect(r.first[:id]).to eq(@jimmy.neo_id)
         end
       end
@@ -272,13 +272,13 @@ RSpec.shared_examples "Neo4j::Session" do
 
         describe 'label: :person, return: "n.age as somethingelse"' do
           it 'returns only the name in an Enumerable' do
-            result = session.query.match(n: :person).return("n.age as somethingelse").to_a
+            result = session.query.match(n: :person).return('n.age as somethingelse').to_a
             expect(result.first).to respond_to(:somethingelse)
           end
         end
 
         describe 'label: :person' do
-          it "returns Neo4j::Node enumerable" do
+          it 'returns Neo4j::Node enumerable' do
             result = session.query.match(n: :person).pluck(:n)
             expect(result).to include(@jimmy)
           end
@@ -295,7 +295,7 @@ RSpec.shared_examples "Neo4j::Session" do
 
         it 'allows querying with cypher strings directly' do
           expect do
-            session.query("MATCH (n) WWHERE ID(n) = 42 RETURN n").first
+            session.query('MATCH (n) WWHERE ID(n) = 42 RETURN n').first
           end.to raise_error(/Invalid input 'W'/)
         end
       end

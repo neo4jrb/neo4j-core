@@ -39,11 +39,11 @@ module Neo4j::Core
               self.from_key_and_value key, value
             end
           else
-            raise ArgError.new
+            fail ArgError
           end
 
         else
-          raise ArgError.new
+          fail ArgError
         end
 
       rescue ArgError => arg_error
@@ -67,7 +67,7 @@ module Neo4j::Core
           var = key
           label_string = value
         when Hash
-          if !value.values.any? {|v| v.is_a?(Hash) }
+          if !value.values.any? { |v| v.is_a?(Hash) }
             case prefer
             when :var
               var = key
@@ -88,7 +88,7 @@ module Neo4j::Core
           var = key
           label_string = defined?(value::CYPHER_LABEL) ? value::CYPHER_LABEL : value.name
         else
-          raise ArgError.new(value)
+          fail ArgError, value
         end
 
         "(#{var}#{format_label(label_string)}#{attributes_string})"
@@ -99,9 +99,7 @@ module Neo4j::Core
 
         def from_args(args, options = {})
           args.flatten.map do |arg|
-            if !arg.respond_to?(:empty?) || !arg.empty?
-              self.new(arg, options)
-            end
+            self.new(arg, options) if !arg.respond_to?(:empty?) || !arg.empty?
           end.compact
         end
 
@@ -160,7 +158,7 @@ module Neo4j::Core
         when String, Symbol
           "#{key} = #{value}"
         else
-          raise ArgError.new(value)
+          fail ArgError, value
         end
       end
 
@@ -187,7 +185,7 @@ module Neo4j::Core
         when NilClass
           "#{key} IS NULL"
         when Regexp
-          pattern = (value.casefold? ? "(?i)" : "") + value.source
+          pattern = (value.casefold? ? '(?i)' : '') + value.source
           "#{key} =~ #{escape_value(pattern.gsub(/\\/, '\\\\\\'))}"
         when Array
           key_value_string(key, value, previous_keys)
@@ -266,7 +264,7 @@ module Neo4j::Core
       end
 
       def from_hash(hash)
-        if hash.values.any? {|value| value.is_a?(Hash) }
+        if hash.values.any? { |value| value.is_a?(Hash) }
           hash.map do |key, value|
             from_key_and_value(key, value)
           end
@@ -386,7 +384,7 @@ module Neo4j::Core
           "#{key} = #{value}"
         when Hash
           if @options[:set_props]
-            attribute_string = value.map {|k, v| "#{k}: #{v.inspect}" }.join(', ')
+            attribute_string = value.map { |k, v| "#{k}: #{v.inspect}" }.join(', ')
             "#{key} = {#{attribute_string}}"
           else
             value.map do |k, v|
@@ -394,7 +392,7 @@ module Neo4j::Core
             end
           end
         else
-          raise ArgError.new(value)
+          fail ArgError, value
         end
       end
 
@@ -430,7 +428,7 @@ module Neo4j::Core
         when Symbol
           "#{key}:#{value}"
         else
-          raise ArgError.new(value)
+          fail ArgError, value
         end
 
       end
@@ -452,7 +450,7 @@ module Neo4j::Core
         when Array
           "#{value.inspect} AS #{key}"
         else
-          raise ArgError.new(value)
+          fail ArgError, value
         end
       end
 
@@ -479,7 +477,7 @@ module Neo4j::Core
         when String, Symbol
           "#{key}.#{value}"
         else
-          raise ArgError.new(value)
+          fail ArgError, value
         end
       end
 
@@ -493,4 +491,3 @@ module Neo4j::Core
 
   end
 end
-

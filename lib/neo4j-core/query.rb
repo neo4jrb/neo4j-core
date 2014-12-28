@@ -98,14 +98,14 @@ module Neo4j::Core
     # DELETE clause
     # @return [Query]
 
-    METHODS = %w[with start match optional_match using where set create create_unique merge on_create_set on_match_set remove unwind delete return order skip limit]
+    METHODS = %w(with start match optional_match using where set create create_unique merge on_create_set on_match_set remove unwind delete return order skip limit)
 
-    CLAUSES = METHODS.map { |method| const_get(method.split('_').map { |c| c.capitalize }.join + 'Clause') }
+    CLAUSES = METHODS.map { |method| const_get(method.split('_').map(&:capitalize).join + 'Clause') }
 
     METHODS.each_with_index do |clause, i|
       clause_class = CLAUSES[i]
 
-      module_eval(%Q{
+      module_eval(%{
         def #{clause}(*args)
           build_deeper_query(#{clause_class}, args)
         end}, __FILE__, __LINE__)
@@ -205,7 +205,7 @@ module Neo4j::Core
 
       case columns.size
       when 0
-        raise ArgumentError, 'No columns specified for Query#pluck'
+        fail ArgumentError, 'No columns specified for Query#pluck'
       when 1
         column = columns[0]
         query.map { |row| row[column] }
@@ -263,20 +263,20 @@ module Neo4j::Core
     #    q = Neo4j::Core::Query.new.match(o: :Person).where(o: {age: 10})
     #    result = Neo4j::Core::Query.new.match(n: :Person).union_cypher(q)
     #
-    # @param other_query [Query] Second half of UNION
+    # @param other [Query] Second half of UNION
     # @param options [Hash] Specify {all: true} to use UNION ALL
     # @return [String] Resulting UNION cypher query string
-    def union_cypher(other_query, options = {})
-      "#{self.to_cypher} UNION#{options[:all] ? ' ALL' : ''} #{other_query.to_cypher}"
+    def union_cypher(other, options = {})
+      "#{self.to_cypher} UNION#{options[:all] ? ' ALL' : ''} #{other.to_cypher}"
     end
 
-    def &(other_query)
-      raise "Sessions don't match!" if @session != other_query.session
+    def &(other)
+      fail "Sessions don't match!" if @session != other.session
 
       self.class.new(session: @session).tap do |new_query|
-        new_query.options = self.options.merge(other_query.options)
-        new_query.clauses = self.clauses + other_query.clauses
-      end.params(other_query._params)
+        new_query.options = self.options.merge(other.options)
+        new_query.clauses = self.clauses + other.clauses
+      end.params(other._params)
     end
 
     MEMOIZED_INSTANCE_VARIABLES = [:response, :merge_params]
@@ -289,6 +289,7 @@ module Neo4j::Core
     end
 
     protected
+
     attr_accessor :session, :options, :clauses, :_params
 
     def add_clauses(clauses)
@@ -300,6 +301,7 @@ module Neo4j::Core
         clause.is_a?(clause_class)
       end
     end
+
     private
 
     def build_deeper_query(clause_class, args = {}, options = {})
@@ -336,7 +338,7 @@ module Neo4j::Core
     def sanitize_params(params)
       passthrough_classes = [String, Numeric, Array, Regexp]
       params.each do |key, value|
-        params[key] = value.to_s if not passthrough_classes.any? {|klass| value.is_a?(klass) }
+        params[key] = value.to_s if not passthrough_classes.any? { |klass| value.is_a?(klass) }
       end
     end
 

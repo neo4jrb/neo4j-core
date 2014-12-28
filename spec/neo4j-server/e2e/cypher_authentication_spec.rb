@@ -47,38 +47,38 @@ describe 'Neo4j::Server::CypherAuthentication', if: (ENV['TEST_AUTHENTICATION'] 
       auth_setup
       @default_password = 'neo4j'
       @suite_default = 'neo4jrb rules, ok?'
-      @uri = URI.parse("http://localhost:7474/user/neo4j/password")
-      Net::HTTP.post_form(@uri, { 'password' => @default_password, 'new_password' => @suite_default })
+      @uri = URI.parse('http://localhost:7474/user/neo4j/password')
+      Net::HTTP.post_form(@uri,  'password' => @default_password, 'new_password' => @suite_default)
 
       # It appears that in 2.2.0-M01, you need to change the token at least once after changing your password or you will be unable to authenticate with token alone.
       # Above, we change the password; here, we change the token.
-      token_uri = URI.parse("http://localhost:7474/user/neo4j/authorization_token")
-      Net::HTTP.post_form(token_uri, { 'password' => @suite_default })
+      token_uri = URI.parse('http://localhost:7474/user/neo4j/authorization_token')
+      Net::HTTP.post_form(token_uri,  'password' => @suite_default)
     end
 
     after(:all) do
       auth_breakdown
-      Net::HTTP.post_form(@uri, { 'password' => @suite_default, 'new_password' => @default_password })
+      Net::HTTP.post_form(@uri,  'password' => @suite_default, 'new_password' => @default_password)
     end
 
     before { Neo4j::Session.current.close if Neo4j::Session.current }
-    let(:default_auth) { Neo4j::Session.open(:server_db, 'http://localhost:7474', basic_auth: { username: 'neo4j', password: 'neo4jrb rules, ok?' }) }
+    let(:default_auth) { Neo4j::Session.open(:server_db, 'http://localhost:7474', basic_auth: {username: 'neo4j', password: 'neo4jrb rules, ok?'}) }
 
     describe 'login process' do
       it 'successfully authenticates against the database' do
         expect(Neo4j::Session.current).to be_nil
-        Neo4j::Session.open(:server_db, 'http://localhost:7474', basic_auth: { username: 'neo4j', password: @suite_default })
+        Neo4j::Session.open(:server_db, 'http://localhost:7474', basic_auth: {username: 'neo4j', password: @suite_default})
         expect(Neo4j::Session.current).not_to be_nil
       end
 
       it 'adds the authentication token header' do
-        Neo4j::Session.open(:server_db, 'http://localhost:7474', basic_auth: { username: 'neo4j', password: @suite_default })
+        Neo4j::Session.open(:server_db, 'http://localhost:7474', basic_auth: {username: 'neo4j', password: @suite_default})
         expect(Neo4j::Session.current.connection.headers).to have_key('Authorization')
         expect(Neo4j::Session.current.connection.headers['Authorization']).not_to be_empty
       end
 
       it 'informs of a bad password' do
-        expect { Neo4j::Session.open(:server_db, 'http://localhost:7474', basic_auth: { username: 'neo4j', password: 'foo' }) }
+        expect { Neo4j::Session.open(:server_db, 'http://localhost:7474', basic_auth: {username: 'neo4j', password: 'foo'}) }
           .to raise_error Neo4j::Server::CypherAuthentication::InvalidPasswordError
       end
 
@@ -89,16 +89,16 @@ describe 'Neo4j::Server::CypherAuthentication', if: (ENV['TEST_AUTHENTICATION'] 
       it 'informs of a required password change' do
         response_double = double('A Faraday connection object')
         expect_any_instance_of(Faraday::Connection).to receive(:post).and_return(response_double)
-        expect(response_double).to receive(:body).and_return({ 'password_change_required' => true })
-        expect { Neo4j::Session.open(:server_db, 'http://localhost:7474', basic_auth: { username: 'neo4j', password: @suite_default }) }
+        expect(response_double).to receive(:body).and_return('password_change_required' => true)
+        expect { Neo4j::Session.open(:server_db, 'http://localhost:7474', basic_auth: {username: 'neo4j', password: @suite_default}) }
           .to raise_error Neo4j::Server::CypherAuthentication::PasswordChangeRequiredError
       end
 
       it 'can process a hash response instead of string' do
-        Neo4j::Session.open(:server_db, 'http://localhost:7474', basic_auth: { username: 'neo4j', password: @suite_default })
+        Neo4j::Session.open(:server_db, 'http://localhost:7474', basic_auth: {username: 'neo4j', password: @suite_default})
         token = Neo4j::Session.current.auth.token
         Neo4j::Session.current.close
-        expect { Neo4j::Session.open(:server_db, 'http://localhost:7474', basic_auth: { username: 'foo', password: token }) }.not_to raise_error
+        expect { Neo4j::Session.open(:server_db, 'http://localhost:7474', basic_auth: {username: 'foo', password: token}) }.not_to raise_error
         expect(Neo4j::Session.current).not_to be_nil
       end
     end
@@ -118,7 +118,7 @@ describe 'Neo4j::Server::CypherAuthentication', if: (ENV['TEST_AUTHENTICATION'] 
       let(:session) { default_auth }
 
       context 'with valid password' do
-        after { Net::HTTP.post_form(@uri, { 'password' => 'neo4j', 'new_password' => @suite_default }) }
+        after { Net::HTTP.post_form(@uri,  'password' => 'neo4j', 'new_password' => @suite_default) }
 
         it 'changes the password and does not give an error' do
           response = session.auth.change_password('neo4jrb rules, ok?', 'neo4j')
@@ -141,7 +141,7 @@ describe 'Neo4j::Server::CypherAuthentication', if: (ENV['TEST_AUTHENTICATION'] 
 
         it 'raises an error' do
           omg = Neo4j::Server::CypherAuthentication.new('http://localhost:7474')
-          expect { omg.token_or_error("this will die") }.to raise_error RuntimeError
+          expect { omg.token_or_error('this will die') }.to raise_error RuntimeError
         end
       end
     end
@@ -171,7 +171,7 @@ describe 'Neo4j::Server::CypherAuthentication', if: (ENV['TEST_AUTHENTICATION'] 
         # something that worked just a moment before.
         it 'invalidates existing tokens, breaking established connections' do
           default_auth
-          node = Neo4j::Node.create({ name: 'foo' }, :foo)
+          node = Neo4j::Node.create({name: 'foo'}, :foo)
           expect(node.neo_id).to be_a(Integer)
           expect { Neo4j::Node.load(node.neo_id) }.not_to raise_error
           auth_object.invalidate_token('neo4jrb rules, ok?')

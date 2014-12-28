@@ -9,5 +9,3 @@ module Neo4j::Core
 
   end
 end
-
-

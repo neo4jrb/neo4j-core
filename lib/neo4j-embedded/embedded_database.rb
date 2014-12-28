@@ -5,7 +5,7 @@ module Neo4j::Embedded
     end
 
     class << self
-      def connect(db_location, config={})
+      def connect(db_location, config = {})
         if Neo4j::Session.current.respond_to?(:db_location) && Neo4j::Session.current.db_location == db_location
           return Neo4j::Session.current
         else

@@ -35,18 +35,18 @@ module Neo4j::Core
     EMPTY_PROPS = ''
 
     def sanitize_escape_sequences(s)
-     s.gsub SANITIZE_ESCAPED_REGEXP, EMPTY_PROPS
+      s.gsub SANITIZE_ESCAPED_REGEXP, EMPTY_PROPS
     end
 
     def escape_quotes(s)
-     s.gsub("'", %q(\\\'))
+      s.gsub("'", %q(\\\'))
     end
 
     # Cypher Helper
     def cypher_prop_list(props)
       return nil unless props
-      props.reject! {|k,v| v.nil? }
-      { props: props.each { |k, v|  props[k] = create_escape_value(v) } }
+      props.reject! { |k, v| v.nil? }
+      {props: props.each { |k, v|  props[k] = create_escape_value(v) }}
     end
 
     # Stolen from keymaker
@@ -64,7 +64,7 @@ module Neo4j::Core
     end
 
     def label_string(labels)
-      labels.empty? ? '' : ":#{labels.map{|k| "`#{k}`"}.join(':')}"
+      labels.empty? ? '' : ":#{labels.map { |k| "`#{k}`" }.join(':')}"
     end
 
     def prop_identifier(props)

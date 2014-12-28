@@ -15,8 +15,8 @@ module Neo4j::Server
       @id = @response_hash['id']
     end
 
-    def ==(o)
-      o.class == self.class && o.neo_id == neo_id
+    def ==(other)
+      other.class == self.class && other.neo_id == neo_id
     end
     alias_method :eql?, :==
 
@@ -72,8 +72,8 @@ module Neo4j::Server
       @session._query_or_fail("#{match_start} RETURN n.`#{key}`", true)
     end
 
-    def set_property(key,value)
-      @session._query_or_fail("#{match_start} SET n.`#{key}` = {value}", false, {value: value})
+    def set_property(key, value)
+      @session._query_or_fail("#{match_start} SET n.`#{key}` = {value}", false, value: value)
     end
 
     def remove_property(key)
@@ -86,13 +86,13 @@ module Neo4j::Server
         @props
       else
         hash = @session._query_entity_data("#{match_start} RETURN n")
-        @props = Hash[hash['data'].map{ |k, v| [k.to_sym, v] }]
+        @props = Hash[hash['data'].map { |k, v| [k.to_sym, v] }]
       end
     end
 
     # (see Neo4j::Relationship#props=)
     def props=(properties)
-      @session._query_or_fail("#{match_start} SET n = { props }", false, {props: properties})
+      @session._query_or_fail("#{match_start} SET n = { props }", false, props: properties)
       properties
     end
 

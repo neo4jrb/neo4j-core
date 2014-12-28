@@ -2,8 +2,8 @@ require 'spec_helper'
 
 describe Neo4j::Server::CypherNode, api: :server do
 
-  it_behaves_like "Neo4j::Node auto tx"
-  it_behaves_like "Neo4j::Node with tx"
+  it_behaves_like 'Neo4j::Node auto tx'
+  it_behaves_like 'Neo4j::Node with tx'
 
   describe 'transactions' do
     around(:each) do |example|
@@ -15,10 +15,10 @@ describe Neo4j::Server::CypherNode, api: :server do
       end
     end
 
-    it_behaves_like "Neo4j::Node auto tx"
+    it_behaves_like 'Neo4j::Node auto tx'
 
-    let!(:bob)   { Neo4j::Node.create({ name: 'bob' }, :person)  }
-    let!(:jim)   { Neo4j::Node.create({ name: 'jim' }, :person)  }
+    let!(:bob)   { Neo4j::Node.create({name: 'bob'}, :person)  }
+    let!(:jim)   { Neo4j::Node.create({name: 'jim'}, :person)  }
 
     it 'return CypherNodes' do
       begin

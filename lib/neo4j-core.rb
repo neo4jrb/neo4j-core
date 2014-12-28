@@ -27,4 +27,3 @@ else
   module Neo4j::Embedded
   end
 end
-

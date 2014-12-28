@@ -14,7 +14,7 @@ module Neo4j::Embedded
       Neo4j::Session.current && Neo4j::Session.current.close
     end
 
-    it_behaves_like "Neo4j::Session"
+    it_behaves_like 'Neo4j::Session'
 
   end
 
@@ -26,7 +26,7 @@ module Neo4j::Embedded
 
 
     describe 'db_location' do
-      it "returns the location of the database" do
+      it 'returns the location of the database' do
         expect(session.db_location).to eq(EMBEDDED_DB_PATH)
       end
     end
@@ -42,10 +42,10 @@ module Neo4j::Embedded
         expect(session.running?).to be true
       end
 
-      it "raise an error if session already was started" do
+      it 'raise an error if session already was started' do
         session.start
         expect(session.running?).to be true
-        expect{ session.start }.to raise_error
+        expect { session.start }.to raise_error
       end
 
       it 'is allowed to start the session after it has been shutdown' do
@@ -95,8 +95,8 @@ module Neo4j::Embedded
         Neo4j::Session.current.start unless Neo4j::Session.current.running?
       end
 
-      it "returns a raw Neo4j Iterator" do
-        result = session.query.create('n').return("ID(n) AS id").to_a
+      it 'returns a raw Neo4j Iterator' do
+        result = session.query.create('n').return('ID(n) AS id').to_a
         id = result.first[:id]
 
         r = session._query("START n=node(#{id}) RETURN n")

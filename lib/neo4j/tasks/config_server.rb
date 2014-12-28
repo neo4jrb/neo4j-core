@@ -24,7 +24,7 @@ module Neo4j
       # @return [Hash] The response from the server indicating success/failure.
       def change_password(target_address, old_password, new_password)
         uri = URI.parse("#{target_address}/user/neo4j/password")
-        response = Net::HTTP.post_form(uri, { 'password' => old_password, 'new_password' => new_password })
+        response = Net::HTTP.post_form(uri,  'password' => old_password, 'new_password' => new_password)
         JSON.parse(response.body)
       end
 

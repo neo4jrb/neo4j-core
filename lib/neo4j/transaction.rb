@@ -51,7 +51,7 @@ module Neo4j
       def close
         pop_nested!
         return if @pushed_nested >= 0
-        raise "Can't commit transaction, already committed" if (@pushed_nested < -1)
+        fail "Can't commit transaction, already committed" if @pushed_nested < -1
         Neo4j::Transaction.unregister(self)
         if failure?
           _delete_tx
@@ -72,8 +72,8 @@ module Neo4j
     # Runs the given block in a new transaction.
     # @param [Boolean] run_in_tx if true a new transaction will not be created, instead if will simply yield to the given block
     # @@yield [Neo4j::Transaction::Instance]
-    def run(run_in_tx=true)
-      raise ArgumentError.new("Expected a block to run in Transaction.run") unless block_given?
+    def run(run_in_tx = true)
+      fail ArgumentError, 'Expected a block to run in Transaction.run' unless block_given?
 
       return yield(nil) unless run_in_tx
 
@@ -106,7 +106,7 @@ module Neo4j
     # @private
     def register(tx)
       # we don't support running more then one transaction per thread
-      raise "Already running a transaction" if current
+      fail 'Already running a transaction' if current
       Thread.current[:neo4j_curr_tx] = tx
     end
 

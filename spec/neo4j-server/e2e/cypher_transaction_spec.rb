@@ -10,23 +10,23 @@ module Neo4j::Server
       Neo4j::Transaction.current && Neo4j::Transaction.current.close
     end
 
-    it "can open and commit a transaction" do
+    it 'can open and commit a transaction' do
       tx = session.begin_tx
       tx.close
     end
 
-    it "can run a valid query" do
-      id = session.query.create("(n)").return("ID(n) AS id").first[:id]
+    it 'can run a valid query' do
+      id = session.query.create('(n)').return('ID(n) AS id').first[:id]
 
       tx = session.begin_tx
       q = tx._query("MATCH (n) WHERE ID(n) = #{id} RETURN ID(n)")
-      expect(q.response.body['results']).to eq([ { "columns"=>["ID(n)"], "data"=>[{ "row"=>[id], "rest"=>[id] }]}])
+      expect(q.response.body['results']).to eq([{'columns' => ['ID(n)'], 'data' => [{'row' => [id], 'rest' => [id]}]}])
     end
 
 
-    it "sets the response error fields if not a valid query" do
+    it 'sets the response error fields if not a valid query' do
       tx = session.begin_tx
-      r = tx._query("START n=fs(0) RRETURN ID(n)")
+      r = tx._query('START n=fs(0) RRETURN ID(n)')
       expect(r.error?).to be true
 
       expect(r.error_msg).to match(/Invalid input/)
@@ -61,7 +61,7 @@ module Neo4j::Server
 
     end
 
-    it "can use Transaction block style" do
+    it 'can use Transaction block style' do
       node = Neo4j::Transaction.run do
         Neo4j::Node.create(name: 'andreas')
       end
@@ -76,7 +76,7 @@ module Neo4j::Server
             tx = Neo4j::Transaction.new
             label_name = unique_random_number
             n = Neo4j::Node.create({name: 'andreas'}, label_name)
-            found = Neo4j::Label.find_nodes(label_name, :name, "andreas").to_a.first
+            found = Neo4j::Label.find_nodes(label_name, :name, 'andreas').to_a.first
             expect(found[:name]).to eq('andreas')
             expect(found).to eq(n)
           ensure
@@ -120,7 +120,7 @@ module Neo4j::Server
           tx = Neo4j::Transaction.new
           a = Neo4j::Node.create(name: 'a')
           b = Neo4j::Node.create(name: 'b')
-          rel = a.create_rel(:knows, b, {colour: 'blue'})
+          rel = a.create_rel(:knows, b, colour: 'blue')
           loaded = Neo4j::Relationship.load(rel.neo_id)
           expect(loaded).to eq(rel)
           expect(loaded['colour']).to eq('blue')
@@ -134,21 +134,21 @@ module Neo4j::Server
     describe '#rel' do
       it 'can load it' do
         begin
-        tx = Neo4j::Transaction.new
+          tx = Neo4j::Transaction.new
           a = Neo4j::Node.create(name: 'a')
           b = Neo4j::Node.create(name: 'b')
-          rel = a.create_rel(:knows, b, {colour: 'blue'})
+          rel = a.create_rel(:knows, b, colour: 'blue')
           loaded = a.rel(dir: :outgoing, type: :knows)
           expect(loaded).to eq(rel)
           expect(loaded['colour']).to eq('blue')
-        ensure
-          tx.close
+          ensure
+            tx.close
         end
       end
     end
 
     describe '.create' do
-      it "creates a node" do
+      it 'creates a node' do
         tx = session.begin_tx
         node = Neo4j::Node.create(name: 'andreas')
         expect(tx.close.status).to eq(200)
@@ -158,7 +158,7 @@ module Neo4j::Server
     end
 
     describe '#del' do
-      it "deletes a node" do
+      it 'deletes a node' do
         skip 'see https://github.com/neo4j/neo4j/issues/2943'
         begin
           tx = session.begin_tx
@@ -175,7 +175,7 @@ module Neo4j::Server
 
 
     describe '#[]=' do
-      it "can update/read a property" do
+      it 'can update/read a property' do
         node = Neo4j::Node.create(name: 'foo')
         Neo4j::Transaction.run do
           node[:name] = 'bar'
