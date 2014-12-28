@@ -138,16 +138,15 @@ RSpec.shared_examples 'Neo4j::Node with tx' do
 
     it 'rolls back the transaction if an exception occurs' do
       ids = []
-      begin
+      expect do
         Neo4j::Transaction.run do |tx|
           a = Neo4j::Node.create
           ids << a.neo_id
           expect(Neo4j::Node.load(ids.first)).to eq(a)
           fail 'should rollback'
         end
-      rescue Exception => e
-        expect(e.to_s).to eq('should rollback')
-      end
+      end.to raise_error('should rollback')
+
       expect(Neo4j::Node.load(ids.first)).to be_nil
     end
 

@@ -20,7 +20,6 @@ module Neo4j::Embedded
       end
 
       def factory_class
-        Java::OrgNeo4jGraphdbFactory::GraphDatabaseFactory
         Java::OrgNeo4jTest::ImpermanentGraphDatabase
       end
 

@@ -31,7 +31,13 @@ module Neo4j::Server
 
       let(:with_tx_response) do
         {
-          'commit' => 'http://localhost:7474/db/data/transaction/153/commit', 'results' => [{'columns' => ['n'], 'data' => [{'row' => [{'name' => 'Brian', 'hat' => 'fancy'}]}]}], 'transaction' => {'expires' => 'Fri, 08 Aug 2014 11:38:39 +0000'}, 'errors' => []
+          'commit' => 'http://localhost:7474/db/data/transaction/153/commit',
+          'results' => [
+            {'columns' => ['n'],
+             'data' => [{'row' => [{'name' => 'Brian', 'hat' => 'fancy'}]}]}
+          ],
+          'transaction' => {'expires' => 'Fri, 08 Aug 2014 11:38:39 +0000'},
+          'errors' => []
         }
       end
 
