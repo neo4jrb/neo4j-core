@@ -36,9 +36,7 @@ module Neo4j::Core
       end
 
       def from_hash(value)
-        if self.respond_to?(:from_hash)
-          self.from_hash value
-        elsif self.respond_to?(:from_key_and_value)
+        if self.respond_to?(:from_key_and_value)
           value.map do |k, v|
             self.from_key_and_value k, v
           end
