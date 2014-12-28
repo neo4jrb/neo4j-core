@@ -22,35 +22,29 @@ module Neo4j::Core
       end
 
       def value
-        if @arg.is_a?(String)
-          self.from_string @arg
-
-        elsif @arg.is_a?(Symbol) && self.respond_to?(:from_symbol)
-          self.from_symbol @arg
-
-        elsif @arg.is_a?(Integer) && self.respond_to?(:from_integer)
-          self.from_integer @arg
-
-        elsif @arg.is_a?(Hash)
-          if self.respond_to?(:from_hash)
-            self.from_hash @arg
-          elsif self.respond_to?(:from_key_and_value)
-            @arg.map do |key, value|
-              self.from_key_and_value key, value
-            end
-          else
-            fail ArgError
-          end
-
-        else
-          fail ArgError
+        [String, Symbol, Integer, Hash].each do |arg_class|
+          from_method = "from_#{arg_class.name.downcase}"
+          return self.send(from_method, @arg) if @arg.is_a?(arg_class) && self.respond_to?(from_method)
         end
 
+        fail ArgError
       rescue ArgError => arg_error
         message = "Invalid argument for #{self.class.keyword}.  Full arguments: #{@arg.inspect}"
         message += " | Invalid part: #{arg_error.arg_part.inspect}" if arg_error.arg_part
 
         raise ArgumentError, message
+      end
+
+      def from_hash(value)
+        if self.respond_to?(:from_hash)
+          self.from_hash value
+        elsif self.respond_to?(:from_key_and_value)
+          value.map do |k, v|
+            self.from_key_and_value k, v
+          end
+        else
+          fail ArgError
+        end
       end
 
       def from_string(value)
