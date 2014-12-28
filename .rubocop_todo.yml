@@ -18,6 +18,10 @@ Lint/Eval:
 Lint/HandleExceptions:
   Enabled: false
 
+# Offense count: 1
+Lint/RescueException:
+  Enabled: false
+    #
 # Offense count: 11
 Lint/ShadowingOuterLocalVariable:
   Enabled: false
@@ -51,7 +55,7 @@ Metrics/ClassLength:
 
 # Offense count: 5
 Metrics/CyclomaticComplexity:
-  Max: 8
+  Max: 11
 
 # Offense count: 739
 # Configuration parameters: AllowURI, URISchemes.
@@ -64,8 +68,12 @@ Metrics/MethodLength:
   Max: 45
 
 # Offense count: 1
+Metrics/ParameterLists:
+  Max: 6
+
+# Offense count: 1
 Metrics/PerceivedComplexity:
-  Max: 10
+  Max: 11
 
 # Offense count: 5
 Style/AccessorMethodName:
