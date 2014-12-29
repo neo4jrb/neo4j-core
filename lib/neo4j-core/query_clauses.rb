@@ -173,7 +173,9 @@ module Neo4j::Core
         when Hash
           value.map do |k, v|
             if k.to_sym == :neo_id
-              "ID(#{key}) = #{v.to_i}"
+              clause_id = "neo_id_#{v}"
+              @params[clause_id] = v.to_i
+              "ID(#{key}) = {#{clause_id}}"
             else
               "#{key}.#{from_key_and_value(k, v, previous_keys + [key])}"
             end
