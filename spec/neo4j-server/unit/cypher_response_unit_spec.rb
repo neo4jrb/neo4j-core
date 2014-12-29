@@ -9,23 +9,41 @@ module Neo4j::Server
     describe '#entity_data' do
       let(:without_tx_response) do
         {
-            "columns"=>["n"],
-            "data"=>[[{"labels"=>"http://localhost:7474/db/data/node/625/labels",
-                                         "outgoing_relationships"=>"http://localhost:7474/db/data/node/625/relationships/out",
-                                         "data"=>{"name"=>"Brian", "hat"=>"fancy"}, "traverse"=>"http://localhost:7474/db/data/node/625/traverse/{returnType}", "all_typed_relationships"=>"http://localhost:7474/db/data/node/625/relationships/all/{-list|&|types}", "property"=>"http://localhost:7474/db/data/node/625/properties/{key}", "self"=>"http://localhost:7474/db/data/node/625", "properties"=>"http://localhost:7474/db/data/node/625/properties", "outgoing_typed_relationships"=>"http://localhost:7474/db/data/node/625/relationships/out/{-list|&|types}", "incoming_relationships"=>"http://localhost:7474/db/data/node/625/relationships/in", "extensions"=>{}, "create_relationship"=>"http://localhost:7474/db/data/node/625/relationships", "paged_traverse"=>"http://localhost:7474/db/data/node/625/paged/traverse/{returnType}{?pageSize,leaseTime}", "all_relationships"=>"http://localhost:7474/db/data/node/625/relationships/all", "incoming_typed_relationships"=>"http://localhost:7474/db/data/node/625/relationships/in/{-list|&|types}"}]]
+          'columns' => ['n'],
+          'data' => [[{'labels' => 'http://localhost:7474/db/data/node/625/labels',
+                       'outgoing_relationships' => 'http://localhost:7474/db/data/node/625/relationships/out',
+                       'data' => {'name' => 'Brian', 'hat' => 'fancy'},
+                       'traverse' => 'http://localhost:7474/db/data/node/625/traverse/{returnType}',
+                       'all_typed_relationships' => 'http://localhost:7474/db/data/node/625/relationships/all/{-list|&|types}',
+                       'property' => 'http://localhost:7474/db/data/node/625/properties/{key}',
+                       'self' => 'http://localhost:7474/db/data/node/625',
+                       'properties' => 'http://localhost:7474/db/data/node/625/properties',
+                       'outgoing_typed_relationships' => 'http://localhost:7474/db/data/node/625/relationships/out/{-list|&|types}',
+                       'incoming_relationships' => 'http://localhost:7474/db/data/node/625/relationships/in',
+                       'extensions' => {},
+                       'create_relationship' => 'http://localhost:7474/db/data/node/625/relationships',
+                       'paged_traverse' => 'http://localhost:7474/db/data/node/625/paged/traverse/{returnType}{?pageSize,leaseTime}',
+                       'all_relationships' => 'http://localhost:7474/db/data/node/625/relationships/all',
+                       'incoming_typed_relationships' => 'http://localhost:7474/db/data/node/625/relationships/in/{-list|&|types}'}]]
         }
       end
 
 
       let(:with_tx_response) do
         {
-            "commit"=>"http://localhost:7474/db/data/transaction/153/commit", "results"=>[{"columns"=>["n"], "data"=>[{"row"=>[{"name"=>"Brian", "hat"=>"fancy"}]}]}], "transaction"=>{"expires"=>"Fri, 08 Aug 2014 11:38:39 +0000"}, "errors"=>[]
+          'commit' => 'http://localhost:7474/db/data/transaction/153/commit',
+          'results' => [
+            {'columns' => ['n'],
+             'data' => [{'row' => [{'name' => 'Brian', 'hat' => 'fancy'}]}]}
+          ],
+          'transaction' => {'expires' => 'Fri, 08 Aug 2014 11:38:39 +0000'},
+          'errors' => []
         }
       end
 
       shared_examples 'a hash with data and id' do
-        specify { expect(subject['data']).to eq({"name"=>"Brian", "hat"=>"fancy"})}
-        specify { expect(subject['id']).to eq(625)}
+        specify { expect(subject['data']).to eq('name' => 'Brian', 'hat' => 'fancy') }
+        specify { expect(subject['id']).to eq(625) }
       end
 
       def successful_response(response)
@@ -52,36 +70,36 @@ module Neo4j::Server
 
 
     describe '#to_struct_enumeration' do
-      it "creates a enumerable of hash key values" do
-          #result.data.should == [[0]]
-          #result.columns.should == ['ID(n)']
-        response = CypherResponse.new(nil,nil)
+      it 'creates a enumerable of hash key values' do
+        # result.data.should == [[0]]
+        # result.columns.should == ['ID(n)']
+        response = CypherResponse.new(nil, nil)
         response.set_data([[0]], ['ID(n)'])
 
-        expect(response.to_struct_enumeration.to_a).to eq([hash_to_struct(response, {:'ID(n)' => 0})])
+        expect(response.to_struct_enumeration.to_a).to eq([hash_to_struct(response, :'ID(n)' => 0)])
       end
 
-      it "creates an enumerable of hash key multiple values" do
-        response = CypherResponse.new(nil,nil)
-        response.set_data([['Romana', 126],['The Doctor',750]], ['name', 'age'])
+      it 'creates an enumerable of hash key multiple values' do
+        response = CypherResponse.new(nil, nil)
+        response.set_data([['Romana', 126], ['The Doctor', 750]], %w(name age))
 
         expect(response.to_struct_enumeration.to_a).to eq(
-          [hash_to_struct(response, {:name => 'Romana', :age => 126}),
-           hash_to_struct(response, {:name => 'The Doctor', :age => 750})]
+          [hash_to_struct(response, name: 'Romana', age: 126),
+           hash_to_struct(response, name: 'The Doctor', age: 750)]
         )
       end
     end
 
     describe '#to_node_enumeration' do
       it 'returns basic values' do
-        response = CypherResponse.new(nil,nil)
+        response = CypherResponse.new(nil, nil)
         response.set_data([['Billy'], ['Jimmy']], ['person.name'])
 
-        expect(response.to_node_enumeration.to_a).to eq([hash_to_struct(response, {:'person.name' => 'Billy'}), hash_to_struct(response, {:'person.name' => 'Jimmy'})])
+        expect(response.to_node_enumeration.to_a).to eq([hash_to_struct(response, :'person.name' => 'Billy'), hash_to_struct(response, :'person.name' => 'Jimmy')])
       end
 
       it 'returns hydrated CypherNode objects' do
-        response = CypherResponse.new(nil,nil)
+        response = CypherResponse.new(nil, nil)
         response.set_data(
           [
             [{'labels' => 'http://localhost:7474/db/data/node/18/labels',
@@ -101,12 +119,12 @@ module Neo4j::Server
         expect(node_enumeration[0][:person].neo_id).to eq(18)
         expect(node_enumeration[1][:person].neo_id).to eq(19)
 
-        expect(node_enumeration[0][:person].props).to eq({name: 'Billy', age: 20})
-        expect(node_enumeration[1][:person].props).to eq({name: 'Jimmy', age: 24})
+        expect(node_enumeration[0][:person].props).to eq(name: 'Billy', age: 20)
+        expect(node_enumeration[1][:person].props).to eq(name: 'Jimmy', age: 24)
       end
 
       it 'returns hydrated CypherRelationship objects' do
-        response = CypherResponse.new(nil,nil)
+        response = CypherResponse.new(nil, nil)
         response.set_data(
           [
             [{'type' => 'LOVES',
@@ -138,8 +156,8 @@ module Neo4j::Server
         expect(node_enumeration[1][:r].start_node_neo_id).to eq(19)
         expect(node_enumeration[1][:r].end_node_neo_id).to eq(18)
 
-        expect(node_enumeration[0][:r].props).to eq({intensity: 2})
-        expect(node_enumeration[1][:r].props).to eq({intensity: 3})
+        expect(node_enumeration[0][:r].props).to eq(intensity: 2)
+        expect(node_enumeration[1][:r].props).to eq(intensity: 3)
       end
 
       skip 'returns hydrated CypherPath objects?'
@@ -147,4 +165,3 @@ module Neo4j::Server
   end
 
 end
-

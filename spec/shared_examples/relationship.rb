@@ -1,18 +1,18 @@
-RSpec.shared_examples "Neo4j::Relationship" do
+RSpec.shared_examples 'Neo4j::Relationship' do
 
   let(:node_a) { Neo4j::Node.create(name: 'a') }
   let(:node_b) { Neo4j::Node.create(name: 'b') }
   let(:node_c) { Neo4j::Node.create(name: 'c') }
 
   describe 'classmethod: load' do
-    it "returns the relationship" do
+    it 'returns the relationship' do
       rel = node_a.create_rel(:best_friend, node_b)
       id = rel.neo_id
       expect(Neo4j::Relationship.load(id)).to eq(rel)
     end
 
     it 'returns nil if not found' do
-      expect(Neo4j::Relationship.load(4299991)).to be_nil
+      expect(Neo4j::Relationship.load(4_299_991)).to be_nil
     end
   end
 
@@ -24,7 +24,7 @@ RSpec.shared_examples "Neo4j::Relationship" do
     end
 
     it 'returns nil if not found' do
-      expect(Neo4j::Relationship._load(4299991)).to be_nil
+      expect(Neo4j::Relationship._load(4_299_991)).to be_nil
     end
   end
 
@@ -41,7 +41,7 @@ RSpec.shared_examples "Neo4j::Relationship" do
     it 'can create and set properties' do
       a = Neo4j::Node.create
       b = Neo4j::Node.create
-      r = Neo4j::Relationship.create(:knows, a, b, {name: 'a', age: 42})
+      r = Neo4j::Relationship.create(:knows, a, b, name: 'a', age: 42)
       expect(a.rel(dir: :outgoing, type: :knows)[:name]).to eq('a')
       expect(b.rel(dir: :incoming, type: :knows)[:age]).to eq(42)
 
@@ -137,11 +137,11 @@ RSpec.shared_examples "Neo4j::Relationship" do
     let(:n2) { Neo4j::Node.create }
 
     it 'keeps old properties' do
-      a = n1.create_rel(:knows, n2, {old: 'a'})
+      a = n1.create_rel(:knows, n2, old: 'a')
       a.update_props({})
       expect(a[:old]).to eq('a')
 
-      a.update_props({new: 'b', name: 'foo'})
+      a.update_props(new: 'b', name: 'foo')
       expect(a[:old]).to eq('a')
       expect(a[:new]).to eq('b')
       expect(a[:name]).to eq('foo')
@@ -149,7 +149,7 @@ RSpec.shared_examples "Neo4j::Relationship" do
 
     it 'replace old properties' do
       a = n1.create_rel(:knows, n2, old: 'a')
-      a.update_props({old: 'b'})
+      a.update_props(old: 'b')
       expect(a[:old]).to eq('b')
     end
 
@@ -161,8 +161,8 @@ RSpec.shared_examples "Neo4j::Relationship" do
 
     it 'allows strange property names' do
       a = n1.create_rel(:knows, n2)
-      a.update_props({"1" => 2, " ha " => "ho"})
-      expect(a.props).to eq({:"1"=>2, :" ha "=>"ho"})
+      a.update_props('1' => 2, ' ha ' => 'ho')
+      expect(a.props).to eq(:"1" => 2, :" ha " => 'ho')
     end
   end
 

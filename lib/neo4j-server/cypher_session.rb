@@ -24,17 +24,17 @@ module Neo4j::Server
     # @return [Faraday]
     # @see https://github.com/lostisland/faraday
     def self.create_connection(params)
-      init_params = params[:initialize] and params.delete(:initialize)
+      init_params = params[:initialize] && params.delete(:initialize)
       conn = Faraday.new(init_params) do |b|
         b.request :basic_auth, params[:basic_auth][:username], params[:basic_auth][:password] if params[:basic_auth]
         b.request :json
-        #b.response :logger
-        b.response :json, :content_type => "application/json"
-        #b.use Faraday::Response::RaiseError
+        # b.response :logger
+        b.response :json, content_type: 'application/json'
+        # b.use Faraday::Response::RaiseError
         b.use Faraday::Adapter::NetHttpPersistent
         # b.adapter  Faraday.default_adapter
       end
-      conn.headers = { 'Content-Type' => 'application/json', 'User-Agent' => ::Neo4j::Session.user_agent_string }
+      conn.headers = {'Content-Type' => 'application/json', 'User-Agent' => ::Neo4j::Session.user_agent_string}
       conn
     end
 
@@ -50,7 +50,7 @@ module Neo4j::Server
       auth_obj = CypherAuthentication.new(url, connection, params)
       auth_obj.authenticate
       response = connection.get(url)
-      raise "Server not available on #{url} (response code #{response.status})" unless response.status == 200
+      fail "Server not available on #{url} (response code #{response.status})" unless response.status == 200
       establish_session(response.body, connection, auth_obj)
     end
 
@@ -79,7 +79,7 @@ module Neo4j::Server
     end
 
     def inspect
-      "#{to_s} version: '#{version}'"
+      "#{self} version: '#{version}'"
     end
 
     def version
@@ -88,9 +88,9 @@ module Neo4j::Server
 
     def initialize_resource(data_url)
       response = @connection.get(data_url)
-      expect_response_code(response,200)
+      expect_response_code(response, 200)
       data_resource = response.body
-      raise "No data_resource for #{response.body}" unless data_resource
+      fail "No data_resource for #{response.body}" unless data_resource
       # store the resource data
       init_resource_data(data_resource, data_url)
     end
@@ -112,7 +112,7 @@ module Neo4j::Server
 
     def create_node(props = nil, labels = [])
       id = _query_or_fail(cypher_string(labels, props), true, cypher_prop_list(props))
-      value = props.nil? ? id : { 'id' => id, 'metadata' => { 'labels' => labels }, 'data' => props }
+      value = props.nil? ? id : {'id' => id, 'metadata' => {'labels' => labels}, 'data' => props}
       CypherNode.new(self, value)
     end
 
@@ -156,7 +156,7 @@ module Neo4j::Server
     def schema_properties(query_string)
       response = @connection.get(query_string)
       expect_response_code(response, 200)
-      { property_keys: response.body.map { |row| row['property_keys'].map(&:to_sym) } }
+      {property_keys: response.body.map { |row| row['property_keys'].map(&:to_sym) }}
     end
 
     def find_all_nodes(label_name)
@@ -176,7 +176,7 @@ module Neo4j::Server
 
     def query(*args)
       if [[String], [String, Hash]].include?(args.map(&:class))
-        query, params = args[0,2]
+        query, params = args[0, 2]
         response = _query(query, params)
         response.raise_error if response.error?
         response.to_node_enumeration(query)
@@ -192,7 +192,7 @@ module Neo4j::Server
       Neo4j::Transaction.current ? r : r['data']
     end
 
-    def _query_or_fail(q, single_row = false, params=nil)
+    def _query_or_fail(q, single_row = false, params = nil)
       response = _query(q, params)
       response.raise_error if response.error?
       single_row ? response.first_data : response
@@ -207,11 +207,11 @@ module Neo4j::Server
     def _query(q, params = nil)
       # puts "q #{q}"
       curr_tx = Neo4j::Transaction.current
-      if (curr_tx)
+      if curr_tx
         curr_tx._query(q, params)
       else
         url = resource_url('cypher')
-        q = params.nil? ? { 'query' => q } : { 'query' => q, 'params' => params}
+        q = params.nil? ? {'query' => q} : {'query' => q, 'params' => params}
         response = @connection.post(url, q)
         CypherResponse.create_with_no_tx(response)
       end
@@ -229,7 +229,7 @@ module Neo4j::Server
     def search_result_to_enumerable_first_column_with_tx(response)
       Enumerator.new do |yielder|
         response.data.each do |data|
-          data["row"].each do |id|
+          data['row'].each do |id|
             yielder << CypherNode.new(self, id).wrapper
           end
         end

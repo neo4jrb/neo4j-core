@@ -3,7 +3,7 @@ module Neo4j::Core
 
     def find_in_batches(node_var, prop_var, options = {})
       invalid_keys = options.keys.map(&:to_sym) - [:batch_size]
-      raise ArgumentError, "Invalid keys: #{invalid_keys.join(', ')}" if not invalid_keys.empty?
+      fail ArgumentError, "Invalid keys: #{invalid_keys.join(', ')}" if not invalid_keys.empty?
 
       batch_size = options.delete(:batch_size) || 1000
 
@@ -38,4 +38,3 @@ module Neo4j::Core
     end
   end
 end
-

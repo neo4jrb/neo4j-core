@@ -6,14 +6,14 @@ Coveralls.wear!
 
 # To run it manually via Rake
 if ENV['COVERAGE']
-  puts "RUN SIMPLECOV"
+  puts 'RUN SIMPLECOV'
   require 'simplecov'
   SimpleCov.formatter = SimpleCov::Formatter::HTMLFormatter
   SimpleCov.start
 end
 
 require 'rubygems'
-require "bundler/setup"
+require 'bundler/setup'
 require 'rspec'
 require 'fileutils'
 require 'tmpdir'
@@ -23,7 +23,7 @@ require 'neo4j-core'
 require 'ostruct'
 
 if RUBY_PLATFORM == 'java'
-  require "neo4j-embedded/embedded_impermanent_session"
+  require 'neo4j-embedded/embedded_impermanent_session'
   require 'ruby-debug'
 
   # for some reason this is not impl. in JRuby
@@ -36,7 +36,7 @@ end
 
 Dir["#{File.dirname(__FILE__)}/shared_examples/**/*.rb"].each { |f| require f }
 
-EMBEDDED_DB_PATH = File.join(Dir.tmpdir, "neo4j-core-java")
+EMBEDDED_DB_PATH = File.join(Dir.tmpdir, 'neo4j-core-java')
 
 require "#{File.dirname(__FILE__)}/helpers"
 
@@ -76,21 +76,21 @@ RSpec.configure do |c|
 
   c.before(:each, api: :embedded) do
     curr_session = Neo4j::Session.current
-    curr_session.close if curr_session && !curr_session.kind_of?(Neo4j::Embedded::EmbeddedSession)
+    curr_session.close if curr_session && !curr_session.is_a?(Neo4j::Embedded::EmbeddedSession)
     Neo4j::Session.current || create_embedded_session
     Neo4j::Session.current.start unless Neo4j::Session.current.running?
   end
 
   c.before(:each, api: :server) do
     curr_session = Neo4j::Session.current
-    curr_session.close if curr_session && !curr_session.kind_of?(Neo4j::Server::CypherSession)
+    curr_session.close if curr_session && !curr_session.is_a?(Neo4j::Server::CypherSession)
     Neo4j::Session.current || create_server_session
   end
 
   c.exclusion_filter = {
-      :api => lambda do |ed|
-        RUBY_PLATFORM != 'java' && ed == :embedded
-      end
+    api: lambda do |ed|
+      RUBY_PLATFORM != 'java' && ed == :embedded
+    end
   }
 
 end

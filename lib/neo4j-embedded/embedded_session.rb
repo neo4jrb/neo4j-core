@@ -17,7 +17,7 @@ module Neo4j::Embedded
     def_delegator :@graph_db, :begin_tx
 
 
-    def initialize(db_location, config={})
+    def initialize(db_location, config = {})
       @db_location     = db_location
       @auto_commit     = !!config[:auto_commit]
       @properties_file = config[:properties_file]
@@ -34,23 +34,22 @@ module Neo4j::Embedded
 
     def version
       # Wow
-      version_string = graph_db.to_java(Java::OrgNeo4jKernel::GraphDatabaseAPI).getDependencyResolver().resolveDependency(Java::OrgNeo4jKernel::KernelData.java_class).version().to_s
+      version_string = graph_db.to_java(Java::OrgNeo4jKernel::GraphDatabaseAPI).getDependencyResolver.resolveDependency(Java::OrgNeo4jKernel::KernelData.java_class).version.to_s
       version_string.split(' ')[-1]
     end
 
     def start
-      raise Error.new("Embedded Neo4j db is already running") if running?
+      fail Error, 'Embedded Neo4j db is already running' if running?
       puts "Start embedded Neo4j db at #{db_location}"
       factory    = Java::OrgNeo4jGraphdbFactory::GraphDatabaseFactory.new
       db_service = factory.newEmbeddedDatabaseBuilder(db_location)
       db_service.loadPropertiesFromFile(properties_file) if properties_file
-      @graph_db = db_service.newGraphDatabase()
+      @graph_db = db_service.newGraphDatabase
       Neo4j::Session._notify_listeners(:session_available, self)
       @engine = Java::OrgNeo4jCypherJavacompat::ExecutionEngine.new(@graph_db)
     end
 
     def factory_class
-      Java::OrgNeo4jGraphdbFactory::GraphDatabaseFactory
       Java::OrgNeo4jTest::ImpermanentGraphDatabase
     end
 
@@ -110,7 +109,7 @@ module Neo4j::Embedded
 
     def query(*args)
       if [[String], [String, String]].include?(args.map(&:class))
-        query, params = args[0,2]
+        query, params = args[0, 2]
         Neo4j::Embedded::ResultWrapper.new(_query(query, params), query)
       else
         options = args[0] || {}
@@ -124,17 +123,17 @@ module Neo4j::Embedded
     end
 
     def find_nodes(label, key, value)
-      EmbeddedLabel.new(self, label).find_nodes(key,value)
+      EmbeddedLabel.new(self, label).find_nodes(key, value)
     end
 
     # Performs a cypher query with given string.
     # Remember that you should close the resource iterator.
     # @param [String] q the cypher query as a String
     # @return (see #query)
-    def _query(q, params={})
+    def _query(q, params = {})
       @engine ||= Java::OrgNeo4jCypherJavacompat::ExecutionEngine.new(@graph_db)
       @engine.execute(q, Neo4j::Core::HashWithIndifferentAccess.new(params))
-    rescue Exception => e
+    rescue StandardError => e
       raise Neo4j::Session::CypherError.new(e.message, e.class, 'cypher error')
     end
 
@@ -148,18 +147,18 @@ module Neo4j::Embedded
     end
 
     def search_result_to_enumerable(result)
-      result.map {|column| column['n'].wrapper}
+      result.map { |column| column['n'].wrapper }
     end
 
-    def create_node(properties = nil, labels=[])
+    def create_node(properties = nil, labels = [])
       if labels.empty?
-        _java_node = graph_db.create_node
+        graph_db.create_node
       else
         labels = EmbeddedLabel.as_java(labels)
-        _java_node = graph_db.create_node(labels)
+        graph_db.create_node(labels)
+      end.tap do |java_node|
+        properties.each_pair { |k, v| java_node[k] = v } if properties
       end
-      properties.each_pair { |k, v| _java_node[k]=v } if properties
-      _java_node
     end
     tx_methods :create_node
 

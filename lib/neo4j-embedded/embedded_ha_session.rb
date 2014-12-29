@@ -7,14 +7,14 @@ end
 module Neo4j::Embedded
   class EmbeddedHaSession < EmbeddedSession
     def start
-      raise Error.new("Embedded HA Neo4j db is already running") if running?
+      fail Error, 'Embedded HA Neo4j db is already running' if running?
       puts "Start embedded HA Neo4j db at #{db_location}"
       factory    = Java::OrgNeo4jGraphdbFactory::HighlyAvailableGraphDatabaseFactory.new
       db_service = factory.newHighlyAvailableDatabaseBuilder(db_location)
 
-      raise Error.new("Need properties file for HA configuration") unless properties_file
+      fail Error, 'Need properties file for HA configuration' unless properties_file
       db_service.loadPropertiesFromFile(properties_file)
-      @graph_db = db_service.newGraphDatabase()
+      @graph_db = db_service.newGraphDatabase
       Neo4j::Session._notify_listeners(:session_available, self)
     end
   end

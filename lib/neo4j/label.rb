@@ -7,23 +7,23 @@ module Neo4j
 
     # @abstract
     def name
-      raise 'not implemented'
+      fail 'not implemented'
     end
 
     # @abstract
     def create_index(*properties)
-      raise 'not implemented'
+      fail 'not implemented'
     end
 
     # @abstract
     def drop_index(*properties)
-      raise 'not implemented'
+      fail 'not implemented'
     end
 
     # List indices for a label
     # @abstract
     def indexes
-      raise 'not implemented'
+      fail 'not implemented'
     end
 
     # Creates a neo4j constraint on a property
@@ -34,11 +34,11 @@ module Neo4j
     #
     def create_constraint(property, constraints, session = Neo4j::Session.current)
       cypher = case constraints[:type]
-        when :unique
-          "CREATE CONSTRAINT ON (n:`#{name}`) ASSERT n.`#{property}` IS UNIQUE"
-        else
-          raise "Not supported constrain #{constraints.inspect} for property #{property} (expected :type => :unique)"
-      end
+               when :unique
+                 "CREATE CONSTRAINT ON (n:`#{name}`) ASSERT n.`#{property}` IS UNIQUE"
+               else
+                 fail "Not supported constrain #{constraints.inspect} for property #{property} (expected :type => :unique)"
+               end
       session._query_or_fail(cypher)
     end
 
@@ -51,10 +51,10 @@ module Neo4j
     #
     def drop_constraint(property, constraint, session = Neo4j::Session.current)
       cypher = case constraint[:type]
-                 when :unique
-                   "DROP CONSTRAINT ON (n:`#{name}`) ASSERT n.`#{property}` IS UNIQUE"
-                 else
-                   raise "Not supported constrain #{constraint.inspect}"
+               when :unique
+                 "DROP CONSTRAINT ON (n:`#{name}`) ASSERT n.`#{property}` IS UNIQUE"
+               else
+                 fail "Not supported constrain #{constraint.inspect}"
                end
       session._query_or_fail(cypher)
     end

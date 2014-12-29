@@ -1,7 +1,7 @@
 
 class RSpecDescribeHandler < YARD::Handlers::Ruby::Base
   handles method_call(:describe)
-  
+
   def process
     param = statement.parameters.first.jump(:string_content).source
 
@@ -24,7 +24,7 @@ end
 
 class RSpecItGeneratesHandler < YARD::Handlers::Ruby::Base
   handles method_call(:it_generates)
-  
+
   def process
     return if owner.nil?
 
@@ -40,11 +40,9 @@ class RSpecItGeneratesHandler < YARD::Handlers::Ruby::Base
     (object[:examples] ||= []) << {
       path: path,
       ruby: ruby,
-      cypher: cypher,
+      cypher: cypher
     }
   end
 end
 
 YARD::Templates::Engine.register_template_path File.dirname(__FILE__) + '/yard_rspec/templates'
-
-

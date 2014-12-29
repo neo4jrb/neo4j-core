@@ -29,7 +29,7 @@ module Neo4j::Server
     # @param [String] new_password The password you want to use.
     # @return [Hash] The response from the server.
     def change_password(old_password, new_password)
-      connection.post("#{url}/user/neo4j/password", { 'password' => old_password, 'new_password' => new_password }).body
+      connection.post("#{url}/user/neo4j/password",  'password' => old_password, 'new_password' => new_password).body
     end
 
     # Uses the given username and password to obtain a token, then adds the token to the connection's parameters.
@@ -64,7 +64,7 @@ module Neo4j::Server
       rescue NoMethodError
         raise MissingCredentialsError, 'Neo4j authentication is enabled, username/password are required but missing'
       end
-      connection.post("#{url}/authentication", { 'username' => user, 'password' => pass })
+      connection.post("#{url}/authentication",  'username' => user, 'password' => pass)
     end
 
     # Takes a response object from the server and returns a token or fails with an error.
@@ -73,8 +73,8 @@ module Neo4j::Server
     # @return [String] An authentication token.
     def token_or_error(auth_response)
       begin
-        raise PasswordChangeRequiredError, "Server requires a password change, please visit #{url}" if auth_response.body['password_change_required']
-        raise InvalidPasswordError, "Neo4j server responded with: #{auth_response.body['errors'][0]['message']}" if auth_response.status.to_i == 422
+        fail PasswordChangeRequiredError, "Server requires a password change, please visit #{url}" if auth_response.body['password_change_required']
+        fail InvalidPasswordError, "Neo4j server responded with: #{auth_response.body['errors'][0]['message']}" if auth_response.status.to_i == 422
       rescue NoMethodError
         raise 'Unexpected auth response, please open an issue at https://github.com/neo4jrb/neo4j-core/issues'
       end
@@ -84,7 +84,7 @@ module Neo4j::Server
     # Invalidates tokens as described at http://neo4j.com/docs/snapshot/rest-api-security.html#rest-api-invalidating-the-authorization-token
     # @param [String] current_password The current password used to connect to the database
     def invalidate_token(current_password)
-      connection.post("#{url}/user/neo4j/authorization_token", { 'password' => current_password }).body
+      connection.post("#{url}/user/neo4j/authorization_token",  'password' => current_password).body
     end
 
     # Stores an authentication token in the properly-formatted header.
@@ -105,10 +105,10 @@ module Neo4j::Server
     def self.new_connection
       conn = Faraday.new do |b|
         b.request :json
-        b.response :json, :content_type => "application/json"
+        b.response :json, content_type: 'application/json'
         b.use Faraday::Adapter::NetHttpPersistent
       end
-      conn.headers = { 'Content-Type' => 'application/json' }
+      conn.headers = {'Content-Type' => 'application/json'}
       conn
     end
 

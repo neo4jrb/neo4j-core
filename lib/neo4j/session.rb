@@ -13,24 +13,24 @@ module Neo4j
     # Only for embedded database
     # @abstract
     def start
-      raise "not impl."
+      fail 'not impl.'
     end
 
     # Only for embedded database
     # @abstract
     def shutdown
-      raise "not impl."
+      fail 'not impl.'
     end
 
     # Only for embedded database
     # @abstract
     def running
-      raise "not impl."
+      fail 'not impl.'
     end
 
     # @return [:embedded_db | :server_db]
     def db_type
-      raise "not impl."
+      fail 'not impl.'
     end
 
     def auto_commit?
@@ -39,7 +39,7 @@ module Neo4j
 
     # @abstract
     def begin_tx
-      raise "not impl."
+      fail 'not impl.'
     end
 
     class CypherError < StandardError
@@ -67,14 +67,14 @@ module Neo4j
     # @see http://docs.neo4j.org/chunked/milestone/cypher-query-lang.html The Cypher Query Language Documentation
     #
     def query(options = {})
-      raise 'not implemented, abstract'
+      fail 'not implemented, abstract'
     end
 
     # Same as #query but does not accept an DSL and returns the raw result from the database.
     # Notice, it might return different values depending on which database is used, embedded or server.
     # @abstract
     def _query(*params)
-      raise 'not implemented'
+      fail 'not implemented'
     end
 
     class << self
@@ -95,19 +95,19 @@ module Neo4j
       #
       # @see also Neo4j::Server::CypherSession#open for :server_db params
       # @param db_type the type of database, e.g. :embedded_db, or :server_db
-      def open(db_type=:server_db, *params)
+      def open(db_type = :server_db, *params)
         register(create_session(db_type, params))
       end
 
       def open_named(db_type, name, default = nil, *params)
-        raise "Multiple sessions is currently only supported for Neo4j Server connections." unless db_type == :server_db
+        fail 'Multiple sessions is currently only supported for Neo4j Server connections.' unless db_type == :server_db
         register(create_session(db_type, params), name, default)
       end
 
       # @private
       def create_session(db_type, params = {})
-        unless (@@factories[db_type])
-          raise "Can't connect to database '#{db_type}', available #{@@factories.keys.join(',')}"
+        unless @@factories[db_type]
+          fail "Can't connect to database '#{db_type}', available #{@@factories.keys.join(',')}"
         end
         @@factories[db_type].call(*params)
       end
@@ -119,7 +119,7 @@ module Neo4j
 
       # Returns the current session or raise an exception if no session is available
       def current!
-        raise "No session, please create a session first with Neo4j::Session.open(:server_db) or :embedded_db" unless current
+        fail 'No session, please create a session first with Neo4j::Session.open(:server_db) or :embedded_db' unless current
         current
       end
 
@@ -130,7 +130,7 @@ module Neo4j
 
       # Returns a session with given name or else raise an exception
       def named(name)
-        @@all_sessions[name] || raise("No session named #{name}.")
+        @@all_sessions[name] || fail("No session named #{name}.")
       end
 
       # Sets the session to be used as default
@@ -142,9 +142,8 @@ module Neo4j
       # Registers a callback which will be called immediately if session is already available,
       # or called when it later becomes available.
       def on_session_available(&callback)
-        if (Neo4j::Session.current)
-          callback.call(Neo4j::Session.current)
-        end
+        callback.call(Neo4j::Session.current) if Neo4j::Session.current
+
         add_listener do |event, data|
           callback.call(data) if event == :session_available
         end
@@ -174,7 +173,7 @@ module Neo4j
 
       # @private
       def _notify_listeners(event, data)
-        _listeners.each {|li| li.call(event, data)}
+        _listeners.each { |li| li.call(event, data) }
       end
 
       # @private
@@ -194,7 +193,7 @@ module Neo4j
       end
 
       def inspect
-         "Neo4j::Session available: #{@@factories && @@factories.keys}"
+        "Neo4j::Session available: #{@@factories && @@factories.keys}"
       end
 
       # @private

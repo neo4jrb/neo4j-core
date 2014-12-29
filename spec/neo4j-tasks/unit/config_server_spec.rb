@@ -55,7 +55,7 @@ dbms.security.authorization_enabled=false
   describe '.change_password' do
     let(:net) { Net::HTTP }
     let(:response) { double 'A response object from post_form' }
-    let(:body) { { result: 'status' }.to_json }
+    let(:body) { {result: 'status'}.to_json }
 
     it 'POSTs to a given endpoint with a hash containing old/new passwords' do
       expect(net).to receive(:post_form).and_return response

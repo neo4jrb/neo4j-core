@@ -23,26 +23,26 @@ module Neo4j::Server
       end
 
       def request_uri
-        ""
+        ''
       end
 
       def request
-        return Struct.new(:path).new('bla')
+        Struct.new(:path).new('bla')
       end
     end
 
     describe 'create_session' do
       let(:root_resource_with_slash) do
         {
-            "management"=>"http://localhost:7474/db/manage/",
-            "data"=>"http://localhost:7474/db/data/"
+          'management' => 'http://localhost:7474/db/manage/',
+          'data' => 'http://localhost:7474/db/data/'
         }
       end
 
       let(:root_resource_with_no_slash) do
         {
-            "management"=>"http://localhost:7474/db/manage",
-            "data"=>"http://localhost:7474/db/data"
+          'management' => 'http://localhost:7474/db/manage',
+          'data' => 'http://localhost:7474/db/data'
         }
       end
 
@@ -55,7 +55,7 @@ module Neo4j::Server
         before do
           expect(CypherSession).to receive(:create_connection).and_return(connection)
           expect(connection).to receive(:get).with('http://localhost:7474').and_return(TestResponse.new(root_resource_with_slash))
-          expect(connection).to receive(:get).with("http://localhost:7474/db/data/").and_return(TestResponse.new(data_resource))
+          expect(connection).to receive(:get).with('http://localhost:7474/db/data/').and_return(TestResponse.new(data_resource))
           allow(connection).to receive(:get).with('http://localhost:7474/authentication').and_return(auth_object)
         end
 
@@ -81,7 +81,7 @@ module Neo4j::Server
 
           it 'calls the callback when session is available' do
             called_with = nil
-            Neo4j::Session.on_session_available {|session| called_with = session}
+            Neo4j::Session.on_session_available { |session| called_with = session }
             session = Neo4j::Session.create_session(:server_db)
             expect(called_with).to eq(session)
           end
@@ -105,7 +105,7 @@ module Neo4j::Server
       end
 
       describe 'with auth params' do
-        let(:auth) { {basic_auth: { username: 'username', password: 'password'}} }
+        let(:auth) { {basic_auth: {username: 'username', password: 'password'}} }
 
         it 'creates session with basic auth params' do
           base_url = 'http://localhost:7474'
@@ -126,8 +126,8 @@ module Neo4j::Server
       end
 
       describe 'with initialization params' do
-        let(:init_params_false) { {initialize: { ssl: { verify: false }}} }
-        let(:init_params_true)  { {initialize: { ssl: { verify: true  }}} }
+        let(:init_params_false) { {initialize: {ssl: {verify: false}}} }
+        let(:init_params_true)  { {initialize: {ssl: {verify: true}}} }
         it 'passes the options through to Faraday.new' do
           base_url = 'http://localhost:7474'
 
@@ -143,13 +143,13 @@ module Neo4j::Server
 
       it 'does work with two sessions' do
         base_url = 'http://localhost:7474'
-        auth = {basic_auth: { username: 'username', password: 'password'}}
+        auth = {basic_auth: {username: 'username', password: 'password'}}
         params = [base_url, auth]
 
         expect(Neo4j::Server::CypherSession).to receive(:create_connection).with(auth).and_return(connection)
         expect(connection).to receive(:get).with(base_url)
           .and_return(TestResponse.new(root_resource_with_slash))
-        expect(connection).to receive(:get).with("http://localhost:7474/db/data/")
+        expect(connection).to receive(:get).with('http://localhost:7474/db/data/')
           .and_return(TestResponse.new(data_resource))
         allow(connection).to receive(:get).with('http://localhost:7474/authentication').and_return(auth_object)
 
@@ -158,7 +158,7 @@ module Neo4j::Server
         expect(Neo4j::Server::CypherSession).to receive(:create_connection).with({}).and_return(connection)
         expect(connection).to receive(:get).with('http://localhost:7474')
           .and_return(TestResponse.new(root_resource_with_no_slash))
-        expect(connection).to receive(:get).with("http://localhost:7474/db/data/")
+        expect(connection).to receive(:get).with('http://localhost:7474/db/data/')
           .and_return(TestResponse.new(data_resource))
 
         # handlers = @faraday.builder.handlers.map(&:name)
@@ -172,24 +172,24 @@ module Neo4j::Server
     describe 'instance methods' do
 
       describe 'load_node' do
-        let(:query_string) { "MATCH (n) WHERE ID(n) = 1915 RETURN n" }
+        let(:query_string) { 'MATCH (n) WHERE ID(n) = 1915 RETURN n' }
 
-        it "generates the expected query string" do
-          r = double('cypher response', data: [{ 'foo' => 'data' }], is_transaction_response?: false, first_data: [{ 'foo' => 'foo' }],
-            error?: nil, error_msg: nil)
+        it 'generates the expected query string' do
+          r = double('cypher response', data: [{'foo' => 'data'}], is_transaction_response?: false, first_data: [{'foo' => 'foo'}],
+                                        error?: nil, error_msg: nil)
           expect(session).to receive(:_query).with(query_string).and_return(r)
           session.load_node(1915)
         end
 
-        it "returns nil if EntityNotFoundException" do
+        it 'returns nil if EntityNotFoundException' do
           r = double('cypher response', error?: true, error_status: 'EntityNotFoundException', data: [])
           expect(session).to receive(:_query).with(query_string).and_return(r)
           expect(session.load_node(1915)).to be_nil
         end
 
-        it "raise an exception if there is an error but not an EntityNotFoundException exception" do
-          r = double('cypher response', error?: true, error_status: 'SomeError', is_transaction_response?: false, first_data: [{ 'foo' => 'foo' }],
-            response: double("response").as_null_object, data: [{ 'foo' => 'data' }])
+        it 'raise an exception if there is an error but not an EntityNotFoundException exception' do
+          r = double('cypher response', error?: true, error_status: 'SomeError', is_transaction_response?: false, first_data: [{'foo' => 'foo'}],
+                                        response: double('response').as_null_object, data: [{'foo' => 'data'}])
           expect(r).to receive(:raise_error)
           expect(session).to receive(:_query).with(query_string).and_return(r)
           session.load_node(1915)
@@ -197,7 +197,7 @@ module Neo4j::Server
       end
 
       describe 'begin_tx' do
-        let(:dummy_request) { double("dummy request", path: 'http://dummy.request')}
+        let(:dummy_request) { double('dummy request', path: 'http://dummy.request') }
 
         after { Thread.current[:neo4j_curr_tx] = nil }
 
@@ -207,7 +207,7 @@ module Neo4j::Server
           HERE
         end
 
-        it "create a new transaction and stores it in thread local" do
+        it 'create a new transaction and stores it in thread local' do
           response = double('response2', headers: {'Location' => 'http://tx/42'}, status: 201, body: {'commit' => 'http://tx/42/commit'})
           expect(session).to receive(:resource_url).with('transaction').and_return('http://new.tx')
           expect(connection).to receive(:post).with('http://new.tx', anything).and_return(response)
@@ -222,28 +222,28 @@ module Neo4j::Server
       describe 'create_node' do
 
         before do
-          allow(session).to receive(:resource_url).and_return("http://resource_url")
+          allow(session).to receive(:resource_url).and_return('http://resource_url')
         end
 
         it "create_node() generates 'CREATE (v1) RETURN v1'" do
           allow(session).to receive(:resource_url)
-          expect(session).to receive(:_query).with("CREATE (n ) RETURN ID(n)", nil).and_return(cypher_response)
+          expect(session).to receive(:_query).with('CREATE (n ) RETURN ID(n)', nil).and_return(cypher_response)
           session.create_node
         end
 
         it 'create_node(name: "jimmy") generates ' do
-          expect(session).to receive(:_query).with("CREATE (n {props}) RETURN ID(n)", {:props=>{:name=>"jimmy"}}).and_return(cypher_response)
+          expect(session).to receive(:_query).with('CREATE (n {props}) RETURN ID(n)', props: {name: 'jimmy'}).and_return(cypher_response)
           session.create_node(name: 'jimmy')
         end
 
         it 'create_node({}, [:person])' do
-          expect(session).to receive(:_query).with("CREATE (n:`person` {props}) RETURN ID(n)", {:props=>{}}).and_return(cypher_response)
+          expect(session).to receive(:_query).with('CREATE (n:`person` {props}) RETURN ID(n)', props: {}).and_return(cypher_response)
           session.create_node({}, [:person])
         end
 
-        it "initialize a CypherNode instance" do
-          expect(session).to receive(:_query).with("CREATE (n ) RETURN ID(n)",nil).and_return(cypher_response)
-          n = double("cypher node")
+        it 'initialize a CypherNode instance' do
+          expect(session).to receive(:_query).with('CREATE (n ) RETURN ID(n)', nil).and_return(cypher_response)
+          n = double('cypher node')
           expect(CypherNode).to receive(:new).and_return(n)
           session.create_node
         end
@@ -256,25 +256,25 @@ module Neo4j::Server
           # session.should_receive(:search_result_to_enumerable).with(cypher_response).and_return
         end
 
-        it "should produce Cypher query with String values" do
-          skip "TODO"  # TODO
+        it 'should produce Cypher query with String values' do
+          skip 'TODO'  # TODO
           cypher_query = "        MATCH (n:`label`)\n        WHERE n.key = 'value'\n        RETURN ID(n)\n"
           expect(session).to receive(:_query_or_fail).with(cypher_query).and_return(cypher_response)
-          session.find_nodes(:label,:key,"value")
+          session.find_nodes(:label, :key, 'value')
         end
 
-        it "should produce Cypher query with Fixnum values" do
-          skip "TODO" # TODO
+        it 'should produce Cypher query with Fixnum values' do
+          skip 'TODO' # TODO
           cypher_query = "        MATCH (n:`label`)\n        WHERE n.key = 4\n        RETURN ID(n)\n"
           expect(session).to receive(:_query_or_fail).with(cypher_query).and_return(cypher_response)
-          session.find_nodes(:label,:key,4)
+          session.find_nodes(:label, :key, 4)
         end
 
-        it "should produce Cypher query with Float values" do
-          skip "TODO" # TODO
+        it 'should produce Cypher query with Float values' do
+          skip 'TODO' # TODO
           cypher_query = "        MATCH (n:`label`)\n        WHERE n.key = 4.5\n        RETURN ID(n)\n"
           expect(session).to receive(:_query_or_fail).with(cypher_query).and_return(cypher_response)
-          session.find_nodes(:label,:key,4.5)
+          session.find_nodes(:label, :key, 4.5)
         end
       end
 

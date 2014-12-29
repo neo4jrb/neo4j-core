@@ -94,52 +94,52 @@ describe Neo4j::Core::Query do
 
   describe 'clause combinations' do
     describe ".match(q: Person).where('q.age > 30')" do
-      it_generates "MATCH (q:`Person`) WHERE q.age > 30"
+      it_generates 'MATCH (q:`Person`) WHERE q.age > 30'
     end
 
     describe ".where('q.age > 30').match(q: Person)" do
-      it_generates "MATCH (q:`Person`) WHERE q.age > 30"
+      it_generates 'MATCH (q:`Person`) WHERE q.age > 30'
     end
 
     describe ".where('q.age > 30').start('n').match(q: Person)" do
-      it_generates "START n MATCH (q:`Person`) WHERE q.age > 30"
+      it_generates 'START n MATCH (q:`Person`) WHERE q.age > 30'
     end
 
-    describe ".match(q: {age: 30}).set_props(q: {age: 31})" do
-      it_generates "MATCH (q {age: 30}) SET q = {age: 31}"
+    describe '.match(q: {age: 30}).set_props(q: {age: 31})' do
+      it_generates 'MATCH (q {age: 30}) SET q = {age: 31}'
     end
 
     # WITHS
 
     describe ".match(q: Person).with('count(q) AS count')" do
-      it_generates "MATCH (q:`Person`) WITH count(q) AS count"
+      it_generates 'MATCH (q:`Person`) WITH count(q) AS count'
     end
 
     describe ".match(q: Person).with('count(q) AS count').where('count > 2')" do
-      it_generates "MATCH (q:`Person`) WITH count(q) AS count WHERE count > 2"
+      it_generates 'MATCH (q:`Person`) WITH count(q) AS count WHERE count > 2'
     end
 
     describe ".match(q: Person).with(count: 'count(q)').where('count > 2').with(new_count: 'count + 5')" do
-      it_generates "MATCH (q:`Person`) WITH count(q) AS count WHERE count > 2 WITH count + 5 AS new_count"
+      it_generates 'MATCH (q:`Person`) WITH count(q) AS count WHERE count > 2 WITH count + 5 AS new_count'
     end
 
     # breaks
 
     describe ".match(q: Person).match('r:Car').break.match('(p: Person)-->q')" do
-      it_generates "MATCH (q:`Person`), r:Car MATCH (p: Person)-->q"
+      it_generates 'MATCH (q:`Person`), r:Car MATCH (p: Person)-->q'
     end
 
     describe ".match(q: Person).break.match('r:Car').break.match('(p: Person)-->q')" do
-      it_generates "MATCH (q:`Person`) MATCH r:Car MATCH (p: Person)-->q"
+      it_generates 'MATCH (q:`Person`) MATCH r:Car MATCH (p: Person)-->q'
     end
 
     describe ".match(q: Person).match('r:Car').break.break.match('(p: Person)-->q')" do
-      it_generates "MATCH (q:`Person`), r:Car MATCH (p: Person)-->q"
+      it_generates 'MATCH (q:`Person`), r:Car MATCH (p: Person)-->q'
     end
 
     # params
     describe ".match(q: Person).where('q.age = {age}').params(age: 15)" do
-      it_generates "MATCH (q:`Person`) WHERE q.age = {age}", age: 15
+      it_generates 'MATCH (q:`Person`) WHERE q.age = {age}', age: 15
     end
   end
 
@@ -179,35 +179,35 @@ describe Neo4j::Core::Query do
       expect(1).to eq(1)
     end
     describe ".match('n')" do
-      it_generates "MATCH n"
+      it_generates 'MATCH n'
     end
 
-    describe ".match(:n)" do
-      it_generates "MATCH n"
+    describe '.match(:n)' do
+      it_generates 'MATCH n'
     end
 
-    describe ".match(n: Person)" do
-      it_generates "MATCH (n:`Person`)"
+    describe '.match(n: Person)' do
+      it_generates 'MATCH (n:`Person`)'
     end
 
-    describe ".match(n: Note)" do
-      it_generates "MATCH (n:`GreatNote`)"
+    describe '.match(n: Note)' do
+      it_generates 'MATCH (n:`GreatNote`)'
     end
 
     describe ".match(n: 'Person')" do
-      it_generates "MATCH (n:`Person`)"
+      it_generates 'MATCH (n:`Person`)'
     end
 
     describe ".match(n: ':Person')" do
-      it_generates "MATCH (n:Person)"
+      it_generates 'MATCH (n:Person)'
     end
 
-    describe ".match(n: :Person)" do
-      it_generates "MATCH (n:`Person`)"
+    describe '.match(n: :Person)' do
+      it_generates 'MATCH (n:`Person`)'
     end
 
     describe ".match(n: ' :Person')" do
-      it_generates "MATCH (n:Person)"
+      it_generates 'MATCH (n:Person)'
     end
 
     describe ".match(n: 'Person {name: \"Brian\"}')" do
@@ -223,23 +223,23 @@ describe Neo4j::Core::Query do
     end
 
     describe ".match('n--o')" do
-      it_generates "MATCH n--o"
+      it_generates 'MATCH n--o'
     end
 
     describe ".match('n--o').match('o--p')" do
-      it_generates "MATCH n--o, o--p"
+      it_generates 'MATCH n--o, o--p'
     end
   end
 
   # OPTIONAL MATCH
 
   describe '#optional_match' do
-    describe ".optional_match(n: Person)" do
-      it_generates "OPTIONAL MATCH (n:`Person`)"
+    describe '.optional_match(n: Person)' do
+      it_generates 'OPTIONAL MATCH (n:`Person`)'
     end
 
     describe ".match('m--n').optional_match('n--o').match('o--p')" do
-      it_generates "MATCH m--n, o--p OPTIONAL MATCH n--o"
+      it_generates 'MATCH m--n, o--p OPTIONAL MATCH n--o'
     end
   end
 
@@ -247,15 +247,15 @@ describe Neo4j::Core::Query do
 
   describe '#using' do
     describe ".using('INDEX m:German(surname)')" do
-      it_generates "USING INDEX m:German(surname)"
+      it_generates 'USING INDEX m:German(surname)'
     end
 
     describe ".using('SCAN m:German')" do
-      it_generates "USING SCAN m:German"
+      it_generates 'USING SCAN m:German'
     end
 
     describe ".using('INDEX m:German(surname)').using('SCAN m:German')" do
-      it_generates "USING INDEX m:German(surname) USING SCAN m:German"
+      it_generates 'USING INDEX m:German(surname) USING SCAN m:German'
     end
   end
 
@@ -263,48 +263,48 @@ describe Neo4j::Core::Query do
   # WHERE
 
   describe '#where' do
-    describe ".where()" do
-      it_generates ""
+    describe '.where()' do
+      it_generates ''
     end
 
-    describe ".where({})" do
-      it_generates ""
+    describe '.where({})' do
+      it_generates ''
     end
 
     describe ".where('q.age > 30')" do
-      it_generates "WHERE q.age > 30"
+      it_generates 'WHERE q.age > 30'
     end
 
     describe ".where('q.age' => 30)" do
-      it_generates "WHERE q.age = {q_age}", q_age: 30
+      it_generates 'WHERE q.age = {q_age}', q_age: 30
     end
 
     describe ".where('q.age' => [30, 32, 34])" do
-      it_generates "WHERE q.age IN {q_age}", q_age: [30, 32, 34]
+      it_generates 'WHERE q.age IN {q_age}', q_age: [30, 32, 34]
     end
 
-    describe ".where(q: {age: [30, 32, 34]})" do
-      it_generates "WHERE q.age IN {q_age}", q_age: [30, 32, 34]
+    describe '.where(q: {age: [30, 32, 34]})' do
+      it_generates 'WHERE q.age IN {q_age}', q_age: [30, 32, 34]
     end
 
     describe ".where('q.age' => nil)" do
-      it_generates "WHERE q.age IS NULL"
+      it_generates 'WHERE q.age IS NULL'
     end
 
-    describe ".where(q: {age: nil})" do
-      it_generates "WHERE q.age IS NULL"
+    describe '.where(q: {age: nil})' do
+      it_generates 'WHERE q.age IS NULL'
     end
 
-    describe ".where(q: {neo_id: 22})" do
-      it_generates "WHERE ID(q) = 22"
+    describe '.where(q: {neo_id: 22})' do
+      it_generates 'WHERE ID(q) = 22'
     end
 
     describe ".where(q: {age: 30, name: 'Brian'})" do
-      it_generates "WHERE q.age = {q_age} AND q.name = {q_name}", q_age: 30, q_name: 'Brian'
+      it_generates 'WHERE q.age = {q_age} AND q.name = {q_name}', q_age: 30, q_name: 'Brian'
     end
 
     describe ".where(q: {age: 30, name: 'Brian'}).where('r.grade = 80')" do
-      it_generates "WHERE q.age = {q_age} AND q.name = {q_name} AND r.grade = 80", q_age: 30, q_name: 'Brian'
+      it_generates 'WHERE q.age = {q_age} AND q.name = {q_name} AND r.grade = 80', q_age: 30, q_name: 'Brian'
     end
   end
 
@@ -312,23 +312,23 @@ describe Neo4j::Core::Query do
 
   describe '#unwind' do
     describe ".unwind('val AS x')" do
-      it_generates "UNWIND val AS x"
+      it_generates 'UNWIND val AS x'
     end
 
-    describe ".unwind(x: :val)" do
-      it_generates "UNWIND val AS x"
+    describe '.unwind(x: :val)' do
+      it_generates 'UNWIND val AS x'
     end
 
     describe ".unwind(x: 'val')" do
-      it_generates "UNWIND val AS x"
+      it_generates 'UNWIND val AS x'
     end
 
-    describe ".unwind(x: [1,3,5])" do
-      it_generates "UNWIND [1, 3, 5] AS x"
+    describe '.unwind(x: [1,3,5])' do
+      it_generates 'UNWIND [1, 3, 5] AS x'
     end
 
     describe ".unwind(x: [1,3,5]).unwind('val as y')" do
-      it_generates "UNWIND [1, 3, 5] AS x UNWIND val as y"
+      it_generates 'UNWIND [1, 3, 5] AS x UNWIND val as y'
     end
   end
 
@@ -337,19 +337,19 @@ describe Neo4j::Core::Query do
 
   describe '#return' do
     describe ".return('q')" do
-      it_generates "RETURN q"
+      it_generates 'RETURN q'
     end
 
-    describe ".return(:q)" do
-      it_generates "RETURN q"
+    describe '.return(:q)' do
+      it_generates 'RETURN q'
     end
 
     describe ".return('q.name, q.age')" do
-      it_generates "RETURN q.name, q.age"
+      it_generates 'RETURN q.name, q.age'
     end
 
-    describe ".return(q: [:name, :age], r: :grade)" do
-      it_generates "RETURN q.name, q.age, r.grade"
+    describe '.return(q: [:name, :age], r: :grade)' do
+      it_generates 'RETURN q.name, q.age, r.grade'
     end
   end
 
@@ -357,34 +357,34 @@ describe Neo4j::Core::Query do
 
   describe '#order' do
     describe ".order('q.name')" do
-      it_generates "ORDER BY q.name"
+      it_generates 'ORDER BY q.name'
     end
 
     describe ".order_by('q.name')" do
-      it_generates "ORDER BY q.name"
+      it_generates 'ORDER BY q.name'
     end
 
     describe ".order('q.age', 'q.name DESC')" do
-      it_generates "ORDER BY q.age, q.name DESC"
+      it_generates 'ORDER BY q.age, q.name DESC'
     end
 
-    describe ".order(q: :age)" do
-      it_generates "ORDER BY q.age"
+    describe '.order(q: :age)' do
+      it_generates 'ORDER BY q.age'
     end
 
-    describe ".order(q: [:age, {name: :desc}])" do
-      it_generates "ORDER BY q.age, q.name DESC"
+    describe '.order(q: [:age, {name: :desc}])' do
+      it_generates 'ORDER BY q.age, q.name DESC'
     end
 
-    describe ".order(q: [:age, {name: :desc, grade: :asc}])" do
-      it_generates "ORDER BY q.age, q.name DESC, q.grade ASC"
+    describe '.order(q: [:age, {name: :desc, grade: :asc}])' do
+      it_generates 'ORDER BY q.age, q.name DESC, q.grade ASC'
     end
-    describe ".order(q: {age: :asc, name: :desc})" do
-      it_generates "ORDER BY q.age ASC, q.name DESC"
+    describe '.order(q: {age: :asc, name: :desc})' do
+      it_generates 'ORDER BY q.age ASC, q.name DESC'
     end
 
     describe ".order(q: [:age, 'name desc'])" do
-      it_generates "ORDER BY q.age, q.name desc"
+      it_generates 'ORDER BY q.age, q.name desc'
     end
   end
 
@@ -392,36 +392,36 @@ describe Neo4j::Core::Query do
   # LIMIT
 
   describe '#limit' do
-    describe ".limit(3)" do
-      it_generates "LIMIT {limit_3}"
+    describe '.limit(3)' do
+      it_generates 'LIMIT {limit_3}'
     end
 
     describe ".limit('3')" do
-      it_generates "LIMIT {limit_3}"
+      it_generates 'LIMIT {limit_3}'
     end
 
-    describe ".limit(3).limit(5)" do
-      it_generates "LIMIT {limit_5}"
+    describe '.limit(3).limit(5)' do
+      it_generates 'LIMIT {limit_5}'
     end
   end
 
   # SKIP
 
   describe '#skip' do
-    describe ".skip(5)" do
-      it_generates "SKIP {skip_5}"
+    describe '.skip(5)' do
+      it_generates 'SKIP {skip_5}'
     end
 
     describe ".skip('5')" do
-      it_generates "SKIP {skip_5}"
+      it_generates 'SKIP {skip_5}'
     end
 
-    describe ".skip(5).skip(10)" do
-      it_generates "SKIP {skip_10}"
+    describe '.skip(5).skip(10)' do
+      it_generates 'SKIP {skip_10}'
     end
 
-    describe ".offset(6)" do
-      it_generates "SKIP {skip_6}"
+    describe '.offset(6)' do
+      it_generates 'SKIP {skip_6}'
     end
   end
 
@@ -429,91 +429,91 @@ describe Neo4j::Core::Query do
 
   describe '#with' do
     describe ".with('n.age AS age')" do
-      it_generates "WITH n.age AS age"
+      it_generates 'WITH n.age AS age'
     end
 
     describe ".with('n.age AS age', 'count(n) as c')" do
-      it_generates "WITH n.age AS age, count(n) as c"
+      it_generates 'WITH n.age AS age, count(n) as c'
     end
 
     describe ".with(['n.age AS age', 'count(n) as c'])" do
-      it_generates "WITH n.age AS age, count(n) as c"
+      it_generates 'WITH n.age AS age, count(n) as c'
     end
 
     describe ".with(age: 'n.age')" do
-      it_generates "WITH n.age AS age"
+      it_generates 'WITH n.age AS age'
     end
   end
 
   # CREATE, CREATE UNIQUE, and MERGE should all work exactly the same
 
-  describe "#create" do
+  describe '#create' do
     describe ".create('(:Person)')" do
-      it_generates "CREATE (:Person)"
+      it_generates 'CREATE (:Person)'
     end
 
-    describe ".create(:Person)" do
-      it_generates "CREATE (:Person)"
+    describe '.create(:Person)' do
+      it_generates 'CREATE (:Person)'
     end
 
-    describe ".create(age: 41, height: 70)" do
-      it_generates "CREATE ( {age: 41, height: 70})"
+    describe '.create(age: 41, height: 70)' do
+      it_generates 'CREATE ( {age: 41, height: 70})'
     end
 
-    describe ".create(Person: {age: 41, height: 70})" do
-      it_generates "CREATE (:`Person` {age: 41, height: 70})"
+    describe '.create(Person: {age: 41, height: 70})' do
+      it_generates 'CREATE (:`Person` {age: 41, height: 70})'
     end
 
-    describe ".create(q: {Person: {age: 41, height: 70}})" do
-      it_generates "CREATE (q:`Person` {age: 41, height: 70})"
+    describe '.create(q: {Person: {age: 41, height: 70}})' do
+      it_generates 'CREATE (q:`Person` {age: 41, height: 70})'
     end
 
-    describe ".create(q: {Person: {age: nil, height: 70}})" do
-      it_generates "CREATE (q:`Person` {age: null, height: 70})"
+    describe '.create(q: {Person: {age: nil, height: 70}})' do
+      it_generates 'CREATE (q:`Person` {age: null, height: 70})'
     end
   end
 
-  describe "#create_unique" do
+  describe '#create_unique' do
     describe ".create_unique('(:Person)')" do
-      it_generates "CREATE UNIQUE (:Person)"
+      it_generates 'CREATE UNIQUE (:Person)'
     end
 
-    describe ".create_unique(:Person)" do
-      it_generates "CREATE UNIQUE (:Person)"
+    describe '.create_unique(:Person)' do
+      it_generates 'CREATE UNIQUE (:Person)'
     end
 
-    describe ".create_unique(age: 41, height: 70)" do
-      it_generates "CREATE UNIQUE ( {age: 41, height: 70})"
+    describe '.create_unique(age: 41, height: 70)' do
+      it_generates 'CREATE UNIQUE ( {age: 41, height: 70})'
     end
 
-    describe ".create_unique(Person: {age: 41, height: 70})" do
-      it_generates "CREATE UNIQUE (:`Person` {age: 41, height: 70})"
+    describe '.create_unique(Person: {age: 41, height: 70})' do
+      it_generates 'CREATE UNIQUE (:`Person` {age: 41, height: 70})'
     end
 
-    describe ".create_unique(q: {Person: {age: 41, height: 70}})" do
-      it_generates "CREATE UNIQUE (q:`Person` {age: 41, height: 70})"
+    describe '.create_unique(q: {Person: {age: 41, height: 70}})' do
+      it_generates 'CREATE UNIQUE (q:`Person` {age: 41, height: 70})'
     end
   end
 
-  describe "#merge" do
+  describe '#merge' do
     describe ".merge('(:Person)')" do
-      it_generates "MERGE (:Person)"
+      it_generates 'MERGE (:Person)'
     end
 
-    describe ".merge(:Person)" do
-      it_generates "MERGE (:Person)"
+    describe '.merge(:Person)' do
+      it_generates 'MERGE (:Person)'
     end
 
-    describe ".merge(age: 41, height: 70)" do
-      it_generates "MERGE ( {age: 41, height: 70})"
+    describe '.merge(age: 41, height: 70)' do
+      it_generates 'MERGE ( {age: 41, height: 70})'
     end
 
-    describe ".merge(Person: {age: 41, height: 70})" do
-      it_generates "MERGE (:`Person` {age: 41, height: 70})"
+    describe '.merge(Person: {age: 41, height: 70})' do
+      it_generates 'MERGE (:`Person` {age: 41, height: 70})'
     end
 
-    describe ".merge(q: {Person: {age: 41, height: 70}})" do
-      it_generates "MERGE (q:`Person` {age: 41, height: 70})"
+    describe '.merge(q: {Person: {age: 41, height: 70}})' do
+      it_generates 'MERGE (q:`Person` {age: 41, height: 70})'
     end
   end
 
@@ -522,19 +522,19 @@ describe Neo4j::Core::Query do
 
   describe '#delete' do
     describe ".delete('n')" do
-      it_generates "DELETE n"
+      it_generates 'DELETE n'
     end
 
-    describe ".delete(:n)" do
-      it_generates "DELETE n"
+    describe '.delete(:n)' do
+      it_generates 'DELETE n'
     end
 
     describe ".delete('n', :o)" do
-      it_generates "DELETE n, o"
+      it_generates 'DELETE n, o'
     end
 
     describe ".delete(['n', :o])" do
-      it_generates "DELETE n, o"
+      it_generates 'DELETE n, o'
     end
   end
 
@@ -556,60 +556,60 @@ describe Neo4j::Core::Query do
     end
 
     describe ".set(n: {name: 'Brian', age: 30})" do
-      it_generates "SET n.`name` = {setter_n_name}, n.`age` = {setter_n_age}", {setter_n_name: 'Brian', setter_n_age: 30}
+      it_generates 'SET n.`name` = {setter_n_name}, n.`age` = {setter_n_age}', setter_n_name: 'Brian', setter_n_age: 30
     end
 
     describe ".set(n: {name: 'Brian', age: 30}, o: {age: 29})" do
-      it_generates "SET n.`name` = {setter_n_name}, n.`age` = {setter_n_age}, o.`age` = {setter_o_age}", {setter_n_name: 'Brian', setter_n_age: 30, setter_o_age: 29}
+      it_generates 'SET n.`name` = {setter_n_name}, n.`age` = {setter_n_age}, o.`age` = {setter_o_age}', setter_n_name: 'Brian', setter_n_age: 30, setter_o_age: 29
     end
 
     describe ".set(n: {name: 'Brian', age: 30}).set_props('o.age = 29')" do
-      it_generates "SET n.`name` = {setter_n_name}, n.`age` = {setter_n_age}, o.age = 29", {setter_n_name: 'Brian', setter_n_age: 30}
+      it_generates 'SET n.`name` = {setter_n_name}, n.`age` = {setter_n_age}, o.age = 29', setter_n_name: 'Brian', setter_n_age: 30
     end
   end
 
   # ON CREATE and ON MATCH should behave just like set_props
-  describe "#on_create_set" do
+  describe '#on_create_set' do
     describe ".on_create_set('n = {name: \"Brian\"}')" do
       it_generates "ON CREATE SET n = {name: \"Brian\"}"
     end
 
-    describe ".on_create_set(n: {})" do
-      it_generates "", {}
+    describe '.on_create_set(n: {})' do
+      it_generates '', {}
     end
 
     describe ".on_create_set(n: {name: 'Brian', age: 30})" do
-      it_generates "ON CREATE SET n.`name` = {setter_n_name}, n.`age` = {setter_n_age}", {setter_n_name: 'Brian', setter_n_age: 30}
+      it_generates 'ON CREATE SET n.`name` = {setter_n_name}, n.`age` = {setter_n_age}', setter_n_name: 'Brian', setter_n_age: 30
     end
 
     describe ".on_create_set(n: {name: 'Brian', age: 30}, o: {age: 29})" do
-      it_generates "ON CREATE SET n.`name` = {setter_n_name}, n.`age` = {setter_n_age}, o.`age` = {setter_o_age}", {setter_n_name: 'Brian', setter_n_age: 30, setter_o_age: 29}
+      it_generates 'ON CREATE SET n.`name` = {setter_n_name}, n.`age` = {setter_n_age}, o.`age` = {setter_o_age}', setter_n_name: 'Brian', setter_n_age: 30, setter_o_age: 29
     end
 
     describe ".on_create_set(n: {name: 'Brian', age: 30}).on_create_set('o.age = 29')" do
-      it_generates "ON CREATE SET n.`name` = {setter_n_name}, n.`age` = {setter_n_age}, o.age = 29", {setter_n_name: 'Brian', setter_n_age: 30}
+      it_generates 'ON CREATE SET n.`name` = {setter_n_name}, n.`age` = {setter_n_age}, o.age = 29', setter_n_name: 'Brian', setter_n_age: 30
     end
   end
 
-  describe "#on_match_set" do
+  describe '#on_match_set' do
     describe ".on_match_set('n = {name: \"Brian\"}')" do
       it_generates "ON MATCH SET n = {name: \"Brian\"}"
     end
 
-    describe ".on_match_set(n: {})" do
-      it_generates "", {}
+    describe '.on_match_set(n: {})' do
+      it_generates '', {}
     end
 
     describe ".on_match_set(n: {name: 'Brian', age: 30})" do
-      it_generates "ON MATCH SET n.`name` = {setter_n_name}, n.`age` = {setter_n_age}", {setter_n_name: 'Brian', setter_n_age: 30}
+      it_generates 'ON MATCH SET n.`name` = {setter_n_name}, n.`age` = {setter_n_age}', setter_n_name: 'Brian', setter_n_age: 30
     end
 
     describe ".on_match_set(n: {name: 'Brian', age: 30}, o: {age: 29})" do
-      it_generates "ON MATCH SET n.`name` = {setter_n_name}, n.`age` = {setter_n_age}, o.`age` = {setter_o_age}", {setter_n_name: 'Brian', setter_n_age: 30, setter_o_age: 29}
+      it_generates 'ON MATCH SET n.`name` = {setter_n_name}, n.`age` = {setter_n_age}, o.`age` = {setter_o_age}', setter_n_name: 'Brian', setter_n_age: 30, setter_o_age: 29
     end
 
     describe ".on_match_set(n: {name: 'Brian', age: 30}).on_match_set('o.age = 29')" do
-      it_generates "ON MATCH SET n.`name` = {setter_n_name}, n.`age` = {setter_n_age}, o.age = 29", {setter_n_name: 'Brian', setter_n_age: 30}
+      it_generates 'ON MATCH SET n.`name` = {setter_n_name}, n.`age` = {setter_n_age}, o.age = 29', setter_n_name: 'Brian', setter_n_age: 30
     end
   end
 
@@ -617,27 +617,27 @@ describe Neo4j::Core::Query do
 
   describe '#remove' do
     describe ".remove('n.prop')" do
-      it_generates "REMOVE n.prop"
+      it_generates 'REMOVE n.prop'
     end
 
     describe ".remove('n:American')" do
-      it_generates "REMOVE n:American"
+      it_generates 'REMOVE n:American'
     end
 
     describe ".remove(n: 'prop')" do
-      it_generates "REMOVE n.prop"
+      it_generates 'REMOVE n.prop'
     end
 
-    describe ".remove(n: :American)" do
-      it_generates "REMOVE n:American"
+    describe '.remove(n: :American)' do
+      it_generates 'REMOVE n:American'
     end
 
     describe ".remove(n: :American, o: 'prop')" do
-      it_generates "REMOVE n:American, o.prop"
+      it_generates 'REMOVE n:American, o.prop'
     end
 
     describe ".remove(n: ':prop')" do
-      it_generates "REMOVE n:prop"
+      it_generates 'REMOVE n:prop'
     end
   end
 
@@ -648,22 +648,21 @@ describe Neo4j::Core::Query do
   # UNION
 
   describe '#union_cypher' do
-    it "returns a cypher string with the union of the callee and argument query strings" do
+    it 'returns a cypher string with the union of the callee and argument query strings' do
       q = Neo4j::Core::Query.new.match(o: :Person).where(o: {age: 10})
       result = Neo4j::Core::Query.new.match(n: :Person).union_cypher(q)
 
-      expect(result).to eq("MATCH (n:`Person`) UNION MATCH (o:`Person`) WHERE o.age = {o_age}")
+      expect(result).to eq('MATCH (n:`Person`) UNION MATCH (o:`Person`) WHERE o.age = {o_age}')
     end
 
-    it "can represent UNION ALL with an option" do
+    it 'can represent UNION ALL with an option' do
       q = Neo4j::Core::Query.new.match(o: :Person).where(o: {age: 10})
       result = Neo4j::Core::Query.new.match(n: :Person).union_cypher(q, all: true)
 
-      expect(result).to eq("MATCH (n:`Person`) UNION ALL MATCH (o:`Person`) WHERE o.age = {o_age}")
+      expect(result).to eq('MATCH (n:`Person`) UNION ALL MATCH (o:`Person`) WHERE o.age = {o_age}')
     end
 
   end
 
 
 end
-

@@ -66,7 +66,7 @@ module Neo4j::Server
       if value.is_a?(Hash)
         hash_value_as_object(value, session)
       elsif value.is_a?(Array)
-        value.map {|v| map_row_value(v, session) }
+        value.map { |v| map_row_value(v, session) }
       else
         value
       end
@@ -74,10 +74,11 @@ module Neo4j::Server
 
     def hash_value_as_object(value, session)
       return value unless value['labels'] || value['type'] || is_transaction_response?
+
       obj_type, data =  if is_transaction_response?
                           add_transaction_entity_id
                           [(mapped_rest_data['start'] ? CypherRelationship : CypherNode), mapped_rest_data]
-                        else value['labels'] || value['type']
+                        elsif value['labels'] || value['type']
                           add_entity_id(value)
                           [(value['labels'] ? CypherNode : CypherRelationship), value]
                         end
@@ -91,7 +92,7 @@ module Neo4j::Server
       @uncommited = uncommited
     end
 
-    def entity_data(id=nil)
+    def entity_data(id = nil)
       if uncommited?
         data = @data.first['row'].first
         data.is_a?(Hash) ? {'data' => data, 'id' => id} : data
@@ -104,7 +105,7 @@ module Neo4j::Server
     def first_data(id = nil)
       if uncommited?
         data = @data.first['row'].first
-        #data.is_a?(Hash) ? {'data' => data, 'id' => id} : data
+        # data.is_a?(Hash) ? {'data' => data, 'id' => id} : data
       else
         data = @data[0][0]
         data.is_a?(Hash) ? add_entity_id(data) : data
@@ -112,11 +113,11 @@ module Neo4j::Server
     end
 
     def add_entity_id(data)
-      data.merge!({'id' => data['self'].split('/')[-1].to_i})
+      data.merge!('id' => data['self'].split('/')[-1].to_i)
     end
 
     def add_transaction_entity_id
-      mapped_rest_data.merge!({'id' => mapped_rest_data['self'].split('/').last.to_i})
+      mapped_rest_data.merge!('id' => mapped_rest_data['self'].split('/').last.to_i)
     end
 
     def error?
@@ -132,14 +133,14 @@ module Neo4j::Server
     end
 
     def raise_unless_response_code(code)
-      raise "Response code #{response.code}, expected #{code} for #{response.request.path}, #{response.body}" unless response.status == code
+      fail "Response code #{response.code}, expected #{code} for #{response.request.path}, #{response.body}" unless response.status == code
     end
 
     def each_data_row
       if uncommited?
-        data.each{|r| yield r['row']}
+        data.each { |r| yield r['row'] }
       else
-        data.each{|r| yield r}
+        data.each { |r| yield r }
       end
     end
 
@@ -159,34 +160,34 @@ module Neo4j::Server
     end
 
     def raise_error
-      raise "Tried to raise error without an error" unless @error
-      raise ResponseError.new(@error_msg, @error_status, @error_code)
+      fail 'Tried to raise error without an error' unless @error
+      fail ResponseError.new(@error_msg, @error_status, @error_code)
     end
 
     def raise_cypher_error
-      raise "Tried to raise error without an error" unless @error
-      raise Neo4j::Session::CypherError.new(@error_msg, @error_code, @error_status)
+      fail 'Tried to raise error without an error' unless @error
+      fail Neo4j::Session::CypherError.new(@error_msg, @error_code, @error_status)
     end
 
 
     def self.create_with_no_tx(response)
       case response.status
-        when 200
-          CypherResponse.new(response).set_data(response.body['data'], response.body['columns'])
-        when 400
-          CypherResponse.new(response).set_error(response.body['message'], response.body['exception'], response.body['fullname'])
-        else
-          raise "Unknown response code #{response.status} for #{response.env[:url].to_s}"
+      when 200
+        CypherResponse.new(response).set_data(response.body['data'], response.body['columns'])
+      when 400
+        CypherResponse.new(response).set_error(response.body['message'], response.body['exception'], response.body['fullname'])
+      else
+        fail "Unknown response code #{response.status} for #{response.env[:url]}"
       end
     end
 
     def self.create_with_tx(response)
-      raise "Unknown response code #{response.status} for #{response.request_uri}" unless response.status == 200
+      fail "Unknown response code #{response.status} for #{response.request_uri}" unless response.status == 200
 
       first_result = response.body['results'][0]
       cr = CypherResponse.new(response, true)
 
-      if (response.body['errors'].empty?)
+      if response.body['errors'].empty?
         cr.set_data(first_result['data'], first_result['columns'])
       else
         first_error = response.body['errors'].first
@@ -205,7 +206,7 @@ module Neo4j::Server
     end
 
     def rest_data_with_id
-      rest_data.merge!({'id' => mapped_rest_data['self'].split('/').last.to_i})
+      rest_data.merge!('id' => mapped_rest_data['self'].split('/').last.to_i)
     end
 
     private

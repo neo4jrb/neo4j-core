@@ -6,7 +6,7 @@ module Neo4j::Embedded
   # @note The result is a once forward read only Enumerable, work if you need to read the result twice - use #to_a
   #
   class ResultWrapper
-    class ResultsAlreadyConsumedException < Exception;
+    class ResultsAlreadyConsumedException < Exception
     end
 
     include Enumerable
@@ -35,7 +35,7 @@ module Neo4j::Embedded
     end
 
     def each
-      raise ResultsAlreadyConsumedException unless @unread
+      fail ResultsAlreadyConsumedException unless @unread
 
       if block_given?
         @source.each do |row|
@@ -50,4 +50,3 @@ module Neo4j::Embedded
 
   end
 end
-

@@ -13,18 +13,16 @@ module Neo4j::Embedded
       @name
     end
 
-    def find_nodes(key=nil, value=nil)
-       begin
-        iterator = _find_nodes(key,value)
-        iterator.to_a.map{|n| n.wrapper}
-      ensure
-        iterator && iterator.close
-      end
+    def find_nodes(key = nil, value = nil)
+      iterator = _find_nodes(key, value)
+      iterator.to_a.map(&:wrapper)
+    ensure
+      iterator && iterator.close
     end
     tx_methods :find_nodes
 
-    def _find_nodes(key=nil, value=nil)
-      if (key)
+    def _find_nodes(key = nil, value = nil)
+      if key
         @session.graph_db.find_nodes_by_label_and_property(as_java, key, value).iterator
       else
         ggo = Java::OrgNeo4jTooling::GlobalGraphOperations.at(@session.graph_db)
@@ -38,28 +36,28 @@ module Neo4j::Embedded
     end
 
     def create_index(*properties)
-        index_creator = @session.graph_db.schema.index_for(as_java)
+      index_creator = @session.graph_db.schema.index_for(as_java)
       # we can also use the PropertyConstraintCreator here
-      properties.inject(index_creator) {|creator, key| creator.on(key.to_s)}.create
+      properties.inject(index_creator) { |creator, key| creator.on(key.to_s) }.create
     end
     tx_methods :create_index
 
-    def indexes()
+    def indexes
       {
-          property_keys: @session.graph_db.schema.indexes(as_java).map do |index_def|
-            index_def.property_keys.map{|x| x.to_sym}
-          end
+        property_keys: @session.graph_db.schema.indexes(as_java).map do |index_def|
+          index_def.property_keys.map(&:to_sym)
+        end
       }
     end
     tx_methods :indexes
 
-    def uniqueness_constraints()
+    def uniqueness_constraints
       {
-          property_keys: @session.graph_db.schema.constraints(as_java).select do |index_def|
-            index_def.is_a?(Java::OrgNeo4jKernelImplCoreapiSchema::PropertyUniqueConstraintDefinition)
-          end.map do |index_def|
-            index_def.property_keys.map{|x| x.to_sym}
-          end
+        property_keys: @session.graph_db.schema.constraints(as_java).select do |index_def|
+          index_def.is_a?(Java::OrgNeo4jKernelImplCoreapiSchema::PropertyUniqueConstraintDefinition)
+        end.map do |index_def|
+          index_def.property_keys.map(&:to_sym)
+        end
       }
     end
     tx_methods :uniqueness_constraints
@@ -68,7 +66,7 @@ module Neo4j::Embedded
     def drop_index(*properties)
       @session.graph_db.schema.indexes(as_java).each do |index_def|
         # at least one match, TODO
-        keys = index_def.property_keys.map{|x| x.to_sym}
+        keys = index_def.property_keys.map(&:to_sym)
         index_def.drop if (properties - keys).count < properties.count
       end
 
@@ -89,4 +87,3 @@ module Neo4j::Embedded
   end
 
 end
-

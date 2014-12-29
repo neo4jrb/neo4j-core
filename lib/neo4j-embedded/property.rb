@@ -30,10 +30,8 @@ module Neo4j::Embedded::Property
   tx_methods :[]=
 
   def props
-    property_keys.inject({}) do |ret, key|
-      val = to_ruby_property(key)
-      ret[key.to_sym] = val
-      ret
+    property_keys.each_with_object({}) do |key, ret|
+      ret[key.to_sym] = to_ruby_property(key)
     end
   end
   tx_methods :props
@@ -48,7 +46,7 @@ module Neo4j::Embedded::Property
   tx_methods :props=
 
   def _update_props(hash)
-    hash.each_pair { |k,v| to_java_property(k, v) }
+    hash.each_pair { |k, v| to_java_property(k, v) }
     hash
   end
 
@@ -80,16 +78,16 @@ module Neo4j::Embedded::Property
       remove_property(k)
     elsif (Array === v)
       case v[0]
-        when String
-          set_property(k, v.to_java(:string))
-        when Float
-          set_property(k, v.to_java(:double))
-        when FalseClass, TrueClass
-          set_property(k, v.to_java(:boolean))
-        when Fixnum
-          set_property(k, v.to_java(:long))
-        else
-          raise "Not allowed to store array with value #{v[0]} type #{v[0].class}"
+      when String
+        set_property(k, v.to_java(:string))
+      when Float
+        set_property(k, v.to_java(:double))
+      when FalseClass, TrueClass
+        set_property(k, v.to_java(:boolean))
+      when Fixnum
+        set_property(k, v.to_java(:long))
+      else
+        fail "Not allowed to store array with value #{v[0]} type #{v[0].class}"
       end
     else
       set_property(k, v)

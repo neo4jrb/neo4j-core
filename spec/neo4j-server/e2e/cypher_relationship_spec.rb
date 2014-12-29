@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Neo4j::Server::CypherRelationship, api: :server do
 
-  it_behaves_like "Neo4j::Relationship"
+  it_behaves_like 'Neo4j::Relationship'
 
   describe 'transactions' do
     let(:bob) { Neo4j::Node.create({name: 'bob'}, :person) }
@@ -21,7 +21,7 @@ describe Neo4j::Server::CypherRelationship, api: :server do
 
     context 'existing rels' do
       let!(:r) { Neo4j::Relationship.create(:knows, bob, jim, since: 2014) }
-      
+
       it 'can load' do
         begin
           tx = Neo4j::Transaction.new
@@ -46,7 +46,7 @@ describe Neo4j::Server::CypherRelationship, api: :server do
       it 'can set props' do
         begin
           tx = Neo4j::Transaction.new
-          r.props = { since: 1999, end_date: 2065 }
+          r.props = {since: 1999, end_date: 2065}
           rel = Neo4j::Relationship.load(r.id)
           expect(rel['end_date']).to eq 2065
         ensure

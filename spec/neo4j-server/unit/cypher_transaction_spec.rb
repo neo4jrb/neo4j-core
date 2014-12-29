@@ -5,7 +5,7 @@ describe Neo4j::Server::CypherTransaction do
 
   let(:body) do
     {
-        'commit' => 'commit url'
+      'commit' => 'commit url'
     }
   end
 
@@ -18,12 +18,12 @@ describe Neo4j::Server::CypherTransaction do
   end
 
   let(:a_new_transaction) do
-    Neo4j::Server::CypherTransaction.new(nil,response, 'some url', endpoint)
+    Neo4j::Server::CypherTransaction.new(nil, response, 'some url', endpoint)
   end
 
   after(:each) do
     Thread.current[:neo4j_curr_tx] = nil
-    #Neo4j::Transaction.unregister(Neo4j::Transaction.current) if Neo4j::Transaction.current
+    # Neo4j::Transaction.unregister(Neo4j::Transaction.current) if Neo4j::Transaction.current
   end
 
   describe 'initialize' do
@@ -60,7 +60,7 @@ describe Neo4j::Server::CypherTransaction do
       a_new_transaction.close
 
       # bang
-      expect{a_new_transaction.close}.to raise_error(/already committed/)
+      expect { a_new_transaction.close }.to raise_error(/already committed/)
     end
   end
 
