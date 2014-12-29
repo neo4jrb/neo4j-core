@@ -24,7 +24,6 @@ Neo4j-core provides classes and methods to work with the graph database Neo4j.
   s.extra_rdoc_files = %w( README.md )
   s.rdoc_options = ['--quiet', '--title', 'Neo4j::Core', '--line-numbers', '--main', 'README.rdoc', '--inline-source']
 
-  # Not released yet
   s.add_dependency('httparty')
   s.add_dependency('faraday', '~> 0.9.0')
   s.add_dependency('net-http-persistent')
@@ -34,6 +33,12 @@ Neo4j-core provides classes and methods to work with the graph database Neo4j.
   s.add_dependency('os')  # for Rake task
   s.add_dependency('zip') # for Rake task
   s.add_dependency('activesupport') # For ActiveSupport::Notifications
+
+  s.add_development_dependency('pry')
+  s.add_development_dependency('yard')
+  s.add_development_dependency('simplecov')
+  s.add_development_dependency('guard')
+  s.add_development_dependency('guard-rubocop')
 
   if RUBY_PLATFORM == 'java'
     s.add_dependency('neo4j-community', '~> 2.1.1')
