@@ -2,7 +2,6 @@ module Neo4j
   module PropertyValidator
     require 'set'
     class InvalidPropertyException < Exception
-
     end
 
     # the valid values on a property, and arrays of those.

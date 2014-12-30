@@ -1,6 +1,5 @@
 module Neo4j
   module Transaction
-
     extend self
 
     module Instance
@@ -58,7 +57,6 @@ module Neo4j
           _commit_tx
         end
       end
-
     end
 
 
@@ -113,6 +111,5 @@ module Neo4j
     def unregister_current
       Thread.current[:neo4j_curr_tx] = nil
     end
-
   end
 end

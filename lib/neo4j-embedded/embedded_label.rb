@@ -28,7 +28,6 @@ module Neo4j::Embedded
         ggo = Java::OrgNeo4jTooling::GlobalGraphOperations.at(@session.graph_db)
         ggo.getAllNodesWithLabel(as_java).iterator
       end
-
     end
 
     def as_java
@@ -69,12 +68,10 @@ module Neo4j::Embedded
         keys = index_def.property_keys.map(&:to_sym)
         index_def.drop if (properties - keys).count < properties.count
       end
-
     end
     tx_methods :drop_index
 
     class << self
-
       def as_java(labels)
         if labels.is_a?(Array)
           return nil if labels.empty?
@@ -85,5 +82,4 @@ module Neo4j::Embedded
       end
     end
   end
-
 end

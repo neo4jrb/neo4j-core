@@ -1,5 +1,4 @@
 RSpec.shared_examples 'Neo4j::Label' do
-
   before(:all) do
     r = Random.new
     @label1 = ('R1 ' + r.rand(0..1_000_000).to_s).to_sym
@@ -101,7 +100,6 @@ RSpec.shared_examples 'Neo4j::Label' do
     end
 
     describe 'find_nodes' do
-
       before(:all) do
         stuff = Neo4j::Label.create(@random_label)
         stuff.drop_index(:colour) # just in case
@@ -133,7 +131,6 @@ RSpec.shared_examples 'Neo4j::Label' do
         expect(result.count).to eq(1)
       end
     end
-
   end
 
   describe 'instance methods' do

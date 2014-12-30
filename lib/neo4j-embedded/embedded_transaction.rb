@@ -30,6 +30,5 @@ module Neo4j::Embedded
       @root_tx.success
       @root_tx.close
     end
-
   end
 end

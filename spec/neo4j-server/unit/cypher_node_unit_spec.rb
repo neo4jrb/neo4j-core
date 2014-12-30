@@ -2,7 +2,6 @@ require 'spec_helper'
 
 module Neo4j::Server
   describe CypherNode do
-
     let(:session) do
       allow_any_instance_of(CypherSession).to receive(:initialize_resource)
       CypherSession.new('http://an.url', connection)
@@ -15,7 +14,6 @@ module Neo4j::Server
     let(:match_string) { 'MATCH (n) WHERE ID(n) = {neo_id}' }
 
     describe 'instance methods' do
-
       describe 'props' do
         let(:cypher_body) do
           JSON.parse <<-HERE
@@ -102,7 +100,6 @@ module Neo4j::Server
           expect(node['name']).to eq('andreas')
         end
       end
-
     end
   end
 end

@@ -341,6 +341,5 @@ module Neo4j::Core
         params[key] = value.to_s if not passthrough_classes.any? { |klass| value.is_a?(klass) }
       end
     end
-
   end
 end

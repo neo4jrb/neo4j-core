@@ -2,7 +2,6 @@ require 'spec_helper'
 
 module Neo4j::Server
   describe CypherSession, api: :server do
-
     def open_session
       create_server_session
     end
@@ -37,7 +36,6 @@ module Neo4j::Server
 
 
     describe 'named sessions' do
-
       before { Neo4j::Session.current && Neo4j::Session.current.close }
       after { Neo4j::Session.current && Neo4j::Session.current.close }
 

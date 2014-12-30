@@ -1,5 +1,4 @@
 module Neo4j::Server
-
   # Plugin
   Neo4j::Session.register_db(:server_db) do |*url_opts|
     Neo4j::Server::CypherSession.open(*url_opts)

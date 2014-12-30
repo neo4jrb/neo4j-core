@@ -1,6 +1,5 @@
 module Neo4j::Core
   module QueryFindInBatches
-
     def find_in_batches(node_var, prop_var, options = {})
       invalid_keys = options.keys.map(&:to_sym) - [:batch_size]
       fail ArgumentError, "Invalid keys: #{invalid_keys.join(', ')}" if not invalid_keys.empty?

@@ -2,7 +2,6 @@ require 'spec_helper'
 
 module Neo4j::Server
   describe CypherTransaction, api: :server do
-
     before { session || create_server_session }
 
     after do
@@ -58,7 +57,6 @@ module Neo4j::Server
         expect(node[:name]).to eq('foo')
       end
       expect(node['name']).to eq('andreas')
-
     end
 
     it 'can use Transaction block style' do

@@ -1,5 +1,4 @@
 RSpec.shared_examples 'Neo4j::Relationship' do
-
   let(:node_a) { Neo4j::Node.create(name: 'a') }
   let(:node_b) { Neo4j::Node.create(name: 'b') }
   let(:node_c) { Neo4j::Node.create(name: 'c') }
@@ -44,7 +43,6 @@ RSpec.shared_examples 'Neo4j::Relationship' do
       r = Neo4j::Relationship.create(:knows, a, b, name: 'a', age: 42)
       expect(a.rel(dir: :outgoing, type: :knows)[:name]).to eq('a')
       expect(b.rel(dir: :incoming, type: :knows)[:age]).to eq(42)
-
     end
   end
 
@@ -85,7 +83,6 @@ RSpec.shared_examples 'Neo4j::Relationship' do
     it 'returns the end_node' do
       expect(rel_a.end_node).to eq(node_b)
     end
-
   end
 
   describe 'other_node' do
@@ -95,7 +92,6 @@ RSpec.shared_examples 'Neo4j::Relationship' do
       expect(rel_a.other_node(node_a)).to eq(node_b)
       expect(rel_a.other_node(node_b)).to eq(node_a)
     end
-
   end
 
   describe 'start_node' do
@@ -104,7 +100,6 @@ RSpec.shared_examples 'Neo4j::Relationship' do
     it 'returns the end_node' do
       expect(rel_a.start_node).to eq(node_a)
     end
-
   end
 
   describe 'del' do
@@ -165,5 +160,4 @@ RSpec.shared_examples 'Neo4j::Relationship' do
       expect(a.props).to eq(:"1" => 2, :" ha " => 'ho')
     end
   end
-
 end

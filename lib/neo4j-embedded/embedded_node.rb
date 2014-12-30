@@ -20,7 +20,6 @@ module Neo4j::Embedded
     def empty?
       first.nil?
     end
-
   end
 
   class NodesIterator
@@ -44,7 +43,6 @@ module Neo4j::Embedded
     def empty?
       first.nil?
     end
-
   end
 
   class EmbeddedNode
@@ -190,7 +188,6 @@ module Neo4j::Embedded
           else
             rels
           end
-
         end
 
         def class
@@ -201,5 +198,4 @@ module Neo4j::Embedded
       end
     end
   end
-
 end

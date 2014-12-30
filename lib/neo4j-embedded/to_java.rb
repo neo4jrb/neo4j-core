@@ -44,6 +44,5 @@ module Neo4j::Embedded
     end
 
     module_function :dir_to_java
-
   end
 end

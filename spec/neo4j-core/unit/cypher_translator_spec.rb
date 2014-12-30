@@ -45,7 +45,6 @@ describe Neo4j::Core::CypherTranslator do
         end
       end
     end
-
   end
 
   context '#cyper_prop_list' do
@@ -54,5 +53,4 @@ describe Neo4j::Core::CypherTranslator do
       expect(items).to eq(props: {one: 1, two: 2})
     end
   end
-
 end

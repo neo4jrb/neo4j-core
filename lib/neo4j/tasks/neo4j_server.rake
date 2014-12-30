@@ -132,7 +132,6 @@ namespace :neo4j do
 
   desc 'Configure Server, e.g. rake neo4j:config[development,8888]'
   task :config, :environment, :port do |_, args|
-
     port = args[:port]
     fail 'no port given' unless port
     puts "Config Neo4j #{get_environment(args)} for port #{port}"

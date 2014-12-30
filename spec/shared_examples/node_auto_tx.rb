@@ -54,7 +54,6 @@ RSpec.shared_examples 'Neo4j::Node auto tx' do
       unless defined? JRUBY_VERSION
         # not needed in jruby, see https://github.com/andreasronge/neo4j-core/pull/53
         describe 'broken escape sequence create(name: "ka\putt")' do
-
           subject do
             Neo4j::Node.create(name: 'ka\putt')
           end
@@ -83,7 +82,6 @@ RSpec.shared_examples 'Neo4j::Node auto tx' do
     end
 
     describe 'instance methods' do
-
       let(:node) do
         Neo4j::Node.create
       end
@@ -199,7 +197,6 @@ RSpec.shared_examples 'Neo4j::Node auto tx' do
             node[:foo] = [3.14, 4.24]
             expect(node[:foo]).to eq [3.14, 4.24]
           end
-
         end
 
         it 'raise exception for illegal values' do
@@ -217,7 +214,6 @@ RSpec.shared_examples 'Neo4j::Node auto tx' do
           node[:foo] = nil
           expect(node[:foo]).to be_nil
         end
-
       end
 
       describe 'props' do
@@ -239,7 +235,6 @@ RSpec.shared_examples 'Neo4j::Node auto tx' do
         end
 
         describe 'refresh' do
-
           it 'will keep the old value unless node is refreshed for the server_db' do
             n = get_node_from_query_result
             expect(n[:age]).to eq(2)
@@ -252,7 +247,6 @@ RSpec.shared_examples 'Neo4j::Node auto tx' do
               expect(n[:age]).to eq(2)
               expect(n.props).to eq(age: 2)
             end
-
           end
 
 
@@ -264,9 +258,7 @@ RSpec.shared_examples 'Neo4j::Node auto tx' do
             expect(n[:age]).to eq(4)
             expect(n.props).to eq(age: 4)
           end
-
         end
-
       end
 
       describe 'props=' do
@@ -334,7 +326,6 @@ RSpec.shared_examples 'Neo4j::Node auto tx' do
       end
 
       describe 'create_rel' do
-
         it 'can create a new relationship' do
           rel = node_a.create_rel(:best_friend, node_b)
           expect(rel.neo_id).to be_a_kind_of(Fixnum)
@@ -353,7 +344,6 @@ RSpec.shared_examples 'Neo4j::Node auto tx' do
           expect(rel[:since]).to eq(2001)
           expect(rel.exist?).to be true
         end
-
       end
 
       describe 'rel?' do
@@ -372,7 +362,6 @@ RSpec.shared_examples 'Neo4j::Node auto tx' do
           expect(node_a.rel?(dir: :both, type: :knows)).to be true
           expect(node_a.rel?(dir: :incoming, type: :knows)).to be false
         end
-
       end
 
       describe 'rel' do
@@ -417,13 +406,10 @@ RSpec.shared_examples 'Neo4j::Node auto tx' do
             expect(node_a.node(dir: :incoming, type: :friends)).to be_nil
             expect(node_a.node(dir: :outgoing, type: :knows)).to be_nil
           end
-
         end
-
       end
 
       describe 'nodes' do
-
         describe 'nodes()' do
           it 'returns incoming and outgoing nodes of any type' do
             node_a.create_rel(:bar, node_b)
@@ -450,7 +436,6 @@ RSpec.shared_examples 'Neo4j::Node auto tx' do
             expect(node_a.nodes(dir: :outgoing).to_a).to eq([node_b])
             expect(node_b.nodes(dir: :outgoing).to_a).to eq([node_a])
             expect(node_c.nodes(dir: :outgoing)).to be_empty
-
           end
         end
 
@@ -480,14 +465,10 @@ RSpec.shared_examples 'Neo4j::Node auto tx' do
             expect(node_a.nodes(between: node_c).to_a).to eq([node_c])
             expect(node_a.nodes(between: node_d).to_a).to be_empty
           end
-
         end
-
-
       end
 
       describe 'rels' do
-
         describe 'rels()' do
           it 'finds relationship of any dir and any type' do
             rel_a = node_a.create_rel(:best_friend, node_b, age: 42)
@@ -571,9 +552,7 @@ RSpec.shared_examples 'Neo4j::Node auto tx' do
             expect(node_c.rels(between: node_a, dir: :incoming).to_a).to match_array([rel_b, rel_d])
           end
         end
-
       end
     end
   end
-
 end

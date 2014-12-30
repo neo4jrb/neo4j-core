@@ -78,9 +78,6 @@ module Neo4j
       def find_nodes(label_name, key, value, session = Neo4j::Session.current)
         session.find_nodes(label_name, key, value)
       end
-
     end
-
   end
-
 end

@@ -1,6 +1,5 @@
 module Neo4j
   class Session
-
     @@current_session = nil
     @@all_sessions = {}
     @@factories = {}

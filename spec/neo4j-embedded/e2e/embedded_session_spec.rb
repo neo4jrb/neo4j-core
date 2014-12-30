@@ -1,9 +1,7 @@
 require 'spec_helper'
 
 module Neo4j::Embedded
-
   describe 'EmbeddedSession', api: :embedded do
-
     let(:open_session) do
       session = create_embedded_session
       session.start
@@ -15,11 +13,9 @@ module Neo4j::Embedded
     end
 
     it_behaves_like 'Neo4j::Session'
-
   end
 
   describe 'EmbeddedSession', api: :embedded do
-
     let(:session) do
       Neo4j::Session.current || create_embedded_session
     end
@@ -32,7 +28,6 @@ module Neo4j::Embedded
     end
 
     describe 'start' do
-
       before do
         Neo4j::Session.current &&  Neo4j::Session.current.close
       end
@@ -85,7 +80,6 @@ module Neo4j::Embedded
         result = session.query.match(n: :person).return(n: [:name, :age]).to_a
         expect(result.first).to respond_to('n.name')
         expect(result.first).to respond_to('n.age')
-
       end
     end
 
@@ -105,7 +99,5 @@ module Neo4j::Embedded
         expect(all.first).to include('n')
       end
     end
-
   end
-
 end

@@ -1,6 +1,4 @@
 RSpec.shared_examples 'Neo4j::Node with tx' do
-
-
   shared_examples 'a node with properties and id' do
     describe '#neo_id' do
       it 'is a fixnum' do
@@ -28,12 +26,10 @@ RSpec.shared_examples 'Neo4j::Node with tx' do
         expect(rel_a[:age]).to eq(42)
       end
     end
-
   end
 
   context 'inside a transaction' do
     describe 'Neo4j::Relationship.create' do
-
       subject(:created_rel) do
         @node_a = Neo4j::Node.create
         @node_b = Neo4j::Node.create
@@ -56,7 +52,6 @@ RSpec.shared_examples 'Neo4j::Node with tx' do
     end
 
     describe 'Neo4j::Node.create' do
-
       around(:example) do |example|
         tx = Neo4j::Transaction.new
         example.run
@@ -76,7 +71,6 @@ RSpec.shared_examples 'Neo4j::Node with tx' do
 
         it_behaves_like 'a node with properties and id'
       end
-
     end
   end
 
@@ -115,11 +109,9 @@ RSpec.shared_examples 'Neo4j::Node with tx' do
       end
       expect(Neo4j::Node.load(id)).to eq(nil)
     end
-
   end
 
   context 'rollback' do
-
     it 'does not rolls back the transaction if no failure' do
       node = Neo4j::Transaction.run do
         Neo4j::Node.create
@@ -172,8 +164,6 @@ RSpec.shared_examples 'Neo4j::Node with tx' do
       end
 
       expect(node1.node(dir: :outgoing, type: :knows)).to be_nil
-
     end
   end
-
 end

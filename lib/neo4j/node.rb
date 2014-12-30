@@ -1,9 +1,7 @@
 module Neo4j
-
   # The base class for both the Embedded and Server Neo4j Node
   # Notice this class is abstract and can't be instantiated
   class Node
-
     # A module that allows plugins to register wrappers around Neo4j::Node objects
     module Wrapper
       # Used by Neo4j::NodeMixin to wrap nodes
@@ -211,8 +209,5 @@ module Neo4j
     def abstract_class?
       self.class == Node
     end
-
-
   end
-
 end

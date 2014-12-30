@@ -65,11 +65,7 @@ module Neo4j::Embedded
         def _end_node
           getEndNode
         end
-
       end
     end
-
   end
-
-
 end

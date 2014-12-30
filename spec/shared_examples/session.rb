@@ -1,5 +1,4 @@
 RSpec.shared_examples 'Neo4j::Session' do
-
   describe 'open and close' do
     before { Neo4j::Session.current && Neo4j::Session.current.close }
     after { Neo4j::Session.current && Neo4j::Session.current.close }
@@ -19,7 +18,6 @@ RSpec.shared_examples 'Neo4j::Session' do
   end
 
   describe 'with a open session' do
-
     describe 'find_nodes' do
       before do
         session.query.create(n: {label: {name: 'test', id: 2, version: 1.1}}).exec
@@ -209,7 +207,6 @@ RSpec.shared_examples 'Neo4j::Session' do
           expect(result.map { |o| o[:name] }).to eq(%w(andreas andreas kalle zebbe))
           expect(result.map { |o| o[:age] }).to eq([1, 2, 4, 3])
         end
-
       end
 
       describe 'limit' do

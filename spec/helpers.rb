@@ -1,5 +1,4 @@
 module Helpers
-
   def create_embedded_session
     Neo4j::Session.open(:impermanent_db, EMBEDDED_DB_PATH, auto_commit: true)
   end

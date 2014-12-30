@@ -2,7 +2,6 @@ require 'spec_helper'
 
 module Neo4j::Server
   describe CypherSession do
-
     let(:connection) { double('connection') }
     let(:cypher_response) { double('cypher response', error?: false, first_data: [28]) }
     let(:auth_object) { double('an empty auth object', body: []) }
@@ -51,7 +50,6 @@ module Neo4j::Server
       end
 
       describe 'without auth params' do
-
         before do
           expect(CypherSession).to receive(:create_connection).and_return(connection)
           expect(connection).to receive(:get).with('http://localhost:7474').and_return(TestResponse.new(root_resource_with_slash))
@@ -85,7 +83,6 @@ module Neo4j::Server
             session = Neo4j::Session.create_session(:server_db)
             expect(called_with).to eq(session)
           end
-
         end
 
         describe 'add_listener' do
@@ -166,11 +163,9 @@ module Neo4j::Server
 
         Neo4j::Session.create_session(:server_db)
       end
-
     end
 
     describe 'instance methods' do
-
       describe 'load_node' do
         let(:query_string) { 'MATCH (n) WHERE ID(n) = 1915 RETURN n' }
 
@@ -220,7 +215,6 @@ module Neo4j::Server
       end
 
       describe 'create_node' do
-
         before do
           allow(session).to receive(:resource_url).and_return('http://resource_url')
         end
@@ -250,7 +244,6 @@ module Neo4j::Server
       end
 
       describe 'find_nodes' do
-
         before do
           # session.stub(:resource_url).and_return
           # session.should_receive(:search_result_to_enumerable).with(cypher_response).and_return
@@ -277,8 +270,6 @@ module Neo4j::Server
           session.find_nodes(:label, :key, 4.5)
         end
       end
-
     end
   end
-
 end

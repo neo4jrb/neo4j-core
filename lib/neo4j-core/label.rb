@@ -4,5 +4,4 @@ module Neo4j::Core
       get_labels.map { |x| Label.new(x.name) }
     end
   end
-
 end

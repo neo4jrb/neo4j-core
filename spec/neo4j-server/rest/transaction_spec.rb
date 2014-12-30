@@ -9,7 +9,6 @@ tx_url = 'http://localhost:7474/db/data/transaction'
 resource_headers = {'Content-Type' => 'application/json', 'Accept' => 'application/json'}
 
 describe 'Transaction', api: :server do
-
   describe 'create' do
     after do
       # close
@@ -42,5 +41,4 @@ describe 'Transaction', api: :server do
       expect(response.code).to eq(200)
     end
   end
-
 end

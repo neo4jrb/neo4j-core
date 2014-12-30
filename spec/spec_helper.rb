@@ -48,7 +48,6 @@ end
 FileUtils.rm_rf(EMBEDDED_DB_PATH)
 
 RSpec.configure do |c|
-
   c.before(:all, api: :server) do
     Neo4j::Session.current.close if Neo4j::Session.current
     create_server_session
@@ -92,5 +91,4 @@ RSpec.configure do |c|
       RUBY_PLATFORM != 'java' && ed == :embedded
     end
   }
-
 end

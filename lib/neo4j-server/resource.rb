@@ -1,7 +1,6 @@
 module Neo4j
   module Server
     module Resource
-
       class ServerException < Exception
       end
 

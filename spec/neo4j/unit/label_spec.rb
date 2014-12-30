@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe Neo4j::Label do
-
   describe 'instance methods' do
     let(:session) do
       double(:session)
@@ -33,9 +32,6 @@ describe Neo4j::Label do
       it 'raise an exception if invalid constraint' do
         expect { label.drop_constraint(:name, type: :unknown) }.to raise_error
       end
-
     end
   end
-
-
 end

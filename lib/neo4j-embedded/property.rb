@@ -96,5 +96,4 @@ module Neo4j::Embedded::Property
       set_property(k, v)
     end
   end
-
 end

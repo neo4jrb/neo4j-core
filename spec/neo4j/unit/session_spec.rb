@@ -32,5 +32,4 @@ describe Neo4j::Session do
       expect(Neo4j::Session.current).to eq('dummy1_db')
     end
   end
-
 end

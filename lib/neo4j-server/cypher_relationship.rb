@@ -1,5 +1,4 @@
 module Neo4j::Server
-
   class CypherRelationship < Neo4j::Relationship
     include Neo4j::Server::Resource
     include Neo4j::Core::CypherTranslator

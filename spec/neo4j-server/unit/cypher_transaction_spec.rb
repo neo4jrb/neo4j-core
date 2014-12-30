@@ -2,7 +2,6 @@ require 'spec_helper'
 require 'ostruct'
 
 describe Neo4j::Server::CypherTransaction do
-
   let(:body) do
     {
       'commit' => 'commit url'
@@ -27,11 +26,9 @@ describe Neo4j::Server::CypherTransaction do
   end
 
   describe 'initialize' do
-
     it 'sets exec_url' do
       expect(a_new_transaction.exec_url).to eq('tx url')
     end
-
   end
 
   describe '_query' do
@@ -40,7 +37,6 @@ describe Neo4j::Server::CypherTransaction do
       expect(endpoint).to receive(:post).with('tx url', anything)
       a_new_transaction._query('START n=node(42) RETURN n')
     end
-
   end
 
   describe 'close' do
@@ -65,13 +61,11 @@ describe Neo4j::Server::CypherTransaction do
   end
 
   describe 'push_nested!' do
-
     it 'will not close a transaction if transaction is nested' do
       a_new_transaction.push_nested!
       expect(Neo4j::Transaction).to_not receive(:unregister)
       a_new_transaction.close
     end
-
   end
 
   describe 'pop_nested!' do
@@ -100,6 +94,5 @@ describe Neo4j::Server::CypherTransaction do
       expect(a_new_transaction).to receive(:_commit_tx)
       a_new_transaction.close
     end
-
   end
 end

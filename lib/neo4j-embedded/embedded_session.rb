@@ -7,7 +7,6 @@ end
 
 module Neo4j::Embedded
   class EmbeddedSession < Neo4j::Session
-
     class Error < StandardError
     end
 
@@ -161,9 +160,5 @@ module Neo4j::Embedded
       end
     end
     tx_methods :create_node
-
   end
-
-
-
 end

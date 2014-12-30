@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe Neo4j::Core::Query do
-
   describe 'options' do
     let(:query) { Neo4j::Core::Query.new(parser: 2.0) }
 
@@ -661,8 +660,5 @@ describe Neo4j::Core::Query do
 
       expect(result).to eq('MATCH (n:`Person`) UNION ALL MATCH (o:`Person`) WHERE o.age = {o_age}')
     end
-
   end
-
-
 end

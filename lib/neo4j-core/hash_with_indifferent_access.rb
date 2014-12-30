@@ -3,7 +3,6 @@ module Neo4j
     # Stolen from http://as.rubyonrails.org/classes/HashWithIndifferentAccess.html
     # We don't want to depend on active support
     class HashWithIndifferentAccess < Hash
-
       # Always returns true, so that <tt>Array#extract_options!</tt> finds members of this class.
       def extractable_options?
         true
@@ -171,6 +170,5 @@ module Neo4j
         end
       end
     end
-
   end
 end

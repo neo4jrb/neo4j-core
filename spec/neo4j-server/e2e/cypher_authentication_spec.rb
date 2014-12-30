@@ -138,7 +138,6 @@ describe 'Neo4j::Server::CypherAuthentication', if: (ENV['TEST_AUTHENTICATION'] 
 
     describe 'token_or_error' do
       context 'with invalid response' do
-
         it 'raises an error' do
           omg = Neo4j::Server::CypherAuthentication.new('http://localhost:7474')
           expect { omg.token_or_error('this will die') }.to raise_error RuntimeError

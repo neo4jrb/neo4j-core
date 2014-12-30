@@ -65,7 +65,6 @@ module Neo4j::Server
 
         it_behaves_like 'a hash with data and id'
       end
-
     end
 
 
@@ -163,5 +162,4 @@ module Neo4j::Server
       skip 'returns hydrated CypherPath objects?'
     end
   end
-
 end

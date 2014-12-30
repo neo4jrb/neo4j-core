@@ -1,6 +1,5 @@
 module Neo4j::Core
   module QueryClauses
-
     class ArgError < StandardError
       attr_reader :arg_part
       def initialize(arg_part = nil)
@@ -436,7 +435,6 @@ module Neo4j::Core
         else
           fail ArgError, value
         end
-
       end
 
       class << self

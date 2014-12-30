@@ -1,6 +1,5 @@
 module Neo4j::Embedded
   class EmbeddedDatabase
-
     class Error < StandardError
     end
 
@@ -22,7 +21,6 @@ module Neo4j::Embedded
       def factory_class
         Java::OrgNeo4jTest::ImpermanentGraphDatabase
       end
-
     end
   end
 end

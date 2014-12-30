@@ -1,5 +1,4 @@
 module Neo4j::Embedded
-
   # Wraps the Cypher query result.
   # Loads the node and relationships wrapper if possible and use symbol as column keys.
   # This is typically used in the native neo4j bindings since result does is not a Ruby enumerable with symbols as keys.
@@ -47,6 +46,5 @@ module Neo4j::Embedded
         Enumerator.new(self)
       end
     end
-
   end
 end

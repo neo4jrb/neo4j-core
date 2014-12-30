@@ -1,7 +1,5 @@
 module Neo4j::Core
-
   module ArgumentHelper
-
     def self.session(args)
       args.last.is_a?(Neo4j::Session) ? args.pop : Neo4j::Session.current!
     end
@@ -19,6 +17,4 @@ module Neo4j::Core
       end
     end
   end
-
-
 end

@@ -9,7 +9,6 @@ module Neo4j
   # Furthermore, Neo4j guarantees that a relationship is never "hanging freely,"
   # i.e. start_node, end_node and other_node are guaranteed to always return valid, non-nil nodes.
   class Relationship
-
     # A module that allows plugins to register wrappers around Neo4j::Node objects
     module Wrapper
       # Used by Neo4j::NodeMixin to wrap nodes
@@ -20,7 +19,6 @@ module Neo4j
       def neo4j_obj
         self
       end
-
     end
 
     include PropertyContainer
@@ -159,7 +157,6 @@ module Neo4j
       def _load(neo_id, session = Neo4j::Session.current)
         session.load_relationship(neo_id)
       end
-
     end
   end
 end

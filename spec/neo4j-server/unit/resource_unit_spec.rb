@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe Neo4j::Server::Resource do
-
   class MyResource
     include Neo4j::Server::Resource
     def initialize(response, url)
@@ -23,7 +22,6 @@ describe Neo4j::Server::Resource do
       resource = MyResource.new(request, 'url')
       expect(resource.resource_url(:stuff)).to eq('/data/bla/2')
     end
-
   end
 
   describe '#resource_url_id' do

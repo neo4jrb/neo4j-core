@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe 'Neo4j::Embedded::EmbeddedRelationship', api: :embedded do
-
   describe '_start_node_id and _end_node_id' do
     let(:n1) { Neo4j::Node.create }
     let(:n2) { Neo4j::Node.create }

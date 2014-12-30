@@ -5,6 +5,5 @@ describe Neo4j::Node do
     it 'throws an exception' do
       expect { Neo4j::Node.new }.to raise_error
     end
-
   end
 end
