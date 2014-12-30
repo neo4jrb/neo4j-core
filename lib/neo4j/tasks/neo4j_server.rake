@@ -64,6 +64,20 @@ namespace :neo4j do
     "#{install_location(args)}/conf/neo4j-server.properties"
   end
 
+  def start_server(command, args)
+    puts "Starting Neo4j #{get_environment(args)}..."
+    if OS::Underlying.windows?
+      if `reg query "HKU\\S-1-5-19"`.size > 0
+        `#{install_location(args)}/bin/Neo4j.bat #{command}`  # start service
+      else
+        puts 'Starting Neo4j directly, not as a service.'
+        `#{install_location(args)}/bin/Neo4j.bat`
+      end
+    else
+      `#{install_location(args)}/bin/neo4j #{command}`
+    end
+  end
+
   desc 'Install Neo4j with auth disabled in v2.2+, example neo4j:install[community-2.1.3,development]'
   task :install, :edition, :environment do |_, args|
     file = args[:edition]
@@ -108,17 +122,12 @@ namespace :neo4j do
 
   desc 'Start the Neo4j Server'
   task :start, :environment do |_, args|
-    puts "Starting Neo4j #{get_environment(args)}..."
-    if OS::Underlying.windows?
-      if `reg query "HKU\\S-1-5-19"`.size > 0
-        `#{install_location(args)}/bin/Neo4j.bat start`  # start service
-      else
-        puts 'Starting Neo4j directly, not as a service.'
-        `#{install_location(args)}/bin/Neo4j.bat`
-      end
-    else
-      `#{install_location(args)}/bin/neo4j start`
-    end
+    start_server('start', args)
+  end
+
+  desc 'Start the Neo4j Server asynchronously'
+  task :start_no_wait, :environment do |_, args|
+    start_server('start-no-wait', args)
   end
 
   desc 'Configure Server, e.g. rake neo4j:config[development,8888]'
