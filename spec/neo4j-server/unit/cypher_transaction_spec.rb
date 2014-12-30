@@ -18,7 +18,7 @@ describe Neo4j::Server::CypherTransaction do
   end
 
   let(:a_new_transaction) do
-    Neo4j::Server::CypherTransaction.new(nil, response, 'some url', endpoint)
+    Neo4j::Server::CypherTransaction.new(response, 'some url', endpoint)
   end
 
   after(:each) do

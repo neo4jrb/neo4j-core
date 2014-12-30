@@ -55,10 +55,6 @@ Metrics/MethodLength:
   Max: 45
 
 # Offense count: 1
-Metrics/ParameterLists:
-  Max: 6
-
-# Offense count: 1
 Metrics/PerceivedComplexity:
   Max: 11
 

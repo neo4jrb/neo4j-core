@@ -15,7 +15,7 @@ module Neo4j::Server
       end
     end
 
-    def initialize(db, response, url, connection)
+    def initialize(response, url, connection)
       @connection = connection
       @commit_url = response.body['commit']
       @exec_url = response.headers['Location']

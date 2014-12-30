@@ -9,29 +9,31 @@ module Neo4j
 
       def init_resource_data(resource_data, resource_url)
         fail "Exception #{resource_data['exception']}" if resource_data['exception']
+        fail "Expected @resource_data to be Hash got #{resource_data.inspect}" unless resource_data.respond_to?(:[])
+
         @resource_url = resource_url
         @resource_data = resource_data
-        fail "expected @resource_data to be Hash got #{@resource_data.class}" unless @resource_data.respond_to?(:[])
+
         self
       end
 
 
-      def wrap_resource(db, rel, resource_class, verb = :get, statement = {}, connection)
-        url = resource_url(rel)
-        payload = statement.empty? ? nil : statement
-        response = case verb
-                   when :get then connection.get(url, payload)
-                   when :post then connection.post(url, payload)
-                   else fail "Illegal verb #{verb}"
-                   end
-        response.status == 404 ? nil : resource_class.new(db, response, url, connection)
+      def wrap_resource(key, resource_class, verb = :get, statement = {}, connection)
+        fail "Illegal verb #{verb}" if not [:get, :post].include?(verb)
+
+        url = resource_url(key)
+
+        response = connection.send(verb, url, statement.empty? ? nil : statement)
+
+        resource_class.new(response, url, connection) if response.status != 404
       end
 
-      def resource_url(rel = nil)
-        return @resource_url if rel.nil?
-        url = resource_data[rel.to_s]
-        fail "No resource rel '#{rel}', available #{@resource_data.keys.inspect}" unless url
-        url
+      def resource_url(key = nil)
+        return @resource_url if key.nil?
+
+        @resource_data.fetch key.to_s
+      rescue KeyError
+        raise "No resource key '#{key}', available #{@resource_data.keys.inspect}"
       end
 
       def handle_response_error(response, msg = 'Error for request')
