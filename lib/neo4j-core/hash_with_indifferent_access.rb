@@ -116,7 +116,7 @@ module Neo4j
       # Merges the instantized and the specified hashes together, giving precedence to the values from the second hash.
       # Does not overwrite the existing hash.
       def merge(hash)
-        self.dup.update(hash)
+        dup.update(hash)
       end
 
       # Performs the opposite of merge, with the keys and values from the first hash taking precedence over the second.

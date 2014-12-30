@@ -7,7 +7,7 @@ module Neo4j::Core
 
       batch_size = options.delete(:batch_size) || 1000
 
-      query = self.reorder(node_var => prop_var).limit(batch_size)
+      query = reorder(node_var => prop_var).limit(batch_size)
 
       records = query.to_a
 

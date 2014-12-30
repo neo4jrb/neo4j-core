@@ -51,7 +51,7 @@ module Neo4j::Server
     def to_node_enumeration(cypher = '', session = Neo4j::Session.current)
       Enumerator.new do |yielder|
         @result_index = 0
-        self.to_struct_enumeration(cypher).each do |row|
+        to_struct_enumeration(cypher).each do |row|
           @row_index = 0
           yielder << row.each_pair.each_with_object(@struct.new) do |(column, value), result|
             result[column] = map_row_value(value, session)
@@ -193,7 +193,7 @@ module Neo4j::Server
     end
 
     def transaction_response?
-      self.response.respond_to?('body') && !self.response.body['commit'].nil?
+      response.respond_to?('body') && !response.body['commit'].nil?
     end
 
     def rest_data
@@ -212,7 +212,7 @@ module Neo4j::Server
     attr_reader :result_index
 
     def mapped_rest_data
-      self.response.body['results'][0]['data'][result_index]['rest'][row_index]
+      response.body['results'][0]['data'][result_index]['rest'][row_index]
     end
   end
 end

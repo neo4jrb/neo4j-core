@@ -33,7 +33,7 @@ module Neo4j::Server
       ids_hash = {start_neo_id: neo_id, end_neo_id: other_node.neo_id}
       props_with_ids = props.nil? ? ids_hash : cypher_prop_list(props).merge(ids_hash)
       id = @session._query_or_fail(rel_string(type, other_node, props), true, props_with_ids)
-      data_hash = {'type' => type, 'data' => props, 'start' => self.neo_id, 'end' => other_node.neo_id, 'id' => id}
+      data_hash = {'type' => type, 'data' => props, 'start' => neo_id, 'end' => other_node.neo_id, 'id' => id}
       CypherRelationship.new(@session, data_hash)
     end
 

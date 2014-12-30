@@ -112,8 +112,3 @@ Style/GuardClause:
 Style/MultilineBlockChain:
   Enabled: false
 
-# Offense count: 25
-# Cop supports --auto-correct.
-Style/RedundantSelf:
-  Enabled: false
-

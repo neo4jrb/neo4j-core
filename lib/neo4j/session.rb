@@ -162,7 +162,7 @@ module Neo4j
 
       # @private
       def add_listener(&listener)
-        self._listeners << listener
+        _listeners << listener
       end
 
       # @private

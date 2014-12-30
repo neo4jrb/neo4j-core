@@ -29,7 +29,7 @@ if RUBY_PLATFORM == 'java'
   # for some reason this is not impl. in JRuby
   class OpenStruct
     def [](key)
-      self.send(key)
+      send(key)
     end
   end
 end

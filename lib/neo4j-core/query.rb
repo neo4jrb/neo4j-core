@@ -116,7 +116,7 @@ module Neo4j::Core
 
     # Clears out previous order clauses and allows only for those specified by args
     def reorder(*args)
-      query = self.copy
+      query = copy
 
       query.remove_clause_class(OrderClause)
       query.order(*args)
@@ -153,7 +153,7 @@ module Neo4j::Core
 
     def response
       return @response if @response
-      cypher = self.to_cypher
+      cypher = to_cypher
       @response = ActiveSupport::Notifications.instrument('neo4j.cypher_query', context: @options[:context] || 'CYPHER', cypher: cypher, params: merge_params) do
         @session._query(cypher, merge_params)
       end
@@ -171,7 +171,7 @@ module Neo4j::Core
       if response.is_a?(Neo4j::Server::CypherResponse)
         response.to_node_enumeration
       else
-        Neo4j::Embedded::ResultWrapper.new(response, self.to_cypher)
+        Neo4j::Embedded::ResultWrapper.new(response, to_cypher)
       end.each { |object| yield object }
     end
 
@@ -185,7 +185,7 @@ module Neo4j::Core
     # @return [Boolean] true if successful
     # @raise [Neo4j::Server::CypherResponse::ResponseError] Raises errors from neo4j server
     def exec
-      self.response
+      response
 
       true
     end
@@ -219,7 +219,7 @@ module Neo4j::Core
     end
 
     def return_query(columns)
-      query = self.copy
+      query = copy
       query.remove_clause_class(ReturnClause)
 
       columns = columns.map do |column_definition|
@@ -267,21 +267,21 @@ module Neo4j::Core
     # @param options [Hash] Specify {all: true} to use UNION ALL
     # @return [String] Resulting UNION cypher query string
     def union_cypher(other, options = {})
-      "#{self.to_cypher} UNION#{options[:all] ? ' ALL' : ''} #{other.to_cypher}"
+      "#{to_cypher} UNION#{options[:all] ? ' ALL' : ''} #{other.to_cypher}"
     end
 
     def &(other)
       fail "Sessions don't match!" if @session != other.session
 
       self.class.new(session: @session).tap do |new_query|
-        new_query.options = self.options.merge(other.options)
-        new_query.clauses = self.clauses + other.clauses
+        new_query.options = options.merge(other.options)
+        new_query.clauses = clauses + other.clauses
       end.params(other._params)
     end
 
     MEMOIZED_INSTANCE_VARIABLES = [:response, :merge_params]
     def copy
-      self.dup.tap do |query|
+      dup.tap do |query|
         MEMOIZED_INSTANCE_VARIABLES.each do |var|
           query.instance_variable_set("@#{var}", nil)
         end
@@ -305,14 +305,14 @@ module Neo4j::Core
     private
 
     def build_deeper_query(clause_class, args = {}, options = {})
-      self.copy.tap do |new_query|
+      copy.tap do |new_query|
         new_query.add_clauses [nil] if [nil, WithClause].include?(clause_class)
         new_query.add_clauses clause_class.from_args(args, options) if clause_class
       end
     end
 
     def break_deeper_query
-      self.copy.tap do |new_query|
+      copy.tap do |new_query|
         new_query.add_clauses [nil]
       end
     end

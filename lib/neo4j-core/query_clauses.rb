@@ -24,7 +24,7 @@ module Neo4j::Core
       def value
         [String, Symbol, Integer, Hash].each do |arg_class|
           from_method = "from_#{arg_class.name.downcase}"
-          return self.send(from_method, @arg) if @arg.is_a?(arg_class) && self.respond_to?(from_method)
+          return send(from_method, @arg) if @arg.is_a?(arg_class) && self.respond_to?(from_method)
         end
 
         fail ArgError
@@ -38,7 +38,7 @@ module Neo4j::Core
       def from_hash(value)
         if self.respond_to?(:from_key_and_value)
           value.map do |k, v|
-            self.from_key_and_value k, v
+            from_key_and_value k, v
           end
         else
           fail ArgError
@@ -91,7 +91,7 @@ module Neo4j::Core
 
         def from_args(args, options = {})
           args.flatten.map do |arg|
-            self.new(arg, options) if !arg.respond_to?(:empty?) || !arg.empty?
+            new(arg, options) if !arg.respond_to?(:empty?) || !arg.empty?
           end.compact
         end
 
@@ -208,7 +208,7 @@ module Neo4j::Core
       end
 
       def from_key_and_value(key, value)
-        self.node_from_key_and_value(key, value)
+        node_from_key_and_value(key, value)
       end
 
       class << self
@@ -272,7 +272,7 @@ module Neo4j::Core
       end
 
       def from_key_and_value(key, value)
-        self.node_from_key_and_value(key, value, prefer: :label)
+        node_from_key_and_value(key, value, prefer: :label)
       end
 
       class << self
