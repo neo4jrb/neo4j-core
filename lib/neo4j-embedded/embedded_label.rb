@@ -51,12 +51,11 @@ module Neo4j::Embedded
     tx_methods :indexes
 
     def uniqueness_constraints
+      definitions = @session.graph_db.schema.constraints(as_java).select do |index_def|
+        index_def.is_a?(Java::OrgNeo4jKernelImplCoreapiSchema::PropertyUniqueConstraintDefinition)
+      end
       {
-        property_keys: @session.graph_db.schema.constraints(as_java).select do |index_def|
-          index_def.is_a?(Java::OrgNeo4jKernelImplCoreapiSchema::PropertyUniqueConstraintDefinition)
-        end.map do |index_def|
-          index_def.property_keys.map(&:to_sym)
-        end
+        property_keys: definitions.map { |index_def| index_def.property_keys.map(&:to_sym) }
       }
     end
     tx_methods :uniqueness_constraints
