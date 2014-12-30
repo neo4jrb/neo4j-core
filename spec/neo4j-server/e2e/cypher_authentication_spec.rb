@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-def is_compatible_version
+def compatible_version?
   uri = URI.parse('http://localhost:7474/db/data/')
   version = JSON.parse(Net::HTTP.get(uri))['neo4j_version']
   !/^2\.2\./.match(version).nil?
@@ -17,7 +17,7 @@ describe 'Neo4j::Server::CypherAuthentication', if: (ENV['TEST_AUTHENTICATION'] 
     end
   end
 
-  context 'when running Neo4j 2.2', if: is_compatible_version do
+  context 'when running Neo4j 2.2', if: compatible_version? do
     require 'rake'
 
     def reload_tasks

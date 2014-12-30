@@ -126,7 +126,7 @@ module Neo4j::Server
 
     def load_entity(clazz, cypher_response)
       return nil if cypher_response.data.nil? || cypher_response.data[0].nil?
-      data  = if cypher_response.is_transaction_response?
+      data  = if cypher_response.transaction_response?
                 cypher_response.rest_data_with_id
               else
                 cypher_response.first_data

@@ -175,7 +175,7 @@ module Neo4j::Server
         let(:query_string) { 'MATCH (n) WHERE ID(n) = 1915 RETURN n' }
 
         it 'generates the expected query string' do
-          r = double('cypher response', data: [{'foo' => 'data'}], is_transaction_response?: false, first_data: [{'foo' => 'foo'}],
+          r = double('cypher response', data: [{'foo' => 'data'}], transaction_response?: false, first_data: [{'foo' => 'foo'}],
                                         error?: nil, error_msg: nil)
           expect(session).to receive(:_query).with(query_string).and_return(r)
           session.load_node(1915)
@@ -188,7 +188,7 @@ module Neo4j::Server
         end
 
         it 'raise an exception if there is an error but not an EntityNotFoundException exception' do
-          r = double('cypher response', error?: true, error_status: 'SomeError', is_transaction_response?: false, first_data: [{'foo' => 'foo'}],
+          r = double('cypher response', error?: true, error_status: 'SomeError', transaction_response?: false, first_data: [{'foo' => 'foo'}],
                                         response: double('response').as_null_object, data: [{'foo' => 'data'}])
           expect(r).to receive(:raise_error)
           expect(session).to receive(:_query).with(query_string).and_return(r)
