@@ -73,7 +73,7 @@ module Neo4j::Server
           end
 
           it 'calls the callback directly if session already exists' do
-            session = Neo4j::Session.create_session(:server_db)
+            Neo4j::Session.create_session(:server_db)
             expect { |b| Neo4j::Session.on_session_available(&b) }.to yield_with_args(Neo4j::Session)
           end
 

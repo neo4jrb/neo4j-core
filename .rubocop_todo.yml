@@ -18,10 +18,6 @@ Lint/RescueException:
 Lint/UnusedMethodArgument:
   Enabled: false
 
-# Offense count: 8
-Lint/UselessAssignment:
-  Enabled: false
-
 # Offense count: 21
 Metrics/AbcSize:
   Max: 28

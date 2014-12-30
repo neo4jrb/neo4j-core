@@ -511,10 +511,8 @@ RSpec.shared_examples 'Neo4j::Node auto tx' do
 
         describe 'rels(dir: incoming, type: work)' do
           it 'finds incoming rels of any type' do
-            rel_a = node_a.create_rel(:best_friend, node_b)
             rel_b = node_b.create_rel(:work, node_a)
             rel_c = node_a.create_rel(:work, node_b)
-            rel_d = node_b.create_rel(:best_friend, node_a)
 
             expect(node_a.rels(dir: :incoming, type: :work).to_a).to eq([rel_b])
             expect(node_a.rels(dir: :outgoing, type: :work).to_a).to eq([rel_c])

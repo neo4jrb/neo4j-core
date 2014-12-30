@@ -40,7 +40,7 @@ RSpec.shared_examples 'Neo4j::Relationship' do
     it 'can create and set properties' do
       a = Neo4j::Node.create
       b = Neo4j::Node.create
-      r = Neo4j::Relationship.create(:knows, a, b, name: 'a', age: 42)
+      Neo4j::Relationship.create(:knows, a, b, name: 'a', age: 42)
       expect(a.rel(dir: :outgoing, type: :knows)[:name]).to eq('a')
       expect(b.rel(dir: :incoming, type: :knows)[:age]).to eq(42)
     end

@@ -11,7 +11,8 @@ module Neo4j::Embedded::Property
 
   def [](key)
     return nil unless has_property?(key.to_s)
-    val = to_ruby_property(key.to_s)
+
+    to_ruby_property(key.to_s)
   end
   tx_methods :[]
 
