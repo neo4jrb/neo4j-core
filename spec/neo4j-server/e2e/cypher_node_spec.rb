@@ -7,7 +7,7 @@ describe Neo4j::Server::CypherNode, api: :server do
   describe 'transactions' do
     around(:each) do |example|
       begin
-        Neo4j::Transaction.run do |tx|
+        Neo4j::Transaction.run do
           example.run
         end
       rescue RuntimeError

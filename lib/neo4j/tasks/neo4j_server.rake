@@ -219,7 +219,7 @@ namespace :neo4j do
   end
 
   desc 'Neo4j 2.2: Change connection password'
-  task :change_password do |_, args|
+  task :change_password do
     puts 'This will change the password for a Neo4j server'
     puts 'Enter target IP address or host name without protocal and port, press enter for http://localhost:7474'
     address = STDIN.gets.chomp

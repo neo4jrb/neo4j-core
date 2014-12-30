@@ -131,7 +131,7 @@ RSpec.shared_examples 'Neo4j::Node with tx' do
     it 'rolls back the transaction if an exception occurs' do
       ids = []
       expect do
-        Neo4j::Transaction.run do |tx|
+        Neo4j::Transaction.run do
           a = Neo4j::Node.create
           ids << a.neo_id
           expect(Neo4j::Node.load(ids.first)).to eq(a)

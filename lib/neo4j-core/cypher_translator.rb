@@ -45,7 +45,7 @@ module Neo4j::Core
     # Cypher Helper
     def cypher_prop_list(props)
       return nil unless props
-      props.reject! { |k, v| v.nil? }
+      props.reject! { |_, v| v.nil? }
       {props: props.each { |k, v|  props[k] = create_escape_value(v) }}
     end
 
