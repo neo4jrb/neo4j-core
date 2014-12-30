@@ -80,7 +80,7 @@ describe Neo4j::Core::Query do
   end
 
   def expects_cypher(cypher, params = nil)
-    query = eval("Neo4j::Core::Query.new#{self.class.description}")
+    query = eval("Neo4j::Core::Query.new#{self.class.description}") # rubocop:disable Lint/Eval
     expect(query.to_cypher).to eq(cypher)
     expect(query.send(:merge_params)).to eq(params) if params
   end
