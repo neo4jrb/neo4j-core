@@ -30,9 +30,9 @@ module Neo4j::Server
     end
 
     def load_resource
-      if resource_data.nil? || resource_data.empty?
-        @resource_data = @session._query_or_fail("#{match_start} RETURN n", true, neo_id: neo_id) # r.first_data
-      end
+      return if resource_data_present?
+
+      @resource_data = @session._query_or_fail("#{match_start} RETURN n", true, neo_id: neo_id) # r.first_data
     end
 
     attr_reader :start_node_neo_id
@@ -119,6 +119,10 @@ module Neo4j::Server
 
     def match_start(identifier = 'n')
       "MATCH (node)-[#{identifier}]-() WHERE ID(#{identifier}) = {neo_id}"
+    end
+
+    def resource_data_present?
+      !resource_data.nil? && !resource_data.empty?
     end
   end
 end
