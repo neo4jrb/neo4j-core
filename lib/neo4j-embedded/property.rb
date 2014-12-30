@@ -74,21 +74,24 @@ module Neo4j::Embedded::Property
     validate_property(v)
 
     k = k.to_s
-    if v.nil?
+    case v
+    when nil
       remove_property(k)
-    elsif (Array === v)
-      case v[0]
-      when String
-        set_property(k, v.to_java(:string))
-      when Float
-        set_property(k, v.to_java(:double))
-      when FalseClass, TrueClass
-        set_property(k, v.to_java(:boolean))
-      when Fixnum
-        set_property(k, v.to_java(:long))
-      else
-        fail "Not allowed to store array with value #{v[0]} type #{v[0].class}"
-      end
+    when Array
+      type = case v[0]
+             when String
+               :string
+             when Float
+               :double
+             when FalseClass, TrueClass
+               :boolean
+             when Fixnum
+               :long
+             else
+               fail "Not allowed to store array with value #{v[0]} type #{v[0].class}"
+             end
+
+      set_property(k, v.to_java(type))
     else
       set_property(k, v)
     end
