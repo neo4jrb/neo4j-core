@@ -55,7 +55,7 @@ module Neo4j
       end
 
       def resource_url_id(url = resource_url)
-        url.match(%r{/(\d+)$})[1].to_i
+        url.match(/\/(\d+)$/)[1].to_i
       end
 
       def convert_from_json_value(value)
