@@ -1,6 +1,12 @@
 inherit_from: .rubocop_todo.yml
 
 
+# Should remove when this issue has been resolved:
+# https://github.com/bbatsov/rubocop/issues/1544
+Lint/ShadowingOuterLocalVariable:
+  Enabled: false
+
+
 
 #---------------------------
 # Style configuration
