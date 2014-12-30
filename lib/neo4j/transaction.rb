@@ -80,7 +80,7 @@ module Neo4j
         tx = Neo4j::Transaction.new
         ret = yield tx
       rescue Exception => e
-        if e.respond_to?(:cause) && e.cause
+        if e.respond_to?(:cause) && e.cause.respond_to?(:print_stack_trace)
           puts "Java Exception in a transaction, cause: #{e.cause}"
           e.cause.print_stack_trace
         end
