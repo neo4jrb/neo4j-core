@@ -93,7 +93,7 @@ module Neo4j::Server
     end
 
     def entity_data(id = nil)
-      if uncommited?
+      if @uncommited
         data = @data.first['row'].first
         data.is_a?(Hash) ? {'data' => data, 'id' => id} : data
       else
@@ -103,7 +103,7 @@ module Neo4j::Server
     end
 
     def first_data(id = nil)
-      if uncommited?
+      if @uncommited
         data = @data.first['row'].first
         # data.is_a?(Hash) ? {'data' => data, 'id' => id} : data
       else
@@ -124,10 +124,6 @@ module Neo4j::Server
       !!@error
     end
 
-    def uncommited?
-      @uncommited
-    end
-
     def has_data?
       !response.body['data'].nil?
     end
@@ -137,7 +133,7 @@ module Neo4j::Server
     end
 
     def each_data_row
-      if uncommited?
+      if @uncommited
         data.each { |r| yield r['row'] }
       else
         data.each { |r| yield r }
@@ -211,13 +207,9 @@ module Neo4j::Server
 
     private
 
-    def row_index
-      @row_index
-    end
+    attr_reader :row_index
 
-    def result_index
-      @result_index
-    end
+    attr_reader :result_index
 
     def mapped_rest_data
       self.response.body['results'][0]['data'][result_index]['rest'][row_index]

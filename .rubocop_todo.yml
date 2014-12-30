@@ -126,8 +126,3 @@ Style/RedundantSelf:
 Style/RegexpLiteral:
   MaxSlashes: 0
 
-# Offense count: 7
-# Cop supports --auto-correct.
-# Configuration parameters: ExactNameMatch, AllowPredicates, AllowDSLWriters, Whitelist.
-Style/TrivialAccessors:
-  Enabled: false

@@ -20,9 +20,7 @@ module Neo4j::Server
     end
     alias_method :eql?, :==
 
-    def id
-      @id
-    end
+    attr_reader :id
 
     def neo_id
       id
@@ -38,13 +36,9 @@ module Neo4j::Server
       end
     end
 
-    def start_node_neo_id
-      @start_node_neo_id
-    end
+    attr_reader :start_node_neo_id
 
-    def end_node_neo_id
-      @end_node_neo_id
-    end
+    attr_reader :end_node_neo_id
 
     def _start_node_id
       @start_node_neo_id ||= get_node_id(:start)

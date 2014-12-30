@@ -7,19 +7,17 @@ module Neo4j::Server
     def initialize(session, value)
       @session = session
 
-      @id = if value.is_a?(Hash)
-              hash = value['data']
-              @props = Hash[hash.map { |k, v| [k.to_sym, v] }]
-              @labels = value['metadata']['labels'].map!(&:to_sym) if value['metadata']
-              value['id'] # value['self'].match(/\d+$/)[0].to_i
-            else
-              value
-            end
+      @neo_id = if value.is_a?(Hash)
+                  hash = value['data']
+                  @props = Hash[hash.map { |k, v| [k.to_sym, v] }]
+                  @labels = value['metadata']['labels'].map!(&:to_sym) if value['metadata']
+                  value['id'] # value['self'].match(/\d+$/)[0].to_i
+                else
+                  value
+                end
     end
 
-    def neo_id
-      @id
-    end
+    attr_reader :neo_id
 
     def inspect
       "CypherNode #{neo_id} (#{object_id})"
