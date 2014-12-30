@@ -68,7 +68,7 @@ module Neo4j::Server
     end
 
     # Takes a response object from the server and returns a token or fails with an error.
-    # Todo: more error states!
+    # TODO: more error states!
     # @param [Farday::Response] auth_response The response after attempting authentication
     # @return [String] An authentication token.
     def token_or_error(auth_response)

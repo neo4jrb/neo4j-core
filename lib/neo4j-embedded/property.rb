@@ -1,5 +1,5 @@
 
-# TODO code duplication with the Neo4j::PropertyContainer,
+# TODO: code duplication with the Neo4j::PropertyContainer,
 # This module should extend that module by adding transaction around methods
 module Neo4j::Embedded::Property
   include Neo4j::PropertyValidator
