@@ -1,4 +1,11 @@
 module Neo4j::Server
+  # The CypherTransaction object lifecycle is as follows:
+  # * It is initialized with the transactional endpoint URL and the connection object to use for communication. It does not communicate with the server to create this.
+  # * The first query within the transaction sets the commit and execution addresses, :commit_url and :exec_url.
+  # * At any time, `failure` can be called to mark a transaction failed and trigger a rollback upon closure.
+  # * `close` is called to end the transaction. It calls `_commit_tx` or `_delete_tx`.
+  #
+  # If a transaction is created and then closed without performing any queries, an OpenStruct is returned that behaves like a successfully closed query.
   class CypherTransaction
     include Neo4j::Transaction::Instance
     include Neo4j::Core::CypherTranslator
