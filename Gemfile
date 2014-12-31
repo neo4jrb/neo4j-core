@@ -11,12 +11,7 @@ gem 'coveralls', require: false
 gem 'simplecov-html', require: false
 
 group 'development' do
-  gem 'pry-rescue', platform: :ruby
-  gem 'pry-stack_explorer', platform: :ruby
-
-  gem 'guard'
   gem 'guard-rspec', require: false
-  gem 'guard-rubocop'
 end
 
 group 'test' do
