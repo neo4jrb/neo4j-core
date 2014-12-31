@@ -69,12 +69,12 @@ module Neo4j::Core
             var = key
           end
 
-          if value.size == 1 && value.values.first.is_a?(Hash)
-            label_string, attributes = value.first
-            attributes_string = attributes_string(attributes)
-          else
-            attributes_string = attributes_string(value)
-          end
+          attributes_string = if value.size == 1 && value.values.first.is_a?(Hash)
+                                label_string, attributes = value.first
+                                attributes_string(attributes)
+                              else
+                                attributes_string(value)
+                              end
         when Class, Module
           var = key
           label_string = defined?(value::CYPHER_LABEL) ? value::CYPHER_LABEL : value.name
