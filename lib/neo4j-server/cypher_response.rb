@@ -129,7 +129,7 @@ module Neo4j::Server
     end
 
     def raise_unless_response_code(code)
-      fail "Response code #{response.code}, expected #{code} for #{response.request.path}, #{response.body}" unless response.status == code
+      fail "Response code #{response.status}, expected #{code} for #{response.headers['location']}, #{response.body}" unless response.status == code
     end
 
     def each_data_row

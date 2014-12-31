@@ -19,6 +19,14 @@ module Neo4j
         !!@failure
       end
 
+      def expired
+        @expired = true
+      end
+
+      def expired?
+        !!@expired
+      end
+
       # @private
       def push_nested!
         @pushed_nested += 1
@@ -58,8 +66,6 @@ module Neo4j
         end
       end
     end
-
-
 
     # @return [Neo4j::Transaction::Instance]
     def new(current = Session.current!)
