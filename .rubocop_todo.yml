@@ -62,8 +62,3 @@ Style/ClassVars:
 Style/Documentation:
   Enabled: false
 
-# Offense count: 3
-# Configuration parameters: Exclude.
-Style/FileName:
-  Enabled: false
-
