@@ -50,17 +50,22 @@ module Neo4j
         end
 
         def node_from_key_and_value(key, value, options = {})
-          prefer = options[:prefer] || :var
+          var, label_string, attributes = parse_node_from_key_and_value(key, value, options)
 
-          var, label_string, attributes_string = nil
+          "(#{var}#{format_label(label_string)}#{attributes_string(attributes)})"
+        end
+
+        def parse_node_from_key_and_value(key, value, options = {})
+          var, label_string, attributes = nil
 
           case value
           when String, Symbol
-            var = key
-            label_string = value
+            var, label_string = [key, value]
+          when Class, Module
+            var, label_string = [key, defined?(value::CYPHER_LABEL) ? value::CYPHER_LABEL : value.name]
           when Hash
             if !value.values.any? { |v| v.is_a?(Hash) }
-              case prefer
+              case options[:prefer] || :var
               when :var
                 var = key
               when :label
@@ -70,20 +75,16 @@ module Neo4j
               var = key
             end
 
-            attributes_string = if value.size == 1 && value.values.first.is_a?(Hash)
-                                  label_string, attributes = value.first
-                                  attributes_string(attributes)
-                                else
-                                  attributes_string(value)
-                                end
-          when Class, Module
-            var = key
-            label_string = defined?(value::CYPHER_LABEL) ? value::CYPHER_LABEL : value.name
+            if value.map(&:class) == [Hash]
+              label_string, attributes = value.first
+            else
+              attributes = value
+            end
           else
             fail ArgError, value
           end
 
-          "(#{var}#{format_label(label_string)}#{attributes_string})"
+          [var, label_string, attributes]
         end
 
         class << self
@@ -129,6 +130,8 @@ module Neo4j
         end
 
         def attributes_string(attributes)
+          return '' if not attributes
+
           attributes_string = attributes.map do |key, value|
             v = if value.nil?
                   'null'
