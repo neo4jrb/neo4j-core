@@ -104,7 +104,7 @@ module Neo4j::Server
     end
 
     def del
-      @session._query("#{match_start} DELETE n", neo_id: neo_id).raise_unless_response_code(200)
+      @session._query("#{match_start} DELETE n", neo_id: neo_id)
     end
     alias_method :delete, :del
     alias_method :destroy, :del

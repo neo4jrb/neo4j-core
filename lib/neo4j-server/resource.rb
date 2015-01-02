@@ -16,15 +16,9 @@ module Neo4j
         self
       end
 
-
-      def wrap_resource(key, resource_class, verb = :get, statement = {}, connection)
-        fail "Illegal verb #{verb}" if not [:get, :post].include?(verb)
-
-        url = resource_url(key)
-
-        response = connection.send(verb, url, statement.empty? ? nil : statement)
-
-        resource_class.new(response, url, connection) if response.status != 404
+      def wrap_resource(connection = Neo4j::Session.current)
+        url = resource_url('transaction')
+        CypherTransaction.new(url, connection)
       end
 
       def resource_url(key = nil)

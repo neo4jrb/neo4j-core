@@ -10,13 +10,24 @@ module Neo4j
       end
 
       # Marks this transaction as failed, which means that it will unconditionally be rolled back when close() is called.
-      def failure
+      def mark_failed
         @failure = true
       end
+      alias_method :failure, :mark_failed
 
       # If it has been marked as failed
-      def failure?
+      def failed?
         !!@failure
+      end
+      alias_method :failure?, :failed?
+
+      def mark_expired
+        @expired = true
+      end
+      alias_method :expired, :mark_expired
+
+      def expired?
+        !!@expired
       end
 
       # @private
@@ -51,15 +62,9 @@ module Neo4j
         return if @pushed_nested >= 0
         fail "Can't commit transaction, already committed" if @pushed_nested < -1
         Neo4j::Transaction.unregister(self)
-        if failure?
-          _delete_tx
-        else
-          _commit_tx
-        end
+        failed? ? _delete_tx : _commit_tx
       end
     end
-
-
 
     # @return [Neo4j::Transaction::Instance]
     def new(current = Session.current!)
@@ -82,7 +87,7 @@ module Neo4j
           puts "Java Exception in a transaction, cause: #{e.cause}"
           e.cause.print_stack_trace
         end
-        tx.failure unless tx.nil?
+        tx.mark_failed unless tx.nil?
         raise
       ensure
         tx.close unless tx.nil?

@@ -92,7 +92,7 @@ RSpec.shared_examples 'Neo4j::Node with tx' do
       id = Neo4j::Transaction.run do
         Neo4j::Transaction.run do |tx|
           i = Neo4j::Node.create.neo_id
-          tx.failure
+          tx.mark_failed
           i
         end
       end
@@ -104,7 +104,7 @@ RSpec.shared_examples 'Neo4j::Node with tx' do
         i = Neo4j::Transaction.run do
           Neo4j::Node.create.neo_id
         end
-        tx.failure
+        tx.mark_failed
         i
       end
       expect(Neo4j::Node.load(id)).to eq(nil)
@@ -122,7 +122,7 @@ RSpec.shared_examples 'Neo4j::Node with tx' do
     it 'rolls back the transaction if failure is called' do
       node = Neo4j::Transaction.run do |tx|
         a = Neo4j::Node.create
-        tx.failure
+        tx.mark_failed
         a
       end
       expect(node).not_to exist
@@ -147,7 +147,7 @@ RSpec.shared_examples 'Neo4j::Node with tx' do
       Neo4j::Transaction.run do |tx|
         node[:name] = 'bar'
         expect(node[:name]).to eq('bar')
-        tx.failure
+        tx.mark_failed
       end
       expect(node[:name]).to eq('foo')
     end
@@ -160,7 +160,7 @@ RSpec.shared_examples 'Neo4j::Node with tx' do
       Neo4j::Transaction.run do |tx|
         node1.create_rel(:knows, node2)
         expect(node1.node(dir: :outgoing, type: :knows)).to eq(node2)
-        tx.failure
+        tx.mark_failed
       end
 
       expect(node1.node(dir: :outgoing, type: :knows)).to be_nil

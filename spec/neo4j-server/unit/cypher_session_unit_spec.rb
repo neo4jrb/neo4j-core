@@ -208,6 +208,8 @@ module Neo4j::Server
           expect(connection).to receive(:post).with('http://new.tx', anything).and_return(response)
 
           tx = session.begin_tx
+          expect(tx).to receive(:_create_cypher_response).and_return(response)
+          tx._query('MATCH (n) WHERE ID(n) = 42 RETURN n')
           expect(tx.commit_url).to eq('http://tx/42/commit')
           expect(tx.exec_url).to eq('http://tx/42')
           expect(Thread.current[:neo4j_curr_tx]).to eq(tx)
