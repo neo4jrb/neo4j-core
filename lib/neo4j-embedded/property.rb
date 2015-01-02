@@ -82,22 +82,23 @@ module Neo4j
         when nil
           remove_property(k)
         when Array
-          type = case v[0]
-                 when String
-                   :string
-                 when Float
-                   :double
-                 when FalseClass, TrueClass
-                   :boolean
-                 when Fixnum
-                   :long
-                 else
-                   fail "Not allowed to store array with value #{v[0]} type #{v[0].class}"
-                 end
-
+          type = java_type_from_value(v[0]) || fail("Not allowed to store array with value #{v[0]} type #{v[0].class}")
           set_property(k, v.to_java(type))
         else
           set_property(k, v)
+        end
+      end
+
+      def java_type_from_value(value)
+        case value
+        when String
+          :string
+        when Float
+          :double
+        when FalseClass, TrueClass
+          :boolean
+        when Fixnum
+          :long
         end
       end
     end
