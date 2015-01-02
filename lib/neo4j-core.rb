@@ -24,6 +24,8 @@ if RUBY_PLATFORM == 'java'
   require 'neo4j-embedded'
 else
   # just for the tests
-  module Neo4j::Embedded
+  module Neo4j
+    module Embedded
+    end
   end
 end

@@ -1,200 +1,202 @@
-module Neo4j::Embedded
-  class RelsIterator
-    include Enumerable
-    extend Neo4j::Core::TxMethods
+module Neo4j
+  module Embedded
+    class RelsIterator
+      include Enumerable
+      extend Neo4j::Core::TxMethods
 
-    def initialize(node, match)
-      @node = node
-      @match = match
+      def initialize(node, match)
+        @node = node
+        @match = match
+      end
+
+      def inspect
+        'Enumerable<Neo4j::Relationship>'
+      end
+
+      def each(&block)
+        @node._rels(@match).each { |r| block.call(r.wrapper) }
+      end
+      tx_methods :each
+
+      def empty?
+        first.nil?
+      end
     end
 
-    def inspect
-      'Enumerable<Neo4j::Relationship>'
+    class NodesIterator
+      include Enumerable
+      extend Neo4j::Core::TxMethods
+
+      def initialize(node, match)
+        @node = node
+        @match = match
+      end
+
+      def inspect
+        'Enumerable<Neo4j::Node>'
+      end
+
+      def each(&block)
+        @node._rels(@match).each { |r| block.call(r.other_node(@node)) }
+      end
+      tx_methods :each
+
+      def empty?
+        first.nil?
+      end
     end
 
-    def each(&block)
-      @node._rels(@match).each { |r| block.call(r.wrapper) }
-    end
-    tx_methods :each
+    class EmbeddedNode
+      class << self
+        # This method is used to extend a Java Neo4j class so that it includes the same mixins as this class.
+        Java::OrgNeo4jKernelImplCore::NodeProxy.class_eval do
+          include Neo4j::Embedded::Property
+          include Neo4j::EntityEquality
+          include Neo4j::Core::ActiveEntity
+          extend Neo4j::Core::TxMethods
 
-    def empty?
-      first.nil?
-    end
-  end
-
-  class NodesIterator
-    include Enumerable
-    extend Neo4j::Core::TxMethods
-
-    def initialize(node, match)
-      @node = node
-      @match = match
-    end
-
-    def inspect
-      'Enumerable<Neo4j::Node>'
-    end
-
-    def each(&block)
-      @node._rels(@match).each { |r| block.call(r.other_node(@node)) }
-    end
-    tx_methods :each
-
-    def empty?
-      first.nil?
-    end
-  end
-
-  class EmbeddedNode
-    class << self
-      # This method is used to extend a Java Neo4j class so that it includes the same mixins as this class.
-      Java::OrgNeo4jKernelImplCore::NodeProxy.class_eval do
-        include Neo4j::Embedded::Property
-        include Neo4j::EntityEquality
-        include Neo4j::Core::ActiveEntity
-        extend Neo4j::Core::TxMethods
-
-        def inspect
-          "EmbeddedNode neo_id: #{neo_id}"
-        end
-
-        def exist?
-          !!graph_database.get_node_by_id(neo_id)
-        rescue Java::OrgNeo4jGraphdb.NotFoundException
-          false
-        end
-        tx_methods :exist?
-
-        def labels
-          _labels.iterator.map { |x| x.name.to_sym }
-        end
-        tx_methods :labels
-
-        alias_method :_labels, :getLabels
-
-        def _java_label(label_name)
-          Java::OrgNeo4jGraphdb.DynamicLabel.label(label_name)
-        end
-
-        def _add_label(*label_name)
-          label_name.each do |name|
-            addLabel(_java_label(name))
+          def inspect
+            "EmbeddedNode neo_id: #{neo_id}"
           end
-        end
 
-        alias_method :add_label, :_add_label
-        tx_methods :add_label
-
-        def _remove_label(*label_name)
-          label_name.each do |name|
-            removeLabel(_java_label(name))
+          def exist?
+            !!graph_database.get_node_by_id(neo_id)
+          rescue Java::OrgNeo4jGraphdb.NotFoundException
+            false
           end
-        end
+          tx_methods :exist?
 
-        alias_method :remove_label, :_remove_label
-        tx_methods :remove_label
+          def labels
+            _labels.iterator.map { |x| x.name.to_sym }
+          end
+          tx_methods :labels
 
-        def set_label(*label_names)
-          label_as_symbols = label_names.map(&:to_sym)
-          to_keep = labels & label_as_symbols
-          to_remove = labels - to_keep
-          _remove_label(*to_remove)
-          to_add = label_as_symbols - to_keep
-          _add_label(*to_add)
-        end
-        tx_methods :set_label
+          alias_method :_labels, :getLabels
 
-        def del
-          _rels.each(&:del)
-          delete
-          nil
-        end
-        tx_methods :del
-        tx_methods :delete
+          def _java_label(label_name)
+            Java::OrgNeo4jGraphdb.DynamicLabel.label(label_name)
+          end
 
-        alias_method :destroy, :del
-        tx_methods :destroy
+          def _add_label(*label_name)
+            label_name.each do |name|
+              addLabel(_java_label(name))
+            end
+          end
 
-        def create_rel(type, other_node, props = nil)
-          rel = create_relationship_to(other_node.neo4j_obj, ToJava.type_to_java(type))
-          props.each_pair { |k, v| rel[k] = v } if props
-          rel
-        end
-        tx_methods :create_rel
+          alias_method :add_label, :_add_label
+          tx_methods :add_label
 
+          def _remove_label(*label_name)
+            label_name.each do |name|
+              removeLabel(_java_label(name))
+            end
+          end
 
-        def rels(match = {})
-          RelsIterator.new(self, match)
-        end
+          alias_method :remove_label, :_remove_label
+          tx_methods :remove_label
 
-        def nodes(match = {})
-          NodesIterator.new(self, match)
-        end
+          def set_label(*label_names)
+            label_as_symbols = label_names.map(&:to_sym)
+            to_keep = labels & label_as_symbols
+            to_remove = labels - to_keep
+            _remove_label(*to_remove)
+            to_add = label_as_symbols - to_keep
+            _add_label(*to_add)
+          end
+          tx_methods :set_label
 
-        def node(match = {})
-          rel = _rel(match)
-          rel && rel.other_node(self).wrapper
-        end
-        tx_methods :node
+          def del
+            _rels.each(&:del)
+            delete
+            nil
+          end
+          tx_methods :del
+          tx_methods :delete
 
-        def rel?(match = {})
-          _rels(match).has_next
-        end
-        tx_methods :rel?
+          alias_method :destroy, :del
+          tx_methods :destroy
 
-        def rel(match = {})
-          _rel(match)
-        end
-        tx_methods :rel
-
-        def _rel(match = {})
-          dir = match[:dir] || :both
-          rel_type = match[:type]
-
-          rel = if rel_type
-                  get_single_relationship(ToJava.type_to_java(rel_type), ToJava.dir_to_java(dir))
-                else
-                  iter = get_relationships(ToJava.dir_to_java(dir)).iterator
-                  if iter.has_next
-                    first = iter.next
-                    fail "Expected to only find one relationship from node #{neo_id} matching #{match.inspect}" if iter.has_next
-                    first
-                  end
-                end
-
-          between_id = match[:between] && match[:between].neo_id
-
-          if rel && between_id
-            rel.other_node(self).neo_id == between_id ? rel : nil
-          else
+          def create_rel(type, other_node, props = nil)
+            rel = create_relationship_to(other_node.neo4j_obj, ToJava.type_to_java(type))
+            props.each_pair { |k, v| rel[k] = v } if props
             rel
           end
-        end
+          tx_methods :create_rel
 
-        def _rels(match = {})
-          dir = match[:dir] || :both
-          rel_type = match[:type]
 
-          rels = if rel_type
-                   get_relationships(ToJava.type_to_java(rel_type), ToJava.dir_to_java(dir)).iterator
-                 else
-                   get_relationships(ToJava.dir_to_java(dir)).iterator
-                 end
-
-          between_id = match[:between] && match[:between].neo_id
-
-          if between_id
-            rels.find_all { |r| r.end_node.neo_id == between_id || r.start_node.neo_id == between_id }
-          else
-            rels
+          def rels(match = {})
+            RelsIterator.new(self, match)
           end
-        end
 
-        def class
-          Neo4j::Node
-        end
+          def nodes(match = {})
+            NodesIterator.new(self, match)
+          end
 
-        include Neo4j::Node::Wrapper
+          def node(match = {})
+            rel = _rel(match)
+            rel && rel.other_node(self).wrapper
+          end
+          tx_methods :node
+
+          def rel?(match = {})
+            _rels(match).has_next
+          end
+          tx_methods :rel?
+
+          def rel(match = {})
+            _rel(match)
+          end
+          tx_methods :rel
+
+          def _rel(match = {})
+            dir = match[:dir] || :both
+            rel_type = match[:type]
+
+            rel = if rel_type
+                    get_single_relationship(ToJava.type_to_java(rel_type), ToJava.dir_to_java(dir))
+                  else
+                    iter = get_relationships(ToJava.dir_to_java(dir)).iterator
+                    if iter.has_next
+                      first = iter.next
+                      fail "Expected to only find one relationship from node #{neo_id} matching #{match.inspect}" if iter.has_next
+                      first
+                    end
+                  end
+
+            between_id = match[:between] && match[:between].neo_id
+
+            if rel && between_id
+              rel.other_node(self).neo_id == between_id ? rel : nil
+            else
+              rel
+            end
+          end
+
+          def _rels(match = {})
+            dir = match[:dir] || :both
+            rel_type = match[:type]
+
+            rels = if rel_type
+                     get_relationships(ToJava.type_to_java(rel_type), ToJava.dir_to_java(dir)).iterator
+                   else
+                     get_relationships(ToJava.dir_to_java(dir)).iterator
+                   end
+
+            between_id = match[:between] && match[:between].neo_id
+
+            if between_id
+              rels.find_all { |r| r.end_node.neo_id == between_id || r.start_node.neo_id == between_id }
+            else
+              rels
+            end
+          end
+
+          def class
+            Neo4j::Node
+          end
+
+          include Neo4j::Node::Wrapper
+        end
       end
     end
   end

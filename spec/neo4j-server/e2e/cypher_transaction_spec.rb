@@ -53,7 +53,7 @@ module Neo4j::Server
         Neo4j::Transaction.run do |tx|
           node[:name] = 'foo'
           expect(node[:name]).to eq('foo')
-          tx.failure
+          tx.mark_failed
         end
 
         expect(node['name']).to eq('andreas')
@@ -62,7 +62,7 @@ module Neo4j::Server
       it 'can continue operations after transaction is rolled back' do
         node = Neo4j::Node.create(name: 'andreas')
         Neo4j::Transaction.run do |tx|
-          tx.failure
+          tx.mark_failed
           node[:name] = 'foo'
           expect(node[:name]).to eq('foo')
         end
