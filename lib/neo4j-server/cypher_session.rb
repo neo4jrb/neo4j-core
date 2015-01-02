@@ -177,8 +177,7 @@ module Neo4j
       def query(*args)
         if [[String], [String, Hash]].include?(args.map(&:class))
           query, params = args[0, 2]
-          response = _query(query, params)
-          response.raise_error if response.error?
+          response = _query_response(query, params)
           response.to_node_enumeration(query)
         else
           options = args[0] || {}
@@ -186,22 +185,20 @@ module Neo4j
         end
       end
 
-      def _query_data(q)
-        r = _query_or_fail(q, true)
-        # the response is different if we have a transaction or not
-        Neo4j::Transaction.current ? r : r['data']
-      end
-
       def _query_or_fail(q, single_row = false, params = nil)
-        response = _query(q, params)
-        response.raise_error if response.error?
+        response = _query_response(q, params)
         single_row ? response.first_data : response
       end
 
       def _query_entity_data(q, id = nil, params = nil)
-        response = _query(q, params)
-        response.raise_error if response.error?
+        response = _query_response(q, params)
         response.entity_data(id)
+      end
+
+      def _query_response(q, params = nil)
+        _query(q, params).tap do |response|
+          response.raise_error if response.error?
+        end
       end
 
       def _query(q, params = nil)
@@ -220,37 +217,23 @@ module Neo4j
       def search_result_to_enumerable_first_column(response)
         return [] unless response.data
         if Neo4j::Transaction.current
-          search_result_to_enumerable_first_column_with_tx(response)
-        else
-          search_result_to_enumerable_first_column_without_tx(response)
-        end
-      end
-
-      def search_result_to_enumerable_first_column_with_tx(response)
-        Enumerator.new do |yielder|
-          response.data.each do |data|
+          enumerator_for_search_result_first_column(response) do |yielder, data|
             data['row'].each do |id|
               yielder << CypherNode.new(self, id).wrapper
             end
           end
-        end
-      end
-
-      def search_result_to_enumerable_first_column_without_tx(response)
-        Enumerator.new do |yielder|
-          response.data.each do |data|
+        else
+          enumerator_for_search_result_first_column(response) do |yielder, data|
             yielder << CypherNode.new(self, data[0]).wrapper
           end
         end
       end
 
-      def map_column(key, map, data)
-        if map[key] == :node
-          CypherNode.new(self, data).wrapper
-        elsif map[key] == :rel || map[:key] || :relationship
-          CypherRelationship.new(self, data)
-        else
-          data
+      def enumerator_for_search_result_first_column(response)
+        Enumerator.new do |yielder|
+          response.data.each do |data|
+            yield yielder, data
+          end
         end
       end
     end
