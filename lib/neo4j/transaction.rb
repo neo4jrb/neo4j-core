@@ -9,13 +9,13 @@ module Neo4j
         Neo4j::Transaction.register(self)
       end
 
-      # Marks this transaction as failed, which means that it will unconditionally be rolled back when close() is called.
+      # Marks this transaction as failed, which means that it will unconditionally be rolled back when close() is called. Aliased for legacy purposes.
       def mark_failed
         @failure = true
       end
       alias_method :failure, :mark_failed
 
-      # If it has been marked as failed
+      # If it has been marked as failed. Aliased for legacy purposes.
       def failed?
         !!@failure
       end
@@ -82,7 +82,7 @@ module Neo4j
       begin
         tx = Neo4j::Transaction.new
         ret = yield tx
-      rescue Exception => e
+      rescue Exception => e # rubocop:disable Lint/RescueException
         if e.respond_to?(:cause) && e.cause.respond_to?(:print_stack_trace)
           puts "Java Exception in a transaction, cause: #{e.cause}"
           e.cause.print_stack_trace
