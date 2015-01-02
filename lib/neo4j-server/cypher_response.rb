@@ -76,14 +76,14 @@ module Neo4j
       def hash_value_as_object(value, session)
         return value unless value['labels'] || value['type'] || transaction_response?
 
-        obj_type, data =  if transaction_response?
-                            add_transaction_entity_id
-                            [(mapped_rest_data['start'] ? CypherRelationship : CypherNode), mapped_rest_data]
-                          elsif value['labels'] || value['type']
-                            add_entity_id(value)
-                            [(value['labels'] ? CypherNode : CypherRelationship), value]
-                          end
-        obj_type.new(session, data).wrapper
+        is_node, data =  if transaction_response?
+                           add_transaction_entity_id
+                           [!mapped_rest_data['start'], mapped_rest_data]
+                         elsif value['labels'] || value['type']
+                           add_entity_id(value)
+                           [value['labels'], value]
+                         end
+        (is_node ? CypherNode : CypherRelationship).new(session, data).wrapper
       end
 
       attr_reader :struct
@@ -114,7 +114,7 @@ module Neo4j
       end
 
       def add_entity_id(data)
-        data.merge!('id' => data['self'].split('/')[-1].to_i)
+        data.merge!('id' => self.class.id_from_url(data['self']))
       end
 
       def add_transaction_entity_id
@@ -204,6 +204,12 @@ module Neo4j
 
       def rest_data_with_id
         rest_data.merge!('id' => mapped_rest_data['self'].split('/').last.to_i)
+      end
+
+      class << self
+        def id_from_url(url)
+          url.split('/')[-1].to_i
+        end
       end
 
       private

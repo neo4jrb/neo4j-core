@@ -149,13 +149,14 @@ module Neo4j
           tx_methods :rel
 
           def _rel(match = {})
-            dir = match[:dir] || :both
+            dir = ToJava.dir_to_java(match[:dir] || :both)
             rel_type = match[:type]
 
             rel = if rel_type
-                    get_single_relationship(ToJava.type_to_java(rel_type), ToJava.dir_to_java(dir))
+                    get_single_relationship(ToJava.type_to_java(rel_type), dir)
                   else
-                    iter = get_relationships(ToJava.dir_to_java(dir)).iterator
+                    iter = get_relationships(dir).iterator
+
                     if iter.has_next
                       first = iter.next
                       fail "Expected to only find one relationship from node #{neo_id} matching #{match.inspect}" if iter.has_next
@@ -166,7 +167,7 @@ module Neo4j
             between_id = match[:between] && match[:between].neo_id
 
             if rel && between_id
-              rel.other_node(self).neo_id == between_id ? rel : nil
+              rel if rel.other_node(self).neo_id == between_id
             else
               rel
             end

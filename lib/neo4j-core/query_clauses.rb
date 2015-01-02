@@ -50,41 +50,53 @@ module Neo4j
         end
 
         def node_from_key_and_value(key, value, options = {})
-          var, label_string, attributes = parse_node_from_key_and_value(key, value, options)
+          var = var_from_key_and_value(key, value, options[:prefer] || :var)
+          label = label_from_key_and_value(key, value, options[:prefer] || :var)
+          attributes = attributes_from_key_and_value(key, value)
 
-          "(#{var}#{format_label(label_string)}#{attributes_string(attributes)})"
+          "(#{var}#{format_label(label)}#{attributes_string(attributes)})"
         end
 
-        def parse_node_from_key_and_value(key, value, options = {})
-          var, label_string, attributes = nil
-
+        def var_from_key_and_value(key, value, prefer = :var)
           case value
-          when String, Symbol
-            var, label_string = [key, value]
-          when Class, Module
-            var, label_string = [key, defined?(value::CYPHER_LABEL) ? value::CYPHER_LABEL : value.name]
+          when String, Symbol, Class, Module
+            key
           when Hash
-            if !value.values.any? { |v| v.is_a?(Hash) }
-              case options[:prefer] || :var
-              when :var
-                var = key
-              when :label
-                label_string = key
-              end
+            if value.values.none? { |v| v.is_a?(Hash) }
+              key if prefer == :var
             else
-              var = key
-            end
-
-            if value.size == 1 && value.values.first.is_a?(Hash)
-              label_string, attributes = value.first
-            else
-              attributes = value
+              key
             end
           else
             fail ArgError, value
           end
+        end
 
-          [var, label_string, attributes]
+        def label_from_key_and_value(key, value, prefer = :var)
+          case value
+          when String, Symbol
+            value
+          when Class, Module
+            defined?(value::CYPHER_LABEL) ? value::CYPHER_LABEL : value.name
+          when Hash
+            if value.values.map(&:class) == [Hash]
+              value.first.first
+            else
+              key if value.values.none? { |v| v.is_a?(Hash) } && prefer == :label
+            end
+          else
+            fail ArgError, value
+          end
+        end
+
+        def attributes_from_key_and_value(key, value)
+          return nil unless value.is_a?(Hash)
+
+          if value.values.map(&:class) == [Hash]
+            value.first[1]
+          else
+            value
+          end
         end
 
         class << self
