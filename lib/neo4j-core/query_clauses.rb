@@ -75,7 +75,7 @@ module Neo4j
               var = key
             end
 
-            if value.map(&:class) == [Hash]
+            if value.size == 1 && value.values.first.is_a?(Hash)
               label_string, attributes = value.first
             else
               attributes = value
