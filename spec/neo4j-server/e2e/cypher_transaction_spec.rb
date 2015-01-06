@@ -46,7 +46,7 @@ module Neo4j
           expect(r.error?).to be true
 
           expect(r.error_msg).to match(/Invalid input/)
-          expect(r.error_status).to match(/Syntax/)
+          expect(r.error_code).to match(/Syntax/)
         end
 
         it 'can rollback' do
@@ -73,7 +73,7 @@ module Neo4j
         it 'cannot continue operations if a transaction is expired' do
           node = Neo4j::Node.create(name: 'andreas')
           Neo4j::Transaction.run do |tx|
-            tx.expired
+            tx.register_invalid_transaction(Neo4j::Server::ExpiredCypherTransaction)
             expect { node[:name] = 'foo' }.to raise_error 'Transaction expired, unable to perform query'
           end
         end

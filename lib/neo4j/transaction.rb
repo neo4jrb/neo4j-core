@@ -9,7 +9,7 @@ module Neo4j
         Neo4j::Transaction.register(self)
       end
 
-      # Marks this transaction as failed, which means that it will unconditionally be rolled back when close() is called. Aliased for legacy purposes.
+      # Marks this transaction as failed on the client side, which means that it will unconditionally be rolled back when close() is called. Aliased for legacy purposes.
       def mark_failed
         @failure = true
       end
@@ -20,15 +20,6 @@ module Neo4j
         !!@failure
       end
       alias_method :failure?, :failed?
-
-      def mark_expired
-        @expired = true
-      end
-      alias_method :expired, :mark_expired
-
-      def expired?
-        !!@expired
-      end
 
       # @private
       def push_nested!
