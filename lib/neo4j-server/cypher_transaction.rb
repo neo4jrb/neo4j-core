@@ -110,7 +110,7 @@ module Neo4j
       end
 
       def _query(cypher_query, params = nil)
-        fail 'Transaction invalid, unable to perform query'
+        fail 'Transaction is invalid, unable to perform query'
       end
     end
 

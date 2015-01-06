@@ -78,6 +78,14 @@ module Neo4j
           end
         end
 
+        it 'cannot continue operations if a transaction is invalid' do
+          node = Neo4j::Node.create(name: 'andreas')
+          Neo4j::Transaction.run do |tx|
+            tx.register_invalid_transaction(Neo4j::Server::InvalidCypherTransaction)
+            expect { node[:name] = 'foo' }.to raise_error 'Transaction is invalid, unable to perform query'
+          end
+        end
+
         it 'can use Transaction block style' do
           node = Neo4j::Transaction.run { Neo4j::Node.create(name: 'andreas') }
           expect(node['name']).to eq('andreas')
