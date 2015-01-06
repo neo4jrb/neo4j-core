@@ -1,9 +1,7 @@
 module Neo4j
-
   # The base class for both the Embedded and Server Neo4j Node
   # Notice this class is abstract and can't be instantiated
   class Node
-
     # A module that allows plugins to register wrappers around Neo4j::Node objects
     module Wrapper
       # Used by Neo4j::NodeMixin to wrap nodes
@@ -21,44 +19,44 @@ module Neo4j
     include PropertyContainer
 
     # @return [Hash<Symbol, Object>] all properties of the node
-    def props()
-      raise 'not implemented'
+    def props
+      fail 'not implemented'
     end
 
     # replace all properties with new properties
     # @param [Hash<Symbol, Object>] properties a hash of properties the node should have
     def props=(properties)
-      raise 'not implemented'
+      fail 'not implemented'
     end
 
     # Refresh the properties by reading it from the database again next time an property value is requested.
     def refresh
-      raise 'not implemented'
+      fail 'not implemented'
     end
 
     # Updates the properties, keeps old properties
     # @param [Hash<Symbol, Object>] properties hash of properties that should be updated on the node
     def update_props(properties)
-      raise 'not implemented'
+      fail 'not implemented'
     end
 
     # Directly remove the property on the node (low level method, may need transaction)
     def remove_property(key)
-      raise 'not implemented'
+      fail 'not implemented'
     end
 
     # Directly set the property on the node (low level method, may need transaction)
     # @param [Symbol, String] key
     # @param value see Neo4j::PropertyValidator::VALID_PROPERTY_VALUE_CLASSES for valid values
     def set_property(key, value)
-      raise 'not implemented'
+      fail 'not implemented'
     end
 
     # Directly get the property on the node (low level method, may need transaction)
     # @param [Symbol, String] key
     # @return the value of the key
     def get_property(key, value)
-      raise 'not implemented'
+      fail 'not implemented'
     end
 
     # Creates a relationship of given type to other_node with optionally properties
@@ -66,7 +64,7 @@ module Neo4j
     # @param [Neo4j::Node] other_node the other node
     # @param [Hash<Symbol, Object>] props optionally properties for the created relationship
     def create_rel(type, other_node, props = nil)
-      raise 'not implemented'
+      fail 'not implemented'
     end
 
 
@@ -89,45 +87,45 @@ module Neo4j
     #   node_a.rels(type: :friends, dir: :outgoing, between: node_b)
     #
     def rels(match = {dir: :both})
-      raise 'not implemented'
+      fail 'not implemented'
     end
 
     # Adds one or more Neo4j labels on the node
     # @param [Array<Symbol>] labels one or more labels to add
     def add_label(*labels)
-      raise 'not implemented'
+      fail 'not implemented'
     end
 
     # Sets label on the node. Any old labels will be removed
     # @param [Array<Symbol>] labels one or more labels to set
     def set_label(*labels)
-      raise 'not implemented'
+      fail 'not implemented'
     end
 
     # Removes given labels
     def remove_label(*labels)
-      raise 'not implemented'
+      fail 'not implemented'
     end
 
     #
     # @return [Array<Symbol>]all labels on the node
-    def labels()
-      raise 'not implemented'
+    def labels
+      fail 'not implemented'
     end
 
     # Deletes this node from the database
-    def del()
-      raise 'not implemented'
+    def del
+      fail 'not implemented'
     end
 
     # @return true if the node exists in the database
     def exist?
-      raise 'not implemented'
+      fail 'not implemented'
     end
 
     # @return all the Neo4j labels for this node
     def labels
-      raise 'not implemented'
+      fail 'not implemented'
     end
 
     # Returns the only node of a given type and direction that is attached to this node, or nil.
@@ -144,27 +142,27 @@ module Neo4j
     #
     # @param (see #rel)
     def node(specs = {})
-      raise 'not implemented'
+      fail 'not implemented'
     end
 
     # Same as #node but returns the relationship. Notice it may raise an exception if there are more then one relationship matching.
     def rel(spec = {})
-      raise 'not implemented'
+      fail 'not implemented'
     end
 
     def _rel(spec = {})
-      raise 'not implemented'
+      fail 'not implemented'
     end
 
     # Returns true or false if there is one or more relationships
     # @return [Boolean]
     def rel?(spec = {})
-      raise 'not implemented'
+      fail 'not implemented'
     end
 
     # @return [Boolean] true if the node exists
     def exist?
-      raise 'not implemented'
+      fail 'not implemented'
     end
 
     # Works like #rels method but instead returns the nodes.
@@ -174,12 +172,12 @@ module Neo4j
     # @return [Enumerable<Neo4j::Node>] an Enumeration of either Neo4j::Node objects or wrapped Neo4j::Node objects
     # @note it's possible that the same node is returned more than once because of several relationship reaching to the same node, see #outgoing for alternative
     def nodes(specs = {})
-      #rels(specs).map{|n| n.other_node(self)}
+      # rels(specs).map{|n| n.other_node(self)}
     end
 
     class << self
       # Creates a node
-      def create(props=nil, *labels_or_db)
+      def create(props = nil, *labels_or_db)
         session = Neo4j::Core::ArgumentHelper.session(labels_or_db)
         session.create_node(props, labels_or_db)
       end
@@ -197,21 +195,19 @@ module Neo4j
       end
 
       # Find the node with given label and value
-      def find_nodes(label, value=nil, session = Neo4j::Session.current!)
+      def find_nodes(label, value = nil, session = Neo4j::Session.current!)
         session.find_nodes(label, value)
       end
     end
 
     def initialize
-      raise "Can't instantiate abstract class" if abstract_class?
+      fail "Can't instantiate abstract class" if abstract_class?
     end
 
     private
+
     def abstract_class?
       self.class == Node
     end
-
-
   end
-
 end

@@ -1,5 +1,9 @@
-script: "bundle exec rake neo4j:install['community-2.1.3'] neo4j:start default --trace"
+script:
+  - "bundle exec rubocop"
+  - "bundle exec rake neo4j:install['community-2.2.0-M01'] neo4j:disable_auth neo4j:start default --trace"
 language: ruby
 rvm:
-  - 2.1.1
-  - jruby-19mode
+  - 2.2.0
+  - 2.1.5
+  - jruby-1.7.16
+  # - jruby-19mode

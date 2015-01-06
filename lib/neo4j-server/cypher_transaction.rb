@@ -1,75 +1,79 @@
-module Neo4j::Server
-  class CypherTransaction
-    include Neo4j::Transaction::Instance
-    include Neo4j::Core::CypherTranslator
-    include Resource
+module Neo4j
+  module Server
+    # The CypherTransaction object lifecycle is as follows:
+    # * It is initialized with the transactional endpoint URL and the connection object to use for communication. It does not communicate with the server to create this.
+    # * The first query within the transaction sets the commit and execution addresses, :commit_url and :exec_url.
+    # * At any time, `failure` can be called to mark a transaction failed and trigger a rollback upon closure.
+    # * `close` is called to end the transaction. It calls `_commit_tx` or `_delete_tx`.
+    #
+    # If a transaction is created and then closed without performing any queries, an OpenStruct is returned that behaves like a successfully closed query.
+    class CypherTransaction
+      include Neo4j::Transaction::Instance
+      include Neo4j::Core::CypherTranslator
+      include Resource
 
-    attr_reader :commit_url, :exec_url
+      attr_reader :commit_url, :exec_url, :base_url, :connection
 
-    class CypherError < StandardError
-      attr_reader :code, :status
-      def initialize(code, status, message)
-        super(message)
-        @code = code
-        @status = status
+      def initialize(url, session_connection)
+        @base_url = url
+        @connection = session_connection
+        register_instance
       end
-    end
 
-    def initialize(db, response, url, endpoint)
-      @endpoint = endpoint
-      @commit_url = response['commit']
-      @exec_url = response.headers['location']
-      init_resource_data(response, url)
-      expect_response_code(response,201)
-      register_instance
-    end
+      ROW_REST = %w(row REST)
+      def _query(cypher_query, params = nil)
+        fail 'Transaction expired, unable to perform query' if expired?
+        statement = {statement: cypher_query, parameters: params, resultDataContents: ROW_REST}
+        body = {statements: [statement]}
 
-    def _query(cypher_query, params=nil)
-      statement = {statement: cypher_query}
-      body = {statements: [statement]}
+        response = exec_url && commit_url ? connection.post(exec_url, body) : register_urls(body)
+        _create_cypher_response(response)
+      end
 
-      if params
-        # TODO can't get this working for some reason using parameters
-        #props = params.keys.inject({}) do|ack, k|
-        #  ack[k] = {name: params[k]}
-        #  ack
-        #end
-        #statement[:parameters] = props
+      def _delete_tx
+        _tx_query(:delete, exec_url, headers: resource_headers)
+      end
 
-        # So we have to do this workaround
-        params.each_pair do |k,v|
-          statement[:statement].gsub!("{ #{k} }", "#{escape_value(v)}")
+      def _commit_tx
+        _tx_query(:post, commit_url, nil)
+      end
+
+      private
+
+      def _tx_query(action, endpoint, headers = {})
+        return empty_response if !commit_url || expired?
+        response = connection.send(action, endpoint, headers)
+        expect_response_code(response, 200)
+        response
+      end
+
+      def register_urls(body)
+        response = connection.post(base_url, body)
+        @commit_url = response.body['commit']
+        @exec_url = response.headers['Location']
+        fail "NO ENDPOINT URL #{connection} : HEAD: #{response.headers.inspect}" if !exec_url || exec_url.empty?
+        init_resource_data(response.body, base_url)
+        expect_response_code(response, 201)
+        response
+      end
+
+      def _create_cypher_response(response)
+        first_result = response.body['results'][0]
+
+        cr = CypherResponse.new(response, true)
+        if response.body['errors'].empty?
+          cr.set_data(first_result['data'], first_result['columns'])
+        else
+          first_error = response.body['errors'].first
+          expired if first_error['message'].match(/Unrecognized transaction id/)
+          cr.set_error(first_error['message'], first_error['code'], first_error['code'])
         end
+        cr
       end
-      response = @endpoint.post(@exec_url, headers: resource_headers, body: body.to_json)
-      _create_cypher_response(response)
-    end
 
-    def _create_cypher_response(response)
-      first_result = response['results'][0]
-      cr = CypherResponse.new(response, true)
-
-      if (response['errors'].empty?)
-        cr.set_data(first_result['data'], first_result['columns'])
-      else
-        first_error = response['errors'].first
-        cr.set_error(first_error['message'], first_error['code'], first_error['code'])
+      def empty_response
+        OpenStruct.new(status: 200, body: '')
       end
-      cr
-    end
-
-
-
-    def _delete_tx
-      response = @endpoint.delete(@exec_url, headers: resource_headers)
-      expect_response_code(response,200)
-      response
-    end
-
-    def _commit_tx
-      response = @endpoint.post(@commit_url, headers: resource_headers)
-      expect_response_code(response,200)
-      response
     end
   end
 end

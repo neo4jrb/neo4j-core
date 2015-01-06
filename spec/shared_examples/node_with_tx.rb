@@ -1,6 +1,4 @@
-RSpec.shared_examples "Neo4j::Node with tx" do
-
-
+RSpec.shared_examples 'Neo4j::Node with tx' do
   shared_examples 'a node with properties and id' do
     describe '#neo_id' do
       it 'is a fixnum' do
@@ -10,7 +8,7 @@ RSpec.shared_examples "Neo4j::Node with tx" do
 
     describe '#props' do
       it 'contains a hash of properties' do
-        expect(subject.props).to eq({name: 'Brian', hat: 'fancy'})
+        expect(subject.props).to eq(name: 'Brian', hat: 'fancy')
       end
     end
 
@@ -28,12 +26,10 @@ RSpec.shared_examples "Neo4j::Node with tx" do
         expect(rel_a[:age]).to eq(42)
       end
     end
-
   end
 
   context 'inside a transaction' do
     describe 'Neo4j::Relationship.create' do
-
       subject(:created_rel) do
         @node_a = Neo4j::Node.create
         @node_b = Neo4j::Node.create
@@ -47,16 +43,15 @@ RSpec.shared_examples "Neo4j::Node with tx" do
       end
 
       describe '#exist' do
-        specify{is_expected.to exist}
+        specify { is_expected.to exist }
       end
 
       it 'has properties' do
-        expect(subject.props).to eq({since: 1992})
+        expect(subject.props).to eq(since: 1992)
       end
     end
 
     describe 'Neo4j::Node.create' do
-
       around(:example) do |example|
         tx = Neo4j::Transaction.new
         example.run
@@ -67,16 +62,15 @@ RSpec.shared_examples "Neo4j::Node with tx" do
         Neo4j::Node.create({name: 'Brian', hat: 'fancy'}, :person)
       end
 
-      it_behaves_like "a node with properties and id"
+      it_behaves_like 'a node with properties and id'
 
       describe 'Neo4j::Node.load' do
         subject(:loaded_node) do
           Neo4j::Node.load(created_node.neo_id)
         end
 
-        it_behaves_like "a node with properties and id"
+        it_behaves_like 'a node with properties and id'
       end
-
     end
   end
 
@@ -115,11 +109,9 @@ RSpec.shared_examples "Neo4j::Node with tx" do
       end
       expect(Neo4j::Node.load(id)).to eq(nil)
     end
-
   end
 
   context 'rollback' do
-
     it 'does not rolls back the transaction if no failure' do
       node = Neo4j::Transaction.run do
         Neo4j::Node.create
@@ -138,16 +130,15 @@ RSpec.shared_examples "Neo4j::Node with tx" do
 
     it 'rolls back the transaction if an exception occurs' do
       ids = []
-      begin
-        Neo4j::Transaction.run do |tx|
+      expect do
+        Neo4j::Transaction.run do
           a = Neo4j::Node.create
           ids << a.neo_id
           expect(Neo4j::Node.load(ids.first)).to eq(a)
-          raise "should rollback"
+          fail 'should rollback'
         end
-      rescue Exception => e
-        expect(e.to_s).to eq('should rollback')
-      end
+      end.to raise_error('should rollback')
+
       expect(Neo4j::Node.load(ids.first)).to be_nil
     end
 
@@ -173,8 +164,6 @@ RSpec.shared_examples "Neo4j::Node with tx" do
       end
 
       expect(node1.node(dir: :outgoing, type: :knows)).to be_nil
-
     end
   end
-
 end

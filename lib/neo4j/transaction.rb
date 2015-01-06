@@ -1,6 +1,5 @@
 module Neo4j
   module Transaction
-
     extend self
 
     module Instance
@@ -10,15 +9,25 @@ module Neo4j
         Neo4j::Transaction.register(self)
       end
 
-      # Marks this transaction as failed, which means that it will unconditionally be rolled back when close() is called.
-      def failure
+      # Marks this transaction as failed, which means that it will unconditionally be rolled back when close() is called. Aliased for legacy purposes.
+      def mark_failed
         @failure = true
       end
-      alias_method :fail, :failure
+      alias_method :failure, :mark_failed
 
-      # If it has been marked as failed
-      def failure?
+      # If it has been marked as failed. Aliased for legacy purposes.
+      def failed?
         !!@failure
+      end
+      alias_method :failure?, :failed?
+
+      def mark_expired
+        @expired = true
+      end
+      alias_method :expired, :mark_expired
+
+      def expired?
+        !!@expired
       end
 
       # @private
@@ -51,18 +60,11 @@ module Neo4j
       def close
         pop_nested!
         return if @pushed_nested >= 0
-        raise "Can't commit transaction, already committed" if (@pushed_nested < -1)
+        fail "Can't commit transaction, already committed" if @pushed_nested < -1
         Neo4j::Transaction.unregister(self)
-        if failure?
-          _delete_tx
-        else
-          _commit_tx
-        end
+        failed? ? _delete_tx : _commit_tx
       end
-
     end
-
-
 
     # @return [Neo4j::Transaction::Instance]
     def new(current = Session.current!)
@@ -72,20 +74,20 @@ module Neo4j
     # Runs the given block in a new transaction.
     # @param [Boolean] run_in_tx if true a new transaction will not be created, instead if will simply yield to the given block
     # @@yield [Neo4j::Transaction::Instance]
-    def run(run_in_tx=true)
-      raise ArgumentError.new("Expected a block to run in Transaction.run") unless block_given?
+    def run(run_in_tx = true)
+      fail ArgumentError, 'Expected a block to run in Transaction.run' unless block_given?
 
       return yield(nil) unless run_in_tx
 
       begin
         tx = Neo4j::Transaction.new
         ret = yield tx
-      rescue Exception => e
-        if e.respond_to?(:cause) && e.cause
+      rescue Exception => e # rubocop:disable Lint/RescueException
+        if e.respond_to?(:cause) && e.cause.respond_to?(:print_stack_trace)
           puts "Java Exception in a transaction, cause: #{e.cause}"
           e.cause.print_stack_trace
         end
-        tx.failure unless tx.nil?
+        tx.mark_failed unless tx.nil?
         raise
       ensure
         tx.close unless tx.nil?
@@ -106,7 +108,7 @@ module Neo4j
     # @private
     def register(tx)
       # we don't support running more then one transaction per thread
-      raise "Already running a transaction" if current
+      fail 'Already running a transaction' if current
       Thread.current[:neo4j_curr_tx] = tx
     end
 
@@ -114,6 +116,5 @@ module Neo4j
     def unregister_current
       Thread.current[:neo4j_curr_tx] = nil
     end
-
   end
 end

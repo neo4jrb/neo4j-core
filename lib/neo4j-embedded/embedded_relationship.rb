@@ -1,9 +1,8 @@
-module Neo4j::Embedded
-  class EmbeddedRelationship
-    class << self
-      # This method is used to extend a Java Neo4j class so that it includes the same mixins as this class.
-      def extend_java_class(java_clazz)
-        java_clazz.class_eval do
+module Neo4j
+  module Embedded
+    class EmbeddedRelationship
+      class << self
+        Java::OrgNeo4jKernelImplCore::RelationshipProxy.class_eval do
           include Neo4j::Embedded::Property
           include Neo4j::EntityEquality
           include Neo4j::Relationship::Wrapper
@@ -39,7 +38,7 @@ module Neo4j::Embedded
           end
 
           def _rel_type
-            getType().name().to_sym
+            getType.name.to_sym
           end
           tx_methods :rel_type
 
@@ -47,6 +46,10 @@ module Neo4j::Embedded
             delete
           end
           tx_methods :del
+          tx_methods :delete
+
+          alias_method :destroy, :del
+          tx_methods :destroy
 
           def other_node(n)
             _other_node(n.neo4j_obj).wrapper
@@ -63,14 +66,8 @@ module Neo4j::Embedded
           def _end_node
             getEndNode
           end
-
         end
       end
     end
-
-    extend_java_class(Java::OrgNeo4jKernelImplCore::RelationshipProxy)
-
   end
-
-
 end

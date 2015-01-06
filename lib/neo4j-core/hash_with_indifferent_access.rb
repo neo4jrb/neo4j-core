@@ -3,7 +3,6 @@ module Neo4j
     # Stolen from http://as.rubyonrails.org/classes/HashWithIndifferentAccess.html
     # We don't want to depend on active support
     class HashWithIndifferentAccess < Hash
-
       # Always returns true, so that <tt>Array#extract_options!</tt> finds members of this class.
       def extractable_options?
         true
@@ -103,7 +102,7 @@ module Neo4j
       #   hash.values_at("a", "b") # => ["x", "y"]
       #
       def values_at(*indices)
-        indices.collect {|key| self[convert_key(key)]}
+        indices.collect { |key| self[convert_key(key)] }
       end
 
       # Returns an exact copy of the hash.
@@ -116,7 +115,7 @@ module Neo4j
       # Merges the instantized and the specified hashes together, giving precedence to the values from the second hash.
       # Does not overwrite the existing hash.
       def merge(hash)
-        self.dup.update(hash)
+        dup.update(hash)
       end
 
       # Performs the opposite of merge, with the keys and values from the first hash taking precedence over the second.
@@ -126,7 +125,7 @@ module Neo4j
       end
 
       def reverse_merge!(other_hash)
-        replace(reverse_merge( other_hash ))
+        replace(reverse_merge(other_hash))
       end
 
       # Removes a specified key from the hash.
@@ -134,11 +133,21 @@ module Neo4j
         super(convert_key(key))
       end
 
-      def stringify_keys!; self end
-      def stringify_keys; dup end
-#      undef :symbolize_keys!
-      def symbolize_keys; to_hash.symbolize_keys end
-      def to_options!; self end
+      def stringify_keys!
+        self
+      end
+
+      def stringify_keys
+        dup
+      end
+      #      undef :symbolize_keys!
+      def symbolize_keys
+        to_hash.symbolize_keys
+      end
+
+      def to_options!
+        self
+      end
 
       # Convert to a Hash with String keys.
       def to_hash
@@ -146,20 +155,20 @@ module Neo4j
       end
 
       protected
-        def convert_key(key)
-          key.kind_of?(Symbol) ? key.to_s : key
-        end
 
-        def convert_value(value)
-          if value.is_a? Hash
-            value #.nested_under_indifferent_access
-          elsif value.is_a?(Array)
-            value.dup.replace(value.map { |e| convert_value(e) })
-          else
-            value
-          end
+      def convert_key(key)
+        key.is_a?(Symbol) ? key.to_s : key
+      end
+
+      def convert_value(value)
+        if value.is_a? Hash
+          value # .nested_under_indifferent_access
+        elsif value.is_a?(Array)
+          value.dup.replace(value.map { |e| convert_value(e) })
+        else
+          value
         end
+      end
     end
-
   end
 end

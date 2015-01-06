@@ -9,7 +9,6 @@ module Neo4j
   # Furthermore, Neo4j guarantees that a relationship is never "hanging freely,"
   # i.e. start_node, end_node and other_node are guaranteed to always return valid, non-nil nodes.
   class Relationship
-
     # A module that allows plugins to register wrappers around Neo4j::Node objects
     module Wrapper
       # Used by Neo4j::NodeMixin to wrap nodes
@@ -20,7 +19,6 @@ module Neo4j
       def neo4j_obj
         self
       end
-
     end
 
     include PropertyContainer
@@ -28,39 +26,39 @@ module Neo4j
     include Wrapper
 
     # @return [Hash<Symbol,Object>] all properties of the relationship
-    def props()
-      raise 'not implemented'
+    def props
+      fail 'not implemented'
     end
 
     # replace all properties with new properties
     # @param [Hash] properties a hash of properties the relationship should have
     def props=(properties)
-      raise 'not implemented'
+      fail 'not implemented'
     end
 
     # Updates the properties, keeps old properties
     # @param [Hash<Symbol,Object>] properties hash of properties that should be updated on the relationship
     def update_props(properties)
-      raise 'not implemented'
+      fail 'not implemented'
     end
 
     # Directly remove the property on the relationship (low level method, may need transaction)
     def remove_property(key)
-      raise 'not implemented'
+      fail 'not implemented'
     end
 
     # Directly set the property on the relationship (low level method, may need transaction)
     # @param [Hash, String] key
     # @param value see Neo4j::PropertyValidator::VALID_PROPERTY_VALUE_CLASSES for valid values
     def set_property(key, value)
-      raise 'not implemented'
+      fail 'not implemented'
     end
 
     # Directly get the property on the relationship (low level method, may need transaction)
     # @param [Hash, String] key
     # @return the value of the key
     def get_property(key, value)
-      raise 'not implemented'
+      fail 'not implemented'
     end
 
     # Returns the start node of this relationship.
@@ -72,7 +70,7 @@ module Neo4j
     # Same as #start_node but does not wrap the node
     # @return [Neo4j::Node]
     def _start_node
-      raise 'not implemented'
+      fail 'not implemented'
     end
 
     # Returns the end node of this relationship.
@@ -84,24 +82,24 @@ module Neo4j
     # Same as #end_node but does not wrap the node
     # @return [Neo4j::Node]
     def _end_node
-      raise 'not implemented'
+      fail 'not implemented'
     end
 
     # @abstract
     def del
-      raise 'not implemented'
+      fail 'not implemented'
     end
 
     # The unique neo4j id
     # @abstract
     def neo_id
-      raise 'not implemented'
+      fail 'not implemented'
     end
 
     # @return [true, false] if the relationship exists
     # @abstract
     def exist?
-      raise 'not implemented'
+      fail 'not implemented'
     end
 
     # Returns the relationship name
@@ -112,7 +110,7 @@ module Neo4j
     #   a.rels.first.rel_type # => :friends
     # @return [Symbol] the type of the relationship
     def rel_type
-      raise 'not implemented'
+      fail 'not implemented'
     end
 
     # A convenience operation that, given a node that is attached to this relationship, returns the other node.
@@ -134,14 +132,12 @@ module Neo4j
 
     # Same as #other_node but can return a none wrapped node
     def _other_node(node)
-      s = _start_node
-      e = _end_node
       if node == _start_node
-        return _end_node
+        _end_node
       elsif node == _end_node
-        return _start_node
+        _start_node
       else
-        raise "Node #{node.inspect} is neither start nor end node"
+        fail "Node #{node.inspect} is neither start nor end node"
       end
     end
 
@@ -159,7 +155,6 @@ module Neo4j
       def _load(neo_id, session = Neo4j::Session.current)
         session.load_relationship(neo_id)
       end
-
     end
   end
 end
