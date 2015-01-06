@@ -21,6 +21,7 @@ module Neo4j
       end
 
       ROW_REST = %w(row REST)
+
       def _query(cypher_query, params = nil)
         statement = {statement: cypher_query, parameters: params, resultDataContents: ROW_REST}
         body = {statements: [statement]}
@@ -38,10 +39,10 @@ module Neo4j
       # Replaces current transaction with invalid transaction indicating it was rolled back or expired on the server side. http://neo4j.com/docs/stable/status-codes.html#_classifications
       def handle_transaction_errors(response)
         tx_class = if response.transaction_not_found?
-          ExpiredCypherTransaction
-        elsif response.transaction_failed?
-          InvalidCypherTransaction
-        end
+                     ExpiredCypherTransaction
+                   elsif response.transaction_failed?
+                     InvalidCypherTransaction
+                   end
 
         register_invalid_transaction(tx_class) if tx_class
       end
@@ -58,7 +59,7 @@ module Neo4j
 
       def _commit_tx
         _tx_query(:post, commit_url, nil)
-      end  
+      end
 
       private
 
@@ -86,11 +87,11 @@ module Neo4j
       def valid?
         !invalid?
       end
-  
+
       def expired?
         is_a? ExpiredCypherTransaction
       end
-  
+
       def invalid?
         is_a? InvalidCypherTransaction
       end
@@ -108,15 +109,15 @@ module Neo4j
         Neo4j::Transaction.unregister(self)
       end
 
-      def _query(cypher_query, params=nil)
+      def _query(cypher_query, params = nil)
         fail 'Transaction invalid, unable to perform query'
       end
     end
 
     class ExpiredCypherTransaction < InvalidCypherTransaction
-      def _query(cypher_query, params=nil)
+      def _query(cypher_query, params = nil)
         fail 'Transaction expired, unable to perform query'
       end
     end
-  end 
+  end
 end

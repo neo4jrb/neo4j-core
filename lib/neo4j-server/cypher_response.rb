@@ -75,26 +75,26 @@ module Neo4j
       def hash_value_as_object(value, session)
         return value unless value['labels'] || value['type'] || transaction_response?
 
-        is_node, data =  if transaction_response?
-                           add_transaction_entity_id
-                           [!mapped_rest_data['start'], mapped_rest_data]
-                         elsif value['labels'] || value['type']
-                           add_entity_id(value)
-                           [value['labels'], value]
-                         end
+        is_node, data = if transaction_response?
+                          add_transaction_entity_id
+                          [!mapped_rest_data['start'], mapped_rest_data]
+                        elsif value['labels'] || value['type']
+                          add_entity_id(value)
+                          [value['labels'], value]
+                        end
         (is_node ? CypherNode : CypherRelationship).new(session, data).wrapper
       end
 
       attr_reader :struct
 
       def initialize(response, uncommited = false)
-        @response   = response
+        @response = response
         @uncommited = uncommited
         set_data_from_request if response
       end
 
-      def entity_data(id=nil)
-        if uncommited?
+      def entity_data(id = nil)
+        if @uncommited
           data = @data.first['row'].first
           data.is_a?(Hash) ? {'data' => data, 'id' => id} : data
         else
@@ -104,7 +104,7 @@ module Neo4j
       end
 
       def first_data(id = nil)
-        if uncommited?
+        if @uncommited
           data = @data.first['row'].first
           # data.is_a?(Hash) ? {'data' => data, 'id' => id} : data
         else
@@ -156,10 +156,6 @@ module Neo4j
         errors.any?
       end
 
-      def uncommited?
-        @uncommited
-      end
-
       def data?
         !response.body['data'].nil?
       end
@@ -182,7 +178,7 @@ module Neo4j
         @struct = columns.empty? ? Object.new : Struct.new(*columns.map(&:to_sym))
         self
       end
-  
+
       def set_data_from_request
         return if error?
         if transaction_response? && response.body['results']
@@ -191,17 +187,17 @@ module Neo4j
           set_data(response.body['data'], response.body['columns'])
         end
       end
-  
+
       def raise_error
         fail 'Tried to raise error without an error' unless error?
         fail error
       end
-  
+
       def raise_cypher_error
         fail 'Tried to raise error without an error' unless error?
         fail Neo4j::Session::CypherError.new(error.message, error.code, error.status)
       end
-  
+
       def self.create_with_no_tx(response)
         CypherResponse.new(response)
       end
@@ -213,11 +209,11 @@ module Neo4j
       def transaction_response?
         response.respond_to?('body') && !response.body['commit'].nil?
       end
-  
+
       def transaction_failed?
         errors.any? { |e| e.code =~ /Neo\.DatabaseError/ }
       end
-  
+
       def transaction_not_found?
         errors.any? { |e| e.code == 'Neo.ClientError.Transaction.UnknownId' }
       end
