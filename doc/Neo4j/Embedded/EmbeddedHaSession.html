@@ -4,7 +4,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>
-  Class: Neo4j::Embedded::EmbeddedImpermanentSession
+  Class: Neo4j::Embedded::EmbeddedHaSession
   
     &mdash; Neo4j::Core API Documentation
   
@@ -17,7 +17,7 @@
 <script type="text/javascript" charset="utf-8">
   hasFrames = window.top.frames.main ? true : false;
   relpath = '../../';
-  framesUrl = "../../frames.html#!Neo4j/Embedded/EmbeddedImpermanentSession.html";
+  framesUrl = "../../frames.html#!Neo4j/Embedded/EmbeddedHaSession.html";
 </script>
 
 
@@ -34,7 +34,7 @@
     <a href="../../_index.html">Index (E)</a> &raquo;
     <span class='title'><span class='object_link'><a href="../../Neo4j.html" title="Neo4j (module)">Neo4j</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Embedded.html" title="Neo4j::Embedded (module)">Embedded</a></span></span>
      &raquo; 
-    <span class="title">EmbeddedImpermanentSession</span>
+    <span class="title">EmbeddedHaSession</span>
   
 
   <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
@@ -63,7 +63,7 @@
 
     <iframe id="search_frame"></iframe>
 
-    <div id="content"><h1>Class: Neo4j::Embedded::EmbeddedImpermanentSession
+    <div id="content"><h1>Class: Neo4j::Embedded::EmbeddedHaSession
   
   
   
@@ -82,7 +82,7 @@
           
             <li class="next"><span class='object_link'><a href="EmbeddedSession.html" title="Neo4j::Embedded::EmbeddedSession (class)">EmbeddedSession</a></span></li>
           
-            <li class="next">Neo4j::Embedded::EmbeddedImpermanentSession</li>
+            <li class="next">Neo4j::Embedded::EmbeddedHaSession</li>
           
         </ul>
         <a href="#" class="inheritanceTree">show all</a>
@@ -98,7 +98,7 @@
   
   
     <dt class="r2 last">Defined in:</dt>
-    <dd class="r2 last">lib/neo4j-embedded/embedded_impermanent_session.rb</dd>
+    <dd class="r2 last">lib/neo4j-embedded/embedded_ha_session.rb</dd>
   
 </dl>
 <div class="clear"></div>
@@ -214,15 +214,25 @@
 12
 13
 14
-15</pre>
+15
+16
+17
+18
+19
+20</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j-embedded/embedded_impermanent_session.rb', line 10</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-embedded/embedded_ha_session.rb', line 10</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_start'>start</span>
-  <span class='id identifier rubyid_fail'>fail</span> <span class='const'>Error</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Embedded Neo4j db is already running</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_running?'>running?</span>
-  <span class='comment'># puts &quot;Start test impermanent embedded Neo4j db at #{db_location}&quot;
-</span>  <span class='ivar'>@graph_db</span> <span class='op'>=</span> <span class='const'>Java</span><span class='op'>::</span><span class='const'>OrgNeo4jTest</span><span class='op'>::</span><span class='const'>TestGraphDatabaseFactory</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='period'>.</span><span class='id identifier rubyid_newImpermanentDatabase'>newImpermanentDatabase</span>
+  <span class='id identifier rubyid_fail'>fail</span> <span class='const'>Error</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Embedded HA Neo4j db is already running</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_running?'>running?</span>
+  <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Start embedded HA Neo4j db at </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_db_location'>db_location</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_factory'>factory</span>    <span class='op'>=</span> <span class='const'>Java</span><span class='op'>::</span><span class='const'>OrgNeo4jGraphdbFactory</span><span class='op'>::</span><span class='const'>HighlyAvailableGraphDatabaseFactory</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='id identifier rubyid_db_service'>db_service</span> <span class='op'>=</span> <span class='id identifier rubyid_factory'>factory</span><span class='period'>.</span><span class='id identifier rubyid_newHighlyAvailableDatabaseBuilder'>newHighlyAvailableDatabaseBuilder</span><span class='lparen'>(</span><span class='id identifier rubyid_db_location'>db_location</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_fail'>fail</span> <span class='const'>Error</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Need properties file for HA configuration</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_properties_file'>properties_file</span>
+  <span class='id identifier rubyid_db_service'>db_service</span><span class='period'>.</span><span class='id identifier rubyid_loadPropertiesFromFile'>loadPropertiesFromFile</span><span class='lparen'>(</span><span class='id identifier rubyid_properties_file'>properties_file</span><span class='rparen'>)</span>
+  <span class='ivar'>@graph_db</span> <span class='op'>=</span> <span class='id identifier rubyid_db_service'>db_service</span><span class='period'>.</span><span class='id identifier rubyid_newGraphDatabase'>newGraphDatabase</span>
   <span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Session</span><span class='period'>.</span><span class='id identifier rubyid__notify_listeners'>_notify_listeners</span><span class='lparen'>(</span><span class='symbol'>:session_available</span><span class='comma'>,</span> <span class='kw'>self</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -235,7 +245,7 @@
 </div>
 
     <div id="footer">
-  Generated on Tue Jan  6 11:34:24 2015 by
+  Generated on Tue Jan  6 11:34:23 2015 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.4 (ruby-2.1.5).
 </div>

@@ -153,7 +153,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#_listeners-class_method" title="_listeners (class method)">+ (Object) <strong>_listeners</strong> </a>
+      <a href="#current-class_method" title="current (class method)">+ (Neo4j::Session) <strong>current</strong> </a>
     
 
     
@@ -167,95 +167,9 @@
   
 
   
-    <span class="summary_desc"><div class='inline'></div></span>
-  
-</li>
-
-      
-        <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#_notify_listeners-class_method" title="_notify_listeners (class method)">+ (Object) <strong>_notify_listeners</strong>(event, data) </a>
-    
-
-    
-  </span>
-  
-  
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'></div></span>
-  
-</li>
-
-      
-        <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#add_listener-class_method" title="add_listener (class method)">+ (Object) <strong>add_listener</strong>(&amp;listener) </a>
-    
-
-    
-  </span>
-  
-  
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'></div></span>
-  
-</li>
-
-      
-        <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#create_session-class_method" title="create_session (class method)">+ (Object) <strong>create_session</strong>(db_type, params = {}) </a>
-    
-
-    
-  </span>
-  
-  
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'></div></span>
-  
-</li>
-
-      
-        <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#current-class_method" title="current (class method)">+ (Object) <strong>current</strong> </a>
-    
-
-    
-  </span>
-  
-  
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'></div></span>
+    <span class="summary_desc"><div class='inline'>
+<p>The current session.</p>
+</div></span>
   
 </li>
 
@@ -277,7 +191,10 @@
   
 
   
-    <span class="summary_desc"><div class='inline'></div></span>
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the current session or raise an exception if no session is
+available.</p>
+</div></span>
   
 </li>
 
@@ -321,7 +238,9 @@
   
 
   
-    <span class="summary_desc"><div class='inline'></div></span>
+    <span class="summary_desc"><div class='inline'>
+<p>Returns a session with given name or else raise an exception.</p>
+</div></span>
   
 </li>
 
@@ -400,51 +319,7 @@ available, or called when it later becomes available.</p>
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#query-class_method" title="query (class method)">+ (Object) <strong>query</strong>(options = {}) </a>
-    
-
-    
-  </span>
-  
-  
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'></div></span>
-  
-</li>
-
-      
-        <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#register-class_method" title="register (class method)">+ (Object) <strong>register</strong>(session, name = nil, default = nil) </a>
-    
-
-    
-  </span>
-  
-  
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'></div></span>
-  
-</li>
-
-      
-        <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#register_db-class_method" title="register_db (class method)">+ (Object) <strong>register_db</strong>(db, &amp;session_factory) </a>
+      <a href="#query-class_method" title="query (class method)">+ (Object) <strong>query</strong>(*args) </a>
     
 
     
@@ -480,7 +355,9 @@ available, or called when it later becomes available.</p>
   
 
   
-    <span class="summary_desc"><div class='inline'></div></span>
+    <span class="summary_desc"><div class='inline'>
+<p>Sets the session to be used as default.</p>
+</div></span>
   
 </li>
 
@@ -488,7 +365,7 @@ available, or called when it later becomes available.</p>
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#unregister-class_method" title="unregister (class method)">+ (Object) <strong>unregister</strong>(session) </a>
+      <a href="#user_agent_string-class_method" title="user_agent_string (class method)">+ (Object) <strong>user_agent_string</strong> </a>
     
 
     
@@ -735,159 +612,55 @@ the database.</p>
 
     
       <div class="method_details first">
-  <h3 class="signature first" id="_listeners-class_method">
+  <h3 class="signature first" id="current-class_method">
   
-    + (<tt>Object</tt>) <strong>_listeners</strong> 
-  
-
+    + (<tt><span class='object_link'><a href="" title="Neo4j::Session (class)">Neo4j::Session</a></span></tt>) <strong>current</strong> 
   
 
   
-</h3>
-<table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
 
-
-137
-138
-139
-140</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 137</span>
-
-<span class='kw'>def</span> <span class='id identifier rubyid__listeners'>_listeners</span>
-  <span class='cvar'>@@listeners</span> <span class='op'>||=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
-  <span class='cvar'>@@listeners</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
+  
+</h3><div class="docstring">
+  <div class="discussion">
     
-      <div class="method_details ">
-  <h3 class="signature " id="_notify_listeners-class_method">
-  
-    + (<tt>Object</tt>) <strong>_notify_listeners</strong>(event, data) 
-  
-
-  
-
-  
-</h3>
-<table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
+<p>Returns the current session</p>
 
 
-142
-143
-144</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 142</span>
-
-<span class='kw'>def</span> <span class='id identifier rubyid__notify_listeners'>_notify_listeners</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid__listeners'>_listeners</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_li'>li</span><span class='op'>|</span> <span class='id identifier rubyid_li'>li</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span><span class='rbrace'>}</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
+  </div>
 </div>
-    
-      <div class="method_details ">
-  <h3 class="signature " id="add_listener-class_method">
+<div class="tags">
   
-    + (<tt>Object</tt>) <strong>add_listener</strong>(&amp;listener) 
+<p class="tag_title">Returns:</p>
+<ul class="return">
   
-
-  
-
-  
-</h3>
-<table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-133
-134
-135</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 133</span>
-
-<span class='kw'>def</span> <span class='id identifier rubyid_add_listener'>add_listener</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='id identifier rubyid_listener'>listener</span><span class='rparen'>)</span>
-  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid__listeners'>_listeners</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_listener'>listener</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Neo4j::Session (class)">Neo4j::Session</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the current session</p>
 </div>
-    
-      <div class="method_details ">
-  <h3 class="signature " id="create_session-class_method">
+      
+    </li>
   
-    + (<tt>Object</tt>) <strong>create_session</strong>(db_type, params = {}) 
-  
+</ul>
 
-  
-
-  
-</h3>
-<table class="source_code">
+</div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-93
-94
-95
-96
-97
-98</pre>
+115
+116
+117</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 93</span>
-
-<span class='kw'>def</span> <span class='id identifier rubyid_create_session'>create_session</span><span class='lparen'>(</span><span class='id identifier rubyid_db_type'>db_type</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
-  <span class='kw'>unless</span> <span class='lparen'>(</span><span class='cvar'>@@factories</span><span class='lbracket'>[</span><span class='id identifier rubyid_db_type'>db_type</span><span class='rbracket'>]</span><span class='rparen'>)</span>
-    <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Can&#39;t connect to database &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_db_type'>db_type</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;, available </span><span class='embexpr_beg'>#{</span><span class='cvar'>@@factories</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>,</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
-  <span class='kw'>end</span>
-  <span class='cvar'>@@factories</span><span class='lbracket'>[</span><span class='id identifier rubyid_db_type'>db_type</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
-    
-      <div class="method_details ">
-  <h3 class="signature " id="current-class_method">
-  
-    + (<tt>Object</tt>) <strong>current</strong> 
-  
-
-  
-
-  
-</h3>
-<table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-100
-101
-102</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 100</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 115</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_current'>current</span>
   <span class='cvar'>@@current_session</span>
@@ -906,23 +679,34 @@ the database.</p>
   
 
   
-</h3>
-<table class="source_code">
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the current session or raise an exception if no session is
+available</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-104
-105
-106
-107</pre>
+120
+121
+122
+123</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 104</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 120</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_current!'>current!</span>
-  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>No session, please create a session first with Neo4j::Session.open(:server_db) or :embedded_db</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_current'>current</span>
+  <span class='id identifier rubyid_fail'>fail</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>No session, please create a session first with Neo4j::Session.open(:server_db) or :embedded_db</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_current'>current</span>
   <span class='id identifier rubyid_current'>current</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -939,22 +723,21 @@ the database.</p>
   
 
   
-</h3>
-<table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-160
-161
-162</pre>
+194
+195
+196</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 160</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 194</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_inspect'>inspect</span>
-   <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Neo4j::Session available: </span><span class='embexpr_beg'>#{</span><span class='cvar'>@@factories</span> <span class='op'>&amp;&amp;</span> <span class='cvar'>@@factories</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Neo4j::Session available: </span><span class='embexpr_beg'>#{</span><span class='cvar'>@@factories</span> <span class='op'>&amp;&amp;</span> <span class='cvar'>@@factories</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -970,22 +753,32 @@ the database.</p>
   
 
   
-</h3>
-<table class="source_code">
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a session with given name or else raise an exception</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-114
-115
-116</pre>
+131
+132
+133</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 114</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 131</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_named'>named</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
-  <span class='cvar'>@@all_sessions</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_raise'>raise</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>No session named </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='cvar'>@@all_sessions</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_fail'>fail</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>No session named </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1013,29 +806,26 @@ available, or called when it later becomes available.</p>
 <div class="tags">
   
 
-</div>
-<table class="source_code">
+</div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-124
-125
-126
-127
-128
-129
-130
-131</pre>
+143
+144
+145
+146
+147
+148
+149</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 124</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 143</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_on_session_available'>on_session_available</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='id identifier rubyid_callback'>callback</span><span class='rparen'>)</span>
-  <span class='kw'>if</span> <span class='lparen'>(</span><span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Session</span><span class='period'>.</span><span class='id identifier rubyid_current'>current</span><span class='rparen'>)</span>
-    <span class='id identifier rubyid_callback'>callback</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Session</span><span class='period'>.</span><span class='id identifier rubyid_current'>current</span><span class='rparen'>)</span>
-  <span class='kw'>end</span>
+  <span class='id identifier rubyid_callback'>callback</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Session</span><span class='period'>.</span><span class='id identifier rubyid_current'>current</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Session</span><span class='period'>.</span><span class='id identifier rubyid_current'>current</span>
+
   <span class='id identifier rubyid_add_listener'>add_listener</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_event'>event</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='op'>|</span>
     <span class='id identifier rubyid_callback'>callback</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_event'>event</span> <span class='op'>==</span> <span class='symbol'>:session_available</span>
   <span class='kw'>end</span>
@@ -1057,13 +847,43 @@ available, or called when it later becomes available.</p>
 </h3><div class="docstring">
   <div class="discussion">
     
-<p>Creates a new session to Neo4j</p>
+<p>Creates a new session to Neo4j. This will be the default session to be used
+unless there is already a session created (see #current and #set_current)</p>
 
 
   </div>
 </div>
 <div class="tags">
-  <p class="tag_title">Parameters:</p>
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>A Neo4j Server session</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Session</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='symbol'>:server_db</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>http://localhost:7474</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbrace'>{</span><span class='label'>basic_auth:</span> <span class='lbrace'>{</span><span class='label'>username:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>foo</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>password:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>bar</span><span class='tstring_end'>&#39;</span></span><span class='rbrace'>}</span><span class='rbrace'>}</span><span class='rparen'>)</span></code></pre>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Using a user defined Faraday HTTP connection</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_connection'>connection</span> <span class='op'>=</span> <span class='const'>Faraday</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_b'>b</span><span class='op'>|</span>
+  <span class='comment'># faraday config
+</span><span class='kw'>end</span>
+<span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Session</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='symbol'>:server_db</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>http://localhost:7474</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>connection:</span> <span class='id identifier rubyid_connection'>connection</span><span class='rparen'>)</span></code></pre>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>A embedded Neo4j session</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Session</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='symbol'>:embedded_db</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>path/to/db</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
 <ul class="param">
   
     <li>
@@ -1094,21 +914,20 @@ available, or called when it later becomes available.</p>
     
   </ul>
 
-</div>
-<table class="source_code">
+</div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-84
-85
-86</pre>
+97
+98
+99</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 84</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 97</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_db_type'>db_type</span><span class='op'>=</span><span class='symbol'>:server_db</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_db_type'>db_type</span> <span class='op'>=</span> <span class='symbol'>:server_db</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_register'>register</span><span class='lparen'>(</span><span class='id identifier rubyid_create_session'>create_session</span><span class='lparen'>(</span><span class='id identifier rubyid_db_type'>db_type</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -1125,23 +944,22 @@ available, or called when it later becomes available.</p>
   
 
   
-</h3>
-<table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-88
-89
-90
-91</pre>
+101
+102
+103
+104</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 88</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 101</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_open_named'>open_named</span><span class='lparen'>(</span><span class='id identifier rubyid_db_type'>db_type</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_default'>default</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Multiple sessions is currently only supported for Neo4j Server connections.</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_db_type'>db_type</span> <span class='op'>==</span> <span class='symbol'>:server_db</span>
+  <span class='id identifier rubyid_fail'>fail</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Multiple sessions is currently only supported for Neo4j Server connections.</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_db_type'>db_type</span> <span class='op'>==</span> <span class='symbol'>:server_db</span>
   <span class='id identifier rubyid_register'>register</span><span class='lparen'>(</span><span class='id identifier rubyid_create_session'>create_session</span><span class='lparen'>(</span><span class='id identifier rubyid_db_type'>db_type</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_default'>default</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -1152,7 +970,7 @@ available, or called when it later becomes available.</p>
       <div class="method_details ">
   <h3 class="signature " id="query-class_method">
   
-    + (<tt>Object</tt>) <strong>query</strong>(options = {}) 
+    + (<tt>Object</tt>) <strong>query</strong>(*args) 
   
 
   
@@ -1174,98 +992,21 @@ available, or called when it later becomes available.</p>
     
   </ul>
 
-</div>
-<table class="source_code">
+</div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-110
-111
-112</pre>
+126
+127
+128</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 110</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 126</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_query'>query</span><span class='lparen'>(</span><span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_current!'>current!</span><span class='period'>.</span><span class='id identifier rubyid_query'>query</span><span class='lparen'>(</span><span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
-    
-      <div class="method_details ">
-  <h3 class="signature " id="register-class_method">
-  
-    + (<tt>Object</tt>) <strong>register</strong>(session, name = nil, default = nil) 
-  
-
-  
-
-  
-</h3>
-<table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-146
-147
-148
-149
-150
-151
-152
-153
-154</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 146</span>
-
-<span class='kw'>def</span> <span class='id identifier rubyid_register'>register</span><span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_default'>default</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
-  <span class='kw'>if</span> <span class='id identifier rubyid_default'>default</span> <span class='op'>==</span> <span class='kw'>true</span>
-    <span class='id identifier rubyid_set_current'>set_current</span><span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='rparen'>)</span>
-  <span class='kw'>elsif</span> <span class='id identifier rubyid_default'>default</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
-    <span class='id identifier rubyid_set_current'>set_current</span><span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='cvar'>@@current_session</span>
-  <span class='kw'>end</span>
-  <span class='cvar'>@@all_sessions</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span> <span class='kw'>if</span> <span class='id identifier rubyid_name'>name</span>
-  <span class='cvar'>@@current_session</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
-    
-      <div class="method_details ">
-  <h3 class="signature " id="register_db-class_method">
-  
-    + (<tt>Object</tt>) <strong>register_db</strong>(db, &amp;session_factory) 
-  
-
-  
-
-  
-</h3>
-<table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-164
-165
-166
-167</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 164</span>
-
-<span class='kw'>def</span> <span class='id identifier rubyid_register_db'>register_db</span><span class='lparen'>(</span><span class='id identifier rubyid_db'>db</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_session_factory'>session_factory</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>replace factory for </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_db'>db</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='cvar'>@@factories</span><span class='lbracket'>[</span><span class='id identifier rubyid_db'>db</span><span class='rbracket'>]</span>
-  <span class='cvar'>@@factories</span><span class='lbracket'>[</span><span class='id identifier rubyid_db'>db</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_session_factory'>session_factory</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_query'>query</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_current!'>current!</span><span class='period'>.</span><span class='id identifier rubyid_query'>query</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1281,19 +1022,49 @@ available, or called when it later becomes available.</p>
   
 
   
-</h3>
-<table class="source_code">
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Sets the session to be used as default</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>session</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Neo4j::Session (class)">Neo4j::Session</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the session to use</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-118
-119
-120</pre>
+137
+138
+139</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 118</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 137</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_set_current'>set_current</span><span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='rparen'>)</span>
   <span class='cvar'>@@current_session</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span>
@@ -1304,30 +1075,43 @@ available, or called when it later becomes available.</p>
 </div>
     
       <div class="method_details ">
-  <h3 class="signature " id="unregister-class_method">
+  <h3 class="signature " id="user_agent_string-class_method">
   
-    + (<tt>Object</tt>) <strong>unregister</strong>(session) 
-  
-
+    + (<tt>Object</tt>) <strong>user_agent_string</strong> 
   
 
   
-</h3>
-<table class="source_code">
+
+  
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
+151
+152
+153
+154
+155
 156
 157
-158</pre>
+158
+159
+160</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 156</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 151</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_unregister'>unregister</span><span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='rparen'>)</span>
-  <span class='cvar'>@@current_session</span> <span class='op'>=</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='cvar'>@@current_session</span> <span class='op'>==</span> <span class='id identifier rubyid_session'>session</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_user_agent_string'>user_agent_string</span>
+  <span class='id identifier rubyid_gem'>gem</span><span class='comma'>,</span> <span class='id identifier rubyid_version'>version</span> <span class='op'>=</span> <span class='kw'>if</span> <span class='kw'>defined?</span><span class='lparen'>(</span><span class='op'>::</span><span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>ActiveNode</span><span class='rparen'>)</span>
+                   <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>neo4j</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>VERSION</span><span class='rbracket'>]</span>
+                 <span class='kw'>else</span>
+                   <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>neo4j-core</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Core</span><span class='op'>::</span><span class='const'>VERSION</span><span class='rbracket'>]</span>
+                 <span class='kw'>end</span>
+
+
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_gem'>gem</span><span class='embexpr_end'>}</span><span class='tstring_content'> gem/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_version'>version</span><span class='embexpr_end'>}</span><span class='tstring_content'> (https://github.com/neo4jrb/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_gem'>gem</span><span class='embexpr_end'>}</span><span class='tstring_content'>)</span><span class='tstring_end'>&quot;</span></span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1366,22 +1150,21 @@ database is used, embedded or server.</p>
 <div class="tags">
   
 
-</div>
-<table class="source_code">
+</div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
+75
 76
-77
-78</pre>
+77</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 76</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 75</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid__query'>_query</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not implemented</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_fail'>fail</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not implemented</span><span class='tstring_end'>&#39;</span></span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1419,19 +1202,18 @@ database is used, embedded or server.</p>
   
 </ul>
 
-</div>
-<table class="source_code">
+</div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
+35
 36
-37
-38</pre>
+37</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 36</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 35</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_auto_commit?'>auto_commit?</span>
   <span class='kw'>true</span> <span class='comment'># TODO
@@ -1463,22 +1245,21 @@ database is used, embedded or server.</p>
 <div class="tags">
   
 
-</div>
-<table class="source_code">
+</div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
+40
 41
-42
-43</pre>
+42</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 41</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 40</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_begin_tx'>begin_tx</span>
-  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>not impl.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_fail'>fail</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not impl.</span><span class='tstring_end'>&#39;</span></span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1507,19 +1288,18 @@ database is used, embedded or server.</p>
 <div class="tags">
   
 
-</div>
-<table class="source_code">
+</div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
+8
 9
-10
-11</pre>
+10</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 9</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 8</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_close'>close</span>
   <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_unregister'>unregister</span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
@@ -1560,22 +1340,21 @@ database is used, embedded or server.</p>
   
 </ul>
 
-</div>
-<table class="source_code">
+</div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
+31
 32
-33
-34</pre>
+33</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 32</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 31</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_db_type'>db_type</span>
-  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>not impl.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_fail'>fail</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not impl.</span><span class='tstring_end'>&#39;</span></span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1654,22 +1433,21 @@ basic usage looks like:</p>
     
   </ul>
 
-</div>
-<table class="source_code">
+</div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
+68
 69
-70
-71</pre>
+70</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 69</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 68</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_query'>query</span><span class='lparen'>(</span><span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not implemented, abstract</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_fail'>fail</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not implemented, abstract</span><span class='tstring_end'>&#39;</span></span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1700,22 +1478,21 @@ basic usage looks like:</p>
 <div class="tags">
   
 
-</div>
-<table class="source_code">
+</div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
+26
 27
-28
-29</pre>
+28</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 27</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 26</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_running'>running</span>
-  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>not impl.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_fail'>fail</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not impl.</span><span class='tstring_end'>&#39;</span></span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1746,22 +1523,21 @@ basic usage looks like:</p>
 <div class="tags">
   
 
-</div>
-<table class="source_code">
+</div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
+20
 21
-22
-23</pre>
+22</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 21</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 20</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_shutdown'>shutdown</span>
-  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>not impl.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_fail'>fail</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not impl.</span><span class='tstring_end'>&#39;</span></span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1792,22 +1568,21 @@ basic usage looks like:</p>
 <div class="tags">
   
 
-</div>
-<table class="source_code">
+</div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
+14
 15
-16
-17</pre>
+16</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 15</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j/session.rb', line 14</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_start'>start</span>
-  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>not impl.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_fail'>fail</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not impl.</span><span class='tstring_end'>&#39;</span></span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1819,9 +1594,9 @@ basic usage looks like:</p>
 </div>
 
     <div id="footer">
-  Generated on Wed Aug 27 16:32:03 2014 by
+  Generated on Tue Jan  6 11:34:21 2015 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.8.7.4 (ruby-2.1.1).
+  0.8.7.4 (ruby-2.1.5).
 </div>
 
   </body>

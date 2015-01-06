@@ -79,18 +79,30 @@
   
   
     <dt class="r1 last">Defined in:</dt>
-    <dd class="r1 last">lib/neo4j/node.rb<span class="defines">,<br />
-  lib/neo4j/label.rb,<br /> lib/neo4j/session.rb,<br /> lib/neo4j/transaction.rb,<br /> lib/neo4j/relationship.rb,<br /> lib/neo4j-core/version.rb,<br /> lib/neo4j-server/resource.rb,<br /> lib/neo4j/entity_equality.rb,<br /> lib/neo4j/property_validator.rb,<br /> lib/neo4j/property_container.rb,<br /> lib/neo4j-core/hash_with_indifferent_access.rb</span>
+    <dd class="r1 last">lib/neo4j-core.rb<span class="defines">,<br />
+  lib/neo4j/node.rb,<br /> lib/neo4j/label.rb,<br /> lib/neo4j/session.rb,<br /> lib/neo4j-core/query.rb,<br /> lib/neo4j-core/label.rb,<br /> lib/neo4j/transaction.rb,<br /> lib/neo4j/relationship.rb,<br /> lib/neo4j-core/version.rb,<br /> lib/neo4j-core/helpers.rb,<br /> lib/neo4j-server/resource.rb,<br /> lib/neo4j-core/graph_json.rb,<br /> lib/neo4j/entity_equality.rb,<br /> lib/neo4j-embedded/to_java.rb,<br /> lib/neo4j-embedded/property.rb,<br /> lib/neo4j-server/cypher_node.rb,<br /> lib/neo4j-core/query_clauses.rb,<br /> lib/neo4j-core/active_entity.rb,<br /> lib/neo4j/property_validator.rb,<br /> lib/neo4j/property_container.rb,<br /> lib/neo4j-server/cypher_label.rb,<br /> lib/neo4j/tasks/config_server.rb,<br /> lib/neo4j-server/cypher_session.rb,<br /> lib/neo4j-embedded/embedded_node.rb,<br /> lib/neo4j-core/cypher_translator.rb,<br /> lib/neo4j-server/cypher_response.rb,<br /> lib/neo4j-embedded/embedded_label.rb,<br /> lib/neo4j-embedded/cypher_response.rb,<br /> lib/neo4j-embedded/embedded_session.rb,<br /> lib/neo4j-server/cypher_transaction.rb,<br /> lib/neo4j-embedded/embedded_database.rb,<br /> lib/neo4j-server/cypher_relationship.rb,<br /> lib/neo4j-core/query_find_in_batches.rb,<br /> lib/neo4j-embedded/embedded_ha_session.rb,<br /> lib/neo4j-server/cypher_authentication.rb,<br /> lib/neo4j-server/cypher_node_uncommited.rb,<br /> lib/neo4j-embedded/embedded_transaction.rb,<br /> lib/neo4j-embedded/embedded_relationship.rb,<br /> lib/neo4j-core/hash_with_indifferent_access.rb,<br /> lib/neo4j-embedded/embedded_impermanent_session.rb</span>
 </dd>
   
 </dl>
 <div class="clear"></div>
 
-<h2>Defined Under Namespace</h2>
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>TODO: code duplication with the Neo4j::PropertyContainer, This module
+should extend that module by adding transaction around methods</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><h2>Defined Under Namespace</h2>
 <p class="children">
   
     
-      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Neo4j/Core.html" title="Neo4j::Core (module)">Core</a></span>, <span class='object_link'><a href="Neo4j/Embedded.html" title="Neo4j::Embedded (module)">Embedded</a></span>, <span class='object_link'><a href="Neo4j/EntityEquality.html" title="Neo4j::EntityEquality (module)">EntityEquality</a></span>, <span class='object_link'><a href="Neo4j/PropertyContainer.html" title="Neo4j::PropertyContainer (module)">PropertyContainer</a></span>, <span class='object_link'><a href="Neo4j/PropertyValidator.html" title="Neo4j::PropertyValidator (module)">PropertyValidator</a></span>, <span class='object_link'><a href="Neo4j/Server.html" title="Neo4j::Server (module)">Server</a></span>, <span class='object_link'><a href="Neo4j/Transaction.html" title="Neo4j::Transaction (module)">Transaction</a></span>
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Neo4j/Core.html" title="Neo4j::Core (module)">Core</a></span>, <span class='object_link'><a href="Neo4j/Embedded.html" title="Neo4j::Embedded (module)">Embedded</a></span>, <span class='object_link'><a href="Neo4j/EntityEquality.html" title="Neo4j::EntityEquality (module)">EntityEquality</a></span>, <span class='object_link'><a href="Neo4j/PropertyContainer.html" title="Neo4j::PropertyContainer (module)">PropertyContainer</a></span>, <span class='object_link'><a href="Neo4j/PropertyValidator.html" title="Neo4j::PropertyValidator (module)">PropertyValidator</a></span>, <span class='object_link'><a href="Neo4j/Server.html" title="Neo4j::Server (module)">Server</a></span>, <span class='object_link'><a href="Neo4j/Tasks.html" title="Neo4j::Tasks (module)">Tasks</a></span>, <span class='object_link'><a href="Neo4j/Transaction.html" title="Neo4j::Transaction (module)">Transaction</a></span>
     
   
     
@@ -110,9 +122,9 @@
 </div>
 
     <div id="footer">
-  Generated on Wed Aug 27 16:32:03 2014 by
+  Generated on Tue Jan  6 11:34:20 2015 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.8.7.4 (ruby-2.1.1).
+  0.8.7.4 (ruby-2.1.5).
 </div>
 
   </body>

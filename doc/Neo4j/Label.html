@@ -143,7 +143,7 @@ Neo4j::Node how to create and delete nodes</p>
   
   <h3 class="inherited">Constants included
      from <span class='object_link'><a href="Core/CypherTranslator.html" title="Neo4j::Core::CypherTranslator (module)">Core::CypherTranslator</a></span></h3>
-  <p class="inherited"><span class='object_link'><a href="Core/CypherTranslator.html#SANITIZE_ESCAPED_REGEXP-constant" title="Neo4j::Core::CypherTranslator::SANITIZE_ESCAPED_REGEXP (constant)">Core::CypherTranslator::SANITIZE_ESCAPED_REGEXP</a></span></p>
+  <p class="inherited"><span class='object_link'><a href="Core/CypherTranslator.html#EMPTY_PROPS-constant" title="Neo4j::Core::CypherTranslator::EMPTY_PROPS (constant)">Core::CypherTranslator::EMPTY_PROPS</a></span>, <span class='object_link'><a href="Core/CypherTranslator.html#SANITIZE_ESCAPED_REGEXP-constant" title="Neo4j::Core::CypherTranslator::SANITIZE_ESCAPED_REGEXP (constant)">Core::CypherTranslator::SANITIZE_ESCAPED_REGEXP</a></span></p>
 
 
 
@@ -391,7 +391,7 @@ href="http://docs.neo4j.org/chunked/stable/query-constraints.html">docs.neo4j.or
   
   
   <h3 class="inherited">Methods included from <span class='object_link'><a href="Core/CypherTranslator.html" title="Neo4j::Core::CypherTranslator (module)">Core::CypherTranslator</a></span></h3>
-  <p class="inherited"><span class='object_link'><a href="Core/CypherTranslator.html#cypher_prop_list-instance_method" title="Neo4j::Core::CypherTranslator#cypher_prop_list (method)">cypher_prop_list</a></span>, <span class='object_link'><a href="Core/CypherTranslator.html#escape_quotes-instance_method" title="Neo4j::Core::CypherTranslator#escape_quotes (method)">escape_quotes</a></span>, <span class='object_link'><a href="Core/CypherTranslator.html#escape_value-instance_method" title="Neo4j::Core::CypherTranslator#escape_value (method)">escape_value</a></span>, <span class='object_link'><a href="Core/CypherTranslator.html#sanitize_escape_sequences-instance_method" title="Neo4j::Core::CypherTranslator#sanitize_escape_sequences (method)">sanitize_escape_sequences</a></span>, <span class='object_link'><a href="Core/CypherTranslator.html#sanitized_column_names-class_method" title="Neo4j::Core::CypherTranslator.sanitized_column_names (method)">sanitized_column_names</a></span>, <span class='object_link'><a href="Core/CypherTranslator.html#translate_response-class_method" title="Neo4j::Core::CypherTranslator.translate_response (method)">translate_response</a></span></p>
+  <p class="inherited"><span class='object_link'><a href="Core/CypherTranslator.html#create_escape_value-instance_method" title="Neo4j::Core::CypherTranslator#create_escape_value (method)">create_escape_value</a></span>, <span class='object_link'><a href="Core/CypherTranslator.html#cypher_prop_list-instance_method" title="Neo4j::Core::CypherTranslator#cypher_prop_list (method)">cypher_prop_list</a></span>, <span class='object_link'><a href="Core/CypherTranslator.html#cypher_string-instance_method" title="Neo4j::Core::CypherTranslator#cypher_string (method)">cypher_string</a></span>, <span class='object_link'><a href="Core/CypherTranslator.html#escape_quotes-instance_method" title="Neo4j::Core::CypherTranslator#escape_quotes (method)">escape_quotes</a></span>, <span class='object_link'><a href="Core/CypherTranslator.html#escape_value-instance_method" title="Neo4j::Core::CypherTranslator#escape_value (method)">escape_value</a></span>, <span class='object_link'><a href="Core/CypherTranslator.html#label_string-instance_method" title="Neo4j::Core::CypherTranslator#label_string (method)">label_string</a></span>, <span class='object_link'><a href="Core/CypherTranslator.html#prop_identifier-instance_method" title="Neo4j::Core::CypherTranslator#prop_identifier (method)">prop_identifier</a></span>, <span class='object_link'><a href="Core/CypherTranslator.html#sanitize_escape_sequences-instance_method" title="Neo4j::Core::CypherTranslator#sanitize_escape_sequences (method)">sanitize_escape_sequences</a></span>, <span class='object_link'><a href="Core/CypherTranslator.html#sanitized_column_names-class_method" title="Neo4j::Core::CypherTranslator.sanitized_column_names (method)">sanitized_column_names</a></span>, <span class='object_link'><a href="Core/CypherTranslator.html#translate_response-class_method" title="Neo4j::Core::CypherTranslator.translate_response (method)">translate_response</a></span></p>
 
 
   <div id="class_method_details" class="method_details_list">
@@ -438,8 +438,7 @@ href="http://docs.neo4j.org/chunked/stable/query-constraints.html">docs.neo4j.or
 </ul>
 
 
-</div>
-<table class="source_code">
+</div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
@@ -500,8 +499,7 @@ classes.</p>
   
 </ul>
 
-</div>
-<table class="source_code">
+</div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
@@ -562,8 +560,7 @@ own model ruby classes.</p>
   
 </ul>
 
-</div>
-<table class="source_code">
+</div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
@@ -620,8 +617,7 @@ href="http://docs.neo4j.org/chunked/stable/query-constraints.html">docs.neo4j.or
   </div>
 
 
-</div>
-<table class="source_code">
+</div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
@@ -642,11 +638,11 @@ href="http://docs.neo4j.org/chunked/stable/query-constraints.html">docs.neo4j.or
 
 <span class='kw'>def</span> <span class='id identifier rubyid_create_constraint'>create_constraint</span><span class='lparen'>(</span><span class='id identifier rubyid_property'>property</span><span class='comma'>,</span> <span class='id identifier rubyid_constraints'>constraints</span><span class='comma'>,</span> <span class='id identifier rubyid_session'>session</span> <span class='op'>=</span> <span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Session</span><span class='period'>.</span><span class='id identifier rubyid_current'>current</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_cypher'>cypher</span> <span class='op'>=</span> <span class='kw'>case</span> <span class='id identifier rubyid_constraints'>constraints</span><span class='lbracket'>[</span><span class='symbol'>:type</span><span class='rbracket'>]</span>
-    <span class='kw'>when</span> <span class='symbol'>:unique</span>
-      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>CREATE CONSTRAINT ON (n:`</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>`) ASSERT n.`</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_property'>property</span><span class='embexpr_end'>}</span><span class='tstring_content'>` IS UNIQUE</span><span class='tstring_end'>&quot;</span></span>
-    <span class='kw'>else</span>
-      <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Not supported constrain </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_constraints'>constraints</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'> for property </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_property'>property</span><span class='embexpr_end'>}</span><span class='tstring_content'> (expected :type =&gt; :unique)</span><span class='tstring_end'>&quot;</span></span>
-  <span class='kw'>end</span>
+           <span class='kw'>when</span> <span class='symbol'>:unique</span>
+             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>CREATE CONSTRAINT ON (n:`</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>`) ASSERT n.`</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_property'>property</span><span class='embexpr_end'>}</span><span class='tstring_content'>` IS UNIQUE</span><span class='tstring_end'>&quot;</span></span>
+           <span class='kw'>else</span>
+             <span class='id identifier rubyid_fail'>fail</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Not supported constrain </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_constraints'>constraints</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'> for property </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_property'>property</span><span class='embexpr_end'>}</span><span class='tstring_content'> (expected :type =&gt; :unique)</span><span class='tstring_end'>&quot;</span></span>
+           <span class='kw'>end</span>
   <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid__query_or_fail'>_query_or_fail</span><span class='lparen'>(</span><span class='id identifier rubyid_cypher'>cypher</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -676,8 +672,7 @@ href="http://docs.neo4j.org/chunked/stable/query-constraints.html">docs.neo4j.or
 <div class="tags">
   
 
-</div>
-<table class="source_code">
+</div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
@@ -691,7 +686,7 @@ href="http://docs.neo4j.org/chunked/stable/query-constraints.html">docs.neo4j.or
       <pre class="code"><span class="info file"># File 'lib/neo4j/label.rb', line 14</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_create_index'>create_index</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_properties'>properties</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not implemented</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_fail'>fail</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not implemented</span><span class='tstring_end'>&#39;</span></span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -729,8 +724,7 @@ href="http://docs.neo4j.org/chunked/stable/query-constraints.html">docs.neo4j.or
   </div>
 
 
-</div>
-<table class="source_code">
+</div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
@@ -751,10 +745,10 @@ href="http://docs.neo4j.org/chunked/stable/query-constraints.html">docs.neo4j.or
 
 <span class='kw'>def</span> <span class='id identifier rubyid_drop_constraint'>drop_constraint</span><span class='lparen'>(</span><span class='id identifier rubyid_property'>property</span><span class='comma'>,</span> <span class='id identifier rubyid_constraint'>constraint</span><span class='comma'>,</span> <span class='id identifier rubyid_session'>session</span> <span class='op'>=</span> <span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Session</span><span class='period'>.</span><span class='id identifier rubyid_current'>current</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_cypher'>cypher</span> <span class='op'>=</span> <span class='kw'>case</span> <span class='id identifier rubyid_constraint'>constraint</span><span class='lbracket'>[</span><span class='symbol'>:type</span><span class='rbracket'>]</span>
-             <span class='kw'>when</span> <span class='symbol'>:unique</span>
-               <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DROP CONSTRAINT ON (n:`</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>`) ASSERT n.`</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_property'>property</span><span class='embexpr_end'>}</span><span class='tstring_content'>` IS UNIQUE</span><span class='tstring_end'>&quot;</span></span>
-             <span class='kw'>else</span>
-               <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Not supported constrain </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_constraint'>constraint</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+           <span class='kw'>when</span> <span class='symbol'>:unique</span>
+             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DROP CONSTRAINT ON (n:`</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>`) ASSERT n.`</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_property'>property</span><span class='embexpr_end'>}</span><span class='tstring_content'>` IS UNIQUE</span><span class='tstring_end'>&quot;</span></span>
+           <span class='kw'>else</span>
+             <span class='id identifier rubyid_fail'>fail</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Not supported constrain </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_constraint'>constraint</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
            <span class='kw'>end</span>
   <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid__query_or_fail'>_query_or_fail</span><span class='lparen'>(</span><span class='id identifier rubyid_cypher'>cypher</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
@@ -785,8 +779,7 @@ href="http://docs.neo4j.org/chunked/stable/query-constraints.html">docs.neo4j.or
 <div class="tags">
   
 
-</div>
-<table class="source_code">
+</div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
@@ -800,7 +793,7 @@ href="http://docs.neo4j.org/chunked/stable/query-constraints.html">docs.neo4j.or
       <pre class="code"><span class="info file"># File 'lib/neo4j/label.rb', line 19</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_drop_index'>drop_index</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_properties'>properties</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not implemented</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_fail'>fail</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not implemented</span><span class='tstring_end'>&#39;</span></span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -831,8 +824,7 @@ href="http://docs.neo4j.org/chunked/stable/query-constraints.html">docs.neo4j.or
 <div class="tags">
   
 
-</div>
-<table class="source_code">
+</div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
@@ -846,7 +838,7 @@ href="http://docs.neo4j.org/chunked/stable/query-constraints.html">docs.neo4j.or
       <pre class="code"><span class="info file"># File 'lib/neo4j/label.rb', line 25</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_indexes'>indexes</span>
-  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not implemented</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_fail'>fail</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not implemented</span><span class='tstring_end'>&#39;</span></span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -875,8 +867,7 @@ href="http://docs.neo4j.org/chunked/stable/query-constraints.html">docs.neo4j.or
 <div class="tags">
   
 
-</div>
-<table class="source_code">
+</div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
@@ -890,7 +881,7 @@ href="http://docs.neo4j.org/chunked/stable/query-constraints.html">docs.neo4j.or
       <pre class="code"><span class="info file"># File 'lib/neo4j/label.rb', line 9</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_name'>name</span>
-  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not implemented</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_fail'>fail</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not implemented</span><span class='tstring_end'>&#39;</span></span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -902,9 +893,9 @@ href="http://docs.neo4j.org/chunked/stable/query-constraints.html">docs.neo4j.or
 </div>
 
     <div id="footer">
-  Generated on Wed Aug 27 16:32:03 2014 by
+  Generated on Tue Jan  6 11:34:20 2015 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.8.7.4 (ruby-2.1.1).
+  0.8.7.4 (ruby-2.1.5).
 </div>
 
   </body>

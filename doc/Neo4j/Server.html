@@ -80,7 +80,7 @@
   
     <dt class="r1 last">Defined in:</dt>
     <dd class="r1 last">lib/neo4j-server/resource.rb<span class="defines">,<br />
-  lib/neo4j-server/cypher_node.rb,<br /> lib/neo4j-server/cypher_label.rb,<br /> lib/neo4j-server/cypher_session.rb,<br /> lib/neo4j-server/cypher_response.rb,<br /> lib/neo4j-server/cypher_transaction.rb,<br /> lib/neo4j-server/cypher_relationship.rb,<br /> lib/neo4j-server/neo4j_server_endpoint.rb,<br /> lib/neo4j-server/cypher_node_uncommited.rb,<br /> spec/neo4j-server/e2e/cypher_session_spec.rb,<br /> spec/neo4j-server/unit/cypher_node_unit_spec.rb,<br /> spec/neo4j-server/e2e/cypher_transaction_spec.rb,<br /> spec/neo4j-server/unit/cypher_session_unit_spec.rb,<br /> spec/neo4j-server/unit/cypher_response_unit_spec.rb,<br /> spec/neo4j-server/unit/neo4j_server_endpoint_unit_spec.rb</span>
+  lib/neo4j-server/cypher_node.rb,<br /> lib/neo4j-server/cypher_label.rb,<br /> lib/neo4j-server/cypher_session.rb,<br /> lib/neo4j-server/cypher_response.rb,<br /> lib/neo4j-server/cypher_transaction.rb,<br /> lib/neo4j-server/cypher_relationship.rb,<br /> lib/neo4j-server/cypher_authentication.rb,<br /> lib/neo4j-server/cypher_node_uncommited.rb</span>
 </dd>
   
 </dl>
@@ -94,7 +94,7 @@
     
   
     
-      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Server/CypherLabel.html" title="Neo4j::Server::CypherLabel (class)">CypherLabel</a></span>, <span class='object_link'><a href="Server/CypherNode.html" title="Neo4j::Server::CypherNode (class)">CypherNode</a></span>, <span class='object_link'><a href="Server/CypherNodeUncommited.html" title="Neo4j::Server::CypherNodeUncommited (class)">CypherNodeUncommited</a></span>, <span class='object_link'><a href="Server/CypherRelationship.html" title="Neo4j::Server::CypherRelationship (class)">CypherRelationship</a></span>, <span class='object_link'><a href="Server/CypherResponse.html" title="Neo4j::Server::CypherResponse (class)">CypherResponse</a></span>, <span class='object_link'><a href="Server/CypherSession.html" title="Neo4j::Server::CypherSession (class)">CypherSession</a></span>, <span class='object_link'><a href="Server/CypherTransaction.html" title="Neo4j::Server::CypherTransaction (class)">CypherTransaction</a></span>, <span class='object_link'><a href="Server/Neo4jServerEndpoint.html" title="Neo4j::Server::Neo4jServerEndpoint (class)">Neo4jServerEndpoint</a></span>, <span class='object_link'><a href="Server/TestResponse.html" title="Neo4j::Server::TestResponse (class)">TestResponse</a></span>
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Server/CypherAuthentication.html" title="Neo4j::Server::CypherAuthentication (class)">CypherAuthentication</a></span>, <span class='object_link'><a href="Server/CypherLabel.html" title="Neo4j::Server::CypherLabel (class)">CypherLabel</a></span>, <span class='object_link'><a href="Server/CypherNode.html" title="Neo4j::Server::CypherNode (class)">CypherNode</a></span>, <span class='object_link'><a href="Server/CypherNodeUncommited.html" title="Neo4j::Server::CypherNodeUncommited (class)">CypherNodeUncommited</a></span>, <span class='object_link'><a href="Server/CypherRelationship.html" title="Neo4j::Server::CypherRelationship (class)">CypherRelationship</a></span>, <span class='object_link'><a href="Server/CypherResponse.html" title="Neo4j::Server::CypherResponse (class)">CypherResponse</a></span>, <span class='object_link'><a href="Server/CypherSession.html" title="Neo4j::Server::CypherSession (class)">CypherSession</a></span>, <span class='object_link'><a href="Server/CypherTransaction.html" title="Neo4j::Server::CypherTransaction (class)">CypherTransaction</a></span>
     
   
 </p>
@@ -105,245 +105,14 @@
 
 
 
-  
-    <h2>
-      Instance Method Summary
-      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
-    </h2>
 
-    <ul class="summary">
-      
-        <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#hash_to_struct-instance_method" title="#hash_to_struct (instance method)">- (Object) <strong>hash_to_struct</strong>(response, hash) </a>
-    
-
-    
-  </span>
-  
-  
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'></div></span>
-  
-</li>
-
-      
-        <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#open_named_session-instance_method" title="#open_named_session (instance method)">- (Object) <strong>open_named_session</strong>(name, default = nil) </a>
-    
-
-    
-  </span>
-  
-  
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'></div></span>
-  
-</li>
-
-      
-        <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#open_session-instance_method" title="#open_session (instance method)">- (Object) <strong>open_session</strong> </a>
-    
-
-    
-  </span>
-  
-  
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'></div></span>
-  
-</li>
-
-      
-        <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#successful_response-instance_method" title="#successful_response (instance method)">- (Object) <strong>successful_response</strong>(response) </a>
-    
-
-    
-  </span>
-  
-  
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'></div></span>
-  
-</li>
-
-      
-    </ul>
-  
-
-
-
-  <div id="instance_method_details" class="method_details_list">
-    <h2>Instance Method Details</h2>
-
-    
-      <div class="method_details first">
-  <h3 class="signature first" id="hash_to_struct-instance_method">
-  
-    - (<tt>Object</tt>) <strong>hash_to_struct</strong>(response, hash) 
-  
-
-  
-
-  
-</h3>
-<table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-5
-6
-7</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'spec/neo4j-server/unit/cypher_response_unit_spec.rb', line 5</span>
-
-<span class='kw'>def</span> <span class='id identifier rubyid_hash_to_struct'>hash_to_struct</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='comma'>,</span> <span class='id identifier rubyid_hash'>hash</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_struct'>struct</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_hash'>hash</span><span class='period'>.</span><span class='id identifier rubyid_values'>values</span><span class='rparen'>)</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
-    
-      <div class="method_details ">
-  <h3 class="signature " id="open_named_session-instance_method">
-  
-    - (<tt>Object</tt>) <strong>open_named_session</strong>(name, default = nil) 
-  
-
-  
-
-  
-</h3>
-<table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-12
-13
-14</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'spec/neo4j-server/e2e/cypher_session_spec.rb', line 12</span>
-
-<span class='kw'>def</span> <span class='id identifier rubyid_open_named_session'>open_named_session</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_default'>default</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_create_named_server_session'>create_named_server_session</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_default'>default</span><span class='rparen'>)</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
-    
-      <div class="method_details ">
-  <h3 class="signature " id="open_session-instance_method">
-  
-    - (<tt>Object</tt>) <strong>open_session</strong> 
-  
-
-  
-
-  
-</h3>
-<table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-8
-9
-10</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'spec/neo4j-server/e2e/cypher_session_spec.rb', line 8</span>
-
-<span class='kw'>def</span> <span class='id identifier rubyid_open_session'>open_session</span>
-  <span class='id identifier rubyid_create_server_session'>create_server_session</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
-    
-      <div class="method_details ">
-  <h3 class="signature " id="successful_response-instance_method">
-  
-    - (<tt>Object</tt>) <strong>successful_response</strong>(response) 
-  
-
-  
-
-  
-</h3>
-<table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-31
-32
-33
-34</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'spec/neo4j-server/unit/cypher_response_unit_spec.rb', line 31</span>
-
-<span class='kw'>def</span> <span class='id identifier rubyid_successful_response'>successful_response</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_expect'>expect</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to'>to</span> <span class='id identifier rubyid_receive'>receive</span><span class='lparen'>(</span><span class='symbol'>:code</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_and_return'>and_return</span><span class='lparen'>(</span><span class='int'>200</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_response'>response</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
-    
-  </div>
 
 </div>
 
     <div id="footer">
-  Generated on Wed Aug 27 16:32:03 2014 by
+  Generated on Tue Jan  6 11:34:20 2015 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.8.7.4 (ruby-2.1.1).
+  0.8.7.4 (ruby-2.1.5).
 </div>
 
   </body>

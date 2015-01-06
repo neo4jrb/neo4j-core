@@ -301,7 +301,7 @@
   
   
   <h3 class="inherited">Methods included from <span class='object_link'><a href="../Transaction/Instance.html" title="Neo4j::Transaction::Instance (module)">Transaction::Instance</a></span></h3>
-  <p class="inherited"><span class='object_link'><a href="../Transaction/Instance.html#close-instance_method" title="Neo4j::Transaction::Instance#close (method)">#close</a></span>, <span class='object_link'><a href="../Transaction/Instance.html#failure-instance_method" title="Neo4j::Transaction::Instance#failure (method)">#failure</a></span>, <span class='object_link'><a href="../Transaction/Instance.html#failure%3F-instance_method" title="Neo4j::Transaction::Instance#failure? (method)">#failure?</a></span></p>
+  <p class="inherited"><span class='object_link'><a href="../Transaction/Instance.html#close-instance_method" title="Neo4j::Transaction::Instance#close (method)">#close</a></span>, <span class='object_link'><a href="../Transaction/Instance.html#expired%3F-instance_method" title="Neo4j::Transaction::Instance#expired? (method)">#expired?</a></span>, <span class='object_link'><a href="../Transaction/Instance.html#failed%3F-instance_method" title="Neo4j::Transaction::Instance#failed? (method)">#failed?</a></span>, <span class='object_link'><a href="../Transaction/Instance.html#mark_expired-instance_method" title="Neo4j::Transaction::Instance#mark_expired (method)">#mark_expired</a></span>, <span class='object_link'><a href="../Transaction/Instance.html#mark_failed-instance_method" title="Neo4j::Transaction::Instance#mark_failed (method)">#mark_failed</a></span></p>
 <div id="constructor_details" class="method_details_list">
   <h2>Constructor Details</h2>
   
@@ -325,20 +325,19 @@
 <div class="tags">
   
 
-</div>
-<table class="source_code">
+</div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-6
 7
 8
-9</pre>
+9
+10</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j-embedded/embedded_transaction.rb', line 6</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-embedded/embedded_transaction.rb', line 7</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_root_tx'>root_tx</span><span class='rparen'>)</span>
   <span class='ivar'>@root_tx</span> <span class='op'>=</span> <span class='id identifier rubyid_root_tx'>root_tx</span>
@@ -376,19 +375,18 @@
 <div class="tags">
   
 
-</div>
-<table class="source_code">
+</div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-3
 4
-5</pre>
+5
+6</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j-embedded/embedded_transaction.rb', line 3</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-embedded/embedded_transaction.rb', line 4</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_root_tx'>root_tx</span>
   <span class='ivar'>@root_tx</span>
@@ -414,20 +412,19 @@
   
 
   
-</h3>
-<table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-29
 30
 31
-32</pre>
+32
+33</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j-embedded/embedded_transaction.rb', line 29</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-embedded/embedded_transaction.rb', line 30</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid__commit_tx'>_commit_tx</span>
   <span class='ivar'>@root_tx</span><span class='period'>.</span><span class='id identifier rubyid_success'>success</span>
@@ -447,20 +444,19 @@
   
 
   
-</h3>
-<table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-24
 25
 26
-27</pre>
+27
+28</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j-embedded/embedded_transaction.rb', line 24</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-embedded/embedded_transaction.rb', line 25</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid__delete_tx'>_delete_tx</span>
   <span class='ivar'>@root_tx</span><span class='period'>.</span><span class='id identifier rubyid_failure'>failure</span>
@@ -480,19 +476,18 @@
   
 
   
-</h3>
-<table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-11
 12
-13</pre>
+13
+14</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j-embedded/embedded_transaction.rb', line 11</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-embedded/embedded_transaction.rb', line 12</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_acquire_read_lock'>acquire_read_lock</span><span class='lparen'>(</span><span class='id identifier rubyid_entity'>entity</span><span class='rparen'>)</span>
   <span class='ivar'>@root_tx</span><span class='period'>.</span><span class='id identifier rubyid_acquire_read_lock'>acquire_read_lock</span><span class='lparen'>(</span><span class='id identifier rubyid_entity'>entity</span><span class='rparen'>)</span>
@@ -511,19 +506,18 @@
   
 
   
-</h3>
-<table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-15
 16
-17</pre>
+17
+18</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j-embedded/embedded_transaction.rb', line 15</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-embedded/embedded_transaction.rb', line 16</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_acquire_write_lock'>acquire_write_lock</span><span class='lparen'>(</span><span class='id identifier rubyid_entity'>entity</span><span class='rparen'>)</span>
   <span class='ivar'>@root_tx</span><span class='period'>.</span><span class='id identifier rubyid_acquire_write_lock'>acquire_write_lock</span><span class='lparen'>(</span><span class='id identifier rubyid_entity'>entity</span><span class='rparen'>)</span>
@@ -542,19 +536,18 @@
   
 
   
-</h3>
-<table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-20
 21
-22</pre>
+22
+23</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j-embedded/embedded_transaction.rb', line 20</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-embedded/embedded_transaction.rb', line 21</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_inspect'>inspect</span>
   <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>EmbeddedTransaction [nested: </span><span class='embexpr_beg'>#{</span><span class='ivar'>@pushed_nested</span><span class='embexpr_end'>}</span><span class='tstring_content'> failed?: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_failure?'>failure?</span><span class='embexpr_end'>}</span><span class='tstring_content'> active: </span><span class='embexpr_beg'>#{</span><span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Transaction</span><span class='period'>.</span><span class='id identifier rubyid_current'>current</span> <span class='op'>==</span> <span class='kw'>self</span><span class='embexpr_end'>}</span><span class='tstring_content'>]</span><span class='tstring_end'>&quot;</span></span>
@@ -569,9 +562,9 @@
 </div>
 
     <div id="footer">
-  Generated on Wed Aug 27 16:32:06 2014 by
+  Generated on Tue Jan  6 11:34:24 2015 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.8.7.4 (ruby-2.1.1).
+  0.8.7.4 (ruby-2.1.5).
 </div>
 
   </body>

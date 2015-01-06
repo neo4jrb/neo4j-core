@@ -204,8 +204,7 @@
 <div class="tags">
   
 
-</div>
-<table class="source_code">
+</div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
@@ -246,8 +245,7 @@
 <div class="tags">
   
 
-</div>
-<table class="source_code">
+</div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
@@ -266,13 +264,13 @@
     <td>
       <pre class="code"><span class="info file"># File 'lib/neo4j/property_container.rb', line 12</span>
 
-<span class='kw'>def</span> <span class='op'>[]=</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='op'>[]=</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_validate_property'>validate_property</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
 
   <span class='kw'>if</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
     <span class='id identifier rubyid_remove_property'>remove_property</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
   <span class='kw'>else</span>
-    <span class='id identifier rubyid_set_property'>set_property</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_set_property'>set_property</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
   <span class='kw'>end</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -285,9 +283,9 @@
 </div>
 
     <div id="footer">
-  Generated on Wed Aug 27 16:32:03 2014 by
+  Generated on Tue Jan  6 11:34:20 2015 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.8.7.4 (ruby-2.1.1).
+  0.8.7.4 (ruby-2.1.5).
 </div>
 
   </body>

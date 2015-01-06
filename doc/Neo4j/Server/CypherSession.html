@@ -115,12 +115,75 @@
   
   <h3 class="inherited">Constants included
      from <span class='object_link'><a href="../Core/CypherTranslator.html" title="Neo4j::Core::CypherTranslator (module)">Core::CypherTranslator</a></span></h3>
-  <p class="inherited"><span class='object_link'><a href="../Core/CypherTranslator.html#SANITIZE_ESCAPED_REGEXP-constant" title="Neo4j::Core::CypherTranslator::SANITIZE_ESCAPED_REGEXP (constant)">Core::CypherTranslator::SANITIZE_ESCAPED_REGEXP</a></span></p>
+  <p class="inherited"><span class='object_link'><a href="../Core/CypherTranslator.html#EMPTY_PROPS-constant" title="Neo4j::Core::CypherTranslator::EMPTY_PROPS (constant)">Core::CypherTranslator::EMPTY_PROPS</a></span>, <span class='object_link'><a href="../Core/CypherTranslator.html#SANITIZE_ESCAPED_REGEXP-constant" title="Neo4j::Core::CypherTranslator::SANITIZE_ESCAPED_REGEXP (constant)">Core::CypherTranslator::SANITIZE_ESCAPED_REGEXP</a></span></p>
+
+
+  <h2>Instance Attribute Summary <small>(<a href="#" class="summary_toggle">collapse</a>)</small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#auth-instance_method" title="#auth (instance method)">- (Object) <strong>auth</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute auth.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#connection-instance_method" title="#connection (instance method)">- (Object) <strong>connection</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute connection.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
 
 
 
-
-  <h2>Instance Attribute Summary</h2>
+  
   
   <h3 class="inherited">Attributes included from <span class='object_link'><a href="Resource.html" title="Neo4j::Server::Resource (module)">Resource</a></span></h3>
   <p class="inherited"><span class='object_link'><a href="Resource.html#resource_data-instance_method" title="Neo4j::Server::Resource#resource_data (method)">#resource_data</a></span>, <span class='object_link'><a href="Resource.html#resource_url-instance_method" title="Neo4j::Server::Resource#resource_url (method)">#resource_url</a></span></p>
@@ -133,6 +196,50 @@
     </h2>
 
     <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_connection-class_method" title="create_connection (class method)">+ (Faraday) <strong>create_connection</strong>(params) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#establish_session-class_method" title="establish_session (class method)">+ (Object) <strong>establish_session</strong>(root_data, connection, auth_obj) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
       
         <li class="public ">
   <span class="summary_signature">
@@ -214,7 +321,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#_query_entity_data-instance_method" title="#_query_entity_data (instance method)">- (Object) <strong>_query_entity_data</strong>(q, id = nil) </a>
+      <a href="#_query_entity_data-instance_method" title="#_query_entity_data (instance method)">- (Object) <strong>_query_entity_data</strong>(q, id = nil, params = nil) </a>
     
 
     
@@ -434,7 +541,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#initialize-instance_method" title="#initialize (instance method)">- (CypherSession) <strong>initialize</strong>(data_url, endpoint = nil) </a>
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (CypherSession) <strong>initialize</strong>(data_url, connection, auth_obj = nil) </a>
     
 
     
@@ -483,6 +590,28 @@
   <span class="summary_signature">
     
       <a href="#inspect-instance_method" title="#inspect (instance method)">- (Object) <strong>inspect</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#load_entity-instance_method" title="#load_entity (instance method)">- (Object) <strong>load_entity</strong>(clazz, cypher_response) </a>
     
 
     
@@ -592,7 +721,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#search_result_to_enumerable-instance_method" title="#search_result_to_enumerable (instance method)">- (Object) <strong>search_result_to_enumerable</strong>(response, ret, map) </a>
+      <a href="#schema_properties-instance_method" title="#schema_properties (instance method)">- (Object) <strong>schema_properties</strong>(query_string) </a>
     
 
     
@@ -615,6 +744,50 @@
   <span class="summary_signature">
     
       <a href="#search_result_to_enumerable_first_column-instance_method" title="#search_result_to_enumerable_first_column (instance method)">- (Object) <strong>search_result_to_enumerable_first_column</strong>(response) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#search_result_to_enumerable_first_column_with_tx-instance_method" title="#search_result_to_enumerable_first_column_with_tx (instance method)">- (Object) <strong>search_result_to_enumerable_first_column_with_tx</strong>(response) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#search_result_to_enumerable_first_column_without_tx-instance_method" title="#search_result_to_enumerable_first_column_without_tx (instance method)">- (Object) <strong>search_result_to_enumerable_first_column_without_tx</strong>(response) </a>
     
 
     
@@ -680,6 +853,28 @@
         <li class="public ">
   <span class="summary_signature">
     
+      <a href="#uniqueness_constraints-instance_method" title="#uniqueness_constraints (instance method)">- (Object) <strong>uniqueness_constraints</strong>(label) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
       <a href="#version-instance_method" title="#version (instance method)">- (Object) <strong>version</strong> </a>
     
 
@@ -712,7 +907,7 @@
   
   
   <h3 class="inherited">Methods included from <span class='object_link'><a href="../Core/CypherTranslator.html" title="Neo4j::Core::CypherTranslator (module)">Core::CypherTranslator</a></span></h3>
-  <p class="inherited"><span class='object_link'><a href="../Core/CypherTranslator.html#cypher_prop_list-instance_method" title="Neo4j::Core::CypherTranslator#cypher_prop_list (method)">#cypher_prop_list</a></span>, <span class='object_link'><a href="../Core/CypherTranslator.html#escape_quotes-instance_method" title="Neo4j::Core::CypherTranslator#escape_quotes (method)">#escape_quotes</a></span>, <span class='object_link'><a href="../Core/CypherTranslator.html#escape_value-instance_method" title="Neo4j::Core::CypherTranslator#escape_value (method)">#escape_value</a></span>, <span class='object_link'><a href="../Core/CypherTranslator.html#sanitize_escape_sequences-instance_method" title="Neo4j::Core::CypherTranslator#sanitize_escape_sequences (method)">#sanitize_escape_sequences</a></span>, <span class='object_link'><a href="../Core/CypherTranslator.html#sanitized_column_names-class_method" title="Neo4j::Core::CypherTranslator.sanitized_column_names (method)">sanitized_column_names</a></span>, <span class='object_link'><a href="../Core/CypherTranslator.html#translate_response-class_method" title="Neo4j::Core::CypherTranslator.translate_response (method)">translate_response</a></span></p>
+  <p class="inherited"><span class='object_link'><a href="../Core/CypherTranslator.html#create_escape_value-instance_method" title="Neo4j::Core::CypherTranslator#create_escape_value (method)">#create_escape_value</a></span>, <span class='object_link'><a href="../Core/CypherTranslator.html#cypher_prop_list-instance_method" title="Neo4j::Core::CypherTranslator#cypher_prop_list (method)">#cypher_prop_list</a></span>, <span class='object_link'><a href="../Core/CypherTranslator.html#cypher_string-instance_method" title="Neo4j::Core::CypherTranslator#cypher_string (method)">#cypher_string</a></span>, <span class='object_link'><a href="../Core/CypherTranslator.html#escape_quotes-instance_method" title="Neo4j::Core::CypherTranslator#escape_quotes (method)">#escape_quotes</a></span>, <span class='object_link'><a href="../Core/CypherTranslator.html#escape_value-instance_method" title="Neo4j::Core::CypherTranslator#escape_value (method)">#escape_value</a></span>, <span class='object_link'><a href="../Core/CypherTranslator.html#label_string-instance_method" title="Neo4j::Core::CypherTranslator#label_string (method)">#label_string</a></span>, <span class='object_link'><a href="../Core/CypherTranslator.html#prop_identifier-instance_method" title="Neo4j::Core::CypherTranslator#prop_identifier (method)">#prop_identifier</a></span>, <span class='object_link'><a href="../Core/CypherTranslator.html#sanitize_escape_sequences-instance_method" title="Neo4j::Core::CypherTranslator#sanitize_escape_sequences (method)">#sanitize_escape_sequences</a></span>, <span class='object_link'><a href="../Core/CypherTranslator.html#sanitized_column_names-class_method" title="Neo4j::Core::CypherTranslator.sanitized_column_names (method)">sanitized_column_names</a></span>, <span class='object_link'><a href="../Core/CypherTranslator.html#translate_response-class_method" title="Neo4j::Core::CypherTranslator.translate_response (method)">translate_response</a></span></p>
 
   
   
@@ -723,7 +918,7 @@
   
   
   <h3 class="inherited">Methods included from <span class='object_link'><a href="Resource.html" title="Neo4j::Server::Resource (module)">Resource</a></span></h3>
-  <p class="inherited"><span class='object_link'><a href="Resource.html#convert_from_json_value-instance_method" title="Neo4j::Server::Resource#convert_from_json_value (method)">#convert_from_json_value</a></span>, <span class='object_link'><a href="Resource.html#convert_to_json_value-instance_method" title="Neo4j::Server::Resource#convert_to_json_value (method)">#convert_to_json_value</a></span>, <span class='object_link'><a href="Resource.html#expect_response_code-instance_method" title="Neo4j::Server::Resource#expect_response_code (method)">#expect_response_code</a></span>, <span class='object_link'><a href="Resource.html#handle_response_error-instance_method" title="Neo4j::Server::Resource#handle_response_error (method)">#handle_response_error</a></span>, <span class='object_link'><a href="Resource.html#init_resource_data-instance_method" title="Neo4j::Server::Resource#init_resource_data (method)">#init_resource_data</a></span>, <span class='object_link'><a href="Resource.html#resource_headers-instance_method" title="Neo4j::Server::Resource#resource_headers (method)">#resource_headers</a></span>, <span class='object_link'><a href="Resource.html#resource_url_id-instance_method" title="Neo4j::Server::Resource#resource_url_id (method)">#resource_url_id</a></span>, <span class='object_link'><a href="Resource.html#response_exception-instance_method" title="Neo4j::Server::Resource#response_exception (method)">#response_exception</a></span>, <span class='object_link'><a href="Resource.html#wrap_resource-instance_method" title="Neo4j::Server::Resource#wrap_resource (method)">#wrap_resource</a></span></p>
+  <p class="inherited"><span class='object_link'><a href="Resource.html#convert_from_json_value-instance_method" title="Neo4j::Server::Resource#convert_from_json_value (method)">#convert_from_json_value</a></span>, <span class='object_link'><a href="Resource.html#expect_response_code-instance_method" title="Neo4j::Server::Resource#expect_response_code (method)">#expect_response_code</a></span>, <span class='object_link'><a href="Resource.html#handle_response_error-instance_method" title="Neo4j::Server::Resource#handle_response_error (method)">#handle_response_error</a></span>, <span class='object_link'><a href="Resource.html#init_resource_data-instance_method" title="Neo4j::Server::Resource#init_resource_data (method)">#init_resource_data</a></span>, <span class='object_link'><a href="Resource.html#resource_headers-instance_method" title="Neo4j::Server::Resource#resource_headers (method)">#resource_headers</a></span>, <span class='object_link'><a href="Resource.html#resource_url_id-instance_method" title="Neo4j::Server::Resource#resource_url_id (method)">#resource_url_id</a></span>, <span class='object_link'><a href="Resource.html#response_exception-instance_method" title="Neo4j::Server::Resource#response_exception (method)">#response_exception</a></span>, <span class='object_link'><a href="Resource.html#wrap_resource-instance_method" title="Neo4j::Server::Resource#wrap_resource (method)">#wrap_resource</a></span></p>
 
   
   
@@ -734,14 +929,14 @@
   
   
   <h3 class="inherited">Methods inherited from <span class='object_link'><a href="../Session.html" title="Neo4j::Session (class)">Neo4j::Session</a></span></h3>
-  <p class="inherited"><span class='object_link'><a href="../Session.html#_listeners-class_method" title="Neo4j::Session._listeners (method)">_listeners</a></span>, <span class='object_link'><a href="../Session.html#_notify_listeners-class_method" title="Neo4j::Session._notify_listeners (method)">_notify_listeners</a></span>, <span class='object_link'><a href="../Session.html#add_listener-class_method" title="Neo4j::Session.add_listener (method)">add_listener</a></span>, <span class='object_link'><a href="../Session.html#auto_commit%3F-instance_method" title="Neo4j::Session#auto_commit? (method)">#auto_commit?</a></span>, <span class='object_link'><a href="../Session.html#create_session-class_method" title="Neo4j::Session.create_session (method)">create_session</a></span>, <span class='object_link'><a href="../Session.html#current-class_method" title="Neo4j::Session.current (method)">current</a></span>, <span class='object_link'><a href="../Session.html#current%21-class_method" title="Neo4j::Session.current! (method)">current!</a></span>, <span class='object_link'><a href="../Session.html#inspect-class_method" title="Neo4j::Session.inspect (method)">inspect</a></span>, <span class='object_link'><a href="../Session.html#named-class_method" title="Neo4j::Session.named (method)">named</a></span>, <span class='object_link'><a href="../Session.html#on_session_available-class_method" title="Neo4j::Session.on_session_available (method)">on_session_available</a></span>, <span class='object_link'><a href="../Session.html#open_named-class_method" title="Neo4j::Session.open_named (method)">open_named</a></span>, <span class='object_link'><a href="../Session.html#query-class_method" title="Neo4j::Session.query (method)">query</a></span>, <span class='object_link'><a href="../Session.html#register-class_method" title="Neo4j::Session.register (method)">register</a></span>, <span class='object_link'><a href="../Session.html#register_db-class_method" title="Neo4j::Session.register_db (method)">register_db</a></span>, <span class='object_link'><a href="../Session.html#running-instance_method" title="Neo4j::Session#running (method)">#running</a></span>, <span class='object_link'><a href="../Session.html#set_current-class_method" title="Neo4j::Session.set_current (method)">set_current</a></span>, <span class='object_link'><a href="../Session.html#shutdown-instance_method" title="Neo4j::Session#shutdown (method)">#shutdown</a></span>, <span class='object_link'><a href="../Session.html#start-instance_method" title="Neo4j::Session#start (method)">#start</a></span>, <span class='object_link'><a href="../Session.html#unregister-class_method" title="Neo4j::Session.unregister (method)">unregister</a></span></p>
+  <p class="inherited"><span class='object_link'><a href="../Session.html#auto_commit%3F-instance_method" title="Neo4j::Session#auto_commit? (method)">#auto_commit?</a></span>, <span class='object_link'><a href="../Session.html#current-class_method" title="Neo4j::Session.current (method)">current</a></span>, <span class='object_link'><a href="../Session.html#current%21-class_method" title="Neo4j::Session.current! (method)">current!</a></span>, <span class='object_link'><a href="../Session.html#inspect-class_method" title="Neo4j::Session.inspect (method)">inspect</a></span>, <span class='object_link'><a href="../Session.html#named-class_method" title="Neo4j::Session.named (method)">named</a></span>, <span class='object_link'><a href="../Session.html#on_session_available-class_method" title="Neo4j::Session.on_session_available (method)">on_session_available</a></span>, <span class='object_link'><a href="../Session.html#open_named-class_method" title="Neo4j::Session.open_named (method)">open_named</a></span>, <span class='object_link'><a href="../Session.html#query-class_method" title="Neo4j::Session.query (method)">query</a></span>, <span class='object_link'><a href="../Session.html#running-instance_method" title="Neo4j::Session#running (method)">#running</a></span>, <span class='object_link'><a href="../Session.html#set_current-class_method" title="Neo4j::Session.set_current (method)">set_current</a></span>, <span class='object_link'><a href="../Session.html#shutdown-instance_method" title="Neo4j::Session#shutdown (method)">#shutdown</a></span>, <span class='object_link'><a href="../Session.html#start-instance_method" title="Neo4j::Session#start (method)">#start</a></span>, <span class='object_link'><a href="../Session.html#user_agent_string-class_method" title="Neo4j::Session.user_agent_string (method)">user_agent_string</a></span></p>
 <div id="constructor_details" class="method_details_list">
   <h2>Constructor Details</h2>
   
     <div class="method_details first">
   <h3 class="signature first" id="initialize-instance_method">
   
-    - (<tt><span class='object_link'><a href="" title="Neo4j::Server::CypherSession (class)">CypherSession</a></span></tt>) <strong>initialize</strong>(data_url, endpoint = nil) 
+    - (<tt><span class='object_link'><a href="" title="Neo4j::Server::CypherSession (class)">CypherSession</a></span></tt>) <strong>initialize</strong>(data_url, connection, auth_obj = nil) 
   
 
   
@@ -758,25 +953,26 @@
 <div class="tags">
   
 
-</div>
-<table class="source_code">
+</div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-33
-34
-35
-36
-37
-38</pre>
+15
+16
+17
+18
+19
+20
+21</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 33</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 15</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_data_url'>data_url</span><span class='comma'>,</span> <span class='id identifier rubyid_endpoint'>endpoint</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
-  <span class='ivar'>@endpoint</span> <span class='op'>=</span> <span class='id identifier rubyid_endpoint'>endpoint</span> <span class='op'>||</span> <span class='const'>Neo4jServerEndpoint</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_data_url'>data_url</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_data_url'>data_url</span><span class='comma'>,</span> <span class='id identifier rubyid_connection'>connection</span><span class='comma'>,</span> <span class='id identifier rubyid_auth_obj'>auth_obj</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='ivar'>@connection</span> <span class='op'>=</span> <span class='id identifier rubyid_connection'>connection</span>
+  <span class='ivar'>@auth</span> <span class='op'>=</span> <span class='id identifier rubyid_auth_obj'>auth_obj</span> <span class='kw'>if</span> <span class='id identifier rubyid_auth_obj'>auth_obj</span>
   <span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Session</span><span class='period'>.</span><span class='id identifier rubyid_register'>register</span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_initialize_resource'>initialize_resource</span><span class='lparen'>(</span><span class='id identifier rubyid_data_url'>data_url</span><span class='rparen'>)</span>
   <span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Session</span><span class='period'>.</span><span class='id identifier rubyid__notify_listeners'>_notify_listeners</span><span class='lparen'>(</span><span class='symbol'>:session_available</span><span class='comma'>,</span> <span class='kw'>self</span><span class='rparen'>)</span>
@@ -788,13 +984,239 @@
   
 </div>
 
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id=""></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="auth-instance_method">
+  
+    - (<tt>Object</tt>) <strong>auth</strong>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute auth</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+13
+14
+15</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 13</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_auth'>auth</span>
+  <span class='ivar'>@auth</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="connection-instance_method">
+  
+    - (<tt>Object</tt>) <strong>connection</strong>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute connection</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+13
+14
+15</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 13</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_connection'>connection</span>
+  <span class='ivar'>@connection</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
 
   <div id="class_method_details" class="method_details_list">
     <h2>Class Method Details</h2>
 
     
       <div class="method_details first">
-  <h3 class="signature first" id="open-class_method">
+  <h3 class="signature first" id="create_connection-class_method">
+  
+    + (<tt>Faraday</tt>) <strong>create_connection</strong>(params) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>params</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>could be empty or contain basic authentication user and password</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Faraday</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><a href="https://github.com/lostisland/faraday" target="_parent" title="https://github.com/lostisland/faraday">https://github.com/lostisland/faraday</a></li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 26</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_create_connection'>create_connection</span><span class='lparen'>(</span><span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_init_params'>init_params</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:initialize</span><span class='rbracket'>]</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='symbol'>:initialize</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_conn'>conn</span> <span class='op'>=</span> <span class='const'>Faraday</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_init_params'>init_params</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_b'>b</span><span class='op'>|</span>
+    <span class='id identifier rubyid_b'>b</span><span class='period'>.</span><span class='id identifier rubyid_request'>request</span> <span class='symbol'>:basic_auth</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:basic_auth</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:username</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:basic_auth</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:password</span><span class='rbracket'>]</span> <span class='kw'>if</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:basic_auth</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_b'>b</span><span class='period'>.</span><span class='id identifier rubyid_request'>request</span> <span class='symbol'>:json</span>
+    <span class='comment'># b.response :logger
+</span>    <span class='id identifier rubyid_b'>b</span><span class='period'>.</span><span class='id identifier rubyid_response'>response</span> <span class='symbol'>:json</span><span class='comma'>,</span> <span class='label'>content_type:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>application/json</span><span class='tstring_end'>&#39;</span></span>
+    <span class='comment'># b.use Faraday::Response::RaiseError
+</span>    <span class='id identifier rubyid_b'>b</span><span class='period'>.</span><span class='id identifier rubyid_use'>use</span> <span class='const'>Faraday</span><span class='op'>::</span><span class='const'>Adapter</span><span class='op'>::</span><span class='const'>NetHttpPersistent</span>
+    <span class='comment'># b.adapter  Faraday.default_adapter
+</span>  <span class='kw'>end</span>
+  <span class='id identifier rubyid_conn'>conn</span><span class='period'>.</span><span class='id identifier rubyid_headers'>headers</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Content-Type</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>application/json</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>User-Agent</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='op'>::</span><span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Session</span><span class='period'>.</span><span class='id identifier rubyid_user_agent_string'>user_agent_string</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_conn'>conn</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="establish_session-class_method">
+  
+    + (<tt>Object</tt>) <strong>establish_session</strong>(root_data, connection, auth_obj) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+57
+58
+59
+60
+61</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 57</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_establish_session'>establish_session</span><span class='lparen'>(</span><span class='id identifier rubyid_root_data'>root_data</span><span class='comma'>,</span> <span class='id identifier rubyid_connection'>connection</span><span class='comma'>,</span> <span class='id identifier rubyid_auth_obj'>auth_obj</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_data_url'>data_url</span> <span class='op'>=</span> <span class='id identifier rubyid_root_data'>root_data</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>data</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_data_url'>data_url</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_data_url'>data_url</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>||</span> <span class='id identifier rubyid_data_url'>data_url</span><span class='period'>.</span><span class='id identifier rubyid_end_with?'>end_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='const'>CypherSession</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_data_url'>data_url</span><span class='comma'>,</span> <span class='id identifier rubyid_connection'>connection</span><span class='comma'>,</span> <span class='id identifier rubyid_auth_obj'>auth_obj</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="open-class_method">
   
     + (<tt>Object</tt>) <strong>open</strong>(endpoint_url = nil, params = {}) 
   
@@ -846,11 +1268,9 @@ href="http://localhost:7474">localhost:7474</a>&#39;</p>
       
       
         &mdash;
-        <div class='inline'><ul><li>
-<p>see <a
-href="https://github.com/jnunemaker/httparty/blob/master/lib/httparty.rb">github.com/jnunemaker/httparty/blob/master/lib/httparty.rb</a>
-for supported HTTParty options</p>
-</li></ul>
+        <div class='inline'>
+<p>faraday params, see #create_connection or an already created faraday
+connection</p>
 </div>
       
     </li>
@@ -865,40 +1285,35 @@ for supported HTTParty options</p>
     
   </ul>
 
-</div>
-<table class="source_code">
+</div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-20
-21
-22
-23
-24
-25
-26
-27
-28
-29
-30
-31</pre>
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 20</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 46</span>
 
-<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_endpoint_url'>endpoint_url</span><span class='op'>=</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_endpoint'>endpoint</span> <span class='op'>=</span> <span class='const'>Neo4jServerEndpoint</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_endpoint_url'>endpoint_url</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_extract_basic_auth'>extract_basic_auth</span><span class='lparen'>(</span><span class='id identifier rubyid_endpoint_url'>endpoint_url</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_connection'>connection</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:connection</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_create_connection'>create_connection</span><span class='lparen'>(</span><span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_url'>url</span> <span class='op'>=</span> <span class='id identifier rubyid_endpoint_url'>endpoint_url</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>http://localhost:7474</span><span class='tstring_end'>&#39;</span></span>
-  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_endpoint'>endpoint</span><span class='period'>.</span><span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='id identifier rubyid_url'>url</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Server not available on </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_url'>url</span><span class='embexpr_end'>}</span><span class='tstring_content'> (response code </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_code'>code</span><span class='embexpr_end'>}</span><span class='tstring_content'>)</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_code'>code</span> <span class='op'>==</span> <span class='int'>200</span>
-  
-  <span class='id identifier rubyid_root_data'>root_data</span> <span class='op'>=</span> <span class='const'>JSON</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_data_url'>data_url</span> <span class='op'>=</span> <span class='id identifier rubyid_root_data'>root_data</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>data</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
-  <span class='id identifier rubyid_data_url'>data_url</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_data_url'>data_url</span><span class='period'>.</span><span class='id identifier rubyid_end_with?'>end_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
-
-  <span class='const'>CypherSession</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_data_url'>data_url</span><span class='comma'>,</span> <span class='id identifier rubyid_endpoint'>endpoint</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_auth_obj'>auth_obj</span> <span class='op'>=</span> <span class='const'>CypherAuthentication</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_url'>url</span><span class='comma'>,</span> <span class='id identifier rubyid_connection'>connection</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_auth_obj'>auth_obj</span><span class='period'>.</span><span class='id identifier rubyid_authenticate'>authenticate</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_connection'>connection</span><span class='period'>.</span><span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='id identifier rubyid_url'>url</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_fail'>fail</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Server not available on </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_url'>url</span><span class='embexpr_end'>}</span><span class='tstring_content'> (response code </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_status'>status</span><span class='embexpr_end'>}</span><span class='tstring_content'>)</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_status'>status</span> <span class='op'>==</span> <span class='int'>200</span>
+  <span class='id identifier rubyid_establish_session'>establish_session</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span><span class='comma'>,</span> <span class='id identifier rubyid_connection'>connection</span><span class='comma'>,</span> <span class='id identifier rubyid_auth_obj'>auth_obj</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -920,36 +1335,37 @@ for supported HTTParty options</p>
   
 
   
-</h3>
-<table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-172
-173
-174
-175
-176
-177
-178
-179
-180
-181
-182</pre>
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 172</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 207</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid__query'>_query</span><span class='lparen'>(</span><span class='id identifier rubyid_q'>q</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_curr_tx'>curr_tx</span> <span class='op'>=</span> <span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Transaction</span><span class='period'>.</span><span class='id identifier rubyid_current'>current</span>
-  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_curr_tx'>curr_tx</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='id identifier rubyid__query'>_query</span><span class='lparen'>(</span><span class='id identifier rubyid_q'>q</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='comment'># puts &quot;q #{q}&quot;
+</span>  <span class='id identifier rubyid_curr_tx'>curr_tx</span> <span class='op'>=</span> <span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Transaction</span><span class='period'>.</span><span class='id identifier rubyid_current'>current</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_curr_tx'>curr_tx</span>
     <span class='id identifier rubyid_curr_tx'>curr_tx</span><span class='period'>.</span><span class='id identifier rubyid__query'>_query</span><span class='lparen'>(</span><span class='id identifier rubyid_q'>q</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span>
   <span class='kw'>else</span>
     <span class='id identifier rubyid_url'>url</span> <span class='op'>=</span> <span class='id identifier rubyid_resource_url'>resource_url</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>cypher</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
-    <span class='id identifier rubyid_q'>q</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>?</span> <span class='lbrace'>{</span><span class='label'>query:</span> <span class='id identifier rubyid_q'>q</span><span class='rbrace'>}</span> <span class='op'>:</span> <span class='lbrace'>{</span><span class='label'>query:</span> <span class='id identifier rubyid_q'>q</span><span class='comma'>,</span> <span class='label'>params:</span> <span class='id identifier rubyid_params'>params</span><span class='rbrace'>}</span>
-    <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='ivar'>@endpoint</span><span class='period'>.</span><span class='id identifier rubyid_post'>post</span><span class='lparen'>(</span><span class='id identifier rubyid_url'>url</span><span class='comma'>,</span> <span class='label'>headers:</span> <span class='id identifier rubyid_resource_headers'>resource_headers</span><span class='comma'>,</span> <span class='label'>body:</span> <span class='id identifier rubyid_q'>q</span><span class='period'>.</span><span class='id identifier rubyid_to_json'>to_json</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_q'>q</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>?</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>query</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_q'>q</span><span class='rbrace'>}</span> <span class='op'>:</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>query</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_q'>q</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>params</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_params'>params</span><span class='rbrace'>}</span>
+    <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='ivar'>@connection</span><span class='period'>.</span><span class='id identifier rubyid_post'>post</span><span class='lparen'>(</span><span class='id identifier rubyid_url'>url</span><span class='comma'>,</span> <span class='id identifier rubyid_q'>q</span><span class='rparen'>)</span>
     <span class='const'>CypherResponse</span><span class='period'>.</span><span class='id identifier rubyid_create_with_no_tx'>create_with_no_tx</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='rparen'>)</span>
   <span class='kw'>end</span>
 <span class='kw'>end</span></pre>
@@ -967,21 +1383,20 @@ for supported HTTParty options</p>
   
 
   
-</h3>
-<table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-154
-155
-156
-157
-158</pre>
+189
+190
+191
+192
+193</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 154</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 189</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid__query_data'>_query_data</span><span class='lparen'>(</span><span class='id identifier rubyid_q'>q</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_r'>r</span> <span class='op'>=</span> <span class='id identifier rubyid__query_or_fail'>_query_or_fail</span><span class='lparen'>(</span><span class='id identifier rubyid_q'>q</span><span class='comma'>,</span> <span class='kw'>true</span><span class='rparen'>)</span>
@@ -996,30 +1411,29 @@ for supported HTTParty options</p>
       <div class="method_details ">
   <h3 class="signature " id="_query_entity_data-instance_method">
   
-    - (<tt>Object</tt>) <strong>_query_entity_data</strong>(q, id = nil) 
+    - (<tt>Object</tt>) <strong>_query_entity_data</strong>(q, id = nil, params = nil) 
   
 
   
 
   
-</h3>
-<table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-166
-167
-168
-169
-170</pre>
+201
+202
+203
+204
+205</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 166</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 201</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid__query_entity_data'>_query_entity_data</span><span class='lparen'>(</span><span class='id identifier rubyid_q'>q</span><span class='comma'>,</span> <span class='id identifier rubyid_id'>id</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid__query'>_query</span><span class='lparen'>(</span><span class='id identifier rubyid_q'>q</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='id identifier rubyid__query_entity_data'>_query_entity_data</span><span class='lparen'>(</span><span class='id identifier rubyid_q'>q</span><span class='comma'>,</span> <span class='id identifier rubyid_id'>id</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid__query'>_query</span><span class='lparen'>(</span><span class='id identifier rubyid_q'>q</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_raise_error'>raise_error</span> <span class='kw'>if</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_error?'>error?</span>
   <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_entity_data'>entity_data</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
@@ -1037,23 +1451,22 @@ for supported HTTParty options</p>
   
 
   
-</h3>
-<table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-160
-161
-162
-163
-164</pre>
+195
+196
+197
+198
+199</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 160</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 195</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid__query_or_fail'>_query_or_fail</span><span class='lparen'>(</span><span class='id identifier rubyid_q'>q</span><span class='comma'>,</span> <span class='id identifier rubyid_single_row'>single_row</span> <span class='op'>=</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='id identifier rubyid__query_or_fail'>_query_or_fail</span><span class='lparen'>(</span><span class='id identifier rubyid_q'>q</span><span class='comma'>,</span> <span class='id identifier rubyid_single_row'>single_row</span> <span class='op'>=</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid__query'>_query</span><span class='lparen'>(</span><span class='id identifier rubyid_q'>q</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_raise_error'>raise_error</span> <span class='kw'>if</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_error?'>error?</span>
   <span class='id identifier rubyid_single_row'>single_row</span> <span class='op'>?</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_first_data'>first_data</span> <span class='op'>:</span> <span class='id identifier rubyid_response'>response</span>
@@ -1072,32 +1485,31 @@ for supported HTTParty options</p>
   
 
   
-</h3>
-<table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-70
-71
-72
-73
-74
-75
-76
-77
-78</pre>
+103
+104
+105
+106
+107
+108
+109
+110
+111</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 70</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 103</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_begin_tx'>begin_tx</span>
   <span class='kw'>if</span> <span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Transaction</span><span class='period'>.</span><span class='id identifier rubyid_current'>current</span>
     <span class='comment'># Handle nested transaction &quot;placebo transaction&quot;
 </span>    <span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Transaction</span><span class='period'>.</span><span class='id identifier rubyid_current'>current</span><span class='period'>.</span><span class='id identifier rubyid_push_nested!'>push_nested!</span>
   <span class='kw'>else</span>
-    <span class='id identifier rubyid_wrap_resource'>wrap_resource</span><span class='lparen'>(</span><span class='kw'>self</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>transaction</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>CypherTransaction</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='symbol'>:post</span><span class='comma'>,</span> <span class='ivar'>@endpoint</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_wrap_resource'>wrap_resource</span><span class='lparen'>(</span><span class='ivar'>@connection</span><span class='rparen'>)</span>
   <span class='kw'>end</span>
   <span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Transaction</span><span class='period'>.</span><span class='id identifier rubyid_current'>current</span>
 <span class='kw'>end</span></pre>
@@ -1115,20 +1527,19 @@ for supported HTTParty options</p>
   
 
   
-</h3>
-<table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-65
-66
-67
-68</pre>
+98
+99
+100
+101</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 65</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 98</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_close'>close</span>
   <span class='kw'>super</span>
@@ -1148,19 +1559,18 @@ for supported HTTParty options</p>
   
 
   
-</h3>
-<table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-110
-111
-112</pre>
+144
+145
+146</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 110</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 144</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_create_label'>create_label</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
   <span class='const'>CypherLabel</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='kw'>self</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
@@ -1179,28 +1589,25 @@ for supported HTTParty options</p>
   
 
   
-</h3>
-<table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-80
-81
-82
-83
-84
-85</pre>
+113
+114
+115
+116
+117</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 80</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 113</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_create_node'>create_node</span><span class='lparen'>(</span><span class='id identifier rubyid_props'>props</span><span class='op'>=</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_labels'>labels</span><span class='op'>=</span><span class='lbracket'>[</span><span class='rbracket'>]</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_l'>l</span> <span class='op'>=</span> <span class='id identifier rubyid_labels'>labels</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>:</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_labels'>labels</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_k'>k</span><span class='op'>|</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>`</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_k'>k</span><span class='embexpr_end'>}</span><span class='tstring_content'>`</span><span class='tstring_end'>&quot;</span></span><span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>:</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_q'>q</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>CREATE (n</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_l'>l</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cypher_prop_list'>cypher_prop_list</span><span class='lparen'>(</span><span class='id identifier rubyid_props'>props</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>) RETURN ID(n)</span><span class='tstring_end'>&quot;</span></span>
-  <span class='id identifier rubyid_cypher_response'>cypher_response</span> <span class='op'>=</span> <span class='id identifier rubyid__query_or_fail'>_query_or_fail</span><span class='lparen'>(</span><span class='id identifier rubyid_q'>q</span><span class='comma'>,</span> <span class='kw'>true</span><span class='rparen'>)</span>
-  <span class='const'>CypherNode</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='kw'>self</span><span class='comma'>,</span> <span class='id identifier rubyid_cypher_response'>cypher_response</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_create_node'>create_node</span><span class='lparen'>(</span><span class='id identifier rubyid_props'>props</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_labels'>labels</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_id'>id</span> <span class='op'>=</span> <span class='id identifier rubyid__query_or_fail'>_query_or_fail</span><span class='lparen'>(</span><span class='id identifier rubyid_cypher_string'>cypher_string</span><span class='lparen'>(</span><span class='id identifier rubyid_labels'>labels</span><span class='comma'>,</span> <span class='id identifier rubyid_props'>props</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='id identifier rubyid_cypher_prop_list'>cypher_prop_list</span><span class='lparen'>(</span><span class='id identifier rubyid_props'>props</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='id identifier rubyid_props'>props</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>?</span> <span class='id identifier rubyid_id'>id</span> <span class='op'>:</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>id</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_id'>id</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>metadata</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>labels</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_labels'>labels</span><span class='rbrace'>}</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>data</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_props'>props</span><span class='rbrace'>}</span>
+  <span class='const'>CypherNode</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='kw'>self</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1216,19 +1623,18 @@ for supported HTTParty options</p>
   
 
   
-</h3>
-<table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-40
-41
-42</pre>
+73
+74
+75</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 40</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 73</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_db_type'>db_type</span>
   <span class='symbol'>:server_db</span>
@@ -1247,24 +1653,21 @@ for supported HTTParty options</p>
   
 
   
-</h3>
-<table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-128
-129
-130
-131</pre>
+162
+163
+164</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 128</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 162</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_find_all_nodes'>find_all_nodes</span><span class='lparen'>(</span><span class='id identifier rubyid_label_name'>label_name</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid__query_or_fail'>_query_or_fail</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>MATCH (n:`</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_label_name'>label_name</span><span class='embexpr_end'>}</span><span class='tstring_content'>`) RETURN ID(n)</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_search_result_to_enumerable_first_column'>search_result_to_enumerable_first_column</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_search_result_to_enumerable_first_column'>search_result_to_enumerable_first_column</span><span class='lparen'>(</span><span class='id identifier rubyid__query_or_fail'>_query_or_fail</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>MATCH (n:`</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_label_name'>label_name</span><span class='embexpr_end'>}</span><span class='tstring_content'>`) RETURN ID(n)</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1280,30 +1683,29 @@ for supported HTTParty options</p>
   
 
   
-</h3>
-<table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-133
-134
-135
-136
-137
-138
-139
-140
-141
-142</pre>
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 133</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 166</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_find_nodes'>find_nodes</span><span class='lparen'>(</span><span class='id identifier rubyid_label_name'>label_name</span><span class='comma'>,</span> <span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>&#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span> <span class='const'>String</span>
-  
+
   <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid__query_or_fail'>_query_or_fail</span> <span class='heredoc_beg'>&lt;&lt;-CYPHER</span>
 <span class='tstring_content'>    MATCH (n:`</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_label_name'>label_name</span><span class='embexpr_end'>}</span><span class='tstring_content'>`)
     WHERE n.</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_key'>key</span><span class='embexpr_end'>}</span><span class='tstring_content'> = </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='embexpr_end'>}</span><span class='tstring_content'>
@@ -1325,42 +1727,21 @@ for supported HTTParty options</p>
   
 
   
-</h3>
-<table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-114
-115
-116
-117
-118
-119
-120
-121
-122
-123
-124
-125
-126</pre>
+152
+153
+154</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 114</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 152</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_indexes'>indexes</span><span class='lparen'>(</span><span class='id identifier rubyid_label'>label</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='ivar'>@endpoint</span><span class='period'>.</span><span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='ivar'>@resource_url</span><span class='embexpr_end'>}</span><span class='tstring_content'>schema/index/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_label'>label</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_expect_response_code'>expect_response_code</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='comma'>,</span> <span class='int'>200</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_data_resource'>data_resource</span> <span class='op'>=</span> <span class='const'>JSON</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span><span class='rparen'>)</span>
-
-  <span class='id identifier rubyid_property_keys'>property_keys</span> <span class='op'>=</span> <span class='id identifier rubyid_data_resource'>data_resource</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_row'>row</span><span class='op'>|</span>
-    <span class='id identifier rubyid_row'>row</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>property_keys</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:to_sym</span><span class='rparen'>)</span>
-  <span class='kw'>end</span>
-
-  <span class='lbrace'>{</span>
-      <span class='label'>property_keys:</span> <span class='id identifier rubyid_property_keys'>property_keys</span>
-  <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_schema_properties'>schema_properties</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='ivar'>@resource_url</span><span class='embexpr_end'>}</span><span class='tstring_content'>schema/index/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_label'>label</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1376,30 +1757,29 @@ for supported HTTParty options</p>
   
 
   
-</h3>
-<table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-56
-57
-58
-59
-60
-61
-62
-63</pre>
+89
+90
+91
+92
+93
+94
+95
+96</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 56</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 89</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize_resource'>initialize_resource</span><span class='lparen'>(</span><span class='id identifier rubyid_data_url'>data_url</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='ivar'>@endpoint</span><span class='period'>.</span><span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='id identifier rubyid_data_url'>data_url</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_expect_response_code'>expect_response_code</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='comma'>,</span><span class='int'>200</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_data_resource'>data_resource</span> <span class='op'>=</span> <span class='const'>JSON</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>No data_resource for </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_data_resource'>data_resource</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='ivar'>@connection</span><span class='period'>.</span><span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='id identifier rubyid_data_url'>data_url</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_expect_response_code'>expect_response_code</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='comma'>,</span> <span class='int'>200</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_data_resource'>data_resource</span> <span class='op'>=</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span>
+  <span class='id identifier rubyid_fail'>fail</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>No data_resource for </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_data_resource'>data_resource</span>
   <span class='comment'># store the resource data
 </span>  <span class='id identifier rubyid_init_resource_data'>init_resource_data</span><span class='lparen'>(</span><span class='id identifier rubyid_data_resource'>data_resource</span><span class='comma'>,</span> <span class='id identifier rubyid_data_url'>data_url</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
@@ -1417,22 +1797,77 @@ for supported HTTParty options</p>
   
 
   
-</h3>
-<table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-48
-49
-50</pre>
+81
+82
+83</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 48</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 81</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_inspect'>inspect</span>
-  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_to_s'>to_s</span><span class='embexpr_end'>}</span><span class='tstring_content'> version: &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_version'>version</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;</span><span class='tstring_end'>&quot;</span></span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='embexpr_end'>}</span><span class='tstring_content'> version: &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_version'>version</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="load_entity-instance_method">
+  
+    - (<tt>Object</tt>) <strong>load_entity</strong>(clazz, cypher_response) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 127</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_load_entity'>load_entity</span><span class='lparen'>(</span><span class='id identifier rubyid_clazz'>clazz</span><span class='comma'>,</span> <span class='id identifier rubyid_cypher_response'>cypher_response</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='id identifier rubyid_cypher_response'>cypher_response</span><span class='period'>.</span><span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>||</span> <span class='id identifier rubyid_cypher_response'>cypher_response</span><span class='period'>.</span><span class='id identifier rubyid_data'>data</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='id identifier rubyid_data'>data</span>  <span class='op'>=</span> <span class='kw'>if</span> <span class='id identifier rubyid_cypher_response'>cypher_response</span><span class='period'>.</span><span class='id identifier rubyid_transaction_response?'>transaction_response?</span>
+            <span class='id identifier rubyid_cypher_response'>cypher_response</span><span class='period'>.</span><span class='id identifier rubyid_rest_data_with_id'>rest_data_with_id</span>
+          <span class='kw'>else</span>
+            <span class='id identifier rubyid_cypher_response'>cypher_response</span><span class='period'>.</span><span class='id identifier rubyid_first_data'>first_data</span>
+          <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_cypher_response'>cypher_response</span><span class='period'>.</span><span class='id identifier rubyid_error?'>error?</span>
+    <span class='id identifier rubyid_cypher_response'>cypher_response</span><span class='period'>.</span><span class='id identifier rubyid_raise_error'>raise_error</span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_cypher_response'>cypher_response</span><span class='period'>.</span><span class='id identifier rubyid_error_msg'>error_msg</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>not found</span><span class='regexp_end'>/</span></span>  <span class='comment'># Ugly that the Neo4j API gives us this error message
+</span>    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_clazz'>clazz</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='kw'>self</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1448,38 +1883,21 @@ for supported HTTParty options</p>
   
 
   
-</h3>
-<table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-87
-88
-89
-90
-91
-92
-93
-94
-95
-96
-97</pre>
+119
+120
+121</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 87</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 119</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_load_node'>load_node</span><span class='lparen'>(</span><span class='id identifier rubyid_neo_id'>neo_id</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_cypher_response'>cypher_response</span> <span class='op'>=</span> <span class='id identifier rubyid__query'>_query</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>START n=node(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_neo_id'>neo_id</span><span class='embexpr_end'>}</span><span class='tstring_content'>) RETURN n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
-  <span class='kw'>if</span> <span class='lparen'>(</span><span class='op'>!</span><span class='id identifier rubyid_cypher_response'>cypher_response</span><span class='period'>.</span><span class='id identifier rubyid_error?'>error?</span><span class='rparen'>)</span>
-    <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='id identifier rubyid_cypher_response'>cypher_response</span><span class='period'>.</span><span class='id identifier rubyid_entity_data'>entity_data</span><span class='lparen'>(</span><span class='id identifier rubyid_neo_id'>neo_id</span><span class='rparen'>)</span>
-    <span class='const'>CypherNode</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='kw'>self</span><span class='comma'>,</span> <span class='id identifier rubyid_result'>result</span><span class='rparen'>)</span>
-  <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='id identifier rubyid_cypher_response'>cypher_response</span><span class='period'>.</span><span class='id identifier rubyid_error_status'>error_status</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>EntityNotFound</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span>
-    <span class='kw'>return</span> <span class='kw'>nil</span>
-  <span class='kw'>else</span>
-    <span class='id identifier rubyid_cypher_response'>cypher_response</span><span class='period'>.</span><span class='id identifier rubyid_raise_error'>raise_error</span>
-  <span class='kw'>end</span>
+  <span class='id identifier rubyid_load_entity'>load_entity</span><span class='lparen'>(</span><span class='const'>CypherNode</span><span class='comma'>,</span> <span class='id identifier rubyid__query'>_query</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>MATCH (n) WHERE ID(n) = </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_neo_id'>neo_id</span><span class='embexpr_end'>}</span><span class='tstring_content'> RETURN n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1495,36 +1913,21 @@ for supported HTTParty options</p>
   
 
   
-</h3>
-<table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-99
-100
-101
-102
-103
-104
-105
-106
-107
-108</pre>
+123
+124
+125</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 99</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 123</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_load_relationship'>load_relationship</span><span class='lparen'>(</span><span class='id identifier rubyid_neo_id'>neo_id</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_cypher_response'>cypher_response</span> <span class='op'>=</span> <span class='id identifier rubyid__query'>_query</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>START r=relationship(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_neo_id'>neo_id</span><span class='embexpr_end'>}</span><span class='tstring_content'>) RETURN TYPE(r)</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
-  <span class='kw'>if</span> <span class='lparen'>(</span><span class='op'>!</span><span class='id identifier rubyid_cypher_response'>cypher_response</span><span class='period'>.</span><span class='id identifier rubyid_error?'>error?</span><span class='rparen'>)</span>
-    <span class='const'>CypherRelationship</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='kw'>self</span><span class='comma'>,</span> <span class='id identifier rubyid_neo_id'>neo_id</span><span class='comma'>,</span> <span class='id identifier rubyid_cypher_response'>cypher_response</span><span class='period'>.</span><span class='id identifier rubyid_first_data'>first_data</span><span class='rparen'>)</span>
-  <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='id identifier rubyid_cypher_response'>cypher_response</span><span class='period'>.</span><span class='id identifier rubyid_error_msg'>error_msg</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>not found</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span>  <span class='comment'># Ugly that the Neo4j API gives us this error message
-</span>    <span class='kw'>return</span> <span class='kw'>nil</span>
-  <span class='kw'>else</span>
-    <span class='id identifier rubyid_cypher_response'>cypher_response</span><span class='period'>.</span><span class='id identifier rubyid_raise_error'>raise_error</span>
-  <span class='kw'>end</span>
+  <span class='id identifier rubyid_load_entity'>load_entity</span><span class='lparen'>(</span><span class='const'>CypherRelationship</span><span class='comma'>,</span> <span class='id identifier rubyid__query'>_query</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>MATCH (n)-[r]-() WHERE ID(r) = </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_neo_id'>neo_id</span><span class='embexpr_end'>}</span><span class='tstring_content'> RETURN r</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1540,35 +1943,32 @@ for supported HTTParty options</p>
   
 
   
-</h3>
-<table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-194
-195
-196
-197
-198
-199
-200
-201
-202
-203</pre>
+247
+248
+249
+250
+251
+252
+253
+254
+255</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 194</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 247</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_map_column'>map_column</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_map'>map</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
-  <span class='kw'>case</span> <span class='id identifier rubyid_map'>map</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span>
-    <span class='kw'>when</span> <span class='symbol'>:node</span>
-      <span class='const'>CypherNode</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='kw'>self</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_wrapper'>wrapper</span>
-    <span class='kw'>when</span> <span class='symbol'>:rel</span><span class='comma'>,</span> <span class='symbol'>:relationship</span>
-      <span class='const'>CypherRelationship</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='kw'>self</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
-    <span class='kw'>else</span>
-      <span class='id identifier rubyid_data'>data</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_map'>map</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='symbol'>:node</span>
+    <span class='const'>CypherNode</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='kw'>self</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_wrapper'>wrapper</span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_map'>map</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='symbol'>:rel</span> <span class='op'>||</span> <span class='id identifier rubyid_map'>map</span><span class='lbracket'>[</span><span class='symbol'>:key</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='symbol'>:relationship</span>
+    <span class='const'>CypherRelationship</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='kw'>self</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_data'>data</span>
   <span class='kw'>end</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -1585,30 +1985,33 @@ for supported HTTParty options</p>
   
 
   
-</h3>
-<table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-144
-145
-146
-147
-148
-149
-150
-151
-152</pre>
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 144</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 177</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_query'>query</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
-  <span class='kw'>if</span> <span class='lbracket'>[</span><span class='lbracket'>[</span><span class='const'>String</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='const'>String</span><span class='comma'>,</span> <span class='const'>String</span><span class='rbracket'>]</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:class</span><span class='rparen'>)</span><span class='rparen'>)</span>
-    <span class='id identifier rubyid_query'>query</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>2</span><span class='rbracket'>]</span>
-    <span class='id identifier rubyid__query'>_query</span><span class='lparen'>(</span><span class='id identifier rubyid_query'>query</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_node_enumeration'>to_node_enumeration</span><span class='lparen'>(</span><span class='id identifier rubyid_query'>query</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='lbracket'>[</span><span class='lbracket'>[</span><span class='const'>String</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='const'>String</span><span class='comma'>,</span> <span class='const'>Hash</span><span class='rbracket'>]</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:class</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_query'>query</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span> <span class='int'>2</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid__query'>_query</span><span class='lparen'>(</span><span class='id identifier rubyid_query'>query</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_raise_error'>raise_error</span> <span class='kw'>if</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_error?'>error?</span>
+    <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_to_node_enumeration'>to_node_enumeration</span><span class='lparen'>(</span><span class='id identifier rubyid_query'>query</span><span class='rparen'>)</span>
   <span class='kw'>else</span>
     <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
     <span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Core</span><span class='op'>::</span><span class='const'>Query</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span><span class='label'>session:</span> <span class='kw'>self</span><span class='rparen'>)</span><span class='rparen'>)</span>
@@ -1620,68 +2023,33 @@ for supported HTTParty options</p>
 </div>
     
       <div class="method_details ">
-  <h3 class="signature " id="search_result_to_enumerable-instance_method">
+  <h3 class="signature " id="schema_properties-instance_method">
   
-    - (<tt>Object</tt>) <strong>search_result_to_enumerable</strong>(response, ret, map) 
-  
-
+    - (<tt>Object</tt>) <strong>schema_properties</strong>(query_string) 
   
 
   
-</h3>
-<table class="source_code">
+
+  
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-206
-207
-208
-209
-210
-211
-212
-213
-214
-215
-216
-217
-218
-219
-220
-221
-222
-223
-224
-225
-226
-227</pre>
+156
+157
+158
+159
+160</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 206</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 156</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_search_result_to_enumerable'>search_result_to_enumerable</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='comma'>,</span> <span class='id identifier rubyid_ret'>ret</span><span class='comma'>,</span> <span class='id identifier rubyid_map'>map</span><span class='rparen'>)</span>
-  <span class='kw'>return</span> <span class='lbracket'>[</span><span class='rbracket'>]</span> <span class='kw'>unless</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_data'>data</span>
-
-  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_ret'>ret</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='op'>==</span> <span class='int'>1</span><span class='rparen'>)</span>
-    <span class='const'>Enumerator</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_yielder'>yielder</span><span class='op'>|</span>
-      <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_data'>data</span><span class='op'>|</span>
-        <span class='id identifier rubyid_yielder'>yielder</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_map_column'>map_column</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_map'>map</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='rparen'>)</span>
-      <span class='kw'>end</span>
-    <span class='kw'>end</span>
-
-  <span class='kw'>else</span>
-    <span class='const'>Enumerator</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_yielder'>yielder</span><span class='op'>|</span>
-      <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_data'>data</span><span class='op'>|</span>
-        <span class='id identifier rubyid_hash'>hash</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
-        <span class='id identifier rubyid_ret'>ret</span><span class='period'>.</span><span class='id identifier rubyid_each_with_index'>each_with_index</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_i'>i</span><span class='op'>|</span>
-          <span class='id identifier rubyid_hash'>hash</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_map_column'>map_column</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_map'>map</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='lbracket'>[</span><span class='id identifier rubyid_i'>i</span><span class='rbracket'>]</span><span class='rparen'>)</span>
-        <span class='kw'>end</span>
-        <span class='id identifier rubyid_yielder'>yielder</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_hash'>hash</span>
-      <span class='kw'>end</span>
-    <span class='kw'>end</span>
-  <span class='kw'>end</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_schema_properties'>schema_properties</span><span class='lparen'>(</span><span class='id identifier rubyid_query_string'>query_string</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='ivar'>@connection</span><span class='period'>.</span><span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='id identifier rubyid_query_string'>query_string</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_expect_response_code'>expect_response_code</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='comma'>,</span> <span class='int'>200</span><span class='rparen'>)</span>
+  <span class='lbrace'>{</span><span class='label'>property_keys:</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_row'>row</span><span class='op'>|</span> <span class='id identifier rubyid_row'>row</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>property_keys</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:to_sym</span><span class='rparen'>)</span> <span class='rbrace'>}</span><span class='rbrace'>}</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1697,27 +2065,106 @@ for supported HTTParty options</p>
   
 
   
-</h3>
-<table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-184
-185
-186
-187
-188
-189
-190
-191</pre>
+220
+221
+222
+223
+224
+225
+226
+227</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 184</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 220</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_search_result_to_enumerable_first_column'>search_result_to_enumerable_first_column</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='lbracket'>[</span><span class='rbracket'>]</span> <span class='kw'>unless</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_data'>data</span>
+  <span class='kw'>if</span> <span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Transaction</span><span class='period'>.</span><span class='id identifier rubyid_current'>current</span>
+    <span class='id identifier rubyid_search_result_to_enumerable_first_column_with_tx'>search_result_to_enumerable_first_column_with_tx</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_search_result_to_enumerable_first_column_without_tx'>search_result_to_enumerable_first_column_without_tx</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="search_result_to_enumerable_first_column_with_tx-instance_method">
+  
+    - (<tt>Object</tt>) <strong>search_result_to_enumerable_first_column_with_tx</strong>(response) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+229
+230
+231
+232
+233
+234
+235
+236
+237</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 229</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_search_result_to_enumerable_first_column_with_tx'>search_result_to_enumerable_first_column_with_tx</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='rparen'>)</span>
+  <span class='const'>Enumerator</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_yielder'>yielder</span><span class='op'>|</span>
+    <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_data'>data</span><span class='op'>|</span>
+      <span class='id identifier rubyid_data'>data</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>row</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_id'>id</span><span class='op'>|</span>
+        <span class='id identifier rubyid_yielder'>yielder</span> <span class='op'>&lt;&lt;</span> <span class='const'>CypherNode</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='kw'>self</span><span class='comma'>,</span> <span class='id identifier rubyid_id'>id</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_wrapper'>wrapper</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="search_result_to_enumerable_first_column_without_tx-instance_method">
+  
+    - (<tt>Object</tt>) <strong>search_result_to_enumerable_first_column_without_tx</strong>(response) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+239
+240
+241
+242
+243
+244
+245</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 239</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_search_result_to_enumerable_first_column_without_tx'>search_result_to_enumerable_first_column_without_tx</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='rparen'>)</span>
   <span class='const'>Enumerator</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_yielder'>yielder</span><span class='op'>|</span>
     <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_data'>data</span><span class='op'>|</span>
       <span class='id identifier rubyid_yielder'>yielder</span> <span class='op'>&lt;&lt;</span> <span class='const'>CypherNode</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='kw'>self</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_wrapper'>wrapper</span>
@@ -1738,8 +2185,7 @@ for supported HTTParty options</p>
   
 
   
-</h3>
-<table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
@@ -1765,22 +2211,51 @@ for supported HTTParty options</p>
   
 
   
-</h3>
-<table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-44
-45
-46</pre>
+77
+78
+79</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 44</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 77</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_s'>to_s</span>
   <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'> url: &#39;</span><span class='embexpr_beg'>#{</span><span class='ivar'>@resource_url</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="uniqueness_constraints-instance_method">
+  
+    - (<tt>Object</tt>) <strong>uniqueness_constraints</strong>(label) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+148
+149
+150</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 148</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_uniqueness_constraints'>uniqueness_constraints</span><span class='lparen'>(</span><span class='id identifier rubyid_label'>label</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_schema_properties'>schema_properties</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='ivar'>@resource_url</span><span class='embexpr_end'>}</span><span class='tstring_content'>schema/constraint/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_label'>label</span><span class='embexpr_end'>}</span><span class='tstring_content'>/uniqueness</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1796,19 +2271,18 @@ for supported HTTParty options</p>
   
 
   
-</h3>
-<table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-52
-53
-54</pre>
+85
+86
+87</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 52</span>
+      <pre class="code"><span class="info file"># File 'lib/neo4j-server/cypher_session.rb', line 85</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_version'>version</span>
   <span class='id identifier rubyid_resource_data'>resource_data</span> <span class='op'>?</span> <span class='id identifier rubyid_resource_data'>resource_data</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>neo4j_version</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
@@ -1823,9 +2297,9 @@ for supported HTTParty options</p>
 </div>
 
     <div id="footer">
-  Generated on Wed Aug 27 16:32:05 2014 by
+  Generated on Tue Jan  6 11:34:22 2015 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.8.7.4 (ruby-2.1.1).
+  0.8.7.4 (ruby-2.1.5).
 </div>
 
   </body>

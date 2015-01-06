@@ -208,8 +208,7 @@
   
 
   
-</h3>
-<table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
@@ -226,7 +225,7 @@
     <td>
       <pre class="code"><span class="info file"># File 'lib/neo4j-embedded/embedded_database.rb', line 8</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_connect'>connect</span><span class='lparen'>(</span><span class='id identifier rubyid_db_location'>db_location</span><span class='comma'>,</span> <span class='id identifier rubyid_config'>config</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_connect'>connect</span><span class='lparen'>(</span><span class='id identifier rubyid_db_location'>db_location</span><span class='comma'>,</span> <span class='id identifier rubyid_config'>config</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Session</span><span class='period'>.</span><span class='id identifier rubyid_current'>current</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:db_location</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Session</span><span class='period'>.</span><span class='id identifier rubyid_current'>current</span><span class='period'>.</span><span class='id identifier rubyid_db_location'>db_location</span> <span class='op'>==</span> <span class='id identifier rubyid_db_location'>db_location</span>
     <span class='kw'>return</span> <span class='const'>Neo4j</span><span class='op'>::</span><span class='const'>Session</span><span class='period'>.</span><span class='id identifier rubyid_current'>current</span>
   <span class='kw'>else</span>
@@ -247,8 +246,7 @@
   
 
   
-</h3>
-<table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
@@ -282,8 +280,7 @@
   
 
   
-</h3>
-<table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
@@ -291,14 +288,12 @@
 
 22
 23
-24
-25</pre>
+24</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/neo4j-embedded/embedded_database.rb', line 22</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_factory_class'>factory_class</span>
-  <span class='const'>Java</span><span class='op'>::</span><span class='const'>OrgNeo4jGraphdbFactory</span><span class='op'>::</span><span class='const'>GraphDatabaseFactory</span>
   <span class='const'>Java</span><span class='op'>::</span><span class='const'>OrgNeo4jTest</span><span class='op'>::</span><span class='const'>ImpermanentGraphDatabase</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -311,9 +306,9 @@
 </div>
 
     <div id="footer">
-  Generated on Wed Aug 27 16:32:05 2014 by
+  Generated on Tue Jan  6 11:34:23 2015 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.8.7.4 (ruby-2.1.1).
+  0.8.7.4 (ruby-2.1.5).
 </div>
 
   </body>

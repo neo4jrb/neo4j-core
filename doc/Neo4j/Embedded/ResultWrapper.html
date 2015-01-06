@@ -328,8 +328,7 @@ symbols as keys.</p>
 <div class="tags">
   
 
-</div>
-<table class="source_code">
+</div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
@@ -402,8 +401,7 @@ only !</p>
   
 </ul>
 
-</div>
-<table class="source_code">
+</div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
@@ -469,8 +467,7 @@ only !</p>
   
 </ul>
 
-</div>
-<table class="source_code">
+</div><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
@@ -500,30 +497,7 @@ only !</p>
   
 
   
-</h3><div class="docstring">
-  <div class="discussion">
-    
-
-  </div>
-</div>
-<div class="tags">
-  
-<p class="tag_title">Raises:</p>
-<ul class="raise">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt><span class='object_link'><a href="ResultWrapper/ResultsAlreadyConsumedException.html" title="Neo4j::Embedded::ResultWrapper::ResultsAlreadyConsumedException (class)">ResultsAlreadyConsumedException</a></span></tt>)</span>
-      
-      
-      
-    </li>
-  
-</ul>
-
-</div>
-<table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
@@ -547,7 +521,7 @@ only !</p>
       <pre class="code"><span class="info file"># File 'lib/neo4j-embedded/cypher_response.rb', line 37</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_each'>each</span>
-  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ResultsAlreadyConsumedException</span> <span class='kw'>unless</span> <span class='ivar'>@unread</span>
+  <span class='id identifier rubyid_fail'>fail</span> <span class='const'>ResultsAlreadyConsumedException</span> <span class='kw'>unless</span> <span class='ivar'>@unread</span>
 
   <span class='kw'>if</span> <span class='id identifier rubyid_block_given?'>block_given?</span>
     <span class='ivar'>@source</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_row'>row</span><span class='op'>|</span>
@@ -573,8 +547,7 @@ only !</p>
   
 
   
-</h3>
-<table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
@@ -604,8 +577,7 @@ only !</p>
   
 
   
-</h3>
-<table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
@@ -631,9 +603,9 @@ only !</p>
 </div>
 
     <div id="footer">
-  Generated on Wed Aug 27 16:32:05 2014 by
+  Generated on Tue Jan  6 11:34:23 2015 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.8.7.4 (ruby-2.1.1).
+  0.8.7.4 (ruby-2.1.5).
 </div>
 
   </body>
