@@ -156,7 +156,7 @@ module Neo4j
                        end
 
 
-        "#{gem} gem/#{version} (https://github.com/neo4jrb/#{gem})"
+        "#{gem}-gem/#{version} (https://github.com/neo4jrb/#{gem})"
       end
 
       # @private
