@@ -161,6 +161,30 @@ module Neo4j
         end
 
         skip 'returns hydrated CypherPath objects?'
+
+        describe '#errors' do
+          let(:cypher_response) { CypherResponse.new(response, true) }
+
+          context 'without transaction' do
+            let(:response) do
+              double('tx_response', status: 400, body: {'message' => 'Some error', 'exception' => 'SomeError', 'fullname' => 'SomeError'})
+            end
+
+            it 'returns an array of errors' do
+              expect(cypher_response.errors).to be_a(Array)
+            end
+          end
+
+          context 'using transaction' do
+            let(:response) do
+              double('non-tx_response', status: 200, body: {'errors' => ['message' => 'Some error', 'status' => 'SomeError', 'code' => 'SomeError'], 'commit' => 'commit_uri'})
+            end
+
+            it 'returns an array of errors' do
+              expect(cypher_response.errors).to be_a(Array)
+            end
+          end
+        end
       end
     end
   end

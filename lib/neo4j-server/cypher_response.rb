@@ -1,7 +1,7 @@
 module Neo4j
   module Server
     class CypherResponse
-      attr_reader :data, :columns, :error_msg, :error_status, :error_code, :response
+      attr_reader :data, :columns, :response
 
       class ResponseError < StandardError
         attr_reader :status, :code
@@ -12,7 +12,6 @@ module Neo4j
           @code = code
         end
       end
-
 
       class HashEnumeration
         include Enumerable
@@ -76,13 +75,13 @@ module Neo4j
       def hash_value_as_object(value, session)
         return value unless value['labels'] || value['type'] || transaction_response?
 
-        is_node, data =  if transaction_response?
-                           add_transaction_entity_id
-                           [!mapped_rest_data['start'], mapped_rest_data]
-                         elsif value['labels'] || value['type']
-                           add_entity_id(value)
-                           [value['labels'], value]
-                         end
+        is_node, data = if transaction_response?
+                          add_transaction_entity_id
+                          [!mapped_rest_data['start'], mapped_rest_data]
+                        elsif value['labels'] || value['type']
+                          add_entity_id(value)
+                          [value['labels'], value]
+                        end
         (is_node ? CypherNode : CypherRelationship).new(session, data).wrapper
       end
 
@@ -91,6 +90,7 @@ module Neo4j
       def initialize(response, uncommited = false)
         @response = response
         @uncommited = uncommited
+        set_data_from_request if response
       end
 
       def entity_data(id = nil)
@@ -121,8 +121,39 @@ module Neo4j
         mapped_rest_data.merge!('id' => mapped_rest_data['self'].split('/').last.to_i)
       end
 
+      def errors
+        transaction_response? ? transaction_errors : non_transaction_errors
+      end
+
+      def transaction_errors
+        Array(response.body['errors']).map do |error|
+          ResponseError.new(error['message'], error['status'], error['code'])
+        end
+      end
+
+      def non_transaction_errors
+        return [] unless response.status == 400
+        Array(ResponseError.new(response.body['message'], response.body['exception'], response.body['fullname']))
+      end
+
+      def error
+        errors.first
+      end
+
+      def error_msg
+        error && error.message
+      end
+
+      def error_status
+        error && error.status
+      end
+
+      def error_code
+        error && error.code
+      end
+
       def error?
-        !!@error
+        errors.any?
       end
 
       def data?
@@ -148,53 +179,43 @@ module Neo4j
         self
       end
 
-      def set_error(error_msg, error_status, error_core)
-        @error = true
-        @error_msg = error_msg
-        @error_status = error_status
-        @error_code = error_core
-        self
+      def set_data_from_request
+        return if error?
+        if transaction_response? && response.body['results']
+          set_data(response.body['results'][0]['data'], response.body['results'][0]['columns'])
+        else
+          set_data(response.body['data'], response.body['columns'])
+        end
       end
 
       def raise_error
-        fail 'Tried to raise error without an error' unless @error
-        fail ResponseError.new(@error_msg, @error_status, @error_code)
+        fail 'Tried to raise error without an error' unless error?
+        fail error
       end
 
       def raise_cypher_error
-        fail 'Tried to raise error without an error' unless @error
-        fail Neo4j::Session::CypherError.new(@error_msg, @error_code, @error_status)
+        fail 'Tried to raise error without an error' unless error?
+        fail Neo4j::Session::CypherError.new(error.message, error.code, error.status)
       end
 
-
       def self.create_with_no_tx(response)
-        case response.status
-        when 200
-          CypherResponse.new(response).set_data(response.body['data'], response.body['columns'])
-        when 400
-          CypherResponse.new(response).set_error(response.body['message'], response.body['exception'], response.body['fullname'])
-        else
-          fail "Unknown response code #{response.status} for #{response.env[:url]}"
-        end
+        CypherResponse.new(response)
       end
 
       def self.create_with_tx(response)
-        fail "Unknown response code #{response.status} for #{response.request_uri}" unless response.status == 200
-
-        first_result = response.body['results'][0]
-        cr = CypherResponse.new(response, true)
-
-        if response.body['errors'].empty?
-          cr.set_data(first_result['data'], first_result['columns'])
-        else
-          first_error = response.body['errors'].first
-          cr.set_error(first_error['message'], first_error['status'], first_error['code'])
-        end
-        cr
+        CypherResponse.new(response, true)
       end
 
       def transaction_response?
         response.respond_to?('body') && !response.body['commit'].nil?
+      end
+
+      def transaction_failed?
+        errors.any? { |e| e.code =~ /Neo\.DatabaseError/ }
+      end
+
+      def transaction_not_found?
+        errors.any? { |e| e.code == 'Neo.ClientError.Transaction.UnknownId' }
       end
 
       def rest_data

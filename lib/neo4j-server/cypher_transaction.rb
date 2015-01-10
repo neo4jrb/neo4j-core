@@ -21,13 +21,36 @@ module Neo4j
       end
 
       ROW_REST = %w(row REST)
+
       def _query(cypher_query, params = nil)
-        fail 'Transaction expired, unable to perform query' if expired?
         statement = {statement: cypher_query, parameters: params, resultDataContents: ROW_REST}
         body = {statements: [statement]}
 
         response = exec_url && commit_url ? connection.post(exec_url, body) : register_urls(body)
-        _create_cypher_response(response)
+        _create_cypher_response(response).tap do |cypher_response|
+          handle_transaction_errors(cypher_response)
+        end
+      end
+
+      def _create_cypher_response(response)
+        CypherResponse.create_with_tx(response)
+      end
+
+      # Replaces current transaction with invalid transaction indicating it was rolled back or expired on the server side. http://neo4j.com/docs/stable/status-codes.html#_classifications
+      def handle_transaction_errors(response)
+        tx_class = if response.transaction_not_found?
+                     ExpiredCypherTransaction
+                   elsif response.transaction_failed?
+                     InvalidCypherTransaction
+                   end
+
+        register_invalid_transaction(tx_class) if tx_class
+      end
+
+      def register_invalid_transaction(tx_class)
+        tx = tx_class.new(Neo4j::Transaction.current)
+        Neo4j::Transaction.unregister_current
+        tx.register_instance
       end
 
       def _delete_tx
@@ -57,22 +80,43 @@ module Neo4j
         response
       end
 
-      def _create_cypher_response(response)
-        first_result = response.body['results'][0]
-
-        cr = CypherResponse.new(response, true)
-        if response.body['errors'].empty?
-          cr.set_data(first_result['data'], first_result['columns'])
-        else
-          first_error = response.body['errors'].first
-          expired if first_error['message'].match(/Unrecognized transaction id/)
-          cr.set_error(first_error['message'], first_error['code'], first_error['code'])
-        end
-        cr
-      end
-
       def empty_response
         OpenStruct.new(status: 200, body: '')
+      end
+
+      def valid?
+        !invalid?
+      end
+
+      def expired?
+        is_a? ExpiredCypherTransaction
+      end
+
+      def invalid?
+        is_a? InvalidCypherTransaction
+      end
+    end
+
+    class InvalidCypherTransaction < CypherTransaction
+      attr_accessor :original_transaction
+
+      def initialize(transaction)
+        self.original_transaction = transaction
+        mark_failed
+      end
+
+      def close
+        Neo4j::Transaction.unregister(self)
+      end
+
+      def _query(cypher_query, params = nil)
+        fail 'Transaction is invalid, unable to perform query'
+      end
+    end
+
+    class ExpiredCypherTransaction < InvalidCypherTransaction
+      def _query(cypher_query, params = nil)
+        fail 'Transaction expired, unable to perform query'
       end
     end
   end
