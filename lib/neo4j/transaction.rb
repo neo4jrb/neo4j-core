@@ -79,20 +79,17 @@ module Neo4j
 
       return yield(nil) unless run_in_tx
 
-      begin
-        tx = Neo4j::Transaction.new
-        ret = yield tx
-      rescue Exception => e # rubocop:disable Lint/RescueException
-        if e.respond_to?(:cause) && e.cause.respond_to?(:print_stack_trace)
-          puts "Java Exception in a transaction, cause: #{e.cause}"
-          e.cause.print_stack_trace
-        end
-        tx.mark_failed unless tx.nil?
-        raise
-      ensure
-        tx.close unless tx.nil?
+      tx = Neo4j::Transaction.new
+      yield tx
+    rescue Exception => e # rubocop:disable Lint/RescueException
+      if e.respond_to?(:cause) && e.cause.respond_to?(:print_stack_trace)
+        puts "Java Exception in a transaction, cause: #{e.cause}"
+        e.cause.print_stack_trace
       end
-      ret
+      tx.mark_failed unless tx.nil?
+      raise
+    ensure
+      tx.close unless tx.nil?
     end
 
     # @return [Neo4j::Transaction]

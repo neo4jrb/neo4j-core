@@ -166,11 +166,7 @@ module Neo4j
 
             between_id = match[:between] && match[:between].neo_id
 
-            if rel && between_id
-              rel if rel.other_node(self).neo_id == between_id
-            else
-              rel
-            end
+            rel if !(rel && between_id) || rel.other_node(self).neo_id == between_id
           end
 
           def _rels(match = {})
