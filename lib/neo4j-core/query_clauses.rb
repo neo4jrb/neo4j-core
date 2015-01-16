@@ -62,11 +62,7 @@ module Neo4j
           when String, Symbol, Class, Module
             key
           when Hash
-            if value.values.none? { |v| v.is_a?(Hash) }
-              key if prefer == :var
-            else
-              key
-            end
+            key if value.values.any? { |v| v.is_a?(Hash) } || prefer == :var
           else
             fail ArgError, value
           end
@@ -185,23 +181,10 @@ module Neo4j
 
         def from_key_and_value(key, value, previous_keys = [])
           case value
-          when Hash
-            value.map do |k, v|
-              if k.to_sym == :neo_id
-                clause_id = "neo_id_#{v}"
-                @params[clause_id] = v.to_i
-                "ID(#{key}) = {#{clause_id}}"
-              else
-                "#{key}.#{from_key_and_value(k, v, previous_keys + [key])}"
-              end
-            end.join(' AND ')
-          when NilClass
-            "#{key} IS NULL"
-          when Regexp
-            pattern = (value.casefold? ? '(?i)' : '') + value.source
-            "#{key} =~ #{escape_value(pattern.gsub(/\\/, '\\\\\\'))}"
-          when Array
-            key_value_string(key, value, previous_keys)
+          when Hash then hash_key_value_string(key, value, previous_keys)
+          when NilClass then "#{key} IS NULL"
+          when Regexp then regexp_key_value_string(key, value)
+          when Array then key_value_string(key, value, previous_keys)
           else
             key_value_string(key, value, previous_keys)
           end
@@ -211,6 +194,23 @@ module Neo4j
           def clause_string(clauses)
             clauses.map!(&:value).join(' AND ')
           end
+        end
+
+        private
+
+        def hash_key_value_string(key, value, previous_keys)
+          value.map do |k, v|
+            if k.to_sym == :neo_id
+              key_value_string("ID(#{key})", v.to_i)
+            else
+              "#{key}.#{from_key_and_value(k, v, previous_keys + [key])}"
+            end
+          end.join(' AND ')
+        end
+
+        def regexp_key_value_string(key, value)
+          pattern = (value.casefold? ? '(?i)' : '') + value.source
+          "#{key} =~ #{escape_value(pattern.gsub(/\\/, '\\\\\\'))}"
         end
       end
 
@@ -332,16 +332,10 @@ module Neo4j
             "#{key}.#{value}"
           when Array
             value.map do |v|
-              if v.is_a?(Hash)
-                from_key_and_value(key, v)
-              else
-                "#{key}.#{v}"
-              end
+              v.is_a?(Hash) ?  from_key_and_value(key, v) : "#{key}.#{v}"
             end
           when Hash
-            value.map do |k, v|
-              "#{key}.#{k} #{v.upcase}"
-            end
+            value.map { |k, v| "#{key}.#{k} #{v.upcase}" }
           end
         end
 
@@ -401,16 +395,13 @@ module Neo4j
 
         def from_key_and_value(key, value)
           case value
-          when String, Symbol
-            "#{key} = #{value}"
+          when String, Symbol then "#{key} = #{value}"
           when Hash
             if @options[:set_props]
               attribute_string = value.map { |k, v| "#{k}: #{v.inspect}" }.join(', ')
               "#{key} = {#{attribute_string}}"
             else
-              value.map do |k, v|
-                key_value_string("#{key}.`#{k}`", v, ['setter'], true)
-              end
+              value.map { |k, v| key_value_string("#{key}.`#{k}`", v, ['setter'], true) }
             end
           else
             fail ArgError, value

@@ -7,48 +7,36 @@ require 'httparty'
 require File.expand_path('../config_server', __FILE__)
 
 namespace :neo4j do
-  def download_neo4j(file)
-    file_name, download_url = if OS::Underlying.windows?
-                                ['neo4j.zip', "http://dist.neo4j.org/neo4j-#{file}-windows.zip"]
-                              else
-                                ['neo4j-unix.tar.gz', "http://dist.neo4j.org/neo4j-#{file}-unix.tar.gz"]
-                              end
+  def file_name
+    OS::Underlying.windows? ? 'neo4j.zip' : 'neo4j-unix.tar.gz'
+  end
 
-    unless File.exist?(file_name)
-      # check if file is available
-      status = HTTParty.head(download_url).code
-      fail "#{file} is not available to download, try a different version" if status < 200 || status >= 300
-      df = File.open(file_name, 'wb')
-      success = false
-      begin
-        df << HTTParty.get(download_url)
-        success = true
-      ensure
-        df.close
-        File.delete(file_name) unless success
-      end
+  def download_url(edition)
+    "http://dist.neo4j.org/neo4j-#{edition}-#{OS::Underlying.windows? ? 'windows.zip' : 'unix.tar.gz'}"
+  end
+
+  def download_neo4j_unless_exists(edition)
+    download_neo4j(edition) unless File.exist?(file_name)
+  end
+
+  def download_neo4j(edition)
+    success = false
+
+    File.open(file_name, 'wb') do |file|
+      file << request_url(download_url(edition))
+      success = true
     end
 
-    # # http://download.neo4j.org/artifact?edition=community&version=2.1.2&distribution=tarball&dlid=3462770&_ga=1.110610309.1220184053.1399636580
-    #
-    # parsed_url = URI.parse(download_url)
-    #
-    # puts "parsed_url.host #{parsed_url.host} port #{parsed_url.port} uri: #{parsed_url.request_uri}"
-    # Net::HTTP.start(parsed_url.host, parsed_url.port) do |http|
-    #   request = Net::HTTP::Get.new parsed_url.request_uri
-    #   http.request request do |response|
-    #     File.open 'large_file.tar.gz', 'wb' do |io|
-    #       response.read_body do |chunk|
-    #         io.write chunk
-    #       end
-    #     end
-    #   end
-    # end
-    #
-    # puts "DOWN LOAD URL #{download_url}, exist #{file_name} : #{File.exist?(file_name)}"
-    #
-
     file_name
+  ensure
+    File.delete(file_name) unless success
+  end
+
+  def request_url(url)
+    status = HTTParty.head(url).code
+    fail "#{edition} is not available to download, try a different version" if status < 200 || status >= 300
+
+    HTTParty.get(url)
   end
 
   def get_environment(args)
@@ -67,24 +55,32 @@ namespace :neo4j do
   def start_server(command, args)
     puts "Starting Neo4j #{get_environment(args)}..."
     if OS::Underlying.windows?
-      if `reg query "HKU\\S-1-5-19"`.size > 0
-        `#{install_location(args)}/bin/Neo4j.bat #{command}`  # start service
-      else
-        puts 'Starting Neo4j directly, not as a service.'
-        `#{install_location(args)}/bin/Neo4j.bat`
-      end
+      start_windows_server(command, args)
     else
-      `#{install_location(args)}/bin/neo4j #{command}`
+      start_starnix_server(command, args)
     end
+  end
+
+  def start_windows_server(command, args)
+    if `reg query "HKU\\S-1-5-19"`.size > 0
+      `#{install_location(args)}/bin/Neo4j.bat #{command}`  # start service
+    else
+      puts 'Starting Neo4j directly, not as a service.'
+      `#{install_location(args)}/bin/Neo4j.bat`
+    end
+  end
+
+  def start_starnix_server(command, args)
+    `#{install_location(args)}/bin/neo4j #{command}`
   end
 
   desc 'Install Neo4j with auth disabled in v2.2+, example neo4j:install[community-2.1.3,development]'
   task :install, :edition, :environment do |_, args|
-    file = args[:edition]
+    edition = args[:edition]
     environment = get_environment(args)
-    puts "Installing Neo4j-#{file} environment: #{environment}"
+    puts "Installing Neo4j-#{edition} environment: #{environment}"
 
-    downloaded_file = download_neo4j file
+    downloaded_file = download_neo4j_unless_exists edition
 
     if OS::Underlying.windows?
       # Extract and move to neo4j directory
@@ -100,7 +96,7 @@ namespace :neo4j do
             end
           end
         end
-        FileUtils.mv "neo4j-#{file}", install_location(args)
+        FileUtils.mv "neo4j-#{edition}", install_location(args)
         FileUtils.rm downloaded_file
       end
 
@@ -112,7 +108,7 @@ namespace :neo4j do
 
     else
       `tar -xvf #{downloaded_file}`
-      `mv neo4j-#{file} #{install_location(args)}`
+      `mv neo4j-#{edition} #{install_location(args)}`
       `rm #{downloaded_file}`
       puts 'Neo4j Installed in to neo4j directory.'
     end

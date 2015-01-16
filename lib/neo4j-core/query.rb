@@ -205,8 +205,7 @@ module Neo4j
         columns = query.response.columns
 
         case columns.size
-        when 0
-          fail ArgumentError, 'No columns specified for Query#pluck'
+        when 0 then fail ArgumentError, 'No columns specified for Query#pluck'
         when 1
           column = columns[0]
           query.map { |row| row[column] }
@@ -244,13 +243,10 @@ module Neo4j
           clauses_by_class = clauses.group_by(&:class)
 
           cypher_parts = CLAUSES.map do |clause_class|
-            clauses = clauses_by_class[clause_class]
-
-            clause_class.to_cypher(clauses) if clauses
+            clause_class.to_cypher(clauses) if clauses = clauses_by_class[clause_class]
           end
 
-          cypher_string = cypher_parts.compact.join(' ')
-          cypher_string.strip
+          cypher_parts.compact.join(' ').strip
         end.join ' '
 
         cypher_string = "CYPHER #{@options[:parser]} #{cypher_string}" if @options[:parser]
