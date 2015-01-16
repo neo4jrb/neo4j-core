@@ -149,43 +149,46 @@ module Neo4j
           tx_methods :rel
 
           def _rel(match = {})
-            dir = ToJava.dir_to_java(match[:dir] || :both)
-            rel_type = match[:type]
+            dir, rel_type, between_id = _parse_match(match)
 
             rel = if rel_type
-                    get_single_relationship(ToJava.type_to_java(rel_type), dir)
+                    get_single_relationship(rel_type, dir)
                   else
-                    iter = get_relationships(dir).iterator
-
-                    if iter.has_next
-                      first = iter.next
-                      fail "Expected to only find one relationship from node #{neo_id} matching #{match.inspect}" if iter.has_next
-                      first
-                    end
+                    _get_single_relationship_by_dir(dir)
                   end
-
-            between_id = match[:between] && match[:between].neo_id
 
             rel if !(rel && between_id) || rel.other_node(self).neo_id == between_id
           end
 
+          def _get_single_relationship_by_dir(dir)
+            iter = get_relationships(dir).iterator
+
+            return nil if not iter.has_next
+
+            first = iter.next
+            fail "Expected to only find one relationship from node #{neo_id} matching #{match.inspect}" if iter.has_next
+            first
+          end
+
           def _rels(match = {})
-            dir = match[:dir] || :both
-            rel_type = match[:type]
+            dir, rel_type, between_id = _parse_match(match)
 
-            rels = if rel_type
-                     get_relationships(ToJava.type_to_java(rel_type), ToJava.dir_to_java(dir)).iterator
-                   else
-                     get_relationships(ToJava.dir_to_java(dir)).iterator
-                   end
-
-            between_id = match[:between] && match[:between].neo_id
+            args = rel_type ? [rel_type, dir] : [dir]
+            rels = get_relationships(*args).iterator
 
             if between_id
               rels.find_all { |r| r.end_node.neo_id == between_id || r.start_node.neo_id == between_id }
             else
               rels
             end
+          end
+
+          def _parse_match(match)
+            [
+              ToJava.dir_to_java(match[:dir] || :both),
+              ToJava.type_to_java(match[:type]),
+              match[:between] && match[:between].neo_id
+            ]
           end
 
           def class
