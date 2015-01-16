@@ -181,14 +181,7 @@ module Neo4j
 
         def from_key_and_value(key, value, previous_keys = [])
           case value
-          when Hash
-            value.map do |k, v|
-              if k.to_sym == :neo_id
-                key_value_string("ID(#{key})", v.to_i)
-              else
-                "#{key}.#{from_key_and_value(k, v, previous_keys + [key])}"
-              end
-            end.join(' AND ')
+          when Hash then hash_key_value_string(key, value, previous_keys)
           when NilClass then "#{key} IS NULL"
           when Regexp then regexp_key_value_string(key, value)
           when Array then key_value_string(key, value, previous_keys)
@@ -204,6 +197,16 @@ module Neo4j
         end
 
         private
+
+        def hash_key_value_string(key, value, previous_keys)
+          value.map do |k, v|
+            if k.to_sym == :neo_id
+              key_value_string("ID(#{key})", v.to_i)
+            else
+              "#{key}.#{from_key_and_value(k, v, previous_keys + [key])}"
+            end
+          end.join(' AND ')
+        end
 
         def regexp_key_value_string(key, value)
           pattern = (value.casefold? ? '(?i)' : '') + value.source
