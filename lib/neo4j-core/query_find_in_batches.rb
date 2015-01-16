@@ -2,8 +2,7 @@ module Neo4j
   module Core
     module QueryFindInBatches
       def find_in_batches(node_var, prop_var, options = {})
-        invalid_keys = options.keys.map(&:to_sym) - [:batch_size]
-        fail ArgumentError, "Invalid keys: #{invalid_keys.join(', ')}" if not invalid_keys.empty?
+        validate_find_in_batches_options!(options)
 
         batch_size = options.delete(:batch_size) || 1000
 
@@ -13,15 +12,7 @@ module Neo4j
 
         while records.any?
           records_size = records.size
-          primary_key_offset = begin
-                                 records.last.send(node_var).send(prop_var)
-                               rescue NoMethodError
-                                 begin
-                                   records.last.send(node_var)[prop_var.to_sym]
-                                 rescue NoMethodError
-                                   records.last.send("#{node_var}.#{prop_var}") # In case we're explicitly returning it
-                                 end
-                               end
+          primary_key_offset = primary_key_offset(records.last, node_var, prop_var)
 
           yield records
 
@@ -34,6 +25,23 @@ module Neo4j
       def find_each(*args)
         find_in_batches(*args) do |batch|
           batch.each { |result| yield result }
+        end
+      end
+
+      private
+
+      def validate_find_in_batches_options!(options)
+        invalid_keys = options.keys.map(&:to_sym) - [:batch_size]
+        fail ArgumentError, "Invalid keys: #{invalid_keys.join(', ')}" if not invalid_keys.empty?
+      end
+
+      def primary_key_offset(last_record, node_var, prop_var)
+        last_record.send(node_var).send(prop_var)
+      rescue NoMethodError
+        begin
+          last_record.send(node_var)[prop_var.to_sym]
+        rescue NoMethodError
+          last_record.send("#{node_var}.#{prop_var}") # In case we're explicitly returning it
         end
       end
     end
