@@ -74,15 +74,16 @@ module Neo4j
       end
 
       def hash_value_as_object(value, session)
-        return value unless value['labels'] || value['type'] || transaction_response?
-
-        is_node, data =  if transaction_response?
-                           add_transaction_entity_id
-                           [!mapped_rest_data['start'], mapped_rest_data]
-                         elsif value['labels'] || value['type']
-                           add_entity_id(value)
-                           [value['labels'], value]
-                         end
+        is_node, data = case
+                        when transaction_response?
+                          add_transaction_entity_id
+                          [!mapped_rest_data['start'], mapped_rest_data]
+                        when value['labels'] || value['type']
+                          add_entity_id(value)
+                          [value['labels'], value]
+                        else
+                          return value
+                        end
         (is_node ? CypherNode : CypherRelationship).new(session, data).wrapper
       end
 
