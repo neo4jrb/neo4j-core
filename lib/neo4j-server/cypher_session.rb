@@ -126,16 +126,12 @@ module Neo4j
 
       def load_entity(clazz, cypher_response)
         return nil if cypher_response.data.nil? || cypher_response.data[0].nil?
-        data  = if cypher_response.transaction_response?
-                  cypher_response.rest_data_with_id
-                else
-                  cypher_response.first_data
-                end
+        data = cypher_response.send(cypher_response.transaction_response? ? :rest_data_with_id : :first_data)
 
         if cypher_response.error?
           cypher_response.raise_error
         elsif cypher_response.error_msg =~ /not found/  # Ugly that the Neo4j API gives us this error message
-          return nil
+          nil
         else
           clazz.new(self, data)
         end
