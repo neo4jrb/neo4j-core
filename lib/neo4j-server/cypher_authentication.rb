@@ -37,7 +37,7 @@ module Neo4j
       # @return [String] An access token provided by the server.
       def authenticate
         auth_response = auth_connection("#{url}/authentication")
-        auth_hash = if auth_response.body.empty?
+        auth_hash = if auth_response.status == 404 || auth_response.body.empty?
                       nil
                     elsif auth_response.body.is_a?(String)
                       JSON.parse(auth_response.body)['errors'][0]['code'] == 'Neo.ClientError.Security.AuthorizationFailed' ? auth_attempt : nil
