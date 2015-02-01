@@ -219,11 +219,8 @@ module Neo4j
 
         class << self
           def from_args(args, options = {})
-            arg_classes = args.map(&:class)
-            if arg_classes.size == 2 &&
-                (arg_classes == [String, Hash] || (arg_classes[0] == String && arg_classes[1] != String))
-              query_string, params = args
-
+            query_string, params = args
+            if args.size == 2 && (query_string.is_a?(String) && !params.is_a?(String))
               if !params.is_a?(Hash)
                 query_string.gsub!(/(^|\s)\?(\s|$)/, '\1{question_mark_param}\2')
                 params = {question_mark_param: params}
