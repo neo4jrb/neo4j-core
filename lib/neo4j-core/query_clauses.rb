@@ -109,6 +109,8 @@ module Neo4j
           end
 
           def to_cypher(clauses)
+            @question_mark_param_index = 1
+
             string = clause_string(clauses)
             string.strip!
 
@@ -222,8 +224,9 @@ module Neo4j
             query_string, params = args
             if args.size == 2 && (query_string.is_a?(String) && !params.is_a?(String))
               if !params.is_a?(Hash)
-                query_string.gsub!(/(^|\s)\?(\s|$)/, '\1{question_mark_param}\2')
-                params = {question_mark_param: params}
+                question_mark_params_param = self.question_mark_params_param
+                query_string.gsub!(/(^|\s)\?(\s|$)/, "\\1{#{question_mark_params_param}}\\2")
+                params = {question_mark_params_param.to_sym => params}
               end
 
               clause = from_arg(query_string, options).tap do |clause|
@@ -234,6 +237,12 @@ module Neo4j
             else
               super
             end
+          end
+
+          def question_mark_params_param
+            result = "question_mark_param#{@question_mark_param_index}"
+            @question_mark_param_index += 1
+            result
           end
         end
       end
