@@ -282,6 +282,15 @@ describe Neo4j::Core::Query do
       it_generates 'WHERE (q.age IN {q_age})', q_age: [30, 32, 34]
     end
 
+    describe ".where('q.age IN {age}', age: [30, 32, 34])" do
+      it_generates 'WHERE (q.age IN {age})', age: [30, 32, 34]
+    end
+
+    describe ".where('q.age IN ?', [30, 32, 34])" do
+      it_generates 'WHERE (q.age IN {question_mark_param})', question_mark_param: [30, 32, 34]
+    end
+
+
     describe '.where(q: {age: [30, 32, 34]})' do
       it_generates 'WHERE (q.age IN {q_age})', q_age: [30, 32, 34]
     end
