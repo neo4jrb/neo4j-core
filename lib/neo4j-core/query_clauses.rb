@@ -209,7 +209,7 @@ module Neo4j
 
         class << self
           def clause_string(clauses)
-            clauses.map!(&:value).join(' AND ')
+            clauses.map(&:value).flatten.map {|value| "(#{value})" }.join(' AND ')
           end
         end
       end

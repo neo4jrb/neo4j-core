@@ -93,15 +93,15 @@ describe Neo4j::Core::Query do
 
   describe 'clause combinations' do
     describe ".match(q: Person).where('q.age > 30')" do
-      it_generates 'MATCH (q:`Person`) WHERE q.age > 30'
+      it_generates 'MATCH (q:`Person`) WHERE (q.age > 30)'
     end
 
     describe ".where('q.age > 30').match(q: Person)" do
-      it_generates 'MATCH (q:`Person`) WHERE q.age > 30'
+      it_generates 'MATCH (q:`Person`) WHERE (q.age > 30)'
     end
 
     describe ".where('q.age > 30').start('n').match(q: Person)" do
-      it_generates 'START n MATCH (q:`Person`) WHERE q.age > 30'
+      it_generates 'START n MATCH (q:`Person`) WHERE (q.age > 30)'
     end
 
     describe '.match(q: {age: 30}).set_props(q: {age: 31})' do
@@ -115,11 +115,11 @@ describe Neo4j::Core::Query do
     end
 
     describe ".match(q: Person).with('count(q) AS count').where('count > 2')" do
-      it_generates 'MATCH (q:`Person`) WITH count(q) AS count WHERE count > 2'
+      it_generates 'MATCH (q:`Person`) WITH count(q) AS count WHERE (count > 2)'
     end
 
     describe ".match(q: Person).with(count: 'count(q)').where('count > 2').with(new_count: 'count + 5')" do
-      it_generates 'MATCH (q:`Person`) WITH count(q) AS count WHERE count > 2 WITH count + 5 AS new_count'
+      it_generates 'MATCH (q:`Person`) WITH count(q) AS count WHERE (count > 2) WITH count + 5 AS new_count'
     end
 
     # breaks
@@ -138,7 +138,7 @@ describe Neo4j::Core::Query do
 
     # params
     describe ".match(q: Person).where('q.age = {age}').params(age: 15)" do
-      it_generates 'MATCH (q:`Person`) WHERE q.age = {age}', age: 15
+      it_generates 'MATCH (q:`Person`) WHERE (q.age = {age})', age: 15
     end
   end
 
@@ -271,39 +271,39 @@ describe Neo4j::Core::Query do
     end
 
     describe ".where('q.age > 30')" do
-      it_generates 'WHERE q.age > 30'
+      it_generates 'WHERE (q.age > 30)'
     end
 
     describe ".where('q.age' => 30)" do
-      it_generates 'WHERE q.age = {q_age}', q_age: 30
+      it_generates 'WHERE (q.age = {q_age})', q_age: 30
     end
 
     describe ".where('q.age' => [30, 32, 34])" do
-      it_generates 'WHERE q.age IN {q_age}', q_age: [30, 32, 34]
+      it_generates 'WHERE (q.age IN {q_age})', q_age: [30, 32, 34]
     end
 
     describe '.where(q: {age: [30, 32, 34]})' do
-      it_generates 'WHERE q.age IN {q_age}', q_age: [30, 32, 34]
+      it_generates 'WHERE (q.age IN {q_age})', q_age: [30, 32, 34]
     end
 
     describe ".where('q.age' => nil)" do
-      it_generates 'WHERE q.age IS NULL'
+      it_generates 'WHERE (q.age IS NULL)'
     end
 
     describe '.where(q: {age: nil})' do
-      it_generates 'WHERE q.age IS NULL'
+      it_generates 'WHERE (q.age IS NULL)'
     end
 
     describe '.where(q: {neo_id: 22})' do
-      it_generates 'WHERE ID(q) = {neo_id_22}'
+      it_generates 'WHERE (ID(q) = {neo_id_22})'
     end
 
     describe ".where(q: {age: 30, name: 'Brian'})" do
-      it_generates 'WHERE q.age = {q_age} AND q.name = {q_name}', q_age: 30, q_name: 'Brian'
+      it_generates 'WHERE (q.age = {q_age} AND q.name = {q_name})', q_age: 30, q_name: 'Brian'
     end
 
     describe ".where(q: {age: 30, name: 'Brian'}).where('r.grade = 80')" do
-      it_generates 'WHERE q.age = {q_age} AND q.name = {q_name} AND r.grade = 80', q_age: 30, q_name: 'Brian'
+      it_generates 'WHERE (q.age = {q_age} AND q.name = {q_name}) AND (r.grade = 80)', q_age: 30, q_name: 'Brian'
     end
   end
 
@@ -651,14 +651,14 @@ describe Neo4j::Core::Query do
       q = Neo4j::Core::Query.new.match(o: :Person).where(o: {age: 10})
       result = Neo4j::Core::Query.new.match(n: :Person).union_cypher(q)
 
-      expect(result).to eq('MATCH (n:`Person`) UNION MATCH (o:`Person`) WHERE o.age = {o_age}')
+      expect(result).to eq('MATCH (n:`Person`) UNION MATCH (o:`Person`) WHERE (o.age = {o_age})')
     end
 
     it 'can represent UNION ALL with an option' do
       q = Neo4j::Core::Query.new.match(o: :Person).where(o: {age: 10})
       result = Neo4j::Core::Query.new.match(n: :Person).union_cypher(q, all: true)
 
-      expect(result).to eq('MATCH (n:`Person`) UNION ALL MATCH (o:`Person`) WHERE o.age = {o_age}')
+      expect(result).to eq('MATCH (n:`Person`) UNION ALL MATCH (o:`Person`) WHERE (o.age = {o_age})')
     end
   end
 end
