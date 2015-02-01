@@ -13,7 +13,7 @@ module Neo4j
       class Clause
         include CypherTranslator
 
-        attr_reader :params
+        attr_accessor :params
 
         def initialize(arg, options = {})
           @arg = arg
@@ -100,8 +100,12 @@ module Neo4j
 
           def from_args(args, options = {})
             args.flatten.map do |arg|
-              new(arg, options) if !arg.respond_to?(:empty?) || !arg.empty?
+              from_arg(arg, options)
             end.compact
+          end
+
+          def from_arg(arg, options = {})
+            new(arg, options) if !arg.respond_to?(:empty?) || !arg.empty?
           end
 
           def to_cypher(clauses)
@@ -211,6 +215,29 @@ module Neo4j
         def regexp_key_value_string(key, value)
           pattern = (value.casefold? ? '(?i)' : '') + value.source
           "#{key} =~ #{escape_value(pattern.gsub(/\\/, '\\\\\\'))}"
+        end
+
+        class << self
+          def from_args(args, options = {})
+            arg_classes = args.map(&:class)
+            if arg_classes.size == 2 &&
+                (arg_classes == [String, Hash] || (arg_classes[0] == String && arg_classes[1] != String))
+              query_string, params = args
+
+              if !params.is_a?(Hash)
+                query_string.gsub!(/(^|\s)\?(\s|$)/, '\1{question_mark_param}\2')
+                params = {question_mark_param: params}
+              end
+
+              clause = from_arg(query_string, options).tap do |clause|
+                clause.params.merge!(params)
+              end
+
+              [clause]
+            else
+              super
+            end
+          end
         end
       end
 
