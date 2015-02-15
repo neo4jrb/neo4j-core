@@ -38,27 +38,38 @@ module Neo4j
 
         def each(&block)
           @response.each_data_row do |row|
-            yield(row.each_with_index.each_with_object(struct.new) do |(value, i), result|
-              result[columns[i].to_sym] = value
-            end)
+            yield struct_rows(row)
+          end
+        end
+
+        def struct_rows(row)
+          struct.new.tap do |result|
+            row.each_with_index { |value, i| result[columns[i].to_sym] = value }
           end
         end
       end
 
-      def to_struct_enumeration(cypher = '')
+      EMPTY_STRING = ''
+      def to_struct_enumeration(cypher = EMPTY_STRING)
         HashEnumeration.new(self, cypher)
       end
 
-      def to_node_enumeration(cypher = '', session = Neo4j::Session.current)
+      def to_node_enumeration(cypher = EMPTY_STRING, session = Neo4j::Session.current)
         Enumerator.new do |yielder|
           @result_index = 0
           to_struct_enumeration(cypher).each do |row|
             @row_index = 0
-            yielder << row.each_pair.each_with_object(@struct.new) do |(column, value), result|
-              result[column] = map_row_value(value, session)
-              @row_index += 1
-            end
+            yielder << row_pair_in_struct(row, session)
             @result_index += 1
+          end
+        end
+      end
+
+      def row_pair_in_struct(row, session)
+        @struct.new.tap do |result|
+          row.each_pair do |column, value|
+            result[column] = map_row_value(value, session)
+            @row_index += 1
           end
         end
       end
@@ -67,7 +78,7 @@ module Neo4j
         if value.is_a?(Hash)
           hash_value_as_object(value, session)
         elsif value.is_a?(Array)
-          value.map { |v| map_row_value(v, session) }
+          value.map! { |v| map_row_value(v, session) }
         else
           value
         end
