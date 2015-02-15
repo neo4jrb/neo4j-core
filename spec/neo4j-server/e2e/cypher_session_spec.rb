@@ -33,6 +33,12 @@ module Neo4j
           expect(connection).to receive(:get).at_least(:once).and_call_original
           Neo4j::Session.open(:server_db, 'http://localhost:7474',  connection: connection)
         end
+
+        it 'adds host and port to the connection object' do
+          connection = Neo4j::Session.current.connection
+          expect(connection.port).to eq 7474
+          expect(connection.host).to eq 'localhost'
+        end
       end
 
 
