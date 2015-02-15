@@ -50,7 +50,7 @@ module Neo4j
 
           it 'returns all properties' do
             node = CypherNode.new(session, 42)
-            expect(session).to receive(:_query_entity_data).with("#{match_string} RETURN n", nil, neo_id: 42).and_return(data: { name: 'andreas'})
+            expect(session).to receive(:_query_entity_data).with("#{match_string} RETURN n", nil, neo_id: 42).and_return(data: {name: 'andreas'})
             expect(node.props).to eq(name: 'andreas')
           end
         end

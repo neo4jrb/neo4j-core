@@ -113,7 +113,7 @@ module Neo4j
 
       def create_node(props = nil, labels = [])
         id = _query_or_fail(cypher_string(labels, props), true, cypher_prop_list(props))
-        value = props.nil? ? id : { id: id, metadata: { labels: labels }, data: props }
+        value = props.nil? ? id : {id: id, metadata: {labels: labels}, data: props}
         CypherNode.new(self, value)
       end
 
@@ -153,7 +153,7 @@ module Neo4j
       def schema_properties(query_string)
         response = @connection.get(query_string)
         expect_response_code(response, 200)
-        {property_keys: response.body.map { |row| row[:property_keys] }}
+        {property_keys: response.body.map! { |row| row[:property_keys].map(&:to_sym) }}
       end
 
       def find_all_nodes(label_name)

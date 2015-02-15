@@ -75,8 +75,8 @@ module Neo4j
       def token_or_error(auth_response)
         puts "auth_response #{auth_response}"
         begin
-          require 'pry'; binding.pry
-          fail PasswordChangeRequiredError, "Server requires a password change, please visit #{url}" if auth_response.body[:errors][:code] == 'Neo.ClientError.Security.AuthenticationFailed'
+          fail PasswordChangeRequiredError, "Server requires a password change, please visit #{url}" if auth_response.body[:errors][:code] ==
+                                                                                                        'Neo.ClientError.Security.AuthenticationFailed'
           fail InvalidPasswordError, "Neo4j server responded with: #{auth_response.body['errors'][0]['message']}" if auth_response.status.to_i == 422
         rescue NoMethodError
           raise 'Unexpected auth response, please open an issue at https://github.com/neo4jrb/neo4j-core/issues'
