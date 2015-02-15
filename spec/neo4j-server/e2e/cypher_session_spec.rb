@@ -24,8 +24,8 @@ module Neo4j
 
         it 'can use a user supplied faraday connection for a new session' do
           connection = Faraday.new do |b|
-            b.request :json
-            b.response :json, content_type: 'application/json'
+            b.request :multi_json
+            b.response :multi_json, symbolize_keys: true, content_type: 'application/json'
             b.adapter Faraday.default_adapter
           end
           connection.headers = {'Content-Type' => 'application/json'}

@@ -26,7 +26,7 @@ describe Neo4j::Server::CypherRelationship, api: :server do
           tx = Neo4j::Transaction.new
           rel = Neo4j::Relationship.load(r.neo_id)
           expect(rel).to be_a(Neo4j::Server::CypherRelationship)
-          expect(rel['since']).to eq 2014
+          expect(rel[:since]).to eq 2014
         ensure
           tx.close
         end

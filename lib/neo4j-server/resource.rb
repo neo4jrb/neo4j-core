@@ -7,7 +7,7 @@ module Neo4j
       attr_reader :resource_data, :resource_url
 
       def init_resource_data(resource_data, resource_url)
-        fail "Exception #{resource_data['exception']}" if resource_data['exception']
+        fail "Exception #{resource_data[:exception]}" if resource_data[:exception]
         fail "Expected @resource_data to be Hash got #{resource_data.inspect}" unless resource_data.respond_to?(:[])
 
         @resource_url = resource_url
@@ -17,14 +17,13 @@ module Neo4j
       end
 
       def wrap_resource(connection = Neo4j::Session.current)
-        url = resource_url('transaction')
+        url = resource_url(:transaction)
         CypherTransaction.new(url, connection)
       end
 
       def resource_url(key = nil)
         return @resource_url if key.nil?
-
-        @resource_data.fetch key.to_s
+        @resource_data.fetch key
       rescue KeyError
         raise "No resource key '#{key}', available #{@resource_data.keys.inspect}"
       end
@@ -40,7 +39,7 @@ module Neo4j
 
       def response_exception(response)
         return nil if response.body.nil? || response.body.empty?
-        JSON.parse(response.body)['exception']
+        JSON.parse(response.body)[:exception]
       end
 
       def resource_headers

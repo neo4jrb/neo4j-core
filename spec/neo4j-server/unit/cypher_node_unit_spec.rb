@@ -45,12 +45,12 @@ module Neo4j
           end
 
           let(:cypher_response) do
-            double('cypher response', error?: false, first_data: cypher_body['data'][0][0])
+            double('cypher response', error?: false, first_data: cypher_body[:data][0][0])
           end
 
           it 'returns all properties' do
             node = CypherNode.new(session, 42)
-            expect(session).to receive(:_query_entity_data).with("#{match_string} RETURN n", nil, neo_id: 42).and_return('data' => {'name' => 'andreas'})
+            expect(session).to receive(:_query_entity_data).with("#{match_string} RETURN n", nil, neo_id: 42).and_return(data: { name: 'andreas'})
             expect(node.props).to eq(name: 'andreas')
           end
         end
@@ -60,7 +60,7 @@ module Neo4j
             cypher_response = double('cypher response', error?: false)
             expect(session).to receive(:_query).with("#{match_string} RETURN ID(n)", neo_id: 42).and_return(cypher_response)
             node = CypherNode.new(session, 42)
-            node.init_resource_data('data', 'http://bla/42')
+            node.init_resource_data({}, 'http://bla/42')
             expect(cypher_response).to receive(:data).and_return([])
             # when
             node.exist?
@@ -68,7 +68,7 @@ module Neo4j
 
           it 'returns true if response contains node data' do
             node = CypherNode.new(session, 42)
-            node.init_resource_data('data', 'http://bla/42')
+            node.init_resource_data({}, 'http://bla/42')
             response = double('response', error?: false)
             expect(session).to receive(:_query).and_return(response)
             expect(response).to receive(:data).and_return([:foo])

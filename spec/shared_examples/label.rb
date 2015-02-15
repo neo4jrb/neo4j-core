@@ -150,7 +150,7 @@ RSpec.shared_examples 'Neo4j::Label' do
         people.drop_index(:name1, :name2)
         people.create_index(:name1)
         people.create_index(:name2)
-        expect(people.indexes[:property_keys]).to match_array([[:name1], [:name2]])
+        expect(people.indexes[:property_keys]).to match_array([['name1'], ['name2']])
       end
     end
 
@@ -161,7 +161,7 @@ RSpec.shared_examples 'Neo4j::Label' do
         people.create_index(:name)
         people.create_index(:foo)
         people.drop_index(:foo)
-        expect(people.indexes[:property_keys]).to eq([[:name]])
+        expect(people.indexes[:property_keys]).to eq([['name']])
         people.drop_index(:name)
       end
     end

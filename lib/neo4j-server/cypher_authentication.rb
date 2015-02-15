@@ -73,13 +73,15 @@ module Neo4j
       # @param [Farday::Response] auth_response The response after attempting authentication
       # @return [String] An authentication token.
       def token_or_error(auth_response)
+        puts "auth_response #{auth_response}"
         begin
-          fail PasswordChangeRequiredError, "Server requires a password change, please visit #{url}" if auth_response.body['password_change_required']
+          require 'pry'; binding.pry
+          fail PasswordChangeRequiredError, "Server requires a password change, please visit #{url}" if auth_response.body[:errors][:code] == 'Neo.ClientError.Security.AuthenticationFailed'
           fail InvalidPasswordError, "Neo4j server responded with: #{auth_response.body['errors'][0]['message']}" if auth_response.status.to_i == 422
         rescue NoMethodError
           raise 'Unexpected auth response, please open an issue at https://github.com/neo4jrb/neo4j-core/issues'
         end
-        auth_response.body['authorization_token']
+        auth_response.body[:authorization_token]
       end
 
       # Invalidates tokens as described at http://neo4j.com/docs/snapshot/rest-api-security.html#rest-api-invalidating-the-authorization-token
@@ -105,8 +107,8 @@ module Neo4j
 
       def self.new_connection
         conn = Faraday.new do |b|
-          b.request :json
-          b.response :json, content_type: 'application/json'
+          b.request :multi_json
+          b.response :multi_json, symbolize_keys: true, content_type: 'application/json'
           b.use Faraday::Adapter::NetHttpPersistent
         end
         conn.headers = {'Content-Type' => 'application/json'}

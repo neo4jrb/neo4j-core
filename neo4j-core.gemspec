@@ -33,6 +33,8 @@ Neo4j-core provides classes and methods to work with the graph database Neo4j.
   s.add_dependency('os')  # for Rake task
   s.add_dependency('zip') # for Rake task
   s.add_dependency('activesupport') # For ActiveSupport::Notifications
+  s.add_dependency('multi_json')
+  s.add_dependency('faraday_middleware-multi_json')
 
   s.add_development_dependency('pry')
   s.add_development_dependency('yard')
