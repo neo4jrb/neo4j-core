@@ -37,7 +37,7 @@ module Neo4j
           id = session.query.create('(n)').return('ID(n) AS id').first[:id]
           tx = session.begin_tx
           q = tx._query("MATCH (n) WHERE ID(n) = #{id} RETURN ID(n)")
-          expect(q.response.body['results']).to eq([{'columns' => ['ID(n)'], 'data' => [{'row' => [id], 'rest' => [id]}]}])
+          expect(q.response.body[:results]).to eq([{columns: ['ID(n)'], data: [{row: [id], rest: [id]}]}])
         end
 
         it 'sets the response error fields if not a valid query' do
@@ -80,7 +80,7 @@ module Neo4j
 
         it 'can use Transaction block style' do
           node = Neo4j::Transaction.run { Neo4j::Node.create(name: 'andreas') }
-          expect(node['name']).to eq('andreas')
+          expect(node[:name]).to eq('andreas')
         end
       end
 

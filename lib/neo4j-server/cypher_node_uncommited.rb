@@ -7,7 +7,7 @@ module Neo4j
       end
 
       def [](key)
-        @data[key.to_s]
+        @data[key]
       end
     end
   end

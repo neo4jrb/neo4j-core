@@ -49,8 +49,8 @@ module Neo4j
 
       def register_urls(body)
         response = connection.post(base_url, body)
-        @commit_url = response.body['commit']
-        @exec_url = response.headers['Location']
+        @commit_url = response.body[:commit]
+        @exec_url = response.headers[:Location]
         fail "NO ENDPOINT URL #{connection} : HEAD: #{response.headers.inspect}" if !exec_url || exec_url.empty?
         init_resource_data(response.body, base_url)
         expect_response_code(response, 201)
@@ -58,15 +58,15 @@ module Neo4j
       end
 
       def _create_cypher_response(response)
-        first_result = response.body['results'][0]
+        first_result = response.body[:results][0]
 
         cr = CypherResponse.new(response, true)
-        if response.body['errors'].empty?
-          cr.set_data(first_result['data'], first_result['columns'])
+        if response.body[:errors].empty?
+          cr.set_data(first_result[:data], first_result[:columns])
         else
-          first_error = response.body['errors'].first
-          expired if first_error['message'].match(/Unrecognized transaction id/)
-          cr.set_error(first_error['message'], first_error['code'], first_error['code'])
+          first_error = response.body[:errors].first
+          expired if first_error[:message].match(/Unrecognized transaction id/)
+          cr.set_error(first_error[:message], first_error[:code], first_error[:code])
         end
         cr
       end

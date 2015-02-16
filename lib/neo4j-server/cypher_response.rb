@@ -44,7 +44,7 @@ module Neo4j
 
         def struct_rows(row)
           struct.new.tap do |result|
-            row.each_with_index { |value, i| result[columns[i].to_sym] = value }
+            row.each_with_index { |value, i| result[columns[i]] = value }
           end
         end
       end
@@ -88,10 +88,10 @@ module Neo4j
         is_node, data = case
                         when transaction_response?
                           add_transaction_entity_id
-                          [!mapped_rest_data['start'], mapped_rest_data]
-                        when value['labels'] || value['type']
+                          [!mapped_rest_data[:start], mapped_rest_data]
+                        when value[:labels] || value[:type]
                           add_entity_id(value)
-                          [value['labels'], value]
+                          [value[:labels], value]
                         else
                           return value
                         end
@@ -107,8 +107,8 @@ module Neo4j
 
       def entity_data(id = nil)
         if @uncommited
-          data = @data.first['row'].first
-          data.is_a?(Hash) ? {'data' => data, 'id' => id} : data
+          data = @data.first[:row].first
+          data.is_a?(Hash) ? {data: data, id: id} : data
         else
           data = @data[0][0]
           data.is_a?(Hash) ? add_entity_id(data) : data
@@ -117,7 +117,7 @@ module Neo4j
 
       def first_data(id = nil)
         if @uncommited
-          data = @data.first['row'].first
+          data = @data.first[:row].first
           # data.is_a?(Hash) ? {'data' => data, 'id' => id} : data
         else
           data = @data[0][0]
@@ -126,11 +126,11 @@ module Neo4j
       end
 
       def add_entity_id(data)
-        data.merge!('id' => self.class.id_from_url(data['self']))
+        data.merge!(id: self.class.id_from_url(data[:self]))
       end
 
       def add_transaction_entity_id
-        mapped_rest_data.merge!('id' => mapped_rest_data['self'].split('/').last.to_i)
+        mapped_rest_data.merge!(id: mapped_rest_data[:self].split('/').last.to_i)
       end
 
       def error?
@@ -138,16 +138,16 @@ module Neo4j
       end
 
       def data?
-        !response.body['data'].nil?
+        !response.body[:data].nil?
       end
 
       def raise_unless_response_code(code)
-        fail "Response code #{response.status}, expected #{code} for #{response.headers['location']}, #{response.body}" unless response.status == code
+        fail "Response code #{response.status}, expected #{code} for #{response.headers[:location]}, #{response.body}" unless response.status == code
       end
 
       def each_data_row
         if @uncommited
-          data.each { |r| yield r['row'] }
+          data.each { |r| yield r[:row] }
         else
           data.each { |r| yield r }
         end
@@ -182,9 +182,9 @@ module Neo4j
       def self.create_with_no_tx(response)
         case response.status
         when 200
-          CypherResponse.new(response).set_data(response.body['data'], response.body['columns'])
+          CypherResponse.new(response).set_data(response.body[:data], response.body[:columns])
         when 400
-          CypherResponse.new(response).set_error(response.body['message'], response.body['exception'], response.body['fullname'])
+          CypherResponse.new(response).set_error(response.body[:message], response.body[:exception], response.body[:fullname])
         else
           fail "Unknown response code #{response.status} for #{response.env[:url]}"
         end
@@ -193,20 +193,20 @@ module Neo4j
       def self.create_with_tx(response)
         fail "Unknown response code #{response.status} for #{response.request_uri}" unless response.status == 200
 
-        first_result = response.body['results'][0]
+        first_result = response.body[:results][0]
         cr = CypherResponse.new(response, true)
 
-        if response.body['errors'].empty?
-          cr.set_data(first_result['data'], first_result['columns'])
+        if response.body[:errors].empty?
+          cr.set_data(first_result[:data], first_result[:columns])
         else
-          first_error = response.body['errors'].first
-          cr.set_error(first_error['message'], first_error['status'], first_error['code'])
+          first_error = response.body[:errors].first
+          cr.set_error(first_error[:message], first_error[:status], first_error[:code])
         end
         cr
       end
 
       def transaction_response?
-        response.respond_to?('body') && !response.body['commit'].nil?
+        response.respond_to?('body') && !response.body[:commit].nil?
       end
 
       def rest_data
@@ -215,7 +215,7 @@ module Neo4j
       end
 
       def rest_data_with_id
-        rest_data.merge!('id' => mapped_rest_data['self'].split('/').last.to_i)
+        rest_data.merge!(id: mapped_rest_data[:self].split('/').last.to_i)
       end
 
       class << self
@@ -231,7 +231,7 @@ module Neo4j
       attr_reader :result_index
 
       def mapped_rest_data
-        response.body['results'][0]['data'][result_index]['rest'][row_index]
+        response.body[:results][0][:data][result_index][:rest][row_index]
       end
     end
   end

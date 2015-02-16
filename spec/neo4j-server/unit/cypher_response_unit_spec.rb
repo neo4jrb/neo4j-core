@@ -10,41 +10,41 @@ module Neo4j
       describe '#entity_data' do
         let(:without_tx_response) do
           {
-            'columns' => ['n'],
-            'data' => [[{'labels' => 'http://localhost:7474/db/data/node/625/labels',
-                         'outgoing_relationships' => 'http://localhost:7474/db/data/node/625/relationships/out',
-                         'data' => {'name' => 'Brian', 'hat' => 'fancy'},
-                         'traverse' => 'http://localhost:7474/db/data/node/625/traverse/{returnType}',
-                         'all_typed_relationships' => 'http://localhost:7474/db/data/node/625/relationships/all/{-list|&|types}',
-                         'property' => 'http://localhost:7474/db/data/node/625/properties/{key}',
-                         'self' => 'http://localhost:7474/db/data/node/625',
-                         'properties' => 'http://localhost:7474/db/data/node/625/properties',
-                         'outgoing_typed_relationships' => 'http://localhost:7474/db/data/node/625/relationships/out/{-list|&|types}',
-                         'incoming_relationships' => 'http://localhost:7474/db/data/node/625/relationships/in',
-                         'extensions' => {},
-                         'create_relationship' => 'http://localhost:7474/db/data/node/625/relationships',
-                         'paged_traverse' => 'http://localhost:7474/db/data/node/625/paged/traverse/{returnType}{?pageSize,leaseTime}',
-                         'all_relationships' => 'http://localhost:7474/db/data/node/625/relationships/all',
-                         'incoming_typed_relationships' => 'http://localhost:7474/db/data/node/625/relationships/in/{-list|&|types}'}]]
+            columns: ['n'],
+            data: [[{labels: 'http://localhost:7474/db/data/node/625/labels',
+                     outgoing_relationships: 'http://localhost:7474/db/data/node/625/relationships/out',
+                     data: {'name' => 'Brian', 'hat' => 'fancy'},
+                     traverse: 'http://localhost:7474/db/data/node/625/traverse/{returnType}',
+                     all_typed_relationships: 'http://localhost:7474/db/data/node/625/relationships/all/{-list|&|types}',
+                     property: 'http://localhost:7474/db/data/node/625/properties/{key}',
+                     self: 'http://localhost:7474/db/data/node/625',
+                     properties: 'http://localhost:7474/db/data/node/625/properties',
+                     outgoing_typed_relationships: 'http://localhost:7474/db/data/node/625/relationships/out/{-list|&|types}',
+                     incoming_relationships: 'http://localhost:7474/db/data/node/625/relationships/in',
+                     extensions: {},
+                     create_relationship: 'http://localhost:7474/db/data/node/625/relationships',
+                     paged_traverse: 'http://localhost:7474/db/data/node/625/paged/traverse/{returnType}{?pageSize,leaseTime}',
+                     all_relationships: 'http://localhost:7474/db/data/node/625/relationships/all',
+                     incoming_typed_relationships: 'http://localhost:7474/db/data/node/625/relationships/in/{-list|&|types}'}]]
           }
         end
 
 
         let(:with_tx_response) do
           {
-            'commit' => 'http://localhost:7474/db/data/transaction/153/commit',
-            'results' => [
-              {'columns' => ['n'],
-               'data' => [{'row' => [{'name' => 'Brian', 'hat' => 'fancy'}]}]}
+            commit: 'http://localhost:7474/db/data/transaction/153/commit',
+            results: [
+              {columns: ['n'],
+               data: [{row: [{'name' => 'Brian', 'hat' => 'fancy'}]}]}
             ],
-            'transaction' => {'expires' => 'Fri, 08 Aug 2014 11:38:39 +0000'},
-            'errors' => []
+            transaction: {expires: 'Fri, 08 Aug 2014 11:38:39 +0000'},
+            errors: []
           }
         end
 
         shared_examples 'a hash with data and id' do
-          specify { expect(subject['data']).to eq('name' => 'Brian', 'hat' => 'fancy') }
-          specify { expect(subject['id']).to eq(625) }
+          specify { expect(subject[:data]).to eq('name' => 'Brian', 'hat' => 'fancy') }
+          specify { expect(subject[:id]).to eq(625) }
         end
 
         def successful_response(response)
@@ -102,12 +102,12 @@ module Neo4j
           response = CypherResponse.new(nil, nil)
           response.set_data(
             [
-              [{'labels' => 'http://localhost:7474/db/data/node/18/labels',
-                'self' => 'http://localhost:7474/db/data/node/18',
-                'data' => {name: 'Billy', age: 20}}],
-              [{'labels' => 'http://localhost:7474/db/data/node/18/labels',
-                'self' => 'http://localhost:7474/db/data/node/19',
-                'data' => {name: 'Jimmy', age: 24}}]
+              [{labels: 'http://localhost:7474/db/data/node/18/labels',
+                self: 'http://localhost:7474/db/data/node/18',
+                data: {name: 'Billy', age: 20}}],
+              [{labels: 'http://localhost:7474/db/data/node/18/labels',
+                self: 'http://localhost:7474/db/data/node/19',
+                data: {name: 'Jimmy', age: 24}}]
             ],
             ['person'])
 
@@ -127,16 +127,16 @@ module Neo4j
           response = CypherResponse.new(nil, nil)
           response.set_data(
             [
-              [{'type' => 'LOVES',
-                'self' => 'http://localhost:7474/db/data/relationship/20',
-                'start' => 'http://localhost:7474/db/data/node/18',
-                'end' => 'http://localhost:7474/db/data/node/19',
-                'data' => {intensity: 2}}],
-              [{'type' => 'LOVES',
-                'self' => 'http://localhost:7474/db/data/relationship/21',
-                'start' => 'http://localhost:7474/db/data/node/19',
-                'end' => 'http://localhost:7474/db/data/node/18',
-                'data' => {intensity: 3}}]
+              [{type: 'LOVES',
+                self: 'http://localhost:7474/db/data/relationship/20',
+                start: 'http://localhost:7474/db/data/node/18',
+                end: 'http://localhost:7474/db/data/node/19',
+                data: {intensity: 2}}],
+              [{type: 'LOVES',
+                self: 'http://localhost:7474/db/data/relationship/21',
+                start: 'http://localhost:7474/db/data/node/19',
+                end: 'http://localhost:7474/db/data/node/18',
+                data: {intensity: 3}}]
             ],
             ['r'])
 

@@ -9,10 +9,10 @@ module Neo4j
         @session = session
 
         @neo_id = if value.is_a?(Hash)
-                    hash = value['data']
-                    @props = Hash[hash.map { |k, v| [k.to_sym, v] }]
-                    @labels = value['metadata']['labels'].map!(&:to_sym) if value['metadata']
-                    value['id'] # value['self'].match(/\d+$/)[0].to_i
+                    hash = value[:data]
+                    @props = Hash[hash.map { |k, v| [k, v] }]
+                    @labels = value[:metadata][:labels].map!(&:to_sym) if value[:metadata]
+                    value[:id]
                   else
                     value
                   end
@@ -34,7 +34,7 @@ module Neo4j
         ids_hash = {start_neo_id: neo_id, end_neo_id: other_node.neo_id}
         props_with_ids = props.nil? ? ids_hash : cypher_prop_list(props).merge(ids_hash)
         id = @session._query_or_fail(rel_string(type, other_node, props), true, props_with_ids)
-        data_hash = {'type' => type, 'data' => props, 'start' => neo_id, 'end' => other_node.neo_id, 'id' => id}
+        data_hash = {type: type, data: props, start: neo_id, end: other_node.neo_id, id: id}
         CypherRelationship.new(@session, data_hash)
       end
 
@@ -48,7 +48,7 @@ module Neo4j
           @props
         else
           hash = @session._query_entity_data("#{match_start} RETURN n", nil, neo_id: neo_id)
-          @props = Hash[hash['data'].map { |k, v| [k.to_sym, v] }]
+          @props = Hash[hash[:data].map { |k, v| [k, v] }]
         end
       end
 
