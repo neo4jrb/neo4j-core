@@ -87,7 +87,7 @@ describe 'Neo4j::Server::CypherAuthentication', if: (ENV['TEST_AUTHENTICATION'] 
       end
 
       it 'informs of a required password change' do
-        response_double = double('A Faraday connection object')
+        response_double = double('A Faraday connection object', status: 200)
         expect_any_instance_of(Faraday::Connection).to receive(:post).and_return(response_double)
         expect(response_double).to receive(:body).and_return(password_change_required: true)
         expect { Neo4j::Session.open(:server_db, 'http://localhost:7474', basic_auth: {username: 'neo4j', password: @suite_default}) }

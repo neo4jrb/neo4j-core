@@ -73,11 +73,9 @@ module Neo4j
       # @param [Farday::Response] auth_response The response after attempting authentication
       # @return [String] An authentication token.
       def token_or_error(auth_response)
-        puts "auth_response #{auth_response}"
         begin
-          fail PasswordChangeRequiredError, "Server requires a password change, please visit #{url}" if auth_response.body[:errors][:code] ==
-                                                                                                        'Neo.ClientError.Security.AuthenticationFailed'
-          fail InvalidPasswordError, "Neo4j server responded with: #{auth_response.body['errors'][0]['message']}" if auth_response.status.to_i == 422
+          fail InvalidPasswordError, "Neo4j server responded with: #{auth_response.body[:errors][0][:message]}" if bad_password?(auth_response)
+          fail PasswordChangeRequiredError, "Server requires a password change, please visit #{url}" if change_password?(auth_response)
         rescue NoMethodError
           raise 'Unexpected auth response, please open an issue at https://github.com/neo4jrb/neo4j-core/issues'
         end
@@ -99,6 +97,14 @@ module Neo4j
       end
 
       private
+
+      def bad_password?(auth_response)
+        auth_response.status.to_i == 422
+      end
+
+      def change_password?(auth_response)
+        auth_response.body[:password_change_required] == true
+      end
 
       # Makes testing easier, we can stub this method to simulate different responses
       def auth_connection(url)
