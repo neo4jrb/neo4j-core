@@ -44,7 +44,7 @@ module Neo4j
 
         def struct_rows(row)
           struct.new.tap do |result|
-            row.each_with_index { |value, i| result[columns[i].to_sym] = value }
+            row.each_with_index { |value, i| result[columns[i]] = value }
           end
         end
       end

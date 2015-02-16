@@ -24,6 +24,8 @@ describe Neo4j::Server::CypherNode, api: :server do
         tx = Neo4j::Transaction.new
         expect(bob).to be_a(Neo4j::Server::CypherNode)
         expect(jim).to be_a(Neo4j::Server::CypherNode)
+        expect(bob[:name]).to eq 'bob'
+        expect(bob['name']).to eq 'bob'
         expect(Neo4j::Label.find_all_nodes(:person)).to include(bob, jim)
       ensure
         tx.close

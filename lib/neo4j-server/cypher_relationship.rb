@@ -80,7 +80,7 @@ module Neo4j
           @props
         else
           hash = @session._query_entity_data("#{match_start} RETURN n", nil, neo_id: neo_id)
-          @props = Hash[hash[:data].map { |k, v| [k.to_sym, v] }]
+          @props = Hash[hash[:data].map { |k, v| [k, v] }]
         end
       end
 

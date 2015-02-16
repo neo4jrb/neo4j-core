@@ -10,7 +10,7 @@ module Neo4j
 
         @neo_id = if value.is_a?(Hash)
                     hash = value[:data]
-                    @props = Hash[hash.map { |k, v| [k.to_sym, v] }]
+                    @props = Hash[hash.map { |k, v| [k, v] }]
                     @labels = value[:metadata][:labels].map!(&:to_sym) if value[:metadata]
                     value[:id]
                   else
@@ -48,7 +48,7 @@ module Neo4j
           @props
         else
           hash = @session._query_entity_data("#{match_start} RETURN n", nil, neo_id: neo_id)
-          @props = Hash[hash[:data].map { |k, v| [k.to_sym, v] }]
+          @props = Hash[hash[:data].map { |k, v| [k, v] }]
         end
       end
 
