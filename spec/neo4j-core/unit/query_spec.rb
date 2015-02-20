@@ -205,6 +205,10 @@ describe Neo4j::Core::Query do
       it_generates 'MATCH (n:`Person`)'
     end
 
+    describe '.match(n: [:Person, "Animal"])' do
+      it_generates 'MATCH (n:`Person`:`Animal`)'
+    end
+
     describe ".match(n: ' :Person')" do
       it_generates 'MATCH (n:Person)'
     end

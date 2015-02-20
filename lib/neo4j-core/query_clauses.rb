@@ -59,10 +59,9 @@ module Neo4j
 
         def var_from_key_and_value(key, value, prefer = :var)
           case value
-          when String, Symbol, Class, Module, NilClass
-            key
+          when String, Symbol, Class, Module, NilClass, Array then key
           when Hash
-            key if value.values.any? { |v| v.is_a?(Hash) } || prefer == :var
+            key if _use_key_for_var?(value, prefer)
           else
             fail ArgError, value
           end
@@ -70,22 +69,29 @@ module Neo4j
 
         def label_from_key_and_value(key, value, prefer = :var)
           case value
-          when String, Symbol
-            value
+          when String, Symbol, Array then value
+          when NilClass then nil
           when Class, Module
             defined?(value::CYPHER_LABEL) ? value::CYPHER_LABEL : value.name
           when Hash
             if value.values.map(&:class) == [Hash]
               value.first.first
             else
-              key if value.values.none? { |v| v.is_a?(Hash) } && prefer == :label
+              key if !_use_key_for_var?(value, prefer)
             end
-          when NilClass
-            nil
           else
             fail ArgError, value
           end
         end
+
+        def _use_key_for_var?(value, prefer)
+          _nested_value_hash?(value) || prefer == :var
+        end
+
+        def _nested_value_hash?(value)
+          value.values.any? { |v| v.is_a?(Hash) }
+        end
+
 
         def attributes_from_key_and_value(key, value)
           return nil unless value.is_a?(Hash)
@@ -129,14 +135,18 @@ module Neo4j
           end
         end
 
-        def format_label(label_string)
-          label_string = label_string.to_s
-          label_string.strip!
-          if !label_string.empty? && label_string[0] != ':'
-            label_string = "`#{label_string}`" unless label_string.match(' ')
-            label_string = ":#{label_string}"
+        def format_label(label_arg)
+          if label_arg.is_a?(Array)
+            return label_arg.map { |arg| format_label(arg) }.join
           end
-          label_string
+
+          label_arg = label_arg.to_s
+          label_arg.strip!
+          if !label_arg.empty? && label_arg[0] != ':'
+            label_arg = "`#{label_arg}`" unless label_arg.match(' ')
+            label_arg = ":#{label_arg}"
+          end
+          label_arg
         end
 
         def attributes_string(attributes)
