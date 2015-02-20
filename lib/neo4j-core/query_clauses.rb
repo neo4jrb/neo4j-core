@@ -59,7 +59,7 @@ module Neo4j
 
         def var_from_key_and_value(key, value, prefer = :var)
           case value
-          when String, Symbol, Class, Module
+          when String, Symbol, Class, Module, NilClass
             key
           when Hash
             key if value.values.any? { |v| v.is_a?(Hash) } || prefer == :var
@@ -80,6 +80,8 @@ module Neo4j
             else
               key if value.values.none? { |v| v.is_a?(Hash) } && prefer == :label
             end
+          when NilClass
+            nil
           else
             fail ArgError, value
           end
