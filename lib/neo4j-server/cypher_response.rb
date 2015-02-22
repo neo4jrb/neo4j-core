@@ -130,7 +130,11 @@ module Neo4j
       end
 
       def add_entity_id(data)
-        data.merge!(id: self.class.id_from_url(data[:self]))
+        if data[:metadata] && data[:metadata][:id]
+          data[:id] = data[:metadata][:id]
+        else
+          data.merge!(id: self.class.id_from_url(data[:self]))
+        end
       end
 
       def add_transaction_entity_id
