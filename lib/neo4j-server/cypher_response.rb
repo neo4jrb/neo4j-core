@@ -85,17 +85,21 @@ module Neo4j
       end
 
       def hash_value_as_object(value, session)
-        is_node, data = case
-                        when transaction_response?
-                          add_transaction_entity_id
-                          [!mapped_rest_data[:start], mapped_rest_data]
-                        when value[:labels] || value[:type]
-                          add_entity_id(value)
-                          [value[:labels], value]
-                        else
-                          return value
-                        end
-        (is_node ? CypherNode : CypherRelationship).new(session, data).wrapper
+        data =  case
+                when transaction_response?
+                  add_transaction_entity_id
+                  mapped_rest_data
+                when value[:labels] || value[:type]
+                  add_entity_id(value)
+                  value
+                else
+                  return value
+                end
+        (node?(value) ? CypherNode : CypherRelationship).new(session, data).wrapper
+      end
+
+      def node?(value)
+        transaction_response? ? !mapped_rest_data[:start] : value[:labels]
       end
 
       attr_reader :struct
