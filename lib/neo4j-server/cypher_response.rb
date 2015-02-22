@@ -131,7 +131,7 @@ module Neo4j
 
       def add_entity_id(data)
         if data[:metadata] && data[:metadata][:id]
-          data[:id] = data[:metadata][:id]
+          data.merge!(id: data[:metadata][:id])
         else
           data.merge!(id: self.class.id_from_url(data[:self]))
         end
