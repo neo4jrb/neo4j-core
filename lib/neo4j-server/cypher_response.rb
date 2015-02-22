@@ -119,9 +119,9 @@ module Neo4j
         end
       end
 
-      def first_data(id = nil)
+      def first_data
         if @uncommited
-          data = @data.first[:row].first
+          @data.first[:row].first
           # data.is_a?(Hash) ? {'data' => data, 'id' => id} : data
         else
           data = @data[0][0]

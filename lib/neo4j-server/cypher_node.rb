@@ -9,8 +9,7 @@ module Neo4j
         @session = session
 
         @neo_id = if value.is_a?(Hash)
-                    hash = value[:data]
-                    @props = Hash[hash.map { |k, v| [k, v] }]
+                    @props = value[:data]
                     @labels = value[:metadata][:labels].map!(&:to_sym) if value[:metadata]
                     value[:id]
                   else
