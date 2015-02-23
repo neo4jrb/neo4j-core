@@ -85,17 +85,21 @@ module Neo4j
       end
 
       def hash_value_as_object(value, session)
-        is_node, data = case
-                        when transaction_response?
-                          add_transaction_entity_id
-                          [!mapped_rest_data[:start], mapped_rest_data]
-                        when value[:labels] || value[:type]
-                          add_entity_id(value)
-                          [value[:labels], value]
-                        else
-                          return value
-                        end
-        (is_node ? CypherNode : CypherRelationship).new(session, data).wrapper
+        data =  case
+                when transaction_response?
+                  add_transaction_entity_id
+                  mapped_rest_data
+                when value[:labels] || value[:type]
+                  add_entity_id(value)
+                  value
+                else
+                  return value
+                end
+        (node?(value) ? CypherNode : CypherRelationship).new(session, data).wrapper
+      end
+
+      def node?(value)
+        transaction_response? ? !mapped_rest_data[:start] : value[:labels]
       end
 
       attr_reader :struct
@@ -115,9 +119,9 @@ module Neo4j
         end
       end
 
-      def first_data(id = nil)
+      def first_data
         if @uncommited
-          data = @data.first[:row].first
+          @data.first[:row].first
           # data.is_a?(Hash) ? {'data' => data, 'id' => id} : data
         else
           data = @data[0][0]
@@ -126,7 +130,11 @@ module Neo4j
       end
 
       def add_entity_id(data)
-        data.merge!(id: self.class.id_from_url(data[:self]))
+        if data[:metadata] && data[:metadata][:id]
+          data.merge!(id: data[:metadata][:id])
+        else
+          data.merge!(id: self.class.id_from_url(data[:self]))
+        end
       end
 
       def add_transaction_entity_id
@@ -206,7 +214,7 @@ module Neo4j
       end
 
       def transaction_response?
-        response.respond_to?('body') && !response.body[:commit].nil?
+        response.respond_to?(:body) && !response.body[:commit].nil?
       end
 
       def rest_data
