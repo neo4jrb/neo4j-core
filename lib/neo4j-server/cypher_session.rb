@@ -172,7 +172,7 @@ module Neo4j
 
       def query(*args)
         if [[String], [String, Hash]].include?(args.map(&:class))
-          query, params = args[0, 2]
+          query = args[0]; params = args[1]
           response = _query(query, params)
           response.raise_error if response.error?
           response.to_node_enumeration(query)
