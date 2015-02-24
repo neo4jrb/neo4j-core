@@ -129,8 +129,8 @@ module Neo4j
             expect(node_enumeration[1][:person].props).to eq(name: 'Jimmy', age: 24)
           end
 
-          context 'with raw == true' do
-            before { response.raw! }
+          context 'with unwrapped? == true' do
+            before { response.unwrapped! }
 
             it 'does not call wrapper' do
               expect_any_instance_of(Neo4j::Server::CypherNode).not_to receive(:wrapper)

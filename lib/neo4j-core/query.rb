@@ -152,13 +152,13 @@ module Neo4j
         self
       end
 
-      def raw
-        @_raw = true
+      def unwrapped
+        @_unwrapped_obj = true
         self
       end
 
-      def raw?
-        !!@_raw
+      def unwrapped?
+        !!@_unwrapped_obj
       end
 
       def response
@@ -179,7 +179,7 @@ module Neo4j
       def each
         response = self.response
         if response.is_a?(Neo4j::Server::CypherResponse)
-          response.raw! if raw?
+          response.unwrapped! if unwrapped?
           response.to_node_enumeration
         else
           Neo4j::Embedded::ResultWrapper.new(response, to_cypher)

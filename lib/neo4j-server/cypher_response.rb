@@ -96,15 +96,15 @@ module Neo4j
                   return value
                 end
         basic_obj = (node?(value) ? CypherNode : CypherRelationship).new(session, data)
-        raw? ? basic_obj : basic_obj.wrapper
+        unwrapped? ? basic_obj : basic_obj.wrapper
       end
 
-      def raw!
-        @_raw_node = true
+      def unwrapped!
+        @_unwrapped_obj = true
       end
 
-      def raw?
-        !!@_raw_node
+      def unwrapped?
+        !!@_unwrapped_obj
       end
 
       def node?(value)
