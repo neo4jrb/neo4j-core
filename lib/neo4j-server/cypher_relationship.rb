@@ -8,11 +8,11 @@ module Neo4j
       def initialize(session, value)
         @session = session
         @response_hash = value
-        @rel_type = @response_hash['type']
-        @props = @response_hash['data']
-        @start_node_neo_id = @response_hash['start'].is_a?(Integer) ? @response_hash['start'] : @response_hash['start'].match(/\d+$/)[0].to_i
-        @end_node_neo_id = @response_hash['end'].is_a?(Integer) ? @response_hash['end'] : @response_hash['end'].match(/\d+$/)[0].to_i
-        @id = @response_hash['id']
+        @rel_type = @response_hash[:type]
+        @props = @response_hash[:data]
+        @start_node_neo_id = @response_hash[:start].is_a?(Integer) ? @response_hash[:start] : @response_hash[:start].match(/\d+$/)[0].to_i
+        @end_node_neo_id = @response_hash[:end].is_a?(Integer) ? @response_hash[:end] : @response_hash[:end].match(/\d+$/)[0].to_i
+        @id = @response_hash[:id]
       end
 
       def ==(other)
@@ -80,7 +80,7 @@ module Neo4j
           @props
         else
           hash = @session._query_entity_data("#{match_start} RETURN n", nil, neo_id: neo_id)
-          @props = Hash[hash['data'].map { |k, v| [k.to_sym, v] }]
+          @props = Hash[hash[:data].map { |k, v| [k, v] }]
         end
       end
 

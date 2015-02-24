@@ -23,13 +23,14 @@ module Neo4j
       # @param [Hash] params could be empty or contain basic authentication user and password
       # @return [Faraday]
       # @see https://github.com/lostisland/faraday
-      def self.create_connection(params)
+      def self.create_connection(params, url = nil)
         init_params = params[:initialize] && params.delete(:initialize)
-        conn = Faraday.new(init_params) do |b|
+        conn = Faraday.new(url, init_params) do |b|
           b.request :basic_auth, params[:basic_auth][:username], params[:basic_auth][:password] if params[:basic_auth]
-          b.request :json
+          b.request :multi_json
           # b.response :logger
-          b.response :json, content_type: 'application/json'
+
+          b.response :multi_json, symbolize_keys: true, content_type: 'application/json'
           # b.use Faraday::Response::RaiseError
           b.use Faraday::Adapter::NetHttpPersistent
           # b.adapter  Faraday.default_adapter
@@ -45,8 +46,8 @@ module Neo4j
       # @param [Hash] params faraday params, see #create_connection or an already created faraday connection
       def self.open(endpoint_url = nil, params = {})
         extract_basic_auth(endpoint_url, params)
-        connection = params[:connection] || create_connection(params)
         url = endpoint_url || 'http://localhost:7474'
+        connection = params[:connection] || create_connection(params, url)
         auth_obj = CypherAuthentication.new(url, connection, params)
         auth_obj.authenticate
         response = connection.get(url)
@@ -55,7 +56,7 @@ module Neo4j
       end
 
       def self.establish_session(root_data, connection, auth_obj)
-        data_url = root_data['data']
+        data_url = root_data[:data]
         data_url << '/' unless data_url.nil? || data_url.end_with?('/')
         CypherSession.new(data_url, connection, auth_obj)
       end
@@ -83,7 +84,7 @@ module Neo4j
       end
 
       def version
-        resource_data ? resource_data['neo4j_version'] : ''
+        resource_data ? resource_data[:neo4j_version] : ''
       end
 
       def initialize_resource(data_url)
@@ -112,7 +113,7 @@ module Neo4j
 
       def create_node(props = nil, labels = [])
         id = _query_or_fail(cypher_string(labels, props), true, cypher_prop_list(props))
-        value = props.nil? ? id : {'id' => id, 'metadata' => {'labels' => labels}, 'data' => props}
+        value = props.nil? ? id : {id: id, metadata: {labels: labels}, data: props}
         CypherNode.new(self, value)
       end
 
@@ -152,7 +153,7 @@ module Neo4j
       def schema_properties(query_string)
         response = @connection.get(query_string)
         expect_response_code(response, 200)
-        {property_keys: response.body.map { |row| row['property_keys'].map(&:to_sym) }}
+        {property_keys: response.body.map! { |row| row[:property_keys].map(&:to_sym) }}
       end
 
       def find_all_nodes(label_name)
@@ -185,7 +186,7 @@ module Neo4j
       def _query_data(q)
         r = _query_or_fail(q, true)
         # the response is different if we have a transaction or not
-        Neo4j::Transaction.current ? r : r['data']
+        Neo4j::Transaction.current ? r : r[:data]
       end
 
       def _query_or_fail(q, single_row = false, params = nil)
@@ -206,7 +207,7 @@ module Neo4j
         if curr_tx
           curr_tx._query(q, params)
         else
-          url = resource_url('cypher')
+          url = resource_url(:cypher)
           q = params.nil? ? {'query' => q} : {'query' => q, 'params' => params}
           response = @connection.post(url, q)
           CypherResponse.create_with_no_tx(response)
@@ -225,7 +226,7 @@ module Neo4j
       def search_result_to_enumerable_first_column_with_tx(response)
         Enumerator.new do |yielder|
           response.data.each do |data|
-            data['row'].each do |id|
+            data[:row].each do |id|
               yielder << CypherNode.new(self, id).wrapper
             end
           end

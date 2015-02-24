@@ -123,11 +123,6 @@ module Neo4j
       fail 'not implemented'
     end
 
-    # @return all the Neo4j labels for this node
-    def labels
-      fail 'not implemented'
-    end
-
     # Returns the only node of a given type and direction that is attached to this node, or nil.
     # This is a convenience method that is used in the commonly occuring situation where a node has exactly zero or one relationships of a given type and direction to another node.
     # Typically this invariant is maintained by the rest of the code: if at any time more than one such relationships exist, it is a fatal error that should generate an exception.
@@ -157,11 +152,6 @@ module Neo4j
     # Returns true or false if there is one or more relationships
     # @return [Boolean]
     def rel?(spec = {})
-      fail 'not implemented'
-    end
-
-    # @return [Boolean] true if the node exists
-    def exist?
       fail 'not implemented'
     end
 
