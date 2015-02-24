@@ -74,16 +74,20 @@ module Neo4j
       end
 
       def hash_value_as_object(value, session)
-        is_node, data = case
-                        when transaction_response?
-                          add_transaction_entity_id
-                          [!mapped_rest_data['start'], mapped_rest_data]
-                        when value['labels'] || value['type']
-                          add_entity_id(value)
-                          [value['labels'], value]
-                        else
-                          return value
-                        end
+        case
+        when transaction_response?
+          add_transaction_entity_id
+
+          is_node = !mapped_rest_data['start']
+          data = mapped_rest_data
+        when value['labels'] || value['type']
+          add_entity_id(value)
+
+          is_node = value['labels']
+          data = value
+        else
+          return value
+        end
         (is_node ? CypherNode : CypherRelationship).new(session, data).wrapper
       end
 
@@ -115,11 +119,13 @@ module Neo4j
       end
 
       def add_entity_id(data)
-        data.merge!('id' => self.class.id_from_url(data['self']))
+        data['id'] = self.class.id_from_url(data['self'])
+        data
       end
 
       def add_transaction_entity_id
-        mapped_rest_data.merge!('id' => mapped_rest_data['self'].split('/').last.to_i)
+        mapped_rest_data['id'] = mapped_rest_data['self'].split('/').last.to_i
+        mapped_rest_data
       end
 
       def error?
@@ -204,7 +210,8 @@ module Neo4j
       end
 
       def rest_data_with_id
-        rest_data.merge!('id' => mapped_rest_data['self'].split('/').last.to_i)
+        rest_data['id'] = mapped_rest_data['self'].split('/').last.to_i
+        rest_data
       end
 
       class << self
