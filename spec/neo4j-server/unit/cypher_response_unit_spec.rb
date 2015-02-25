@@ -162,6 +162,38 @@ module Neo4j
 
         skip 'returns hydrated CypherPath objects?'
       end
+
+      describe 'retryable_error?' do
+        let(:response) { Neo4j::Server::CypherResponse.new('', 'query') }
+
+        before do
+          response.instance_variable_set(:@error, true)
+          response.instance_variable_set(:@error_status, error_status)
+          response.instance_variable_set(:@error, true)
+        end
+
+        subject { response.retryable_error? }
+
+        context 'deadlock' do
+          let(:error_status) { 'DeadlockDetectedException' }
+          it { is_expected.to be_truthy }
+        end
+
+        context 'acquire lock' do
+          let(:error_status) { 'AcquireLockTimeoutException' }
+          it { is_expected.to be_truthy }
+        end
+
+        context 'external resource' do
+          let(:error_status) { 'ExternalResourceFailureException' }
+          it { is_expected.to be_truthy }
+        end
+
+        context 'unknown failure' do
+          let(:error_status) { 'UnknownFailureException' }
+          it { is_expected.to be_truthy }
+        end
+      end
     end
   end
 end
