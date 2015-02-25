@@ -1,6 +1,7 @@
 require 'json'
 require 'faraday'
 require 'faraday_middleware'
+require 'faraday_middleware/multi_json'
 require 'neo4j-server/resource'
 require 'neo4j-server/cypher_node'
 require 'neo4j-server/cypher_label'

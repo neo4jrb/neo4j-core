@@ -87,9 +87,9 @@ describe 'Neo4j::Server::CypherAuthentication', if: (ENV['TEST_AUTHENTICATION'] 
       end
 
       it 'informs of a required password change' do
-        response_double = double('A Faraday connection object')
+        response_double = double('A Faraday connection object', status: 200)
         expect_any_instance_of(Faraday::Connection).to receive(:post).and_return(response_double)
-        expect(response_double).to receive(:body).and_return('password_change_required' => true)
+        expect(response_double).to receive(:body).and_return(password_change_required: true)
         expect { Neo4j::Session.open(:server_db, 'http://localhost:7474', basic_auth: {username: 'neo4j', password: @suite_default}) }
           .to raise_error Neo4j::Server::CypherAuthentication::PasswordChangeRequiredError
       end
@@ -123,7 +123,7 @@ describe 'Neo4j::Server::CypherAuthentication', if: (ENV['TEST_AUTHENTICATION'] 
         it 'changes the password and does not give an error' do
           response = session.auth.change_password('neo4jrb rules, ok?', 'neo4j')
           expect(response).to be_a(Hash)
-          expect(response['authorization_token']).not_to be_empty
+          expect(response[:authorization_token]).not_to be_empty
         end
       end
 
@@ -131,7 +131,7 @@ describe 'Neo4j::Server::CypherAuthentication', if: (ENV['TEST_AUTHENTICATION'] 
         it 'does not change the password and returns the server error' do
           response = session.auth.change_password('neo4jrb rules, okzzz?', 'neo4j')
           expect(response).to be_a(Hash)
-          expect(response['errors'][0]['code']).to eq 'Neo.ClientError.Security.AuthenticationFailed'
+          expect(response[:errors][0][:code]).to eq 'Neo.ClientError.Security.AuthenticationFailed'
         end
       end
     end
@@ -161,7 +161,7 @@ describe 'Neo4j::Server::CypherAuthentication', if: (ENV['TEST_AUTHENTICATION'] 
 
       describe 'token invalidation' do
         it 'raises an error when a bad password is provided' do
-          expect(auth_object.invalidate_token(:foo)['errors'][0]['code']).to eq 'Neo.ClientError.Security.AuthenticationFailed'
+          expect(auth_object.invalidate_token(:foo)[:errors][0][:code]).to eq 'Neo.ClientError.Security.AuthenticationFailed'
         end
 
         # Here, we're demonstrating that existing sessions with the server -- sessions with their own CypherAuthentication and Faraday::Connection objects --
