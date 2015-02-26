@@ -62,10 +62,7 @@ module Neo4j
 
       def self.extract_basic_auth(url, params)
         return unless url && URI(url).userinfo
-        params[:basic_auth] = {
-          username: URI(url).user,
-          password: URI(url).password
-        }
+        params[:basic_auth] = {username: URI(url).user, password: URI(url).password}
       end
 
       private_class_method :extract_basic_auth
@@ -101,12 +98,7 @@ module Neo4j
       end
 
       def begin_tx
-        if Neo4j::Transaction.current
-          # Handle nested transaction "placebo transaction"
-          Neo4j::Transaction.current.push_nested!
-        else
-          wrap_resource(@connection)
-        end
+        Neo4j::Transaction.current ? Neo4j::Transaction.current.push_nested! : wrap_resource(@connection)
         Neo4j::Transaction.current
       end
 
@@ -162,11 +154,7 @@ module Neo4j
       def find_nodes(label_name, key, value)
         value = "'#{value}'" if value.is_a? String
 
-        response = _query_or_fail <<-CYPHER
-          MATCH (n:`#{label_name}`)
-          WHERE n.#{key} = #{value}
-          RETURN ID(n)
-        CYPHER
+        response = _query_or_fail("MATCH (n:`#{label_name}`) WHERE n.#{key} = #{value} RETURN ID(n)")
         search_result_to_enumerable_first_column(response)
       end
 
