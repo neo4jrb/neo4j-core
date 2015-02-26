@@ -169,18 +169,18 @@ module Neo4j
         end
       end
 
-      def set_data(data, columns)
-        @data = data
-        @columns = columns
-        @struct = columns.empty? ? Object.new : Struct.new(*columns.map(&:to_sym))
+      def set_data(response)
+        @data = response[:data]
+        @columns = response[:columns]
+        @struct = @columns.empty? ? Object.new : Struct.new(*@columns.map(&:to_sym))
         self
       end
 
-      def set_error(error_msg, error_status, error_core)
+      def set_error(error)
         @error = true
-        @error_msg = error_msg
-        @error_status = error_status
-        @error_code = error_core
+        @error_msg = error[:message]
+        @error_status = error[:status] || error[:exception] || error[:code]
+        @error_code = error[:code] || error[:fullname]
         self
       end
 
@@ -198,9 +198,9 @@ module Neo4j
       def self.create_with_no_tx(response)
         case response.status
         when 200
-          CypherResponse.new(response).set_data(response.body[:data], response.body[:columns])
+          new(response).set_data(response.body)
         when 400
-          CypherResponse.new(response).set_error(response.body[:message], response.body[:exception], response.body[:fullname])
+          new(response).set_error(response.body)
         else
           fail "Unknown response code #{response.status} for #{response.env[:url]}"
         end
@@ -209,16 +209,14 @@ module Neo4j
       def self.create_with_tx(response)
         fail "Unknown response code #{response.status} for #{response.request_uri}" unless response.status == 200
 
-        first_result = response.body[:results][0]
-        cr = CypherResponse.new(response, true)
-
-        if response.body[:errors].empty?
-          cr.set_data(first_result[:data], first_result[:columns])
-        else
-          first_error = response.body[:errors].first
-          cr.set_error(first_error[:message], first_error[:status], first_error[:code])
+        new(response, true).tap do |cr|
+          body = response.body
+          if body[:errors].empty?
+            cr.set_data(body[:results].first)
+          else
+            cr.set_error(body[:errors].first)
+          end
         end
-        cr
       end
 
       def transaction_response?

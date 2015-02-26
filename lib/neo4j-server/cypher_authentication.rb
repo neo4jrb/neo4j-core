@@ -36,16 +36,17 @@ module Neo4j
       # Uses the given username and password to obtain a token, then adds the token to the connection's parameters.
       # @return [String] An access token provided by the server.
       def authenticate
-        auth_response = auth_connection("#{url}/authentication")
-        auth_hash = if auth_response.status == 404 || auth_response.body.empty?
-                      nil
-                    elsif auth_response.body.is_a?(String)
-                      JSON.parse(auth_response.body)['errors'][0]['code'] == 'Neo.ClientError.Security.AuthorizationFailed' ? auth_attempt : nil
+        auth_response = auth_connection
+
+        return if auth_response.status == 404 || auth_response.body.empty?
+
+        auth_hash = if auth_response.body.is_a?(String)
+                      auth_attempt if auth_response_is_auth_failed?(auth_response)
                     else
                       auth_response
                     end
-        return nil if auth_hash.nil?
-        add_auth_headers(token_or_error(auth_hash))
+
+        add_auth_headers(token_or_error(auth_hash)) if auth_hash.nil?
       end
 
       # Invalidates the existing token, which will invalidate all conncetions using this token, applies for a new token, adds this into
@@ -106,8 +107,12 @@ module Neo4j
         auth_response.body[:password_change_required] == true
       end
 
+      def auth_response_is_auth_failed?(auth_response)
+        JSON.parse(auth_response.body)['errors'][0]['code'] == 'Neo.ClientError.Security.AuthorizationFailed'
+      end
+
       # Makes testing easier, we can stub this method to simulate different responses
-      def auth_connection(url)
+      def auth_connection(url = "#{@url}/authentication")
         connection.get(url)
       end
 

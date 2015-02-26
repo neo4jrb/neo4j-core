@@ -30,9 +30,9 @@ class RSpecItGeneratesHandler < YARD::Handlers::Ruby::Base
 
   def process
     return if owner.nil?
-
     return unless owner[:spec]
-    path, ruby = [owner[:spec], owner[:ruby]]
+
+    path, ruby = owner.values_at(:spec, :ruby)
 
     object = P(path)
     return if object.is_a?(Proxy)

@@ -74,14 +74,14 @@ module Neo4j
           # result.data.should == [[0]]
           # result.columns.should == ['ID(n)']
           response = CypherResponse.new(nil, nil)
-          response.set_data([[0]], ['ID(n)'])
+          response.set_data(data: [[0]], columns: ['ID(n)'])
 
           expect(response.to_struct_enumeration.to_a).to eq([hash_to_struct(response, :'ID(n)' => 0)])
         end
 
         it 'creates an enumerable of hash key multiple values' do
           response = CypherResponse.new(nil, nil)
-          response.set_data([['Romana', 126], ['The Doctor', 750]], %w(name age))
+          response.set_data(data: [['Romana', 126], ['The Doctor', 750]], columns: %w(name age))
 
           expect(response.to_struct_enumeration.to_a).to eq(
             [hash_to_struct(response, name: 'Romana', age: 126),
@@ -93,14 +93,14 @@ module Neo4j
       describe '#to_node_enumeration' do
         it 'returns basic values' do
           response = CypherResponse.new(nil, nil)
-          response.set_data([['Billy'], ['Jimmy']], ['person.name'])
+          response.set_data(data: [['Billy'], ['Jimmy']], columns: ['person.name'])
 
           expect(response.to_node_enumeration.to_a).to eq([hash_to_struct(response, :'person.name' => 'Billy'), hash_to_struct(response, :'person.name' => 'Jimmy')])
         end
 
         it 'returns hydrated CypherNode objects' do
           response = CypherResponse.new(nil, nil)
-          response.set_data(
+          response.set_data(data:
             [
               [{labels: 'http://localhost:7474/db/data/node/18/labels',
                 self: 'http://localhost:7474/db/data/node/18',
@@ -109,7 +109,7 @@ module Neo4j
                 self: 'http://localhost:7474/db/data/node/19',
                 data: {name: 'Jimmy', age: 24}}]
             ],
-            ['person'])
+                            columns: ['person'])
 
           node_enumeration = response.to_node_enumeration.to_a
 
@@ -125,7 +125,7 @@ module Neo4j
 
         it 'returns hydrated CypherRelationship objects' do
           response = CypherResponse.new(nil, nil)
-          response.set_data(
+          response.set_data(data:
             [
               [{type: 'LOVES',
                 self: 'http://localhost:7474/db/data/relationship/20',
@@ -138,7 +138,7 @@ module Neo4j
                 end: 'http://localhost:7474/db/data/node/18',
                 data: {intensity: 3}}]
             ],
-            ['r'])
+                            columns: ['r'])
 
           node_enumeration = response.to_node_enumeration.to_a
 
