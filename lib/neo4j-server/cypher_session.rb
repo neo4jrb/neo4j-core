@@ -177,7 +177,7 @@ module Neo4j
         Neo4j::Transaction.current ? r : r[:data]
       end
 
-      DEFAULT_RETRY_COUNT = ENV['NEO4J_RETRY_COUNT'] || 10
+      DEFAULT_RETRY_COUNT = ENV['NEO4J_RETRY_COUNT'].nil? ? 10 : ENV['NEO4J_RETRY_COUNT'].to_i
       def _query_or_fail(q, single_row = false, params = nil, retry_count = DEFAULT_RETRY_COUNT)
         response = _query(q, params)
         if response.error?
