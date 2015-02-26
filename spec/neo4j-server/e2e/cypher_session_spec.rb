@@ -24,14 +24,20 @@ module Neo4j
 
         it 'can use a user supplied faraday connection for a new session' do
           connection = Faraday.new do |b|
-            b.request :json
-            b.response :json, content_type: 'application/json'
+            b.request :multi_json
+            b.response :multi_json, symbolize_keys: true, content_type: 'application/json'
             b.adapter Faraday.default_adapter
           end
           connection.headers = {'Content-Type' => 'application/json'}
 
           expect(connection).to receive(:get).at_least(:once).and_call_original
           Neo4j::Session.open(:server_db, 'http://localhost:7474',  connection: connection)
+        end
+
+        it 'adds host and port to the connection object' do
+          connection = Neo4j::Session.current.connection
+          expect(connection.port).to eq 7474
+          expect(connection.host).to eq 'localhost'
         end
       end
 
@@ -96,6 +102,42 @@ module Neo4j
 
       subject { Neo4j::Session.current.inspect }
       it { is_expected.to include 'Neo4j::Server::CypherSession url:' }
+    end
+
+    describe '_query_or_fail' do
+      context 'with a retryable error' do
+        let(:session) { Neo4j::Session.current }
+        let(:match_string) { 'MATCH (n) RETURN COUNT(n)' }
+        let(:transient_error) { double('A response object with a transient error', error?: true, retryable_error?: true) }
+
+        context 'with retry count > 0' do
+          it 'retries and decreases limit' do
+            expect(session).to receive(:_query).and_return(transient_error)
+            expect(session).to receive(:_query_or_fail).with(match_string, true, nil, 2).and_call_original
+            expect(session).to receive(:_query_or_fail).with(match_string, true, nil, 1)
+            session._query_or_fail(match_string, true, nil, 2)
+          end
+
+          context 'success' do
+            let(:successful_response) { double('A response object with no errors') }
+            it 'does not process the response twice' do
+              expect(session).to receive(:_query).and_return(transient_error)
+              expect(session).to receive(:_query_or_fail).with(match_string, true, nil, 2).and_call_original
+              expect(session).to receive(:_retry_or_raise).and_return(successful_response)
+              expect(successful_response).not_to receive(:first_data)
+              session._query_or_fail(match_string, true, nil, 2)
+            end
+          end
+        end
+
+        context 'with retry count exhausted' do
+          it 'raises an error' do
+            expect(session).to receive(:_query).and_return(transient_error)
+            expect(transient_error).to receive(:raise_error)
+            session._query_or_fail(match_string, true, nil, 0)
+          end
+        end
+      end
     end
   end
 end

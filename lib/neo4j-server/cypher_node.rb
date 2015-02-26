@@ -9,10 +9,9 @@ module Neo4j
         @session = session
 
         @neo_id = if value.is_a?(Hash)
-                    hash = value['data']
-                    @props = Hash[hash.map { |k, v| [k.to_sym, v] }]
-                    @labels = value['metadata']['labels'].map!(&:to_sym) if value['metadata']
-                    value['id'] # value['self'].match(/\d+$/)[0].to_i
+                    @props = value[:data]
+                    @labels = value[:metadata][:labels].map!(&:to_sym) if value[:metadata]
+                    value[:id]
                   else
                     value
                   end
@@ -34,7 +33,7 @@ module Neo4j
         ids_hash = {start_neo_id: neo_id, end_neo_id: other_node.neo_id}
         props_with_ids = props.nil? ? ids_hash : cypher_prop_list(props).merge(ids_hash)
         id = @session._query_or_fail(rel_string(type, other_node, props), true, props_with_ids)
-        data_hash = {'type' => type, 'data' => props, 'start' => neo_id, 'end' => other_node.neo_id, 'id' => id}
+        data_hash = {type: type, data: props, start: neo_id, end: other_node.neo_id, id: id}
         CypherRelationship.new(@session, data_hash)
       end
 
@@ -48,7 +47,7 @@ module Neo4j
           @props
         else
           hash = @session._query_entity_data("#{match_start} RETURN n", nil, neo_id: neo_id)
-          @props = Hash[hash['data'].map { |k, v| [k.to_sym, v] }]
+          @props = Hash[hash[:data].map { |k, v| [k, v] }]
         end
       end
 
@@ -77,6 +76,8 @@ module Neo4j
       end
 
       def remove_properties(properties)
+        return if properties.empty?
+
         refresh
         q = "#{match_start} REMOVE " + properties.map do |k|
           "n.`#{k}`"
@@ -90,11 +91,13 @@ module Neo4j
         return if properties.empty?
 
         removed_keys = properties.keys.select { |k| properties[k].nil? }
-        remove_properties(removed_keys) unless removed_keys.empty?
+        remove_properties(removed_keys)
         properties_to_set = properties.keys - removed_keys
+
         return if properties_to_set.empty?
         props_list = cypher_prop_list(properties)[:props].merge(neo_id: neo_id)
         @session._query_or_fail("#{match_start} SET #{cypher_properties(properties_to_set)}", false, props_list)
+
         properties
       end
 
@@ -168,21 +171,24 @@ module Neo4j
 
       # @private
       def match(clazz, returns, match = {})
-        to_dir = {outgoing: ->(rel) { "-#{rel}->" },
-                  incoming: ->(rel) { "<-#{rel}-" },
-                  both:     ->(rel) { "-#{rel}-" }}
-
         cypher_rel = match[:type] ? "[r:`#{match[:type]}`]" : '[r]'
-        between_id = match[:between] ? "MATCH (p) WHERE ID(p) = #{match[:between].neo_id}" : ''
-        dir_func = to_dir[match[:dir] || :both]
-        cypher = "#{match_start} #{between_id} MATCH (n)#{dir_func.call(cypher_rel)}(p) RETURN #{returns}"
-        r = @session._query(cypher, neo_id: neo_id)
+        query = self.query
+
+        query = query.match(:p).where(p: {neo_id: match[:between].neo_id}) if match[:between]
+
+        r = query.match("(n)#{relationship_arrow(cypher_rel, match[:dir])}(p)").return(returns).response
+
         r.raise_error if r.error?
+
         _map_result(r)
       end
 
       def _map_result(r)
         r.to_node_enumeration.map(&:result)
+      end
+
+      def query(identifier = :n)
+        @session.query.match(identifier).where(identifier => {neo_id: neo_id})
       end
 
       private
@@ -196,6 +202,16 @@ module Neo4j
           ''
         else
           " REMOVE n #{_cypher_label_list(labels)}"
+        end
+      end
+
+      def relationship_arrow(rel_spec, direction = nil)
+        case direction || :both
+        when :outgoing then "-#{rel_spec}->"
+        when :incoming then "<-#{rel_spec}-"
+        when :both then "-#{rel_spec}-"
+        else
+          fail "Invalid value for relationship_arrow direction: #{direction.inspect}"
         end
       end
 

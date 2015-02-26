@@ -7,16 +7,10 @@ module Neo4j
       get_property(key)
     end
 
-
     # Sets the neo4j property
     def []=(key, value)
       validate_property(value)
-
-      if value.nil?
-        remove_property(key)
-      else
-        set_property(key, value)
-      end
+      value.nil? ? remove_property(key) : set_property(key, value)
     end
   end
 end

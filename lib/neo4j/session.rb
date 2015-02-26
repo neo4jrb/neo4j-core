@@ -140,11 +140,11 @@ module Neo4j
 
       # Registers a callback which will be called immediately if session is already available,
       # or called when it later becomes available.
-      def on_session_available(&callback)
-        callback.call(Neo4j::Session.current) if Neo4j::Session.current
+      def on_session_available
+        yield Neo4j::Session.current if Neo4j::Session.current
 
         add_listener do |event, data|
-          callback.call(data) if event == :session_available
+          yield data if event == :session_available
         end
       end
 
@@ -156,7 +156,7 @@ module Neo4j
                        end
 
 
-        "#{gem} gem/#{version} (https://github.com/neo4jrb/#{gem})"
+        "#{gem}-gem/#{version} (https://github.com/neo4jrb/#{gem})"
       end
 
       # @private

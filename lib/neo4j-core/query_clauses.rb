@@ -13,7 +13,7 @@ module Neo4j
       class Clause
         include CypherTranslator
 
-        attr_reader :params
+        attr_accessor :params
 
         def initialize(arg, options = {})
           @arg = arg
@@ -59,14 +59,9 @@ module Neo4j
 
         def var_from_key_and_value(key, value, prefer = :var)
           case value
-          when String, Symbol, Class, Module
-            key
+          when String, Symbol, Class, Module, NilClass, Array then key
           when Hash
-            if value.values.none? { |v| v.is_a?(Hash) }
-              key if prefer == :var
-            else
-              key
-            end
+            key if _use_key_for_var?(value, prefer)
           else
             fail ArgError, value
           end
@@ -74,20 +69,29 @@ module Neo4j
 
         def label_from_key_and_value(key, value, prefer = :var)
           case value
-          when String, Symbol
-            value
+          when String, Symbol, Array then value
+          when NilClass then nil
           when Class, Module
             defined?(value::CYPHER_LABEL) ? value::CYPHER_LABEL : value.name
           when Hash
             if value.values.map(&:class) == [Hash]
               value.first.first
             else
-              key if value.values.none? { |v| v.is_a?(Hash) } && prefer == :label
+              key if !_use_key_for_var?(value, prefer)
             end
           else
             fail ArgError, value
           end
         end
+
+        def _use_key_for_var?(value, prefer)
+          _nested_value_hash?(value) || prefer == :var
+        end
+
+        def _nested_value_hash?(value)
+          value.values.any? { |v| v.is_a?(Hash) }
+        end
+
 
         def attributes_from_key_and_value(key, value)
           return nil unless value.is_a?(Hash)
@@ -104,11 +108,17 @@ module Neo4j
 
           def from_args(args, options = {})
             args.flatten.map do |arg|
-              new(arg, options) if !arg.respond_to?(:empty?) || !arg.empty?
+              from_arg(arg, options)
             end.compact
           end
 
+          def from_arg(arg, options = {})
+            new(arg, options) if !arg.respond_to?(:empty?) || !arg.empty?
+          end
+
           def to_cypher(clauses)
+            @question_mark_param_index = 1
+
             string = clause_string(clauses)
             string.strip!
 
@@ -120,8 +130,8 @@ module Neo4j
 
         def key_value_string(key, value, previous_keys = [], force_equals = false)
           param = (previous_keys << key).join('_')
-          param.gsub!(/[^a-z0-9]+/i, '_')
-          param.gsub!(/^_+|_+$/, '')
+          param.tr_s!('^a-zA-Z0-9', '_').gsub!(/^_+|_+$/, '')
+
           @params[param.to_sym] = value
 
           if !value.is_a?(Array) || force_equals
@@ -131,14 +141,18 @@ module Neo4j
           end
         end
 
-        def format_label(label_string)
-          label_string = label_string.to_s
-          label_string.strip!
-          if !label_string.empty? && label_string[0] != ':'
-            label_string = "`#{label_string}`" unless label_string.match(' ')
-            label_string = ":#{label_string}"
+        def format_label(label_arg)
+          if label_arg.is_a?(Array)
+            return label_arg.map { |arg| format_label(arg) }.join
           end
-          label_string
+
+          label_arg = label_arg.to_s
+          label_arg.strip!
+          if !label_arg.empty? && label_arg[0] != ':'
+            label_arg = "`#{label_arg}`" unless label_arg.match(' ')
+            label_arg = ":#{label_arg}"
+          end
+          label_arg
         end
 
         def attributes_string(attributes)
@@ -185,23 +199,10 @@ module Neo4j
 
         def from_key_and_value(key, value, previous_keys = [])
           case value
-          when Hash
-            value.map do |k, v|
-              if k.to_sym == :neo_id
-                clause_id = "neo_id_#{v}"
-                @params[clause_id] = v.to_i
-                "ID(#{key}) = {#{clause_id}}"
-              else
-                "#{key}.#{from_key_and_value(k, v, previous_keys + [key])}"
-              end
-            end.join(' AND ')
-          when NilClass
-            "#{key} IS NULL"
-          when Regexp
-            pattern = (value.casefold? ? '(?i)' : '') + value.source
-            "#{key} =~ #{escape_value(pattern.gsub(/\\/, '\\\\\\'))}"
-          when Array
-            key_value_string(key, value, previous_keys)
+          when Hash then hash_key_value_string(key, value, previous_keys)
+          when NilClass then "#{key} IS NULL"
+          when Regexp then regexp_key_value_string(key, value)
+          when Array then key_value_string(key, value, previous_keys)
           else
             key_value_string(key, value, previous_keys)
           end
@@ -209,7 +210,51 @@ module Neo4j
 
         class << self
           def clause_string(clauses)
-            clauses.map!(&:value).join(' AND ')
+            clauses.map(&:value).flatten.map { |value| "(#{value})" }.join(' AND ')
+          end
+        end
+
+        private
+
+        def hash_key_value_string(key, value, previous_keys)
+          value.map do |k, v|
+            if k.to_sym == :neo_id
+              key_value_string("ID(#{key})", v.to_i)
+            else
+              "#{key}.#{from_key_and_value(k, v, previous_keys + [key])}"
+            end
+          end.join(' AND ')
+        end
+
+        def regexp_key_value_string(key, value)
+          pattern = (value.casefold? ? '(?i)' : '') + value.source
+          "#{key} =~ #{escape_value(pattern.gsub(/\\/, '\\\\\\'))}"
+        end
+
+        class << self
+          def from_args(args, options = {})
+            query_string, params = args
+            if args.size == 2 && (query_string.is_a?(String) && !params.is_a?(String))
+              if !params.is_a?(Hash)
+                question_mark_params_param = self.question_mark_params_param
+                query_string.gsub!(/(^|\s)\?(\s|$)/, "\\1{#{question_mark_params_param}}\\2")
+                params = {question_mark_params_param.to_sym => params}
+              end
+
+              clause = from_arg(query_string, options).tap do |clause|
+                clause.params.merge!(params)
+              end
+
+              [clause]
+            else
+              super
+            end
+          end
+
+          def question_mark_params_param
+            result = "question_mark_param#{@question_mark_param_index}"
+            @question_mark_param_index += 1
+            result
           end
         end
       end
@@ -332,16 +377,10 @@ module Neo4j
             "#{key}.#{value}"
           when Array
             value.map do |v|
-              if v.is_a?(Hash)
-                from_key_and_value(key, v)
-              else
-                "#{key}.#{v}"
-              end
+              v.is_a?(Hash) ?  from_key_and_value(key, v) : "#{key}.#{v}"
             end
           when Hash
-            value.map do |k, v|
-              "#{key}.#{k} #{v.upcase}"
-            end
+            value.map { |k, v| "#{key}.#{k} #{v.upcase}" }
           end
         end
 
@@ -401,16 +440,13 @@ module Neo4j
 
         def from_key_and_value(key, value)
           case value
-          when String, Symbol
-            "#{key} = #{value}"
+          when String, Symbol then "#{key} = #{value}"
           when Hash
             if @options[:set_props]
               attribute_string = value.map { |k, v| "#{k}: #{v.inspect}" }.join(', ')
               "#{key} = {#{attribute_string}}"
             else
-              value.map do |k, v|
-                key_value_string("#{key}.`#{k}`", v, ['setter'], true)
-              end
+              value.map { |k, v| key_value_string("#{key}.`#{k}`", v, ['setter'], true) }
             end
           else
             fail ArgError, value

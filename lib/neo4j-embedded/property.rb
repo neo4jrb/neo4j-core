@@ -79,11 +79,9 @@ module Neo4j
 
         k = k.to_s
         case v
-        when nil
-          remove_property(k)
+        when nil then remove_property(k)
         when Array
-          type = java_type_from_value(v[0]) || fail("Not allowed to store array with value #{v[0]} type #{v[0].class}")
-          set_property(k, v.to_java(type))
+          set_property(k, v.to_java(java_type_from_value(v[0])))
         else
           set_property(k, v)
         end
@@ -99,6 +97,8 @@ module Neo4j
           :boolean
         when Fixnum
           :long
+        else
+          fail "Not allowed to store array with value #{value.inspect} type #{value.class}"
         end
       end
     end

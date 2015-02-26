@@ -1,6 +1,5 @@
 module Neo4j
   module Server
-    # Plugin
     Neo4j::Session.register_db(:server_db) do |*url_opts|
       Neo4j::Server::CypherSession.open(*url_opts)
     end
@@ -23,13 +22,14 @@ module Neo4j
       # @param [Hash] params could be empty or contain basic authentication user and password
       # @return [Faraday]
       # @see https://github.com/lostisland/faraday
-      def self.create_connection(params)
+      def self.create_connection(params, url = nil)
         init_params = params[:initialize] && params.delete(:initialize)
-        conn = Faraday.new(init_params) do |b|
+        conn = Faraday.new(url, init_params) do |b|
           b.request :basic_auth, params[:basic_auth][:username], params[:basic_auth][:password] if params[:basic_auth]
-          b.request :json
+          b.request :multi_json
           # b.response :logger
-          b.response :json, content_type: 'application/json'
+
+          b.response :multi_json, symbolize_keys: true, content_type: 'application/json'
           # b.use Faraday::Response::RaiseError
           b.use Faraday::Adapter::NetHttpPersistent
           # b.adapter  Faraday.default_adapter
@@ -45,8 +45,8 @@ module Neo4j
       # @param [Hash] params faraday params, see #create_connection or an already created faraday connection
       def self.open(endpoint_url = nil, params = {})
         extract_basic_auth(endpoint_url, params)
-        connection = params[:connection] || create_connection(params)
         url = endpoint_url || 'http://localhost:7474'
+        connection = params[:connection] || create_connection(params, url)
         auth_obj = CypherAuthentication.new(url, connection, params)
         auth_obj.authenticate
         response = connection.get(url)
@@ -55,17 +55,14 @@ module Neo4j
       end
 
       def self.establish_session(root_data, connection, auth_obj)
-        data_url = root_data['data']
+        data_url = root_data[:data]
         data_url << '/' unless data_url.nil? || data_url.end_with?('/')
         CypherSession.new(data_url, connection, auth_obj)
       end
 
       def self.extract_basic_auth(url, params)
         return unless url && URI(url).userinfo
-        params[:basic_auth] = {
-          username: URI(url).user,
-          password: URI(url).password
-        }
+        params[:basic_auth] = {username: URI(url).user, password: URI(url).password}
       end
 
       private_class_method :extract_basic_auth
@@ -83,7 +80,7 @@ module Neo4j
       end
 
       def version
-        resource_data ? resource_data['neo4j_version'] : ''
+        resource_data ? resource_data[:neo4j_version] : ''
       end
 
       def initialize_resource(data_url)
@@ -101,18 +98,13 @@ module Neo4j
       end
 
       def begin_tx
-        if Neo4j::Transaction.current
-          # Handle nested transaction "placebo transaction"
-          Neo4j::Transaction.current.push_nested!
-        else
-          wrap_resource(@connection)
-        end
+        Neo4j::Transaction.current ? Neo4j::Transaction.current.push_nested! : wrap_resource(@connection)
         Neo4j::Transaction.current
       end
 
       def create_node(props = nil, labels = [])
         id = _query_or_fail(cypher_string(labels, props), true, cypher_prop_list(props))
-        value = props.nil? ? id : {'id' => id, 'metadata' => {'labels' => labels}, 'data' => props}
+        value = props.nil? ? id : {id: id, metadata: {labels: labels}, data: props}
         CypherNode.new(self, value)
       end
 
@@ -126,16 +118,12 @@ module Neo4j
 
       def load_entity(clazz, cypher_response)
         return nil if cypher_response.data.nil? || cypher_response.data[0].nil?
-        data  = if cypher_response.transaction_response?
-                  cypher_response.rest_data_with_id
-                else
-                  cypher_response.first_data
-                end
+        data = cypher_response.send(cypher_response.transaction_response? ? :rest_data_with_id : :first_data)
 
         if cypher_response.error?
           cypher_response.raise_error
         elsif cypher_response.error_msg =~ /not found/  # Ugly that the Neo4j API gives us this error message
-          return nil
+          nil
         else
           clazz.new(self, data)
         end
@@ -156,7 +144,7 @@ module Neo4j
       def schema_properties(query_string)
         response = @connection.get(query_string)
         expect_response_code(response, 200)
-        {property_keys: response.body.map { |row| row['property_keys'].map(&:to_sym) }}
+        {property_keys: response.body.map! { |row| row[:property_keys].map(&:to_sym) }}
       end
 
       def find_all_nodes(label_name)
@@ -166,18 +154,17 @@ module Neo4j
       def find_nodes(label_name, key, value)
         value = "'#{value}'" if value.is_a? String
 
-        response = _query_or_fail <<-CYPHER
-          MATCH (n:`#{label_name}`)
-          WHERE n.#{key} = #{value}
-          RETURN ID(n)
-        CYPHER
+        response = _query_or_fail("MATCH (n:`#{label_name}`) WHERE n.#{key} = #{value} RETURN ID(n)")
         search_result_to_enumerable_first_column(response)
       end
 
       def query(*args)
         if [[String], [String, Hash]].include?(args.map(&:class))
-          query, params = args[0, 2]
-          response = _query_response(query, params)
+          query = args[0]
+          params = args[1]
+
+          response = _query(query, params)
+          response.raise_error if response.error?
           response.to_node_enumeration(query)
         else
           options = args[0] || {}
@@ -185,9 +172,24 @@ module Neo4j
         end
       end
 
-      def _query_or_fail(q, single_row = false, params = nil)
-        response = _query_response(q, params)
-        single_row ? response.first_data : response
+      def _query_data(q)
+        r = _query_or_fail(q, true)
+        Neo4j::Transaction.current ? r : r[:data]
+      end
+
+      DEFAULT_RETRY_COUNT = ENV['NEO4J_RETRY_COUNT'] || 10
+      def _query_or_fail(q, single_row = false, params = nil, retry_count = DEFAULT_RETRY_COUNT)
+        response = _query(q, params)
+        if response.error?
+          _retry_or_raise(q, params, single_row, retry_count, response)
+        else
+          single_row ? response.first_data : response
+        end
+      end
+
+      def _retry_or_raise(q, params, single_row, retry_count, response)
+        response.raise_error unless response.retryable_error?
+        retry_count > 0 ? _query_or_fail(q, single_row, params, retry_count - 1) : response.raise_error
       end
 
       def _query_entity_data(q, id = nil, params = nil)
@@ -202,12 +204,11 @@ module Neo4j
       end
 
       def _query(q, params = nil)
-        # puts "q #{q}"
         curr_tx = Neo4j::Transaction.current
         if curr_tx
           curr_tx._query(q, params)
         else
-          url = resource_url('cypher')
+          url = resource_url(:cypher)
           q = params.nil? ? {'query' => q} : {'query' => q, 'params' => params}
           response = @connection.post(url, q)
           CypherResponse.create_with_no_tx(response)
@@ -216,10 +217,15 @@ module Neo4j
 
       def search_result_to_enumerable_first_column(response)
         return [] unless response.data
-        if Neo4j::Transaction.current
-          enumerator_for_search_result_first_column(response) do |yielder, data|
-            data['row'].each do |id|
-              yielder << CypherNode.new(self, id).wrapper
+
+        Enumerator.new do |yielder|
+          response.data.each do |data|
+            if Neo4j::Transaction.current
+              data[:row].each do |id|
+                yielder << CypherNode.new(self, id).wrapper
+              end
+            else
+              yielder << CypherNode.new(self, data[0]).wrapper
             end
           end
         else
@@ -229,11 +235,13 @@ module Neo4j
         end
       end
 
-      def enumerator_for_search_result_first_column(response)
-        Enumerator.new do |yielder|
-          response.data.each do |data|
-            yield yielder, data
-          end
+      def map_column(key, map, data)
+        if map[key] == :node
+          CypherNode.new(self, data).wrapper
+        elsif map[key] == :rel || map[:key] || :relationship
+          CypherRelationship.new(self, data)
+        else
+          data
         end
       end
     end

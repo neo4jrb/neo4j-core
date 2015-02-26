@@ -4,7 +4,7 @@ module Neo4j
     # @private
     module ToJava
       def type_to_java(type)
-        Java::OrgNeo4jGraphdb::DynamicRelationshipType.withName(type.to_s)
+        type && Java::OrgNeo4jGraphdb::DynamicRelationshipType.withName(type.to_s)
       end
 
       module_function :type_to_java
@@ -18,12 +18,9 @@ module Neo4j
 
       def dir_from_java(dir)
         case dir
-        when Java::OrgNeo4jGraphdb::Direction::OUTGOING then
-          :outgoing
-        when Java::OrgNeo4jGraphdb::Direction::BOTH then
-          :both
-        when Java::OrgNeo4jGraphdb::Direction::INCOMING then
-          :incoming
+        when Java::OrgNeo4jGraphdb::Direction::OUTGOING then :outgoing
+        when Java::OrgNeo4jGraphdb::Direction::BOTH then :both
+        when Java::OrgNeo4jGraphdb::Direction::INCOMING then :incoming
         else
           fail "unknown direction '#{dir} / #{dir.class}'"
         end
@@ -33,12 +30,9 @@ module Neo4j
 
       def dir_to_java(dir)
         case dir
-        when :outgoing then
-          Java::OrgNeo4jGraphdb::Direction::OUTGOING
-        when :both then
-          Java::OrgNeo4jGraphdb::Direction::BOTH
-        when :incoming then
-          Java::OrgNeo4jGraphdb::Direction::INCOMING
+        when :outgoing then Java::OrgNeo4jGraphdb::Direction::OUTGOING
+        when :both then Java::OrgNeo4jGraphdb::Direction::BOTH
+        when :incoming then Java::OrgNeo4jGraphdb::Direction::INCOMING
         else
           fail "unknown direction '#{dir}', expects argument: outgoing, :incoming or :both"
         end

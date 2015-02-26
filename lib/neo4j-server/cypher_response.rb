@@ -38,27 +38,38 @@ module Neo4j
 
         def each(&block)
           @response.each_data_row do |row|
-            yield(row.each_with_index.each_with_object(struct.new) do |(value, i), result|
-              result[columns[i].to_sym] = value
-            end)
+            yield struct_rows(row)
+          end
+        end
+
+        def struct_rows(row)
+          struct.new.tap do |result|
+            row.each_with_index { |value, i| result[columns[i]] = value }
           end
         end
       end
 
-      def to_struct_enumeration(cypher = '')
+      EMPTY_STRING = ''
+      def to_struct_enumeration(cypher = EMPTY_STRING)
         HashEnumeration.new(self, cypher)
       end
 
-      def to_node_enumeration(cypher = '', session = Neo4j::Session.current)
+      def to_node_enumeration(cypher = EMPTY_STRING, session = Neo4j::Session.current)
         Enumerator.new do |yielder|
           @result_index = 0
           to_struct_enumeration(cypher).each do |row|
             @row_index = 0
-            yielder << row.each_pair.each_with_object(@struct.new) do |(column, value), result|
-              result[column] = map_row_value(value, session)
-              @row_index += 1
-            end
+            yielder << row_pair_in_struct(row, session)
             @result_index += 1
+          end
+        end
+      end
+
+      def row_pair_in_struct(row, session)
+        @struct.new.tap do |result|
+          row.each_pair do |column, value|
+            result[column] = map_row_value(value, session)
+            @row_index += 1
           end
         end
       end
@@ -67,23 +78,28 @@ module Neo4j
         if value.is_a?(Hash)
           hash_value_as_object(value, session)
         elsif value.is_a?(Array)
-          value.map { |v| map_row_value(v, session) }
+          value.map! { |v| map_row_value(v, session) }
         else
           value
         end
       end
 
       def hash_value_as_object(value, session)
-        return value unless value['labels'] || value['type'] || transaction_response?
+        data =  case
+                when transaction_response?
+                  add_transaction_entity_id
+                  mapped_rest_data
+                when value[:labels] || value[:type]
+                  add_entity_id(value)
+                  value
+                else
+                  return value
+                end
+        (node?(value) ? CypherNode : CypherRelationship).new(session, data).wrapper
+      end
 
-        is_node, data =  if transaction_response?
-                           add_transaction_entity_id
-                           [!mapped_rest_data['start'], mapped_rest_data]
-                         elsif value['labels'] || value['type']
-                           add_entity_id(value)
-                           [value['labels'], value]
-                         end
-        (is_node ? CypherNode : CypherRelationship).new(session, data).wrapper
+      def node?(value)
+        transaction_response? ? !mapped_rest_data[:start] : value[:labels]
       end
 
       attr_reader :struct
@@ -95,17 +111,17 @@ module Neo4j
 
       def entity_data(id = nil)
         if @uncommited
-          data = @data.first['row'].first
-          data.is_a?(Hash) ? {'data' => data, 'id' => id} : data
+          data = @data.first[:row].first
+          data.is_a?(Hash) ? {data: data, id: id} : data
         else
           data = @data[0][0]
           data.is_a?(Hash) ? add_entity_id(data) : data
         end
       end
 
-      def first_data(id = nil)
+      def first_data
         if @uncommited
-          data = @data.first['row'].first
+          @data.first[:row].first
           # data.is_a?(Hash) ? {'data' => data, 'id' => id} : data
         else
           data = @data[0][0]
@@ -114,45 +130,57 @@ module Neo4j
       end
 
       def add_entity_id(data)
-        data.merge!('id' => self.class.id_from_url(data['self']))
+        data[:id] = if data[:metadata] && data[:metadata][:id]
+                      data[:metadata][:id]
+                    else
+                      self.class.id_from_url(data[:self])
+                    end
+        data
       end
 
       def add_transaction_entity_id
-        mapped_rest_data.merge!('id' => mapped_rest_data['self'].split('/').last.to_i)
+        mapped_rest_data[:id] = mapped_rest_data[:self].split('/').last.to_i
+        mapped_rest_data
       end
 
       def error?
         !!@error
       end
 
+      RETRYABLE_ERROR_STATUSES = %w(DeadlockDetectedException AcquireLockTimeoutException ExternalResourceFailureException UnknownFailureException)
+      def retryable_error?
+        return unless error?
+        RETRYABLE_ERROR_STATUSES.include?(@error_status)
+      end
+
       def data?
-        !response.body['data'].nil?
+        !response.body[:data].nil?
       end
 
       def raise_unless_response_code(code)
-        fail "Response code #{response.status}, expected #{code} for #{response.headers['location']}, #{response.body}" unless response.status == code
+        fail "Response code #{response.status}, expected #{code} for #{response.headers[:location]}, #{response.body}" unless response.status == code
       end
 
       def each_data_row
         if @uncommited
-          data.each { |r| yield r['row'] }
+          data.each { |r| yield r[:row] }
         else
           data.each { |r| yield r }
         end
       end
 
-      def set_data(data, columns)
-        @data = data
-        @columns = columns
-        @struct = columns.empty? ? Object.new : Struct.new(*columns.map(&:to_sym))
+      def set_data(response)
+        @data = response[:data]
+        @columns = response[:columns]
+        @struct = @columns.empty? ? Object.new : Struct.new(*@columns.map(&:to_sym))
         self
       end
 
-      def set_error(error_msg, error_status, error_core)
+      def set_error(error)
         @error = true
-        @error_msg = error_msg
-        @error_status = error_status
-        @error_code = error_core
+        @error_msg = error[:message]
+        @error_status = error[:status] || error[:exception] || error[:code]
+        @error_code = error[:code] || error[:fullname]
         self
       end
 
@@ -170,9 +198,9 @@ module Neo4j
       def self.create_with_no_tx(response)
         case response.status
         when 200
-          CypherResponse.new(response).set_data(response.body['data'], response.body['columns'])
+          new(response).set_data(response.body)
         when 400
-          CypherResponse.new(response).set_error(response.body['message'], response.body['exception'], response.body['fullname'])
+          new(response).set_error(response.body)
         else
           fail "Unknown response code #{response.status} for #{response.env[:url]}"
         end
@@ -181,20 +209,18 @@ module Neo4j
       def self.create_with_tx(response)
         fail "Unknown response code #{response.status} for #{response.request_uri}" unless response.status == 200
 
-        first_result = response.body['results'][0]
-        cr = CypherResponse.new(response, true)
-
-        if response.body['errors'].empty?
-          cr.set_data(first_result['data'], first_result['columns'])
-        else
-          first_error = response.body['errors'].first
-          cr.set_error(first_error['message'], first_error['status'], first_error['code'])
+        new(response, true).tap do |cr|
+          body = response.body
+          if body[:errors].empty?
+            cr.set_data(body[:results].first)
+          else
+            cr.set_error(body[:errors].first)
+          end
         end
-        cr
       end
 
       def transaction_response?
-        response.respond_to?('body') && !response.body['commit'].nil?
+        response.respond_to?(:body) && !response.body[:commit].nil?
       end
 
       def rest_data
@@ -203,7 +229,8 @@ module Neo4j
       end
 
       def rest_data_with_id
-        rest_data.merge!('id' => mapped_rest_data['self'].split('/').last.to_i)
+        rest_data[:id] = mapped_rest_data[:self].split('/').last.to_i
+        rest_data
       end
 
       class << self
@@ -219,7 +246,7 @@ module Neo4j
       attr_reader :result_index
 
       def mapped_rest_data
-        response.body['results'][0]['data'][result_index]['rest'][row_index]
+        response.body[:results][0][:data][result_index][:rest][row_index]
       end
     end
   end
