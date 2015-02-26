@@ -12,17 +12,22 @@ module Neo4j
       include Enumerable
 
       # @return the original result from the Neo4j Cypher Engine, once forward read only !
-      attr_reader :source
+      attr_reader :source, :unwrapped
 
-      def initialize(source, query)
+      def initialize(source, query, unwrapped = nil)
         @source = source
         @struct = Struct.new(*source.columns.to_a.map(&:to_sym))
         @unread = true
         @query = query
+        @unwrapped = unwrapped
       end
 
       def to_s
         @query
+      end
+
+      def unwrapped?
+        !!unwrapped
       end
 
       def inspect
@@ -40,7 +45,8 @@ module Neo4j
         if block_given?
           @source.each do |row|
             yield(row.each_with_object(@struct.new) do |(column, value), result|
-              result[column.to_sym] = (value.respond_to?(:wrapper) ? value.wrapper : value)
+              value_obj = (!value.respond_to?(:wrapper) || unwrapped?) ? value : value.wrapper
+              result[column.to_sym] = value_obj
             end)
           end
         else

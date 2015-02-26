@@ -182,7 +182,7 @@ module Neo4j
           response.unwrapped! if unwrapped?
           response.to_node_enumeration
         else
-          Neo4j::Embedded::ResultWrapper.new(response, to_cypher)
+          Neo4j::Embedded::ResultWrapper.new(response, to_cypher, unwrapped?)
         end.each { |object| yield object }
       end
 

@@ -216,6 +216,17 @@ RSpec.shared_examples 'Neo4j::Node auto tx' do
         end
       end
 
+      describe 'unwrapped' do
+        let!(:node) { Neo4j::Node.create }
+        after { node.destroy }
+
+        it 'prevents calling of `wrapper`' do
+          expect(node).not_to receive(:wrapper)
+          result = Neo4j::Session.current.query.match('(n) WHERE ID(n) = {id}').params(id: node.neo_id).unwrapped.pluck(:n).first
+          expect(result).to respond_to(:neo_id)
+        end
+      end
+
       describe 'props' do
         let(:label) { "L#{unique_random_number}".to_sym }
 
