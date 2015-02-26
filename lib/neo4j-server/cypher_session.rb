@@ -193,8 +193,7 @@ module Neo4j
       end
 
       def _query_entity_data(q, id = nil, params = nil)
-        response = _query_response(q, params)
-        response.entity_data(id)
+        _query_response(q, params).entity_data(id)
       end
 
       def _query_response(q, params = nil)
