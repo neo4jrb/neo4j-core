@@ -118,7 +118,7 @@ module Neo4j
       fail 'not implemented'
     end
 
-    # @return true if the node exists in the database
+    # @return [Boolean] true if the node exists in the database
     def exist?
       fail 'not implemented'
     end

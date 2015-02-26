@@ -74,14 +74,14 @@ module Neo4j
           # result.data.should == [[0]]
           # result.columns.should == ['ID(n)']
           response = CypherResponse.new(nil, nil)
-          response.set_data([[0]], ['ID(n)'])
+          response.set_data(data: [[0]], columns: ['ID(n)'])
 
           expect(response.to_struct_enumeration.to_a).to eq([hash_to_struct(response, :'ID(n)' => 0)])
         end
 
         it 'creates an enumerable of hash key multiple values' do
           response = CypherResponse.new(nil, nil)
-          response.set_data([['Romana', 126], ['The Doctor', 750]], %w(name age))
+          response.set_data(data: [['Romana', 126], ['The Doctor', 750]], columns: %w(name age))
 
           expect(response.to_struct_enumeration.to_a).to eq(
             [hash_to_struct(response, name: 'Romana', age: 126),
@@ -93,7 +93,7 @@ module Neo4j
       describe '#to_node_enumeration' do
         it 'returns basic values' do
           response = CypherResponse.new(nil, nil)
-          response.set_data([['Billy'], ['Jimmy']], ['person.name'])
+          response.set_data(data: [['Billy'], ['Jimmy']], columns: ['person.name'])
 
           expect(response.to_node_enumeration.to_a).to eq([hash_to_struct(response, :'person.name' => 'Billy'), hash_to_struct(response, :'person.name' => 'Jimmy')])
         end
@@ -101,19 +101,20 @@ module Neo4j
         context 'with full node response' do
           let(:response) { CypherResponse.new(nil, nil) }
           let(:response_data) do
-            [
-              [{labels: 'http://localhost:7474/db/data/node/18/labels',
-                self: 'http://localhost:7474/db/data/node/18',
-                data: {name: 'Billy', age: 20}}],
-              [{labels: 'http://localhost:7474/db/data/node/18/labels',
-                self: 'http://localhost:7474/db/data/node/19',
-                data: {name: 'Jimmy', age: 24}}]
-            ]
+            {data:
+                            [
+                              [{labels: 'http://localhost:7474/db/data/node/18/labels',
+                                self: 'http://localhost:7474/db/data/node/18',
+                                data: {name: 'Billy', age: 20}}],
+                              [{labels: 'http://localhost:7474/db/data/node/18/labels',
+                                self: 'http://localhost:7474/db/data/node/19',
+                                data: {name: 'Jimmy', age: 24}}]
+                            ],
+             columns: ['person']}
           end
-          let(:response_labels) { ['person'] }
 
           before do
-            response.set_data(response_data, response_labels)
+            response.set_data(response_data)
           end
 
           let(:node_enumeration) { response.to_node_enumeration.to_a }
@@ -143,7 +144,7 @@ module Neo4j
 
         it 'returns hydrated CypherRelationship objects' do
           response = CypherResponse.new(nil, nil)
-          response.set_data(
+          response.set_data(data:
             [
               [{type: 'LOVES',
                 self: 'http://localhost:7474/db/data/relationship/20',
@@ -156,7 +157,7 @@ module Neo4j
                 end: 'http://localhost:7474/db/data/node/18',
                 data: {intensity: 3}}]
             ],
-            ['r'])
+                            columns: ['r'])
 
           node_enumeration = response.to_node_enumeration.to_a
 
@@ -179,6 +180,38 @@ module Neo4j
         end
 
         skip 'returns hydrated CypherPath objects?'
+      end
+
+      describe 'retryable_error?' do
+        let(:response) { Neo4j::Server::CypherResponse.new('', 'query') }
+
+        before do
+          response.instance_variable_set(:@error, true)
+          response.instance_variable_set(:@error_status, error_status)
+          response.instance_variable_set(:@error, true)
+        end
+
+        subject { response.retryable_error? }
+
+        context 'deadlock' do
+          let(:error_status) { 'DeadlockDetectedException' }
+          it { is_expected.to be_truthy }
+        end
+
+        context 'acquire lock' do
+          let(:error_status) { 'AcquireLockTimeoutException' }
+          it { is_expected.to be_truthy }
+        end
+
+        context 'external resource' do
+          let(:error_status) { 'ExternalResourceFailureException' }
+          it { is_expected.to be_truthy }
+        end
+
+        context 'unknown failure' do
+          let(:error_status) { 'UnknownFailureException' }
+          it { is_expected.to be_truthy }
+        end
       end
     end
   end

@@ -10,8 +10,8 @@ module Neo4j
         @response_hash = value
         @rel_type = @response_hash[:type]
         @props = @response_hash[:data]
-        @start_node_neo_id = @response_hash[:start].is_a?(Integer) ? @response_hash[:start] : @response_hash[:start].match(/\d+$/)[0].to_i
-        @end_node_neo_id = @response_hash[:end].is_a?(Integer) ? @response_hash[:end] : @response_hash[:end].match(/\d+$/)[0].to_i
+        @start_node_neo_id = neo_id_integer(@response_hash[:start])
+        @end_node_neo_id = neo_id_integer(@response_hash[:end])
         @id = @response_hash[:id]
       end
 
@@ -124,6 +124,10 @@ module Neo4j
 
       def resource_data_present?
         !resource_data.nil? && !resource_data.empty?
+      end
+
+      def neo_id_integer(id_or_url)
+        id_or_url.is_a?(Integer) ? id_or_url : id_or_url.match(/\d+$/)[0].to_i
       end
     end
   end

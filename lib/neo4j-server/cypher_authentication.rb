@@ -37,15 +37,19 @@ module Neo4j
       # @return [String] An access token provided by the server.
       def authenticate
         auth_response = auth_connection("#{url}/authentication")
-        auth_hash = if auth_response.status == 404 || auth_response.body.empty?
-                      nil
-                    elsif auth_response.body.is_a?(String)
-                      JSON.parse(auth_response.body)['errors'][0]['code'] == 'Neo.ClientError.Security.AuthorizationFailed' ? auth_attempt : nil
-                    else
-                      auth_response
-                    end
+        auth_hash = authentication_response_hash(auth_response)
         return nil if auth_hash.nil?
         add_auth_headers(token_or_error(auth_hash))
+      end
+
+      def authentication_response_hash(auth_response)
+        if auth_response.status == 404 || auth_response.body.empty?
+          nil
+        elsif auth_response.body.is_a?(String)
+          JSON.parse(auth_response.body)['errors'][0]['code'] == 'Neo.ClientError.Security.AuthorizationFailed' ? auth_attempt : nil
+        else
+          auth_response
+        end
       end
 
       # Invalidates the existing token, which will invalidate all conncetions using this token, applies for a new token, adds this into
