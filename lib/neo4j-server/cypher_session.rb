@@ -228,10 +228,6 @@ module Neo4j
               yielder << CypherNode.new(self, data[0]).wrapper
             end
           end
-        else
-          enumerator_for_search_result_first_column(response) do |yielder, data|
-            yielder << CypherNode.new(self, data[0]).wrapper
-          end
         end
       end
 
