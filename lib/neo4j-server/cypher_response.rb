@@ -147,6 +147,12 @@ module Neo4j
         !!@error
       end
 
+      RETRYABLE_ERROR_STATUSES = %w(DeadlockDetectedException AcquireLockTimeoutException ExternalResourceFailureException UnknownFailureException)
+      def retryable_error?
+        return unless error?
+        RETRYABLE_ERROR_STATUSES.include?(@error_status)
+      end
+
       def data?
         !response.body[:data].nil?
       end
