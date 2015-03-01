@@ -152,6 +152,15 @@ module Neo4j
         self
       end
 
+      def unwrapped
+        @_unwrapped_obj = true
+        self
+      end
+
+      def unwrapped?
+        !!@_unwrapped_obj
+      end
+
       def response
         return @response if @response
         cypher = to_cypher
@@ -170,9 +179,10 @@ module Neo4j
       def each
         response = self.response
         if response.is_a?(Neo4j::Server::CypherResponse)
+          response.unwrapped! if unwrapped?
           response.to_node_enumeration
         else
-          Neo4j::Embedded::ResultWrapper.new(response, to_cypher)
+          Neo4j::Embedded::ResultWrapper.new(response, to_cypher, unwrapped?)
         end.each { |object| yield object }
       end
 

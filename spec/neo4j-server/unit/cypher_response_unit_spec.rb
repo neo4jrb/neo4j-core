@@ -98,30 +98,49 @@ module Neo4j
           expect(response.to_node_enumeration.to_a).to eq([hash_to_struct(response, :'person.name' => 'Billy'), hash_to_struct(response, :'person.name' => 'Jimmy')])
         end
 
-        it 'returns hydrated CypherNode objects' do
-          response = CypherResponse.new(nil, nil)
-          response.set_data(data:
-            [
-              [{labels: 'http://localhost:7474/db/data/node/18/labels',
-                self: 'http://localhost:7474/db/data/node/18',
-                data: {name: 'Billy', age: 20}}],
-              [{labels: 'http://localhost:7474/db/data/node/18/labels',
-                self: 'http://localhost:7474/db/data/node/19',
-                data: {name: 'Jimmy', age: 24}}]
-            ],
-                            columns: ['person'])
+        context 'with full node response' do
+          let(:response) { CypherResponse.new(nil, nil) }
+          let(:response_data) do
+            {data:
+                            [
+                              [{labels: 'http://localhost:7474/db/data/node/18/labels',
+                                self: 'http://localhost:7474/db/data/node/18',
+                                data: {name: 'Billy', age: 20}}],
+                              [{labels: 'http://localhost:7474/db/data/node/18/labels',
+                                self: 'http://localhost:7474/db/data/node/19',
+                                data: {name: 'Jimmy', age: 24}}]
+                            ],
+             columns: ['person']}
+          end
 
-          node_enumeration = response.to_node_enumeration.to_a
+          before do
+            response.set_data(response_data)
+          end
 
-          expect(node_enumeration[0][:person]).to be_a Neo4j::Server::CypherNode
-          expect(node_enumeration[1][:person]).to be_a Neo4j::Server::CypherNode
+          let(:node_enumeration) { response.to_node_enumeration.to_a }
 
-          expect(node_enumeration[0][:person].neo_id).to eq(18)
-          expect(node_enumeration[1][:person].neo_id).to eq(19)
+          it 'returns hydrated CypherNode objects' do
+            expect(node_enumeration[0][:person]).to be_a Neo4j::Server::CypherNode
+            expect(node_enumeration[1][:person]).to be_a Neo4j::Server::CypherNode
 
-          expect(node_enumeration[0][:person].props).to eq(name: 'Billy', age: 20)
-          expect(node_enumeration[1][:person].props).to eq(name: 'Jimmy', age: 24)
+            expect(node_enumeration[0][:person].neo_id).to eq(18)
+            expect(node_enumeration[1][:person].neo_id).to eq(19)
+
+            expect(node_enumeration[0][:person].props).to eq(name: 'Billy', age: 20)
+            expect(node_enumeration[1][:person].props).to eq(name: 'Jimmy', age: 24)
+          end
+
+          context 'with unwrapped? == true' do
+            before { response.unwrapped! }
+
+            it 'does not call wrapper' do
+              expect_any_instance_of(Neo4j::Server::CypherNode).not_to receive(:wrapper)
+              node_enumeration[0]
+            end
+          end
         end
+
+
 
         it 'returns hydrated CypherRelationship objects' do
           response = CypherResponse.new(nil, nil)

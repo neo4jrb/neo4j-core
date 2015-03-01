@@ -95,7 +95,16 @@ module Neo4j
                 else
                   return value
                 end
-        (node?(value) ? CypherNode : CypherRelationship).new(session, data).wrapper
+        basic_obj = (node?(value) ? CypherNode : CypherRelationship).new(session, data)
+        unwrapped? ? basic_obj : basic_obj.wrapper
+      end
+
+      def unwrapped!
+        @_unwrapped_obj = true
+      end
+
+      def unwrapped?
+        !!@_unwrapped_obj
       end
 
       def node?(value)
