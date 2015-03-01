@@ -222,13 +222,13 @@ module Neo4j
         query = copy
         query.remove_clause_class(ReturnClause)
 
-        columns = columns.map do |column_definition|
+        columns = columns.flat_map do |column_definition|
           if column_definition.is_a?(Hash)
             column_definition.map { |k, v| "#{k}.#{v}" }
           else
             column_definition
           end
-        end.flatten.map(&:to_sym)
+        end.map(&:to_sym)
 
         query.return(columns)
       end
