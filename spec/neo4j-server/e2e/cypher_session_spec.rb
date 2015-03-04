@@ -23,15 +23,17 @@ module Neo4j
         end
 
         it 'can use a user supplied faraday connection for a new session' do
-          connection = Faraday.new do |b|
-            b.request :multi_json
-            b.response :multi_json, symbolize_keys: true, content_type: 'application/json'
-            b.adapter Faraday.default_adapter
+          connection = Faraday.new do |faraday|
+            faraday.request :basic_auth, basic_auth_hash[:username], basic_auth_hash[:password]
+
+            faraday.request :multi_json
+            faraday.response :multi_json, symbolize_keys: true, content_type: 'application/json'
+            faraday.adapter Faraday.default_adapter
           end
           connection.headers = {'Content-Type' => 'application/json'}
 
           expect(connection).to receive(:get).at_least(:once).and_call_original
-          Neo4j::Session.open(:server_db, 'http://localhost:7474',  connection: connection)
+          create_server_session(connection: connection)
         end
 
         it 'adds host and port to the connection object' do
