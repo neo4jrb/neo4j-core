@@ -3,12 +3,31 @@ module Helpers
     Neo4j::Session.open(:impermanent_db, EMBEDDED_DB_PATH, auto_commit: true)
   end
 
-  def create_server_session
-    Neo4j::Session.open(:server_db, 'http://localhost:7474', basic_auth: {username: 'neo4j', password: 'neo4jrb rules, ok?'})
+  def server_username
+    ENV['NEO4J_USERNAME'] || 'neo4j'
+  end
+
+  def server_password
+    ENV['NEO4J_PASSWORD'] || 'neo4jrb rules, ok?'
+  end
+
+  def basic_auth_hash
+    {
+      username: server_username,
+      password: server_password
+    }
+  end
+
+  def server_url
+    ENV['NEO4J_URL'] || 'http://localhost:7474'
+  end
+
+  def create_server_session(options = {})
+    Neo4j::Session.open(:server_db, server_url, {basic_auth: basic_auth_hash}.merge(options))
   end
 
   def create_named_server_session(name, default = nil)
-    Neo4j::Session.open_named(:server_db, name, default, 'http://localhost:7474')
+    Neo4j::Session.open_named(:server_db, name, default, server_url, basic_auth: basic_auth_hash)
   end
 
   def session
