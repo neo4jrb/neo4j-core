@@ -133,6 +133,7 @@ module Neo4j
           param.tr_s!('^a-zA-Z0-9', '_').gsub!(/^_+|_+$/, '')
 
           @params[param.to_sym] = value
+          value = value.first if value.is_a?(Array) && value.size == 1
 
           if !value.is_a?(Array) || force_equals
             "#{key} = {#{param}}"
@@ -220,7 +221,7 @@ module Neo4j
           value.map do |k, v|
             if k.to_sym == :neo_id
               v = Array(v).map { |item| (item.respond_to?(:neo_id) ? item.neo_id : item).to_i }
-              key_value_string("ID(#{key})", v.to_i)
+              key_value_string("ID(#{key})", v)
             else
               "#{key}.#{from_key_and_value(k, v, previous_keys + [key])}"
             end
