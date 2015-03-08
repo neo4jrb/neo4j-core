@@ -188,8 +188,9 @@ module Neo4j
           when Hash
             value.map do |k, v|
               if k.to_sym == :neo_id
-                clause_id = "neo_id_#{v}"
-                @params[clause_id] = v.to_i
+                v = Array(v).map { |item| (item.respond_to?(:neo_id) ? item.neo_id : item).to_i }
+                clause_id = "neo_id_#{v.join('_')}"
+                @params[clause_id] = v
                 "ID(#{key}) = {#{clause_id}}"
               else
                 "#{key}.#{from_key_and_value(k, v, previous_keys + [key])}"
@@ -209,7 +210,7 @@ module Neo4j
 
         class << self
           def clause_string(clauses)
-            clauses.map(&:value).flatten.map {|value| "(#{value})" }.join(' AND ')
+            clauses.map(&:value).flatten.map { |value| "(#{value})" }.join(' AND ')
           end
         end
       end

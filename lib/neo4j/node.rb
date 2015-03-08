@@ -118,13 +118,8 @@ module Neo4j
       fail 'not implemented'
     end
 
-    # @return true if the node exists in the database
+    # @return [Boolean] true if the node exists
     def exist?
-      fail 'not implemented'
-    end
-
-    # @return all the Neo4j labels for this node
-    def labels
       fail 'not implemented'
     end
 
@@ -157,11 +152,6 @@ module Neo4j
     # Returns true or false if there is one or more relationships
     # @return [Boolean]
     def rel?(spec = {})
-      fail 'not implemented'
-    end
-
-    # @return [Boolean] true if the node exists
-    def exist?
       fail 'not implemented'
     end
 
