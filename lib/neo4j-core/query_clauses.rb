@@ -132,8 +132,8 @@ module Neo4j
           param = (previous_keys << key).join('_')
           param.tr_s!('^a-zA-Z0-9', '_').gsub!(/^_+|_+$/, '')
 
-          @params[param.to_sym] = value
           value = value.first if value.is_a?(Array) && value.size == 1
+          @params[param.to_sym] = value
 
           if !value.is_a?(Array) || force_equals
             "#{key} = {#{param}}"
