@@ -219,6 +219,7 @@ module Neo4j
         def hash_key_value_string(key, value, previous_keys)
           value.map do |k, v|
             if k.to_sym == :neo_id
+              v = Array(v).map { |item| (item.respond_to?(:neo_id) ? item.neo_id : item).to_i }
               key_value_string("ID(#{key})", v.to_i)
             else
               "#{key}.#{from_key_and_value(k, v, previous_keys + [key])}"
