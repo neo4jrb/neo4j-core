@@ -169,44 +169,51 @@ module Neo4j
         end
       end
 
-      def _query_data(q)
-        r = _query_or_fail(q, true)
+      def _query_data(query)
+        r = _query_or_fail(query, true)
         Neo4j::Transaction.current ? r : r[:data]
       end
 
       DEFAULT_RETRY_COUNT = ENV['NEO4J_RETRY_COUNT'].nil? ? 10 : ENV['NEO4J_RETRY_COUNT'].to_i
-      def _query_or_fail(q, single_row = false, params = nil, retry_count = DEFAULT_RETRY_COUNT)
-        response = _query(q, params)
+
+      def _query_or_fail(query, single_row = false, params = {}, retry_count = DEFAULT_RETRY_COUNT)
+        if query.is_a?(::Neo4j::Core::Query)
+          cypher = query.to_cypher
+          params = query.send(:merge_params).merge(params)
+          query = cypher
+        end
+
+        response = _query(query, params)
         if response.error?
-          _retry_or_raise(q, params, single_row, retry_count, response)
+          _retry_or_raise(query, params, single_row, retry_count, response)
         else
           single_row ? response.first_data : response
         end
       end
 
-      def _retry_or_raise(q, params, single_row, retry_count, response)
+      def _retry_or_raise(query, params, single_row, retry_count, response)
         response.raise_error unless response.retryable_error?
-        retry_count > 0 ? _query_or_fail(q, single_row, params, retry_count - 1) : response.raise_error
+        retry_count > 0 ? _query_or_fail(query, single_row, params, retry_count - 1) : response.raise_error
       end
 
-      def _query_entity_data(q, id = nil, params = nil)
-        _query_response(q, params).entity_data(id)
+      def _query_entity_data(query, id = nil, params = nil)
+        _query_response(query, params).entity_data(id)
       end
 
-      def _query_response(q, params = nil)
-        _query(q, params).tap do |response|
+      def _query_response(query, params = nil)
+        _query(query, params).tap do |response|
           response.raise_error if response.error?
         end
       end
 
-      def _query(q, params = nil)
+      def _query(query, params = nil)
         curr_tx = Neo4j::Transaction.current
         if curr_tx
-          curr_tx._query(q, params)
+          curr_tx._query(query, params)
         else
           url = resource_url(:cypher)
-          q = params.nil? ? {'query' => q} : {'query' => q, 'params' => params}
-          response = @connection.post(url, q)
+          query = params.nil? ? {'query' => query} : {'query' => query, 'params' => params}
+          response = @connection.post(url, query)
           CypherResponse.create_with_no_tx(response)
         end
       end
@@ -234,6 +241,18 @@ module Neo4j
           CypherRelationship.new(self, data)
         else
           data
+        end
+      end
+
+      def self.log_with(&block)
+        clear, yellow, cyan = %W(\e[0m \e[33m \e[36m)
+
+        ActiveSupport::Notifications.subscribe('neo4j.cypher_query') do |_, start, finish, _id, payload|
+          ms = (finish - start) * 1000
+
+          params_string = (payload[:params].size > 0 ? ' | ' + payload[:params].inspect : '')
+
+          block.call(" #{cyan}#{payload[:context]}#{clear} #{yellow}#{ms.round}ms#{clear} #{payload[:cypher]}" + params_string)
         end
       end
     end

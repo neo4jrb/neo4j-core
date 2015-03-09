@@ -132,7 +132,8 @@ module Neo4j
 
       # (see Neo4j::Node#del)
       def del
-        @session._query_or_fail("#{match_start} OPTIONAL MATCH n-[r]-() DELETE n, r", false, neo_id: neo_id)
+        query = match_start_query.optional_match('n-[r]-()').delete(:n, :r)
+        @session._query_or_fail(query, false)
       end
 
       alias_method :delete, :del
@@ -229,8 +230,13 @@ module Neo4j
         result.first
       end
 
-      def match_start(identifier = 'n')
+      # DEPRECATED
+      def match_start(identifier = :n)
         "MATCH (#{identifier}) WHERE ID(#{identifier}) = {neo_id}"
+      end
+
+      def match_start_query(identifier = :n)
+        @session.query.match(identifier).where(identifier => {neo_id: neo_id}).with(identifier)
       end
     end
   end
