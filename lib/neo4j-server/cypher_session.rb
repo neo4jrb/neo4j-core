@@ -189,7 +189,13 @@ module Neo4j
         Neo4j::Transaction.current ? r : r['data']
       end
 
-      def _query_or_fail(q, single_row = false, params = nil)
+      def _query_or_fail(q, single_row = false, params = {})
+        if q.is_a?(::Neo4j::Core::Query)
+          cypher = q.to_cypher
+          params = q.send(:merge_params).merge(params)
+          q = cypher
+        end
+
         response = _query(q, params)
         response.raise_error if response.error?
         single_row ? response.first_data : response
