@@ -13,7 +13,10 @@ module Neo4j
       # Toggles the status of Neo4j 2.2's basic auth
       def toggle_auth(status, source_text)
         status_string = status == :enable ? 'true' : 'false'
-        set_property(source_text, 'dbms.security.authorization_enabled', status_string)
+        %w(dbms.security.authorization_enabled dbms.security.auth_enabled).each do |key|
+          source_text = set_property(source_text, key, status_string)
+        end
+        source_text
       end
 
       # POSTs to an endpoint with the form required to change a Neo4j password
