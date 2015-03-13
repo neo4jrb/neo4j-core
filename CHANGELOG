@@ -1,3 +1,15 @@
+== 4.1.0
+* A lot of work working with rubocop to clean up code
+* Many instances of using strings were changed to use symbols
+* Certain query responses are now automatically retried
+* `Neo4j::Core::Query` changes
+	* WHERE clauses from `Query` chains are now surrounded by parentheses to avoid problems
+	* WHERE clauses now support Arrays and `nil` values for labels
+	* WHERE clauses with strings now support a second argument for parameters.  Examples:
+	  * `where("foo = {bar}", bar: value)`)
+	  * `where("foo = ?", value)`)
+
+
 == 4.0.0
 This release focuses mostly on performance and security.
 * Fixed a few n+1 queries, force the use of params in more common locations.
