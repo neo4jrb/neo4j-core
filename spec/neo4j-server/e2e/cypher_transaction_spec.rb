@@ -73,7 +73,7 @@ module Neo4j
         it 'cannot continue operations if a transaction is expired' do
           node = Neo4j::Node.create(name: 'andreas')
           Neo4j::Transaction.run do |tx|
-            tx.expired
+            tx.mark_expired
             expect { node[:name] = 'foo' }.to raise_error 'Transaction expired, unable to perform query'
           end
         end

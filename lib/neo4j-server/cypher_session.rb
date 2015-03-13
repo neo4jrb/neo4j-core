@@ -82,7 +82,7 @@ module Neo4j
 
       def initialize_resource(data_url)
         response = @connection.get(data_url)
-        expect_response_code(response, 200)
+        expect_response_code!(response, 200)
         data_resource = response.body
         fail "No data_resource for #{response.body}" unless data_resource
         # store the resource data
@@ -140,7 +140,7 @@ module Neo4j
 
       def schema_properties(query_string)
         response = @connection.get(query_string)
-        expect_response_code(response, 200)
+        expect_response_code!(response, 200)
         {property_keys: response.body.map! { |row| row[:property_keys].map(&:to_sym) }}
       end
 

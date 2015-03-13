@@ -24,7 +24,6 @@ module Neo4j
       def mark_expired
         @expired = true
       end
-      alias_method :expired, :mark_expired
 
       def expired?
         !!@expired
