@@ -450,10 +450,8 @@ module Neo4j
             else
               value.map { |k, v| key_value_string("#{key}.`#{k}`", v, ['setter'], true) }
             end
-          when Array
-            value.map { |v| from_key_and_value(key, v) }
-          when NilClass
-            []
+          when Array then value.map { |v| from_key_and_value(key, v) }
+          when NilClass then []
           else
             fail ArgError, value
           end
