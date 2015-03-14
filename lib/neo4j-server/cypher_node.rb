@@ -30,15 +30,12 @@ module Neo4j
 
       # (see Neo4j::Node#create_rel)
       def create_rel(type, other_node, props = nil)
-        ids_hash = {start_neo_id: neo_id, end_neo_id: other_node.neo_id}
-        props_with_ids = props.nil? ? ids_hash : cypher_prop_list!(props).merge(ids_hash)
-        id = @session._query_or_fail(rel_string(type, other_node, props), true, props_with_ids)
-        data_hash = {type: type, data: props, start: neo_id, end: other_node.neo_id, id: id}
-        CypherRelationship.new(@session, data_hash)
-      end
+        q = @session.query.match(:a, :b).where(a: {neo_id: neo_id}, b: {neo_id: other_node.neo_id}).
+                     create("(a)-[r:`#{type}`]->(b)").break.set(r: props).return(r: :neo_id)
 
-      def rel_string(type, other_node, props)
-        "MATCH (a), (b) WHERE ID(a) = {start_neo_id} AND ID(b) = {end_neo_id} CREATE (a)-[r:`#{type}` #{prop_identifier(props)}]->(b) RETURN ID(r)"
+        id = @session._query_or_fail(q, true)
+
+        CypherRelationship.new(@session, type: type, data: props, start: neo_id, end: other_node.neo_id, id: id)
       end
 
       # (see Neo4j::Node#props)

@@ -602,6 +602,10 @@ describe Neo4j::Core::Query do
     describe ".set(n: [:Label, 'Foo'])" do
       it_generates 'SET n:`Label`, n:`Foo`'
     end
+
+    describe '.set(n: nil)' do
+      it_generates ''
+    end
   end
 
   # ON CREATE and ON MATCH should behave just like set_props

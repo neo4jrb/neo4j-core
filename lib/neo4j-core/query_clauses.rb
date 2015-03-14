@@ -452,6 +452,8 @@ module Neo4j
             end
           when Array
             value.map { |v| from_key_and_value(key, v) }
+          when NilClass
+            []
           else
             fail ArgError, value
           end
