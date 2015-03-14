@@ -4,7 +4,7 @@ module Neo4j
     # * It is initialized with the transactional endpoint URL and the connection object to use for communication. It does not communicate with the server to create this.
     # * The first query within the transaction sets the commit and execution addresses, :commit_url and :query_url.
     # * At any time, `failure` can be called to mark a transaction failed and trigger a rollback upon closure.
-    # * `close` is called to end the transaction. It calls `_commit_tx` or `_delete_tx`.
+    # * `close` is called to end the transaction. It calls `commit` or `delete`.
     #
     # If a transaction is created and then closed without performing any queries, an OpenStruct is returned that behaves like a successfully closed query.
     class CypherTransaction
@@ -26,13 +26,13 @@ module Neo4j
         statement = {statement: cypher_query, parameters: params, resultDataContents: ROW_REST}
         body = {statements: [statement]}
 
-        response = @query_url ? _query_tx(body) : _start_tx(body)
+        response = @query_url ? query(body) : start(body)
 
-        _create_cypher_response(response)
+        create_cypher_response(response)
       end
 
-      def _start_tx(body)
-        _tx_request(:post, @base_url, 201, body).tap do |response|
+      def start(body)
+        request(:post, @base_url, 201, body).tap do |response|
           @commit_url = response.body[:commit]
           @query_url = response.headers[:Location]
 
@@ -42,29 +42,29 @@ module Neo4j
         end
       end
 
-      def _query_tx(body)
-        _tx_request(:post, @query_url, 200, body)
+      def query(body)
+        request(:post, @query_url, 200, body)
       end
 
-      def _delete_tx
-        _tx_request(:delete, @query_url, 200, nil, resource_headers)
+      def delete
+        request(:delete, @query_url, 200, nil, resource_headers)
       end
 
-      def _commit_tx
+      def commit
         return empty_response if !@commit_url || expired?
 
-        _tx_request(:post, @commit_url, 200, nil, resource_headers)
+        request(:post, @commit_url, 200, nil, resource_headers)
       end
 
       private
 
-      def _tx_request(action, endpoint_url, expected_code = 200, body = nil, headers = {})
+      def request(action, endpoint_url, expected_code = 200, body = nil, headers = {})
         connection.send(action, endpoint_url, body).tap do |response|
           expect_response_code!(response, expected_code)
         end
       end
 
-      def _create_cypher_response(response)
+      def create_cypher_response(response)
         first_result = response.body[:results][0]
 
         CypherResponse.new(response, true).tap do |cypher_response|

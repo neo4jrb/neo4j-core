@@ -61,7 +61,7 @@ module Neo4j
         return if @pushed_nested >= 0
         fail "Can't commit transaction, already committed" if @pushed_nested < -1
         Neo4j::Transaction.unregister(self)
-        failed? ? _delete_tx : _commit_tx
+        failed? ? delete : commit
       end
     end
 
