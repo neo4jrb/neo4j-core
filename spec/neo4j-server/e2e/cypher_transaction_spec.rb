@@ -179,10 +179,10 @@ module Neo4j
             node = Neo4j::Node.create(name: 'andreas')
             id = node.neo_id
             node.del
-            loaded = Neo4j::Node.load(id)
-            expect(loaded).to be_nil
           ensure
             tx.close
+            loaded = Neo4j::Node.load(id)
+            expect(loaded).to be_nil
           end
         end
       end
