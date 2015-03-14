@@ -106,24 +106,11 @@ module Neo4j
       end
 
       def load_node(neo_id)
-        load_entity(CypherNode, _query("MATCH (n) WHERE ID(n) = #{neo_id} RETURN n"))
+        query.unwrapped.match(:n).where(n: {neo_id: neo_id}).pluck(:n).first
       end
 
       def load_relationship(neo_id)
-        load_entity(CypherRelationship, _query("MATCH (n)-[r]-() WHERE ID(r) = #{neo_id} RETURN r"))
-      end
-
-      def load_entity(clazz, cypher_response)
-        return nil if cypher_response.data.nil? || cypher_response.data[0].nil?
-        data = cypher_response.send(cypher_response.transaction_response? ? :rest_data_with_id : :first_data)
-
-        if cypher_response.error?
-          cypher_response.raise_error
-        elsif cypher_response.error_msg =~ /not found/  # Ugly that the Neo4j API gives us this error message
-          nil
-        else
-          clazz.new(self, data)
-        end
+        query.unwrapped.match('(n)-[r]-()').where(r: {neo_id: neo_id}).pluck(:r).first
       end
 
       def create_label(name)
@@ -231,16 +218,6 @@ module Neo4j
               yielder << CypherNode.new(self, data[0]).wrapper
             end
           end
-        end
-      end
-
-      def map_column(key, map, data)
-        if map[key] == :node
-          CypherNode.new(self, data).wrapper
-        elsif map[key] == :rel || map[:key] || :relationship
-          CypherRelationship.new(self, data)
-        else
-          data
         end
       end
 
