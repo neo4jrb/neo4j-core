@@ -9,8 +9,9 @@ module Neo4j
 
     # Sets the neo4j property
     def []=(key, value)
-      validate_property(value)
-      value.nil? ? remove_property(key) : set_property(key, value)
+      validate_property!(value)
+
+      set_property(key, value)
     end
   end
 end

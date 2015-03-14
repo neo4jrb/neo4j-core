@@ -371,6 +371,14 @@ describe Neo4j::Core::Query do
     describe '.return(q: [:name, :age], r: :grade)' do
       it_generates 'RETURN q.name, q.age, r.grade'
     end
+
+    describe '.return(q: :neo_id)' do
+      it_generates 'RETURN ID(q)'
+    end
+
+    describe '.return(q: [:neo_id, :prop])' do
+      it_generates 'RETURN ID(q), q.prop'
+    end
   end
 
   # ORDER BY
@@ -586,6 +594,14 @@ describe Neo4j::Core::Query do
     describe ".set(n: {name: 'Brian', age: 30}).set_props('o.age = 29')" do
       it_generates 'SET n.`name` = {setter_n_name}, n.`age` = {setter_n_age}, o.age = 29', setter_n_name: 'Brian', setter_n_age: 30
     end
+
+    describe '.set(n: :Label)' do
+      it_generates 'SET n:`Label`'
+    end
+
+    describe ".set(n: [:Label, 'Foo'])" do
+      it_generates 'SET n:`Label`, n:`Foo`'
+    end
   end
 
   # ON CREATE and ON MATCH should behave just like set_props
@@ -649,15 +665,19 @@ describe Neo4j::Core::Query do
     end
 
     describe '.remove(n: :American)' do
-      it_generates 'REMOVE n:American'
+      it_generates 'REMOVE n:`American`'
+    end
+
+    describe '.remove(n: [:American, "prop"])' do
+      it_generates 'REMOVE n:`American`, n.prop'
     end
 
     describe ".remove(n: :American, o: 'prop')" do
-      it_generates 'REMOVE n:American, o.prop'
+      it_generates 'REMOVE n:`American`, o.prop'
     end
 
     describe ".remove(n: ':prop')" do
-      it_generates 'REMOVE n:prop'
+      it_generates 'REMOVE n:`prop`'
     end
   end
 

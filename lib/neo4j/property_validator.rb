@@ -13,7 +13,7 @@ module Neo4j
       VALID_PROPERTY_VALUE_CLASSES.include?(value.class)
     end
 
-    def validate_property(value)
+    def validate_property!(value)
       return if valid_property?(value)
 
       fail Neo4j::PropertyValidator::InvalidPropertyException, "Not valid Neo4j Property value #{value.class}, valid: #{Neo4j::Node::VALID_PROPERTY_VALUE_CLASSES.to_a.join(', ')}"

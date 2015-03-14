@@ -100,7 +100,7 @@ module Neo4j
       end
 
       def create_node(props = nil, labels = [])
-        id = _query_or_fail(cypher_string(labels, props), true, cypher_prop_list(props))
+        id = _query_or_fail(cypher_string(labels, props), true, cypher_prop_list!(props))
         value = props.nil? ? id : {id: id, metadata: {labels: labels}, data: props}
         CypherNode.new(self, value)
       end
@@ -170,11 +170,7 @@ module Neo4j
       DEFAULT_RETRY_COUNT = ENV['NEO4J_RETRY_COUNT'].nil? ? 10 : ENV['NEO4J_RETRY_COUNT'].to_i
 
       def _query_or_fail(query, single_row = false, params = {}, retry_count = DEFAULT_RETRY_COUNT)
-        if query.is_a?(::Neo4j::Core::Query)
-          cypher = query.to_cypher
-          params = query.send(:merge_params).merge(params)
-          query = cypher
-        end
+        query, params = query_and_params(query, params)
 
         response = _query(query, params)
         if response.error?
@@ -184,22 +180,33 @@ module Neo4j
         end
       end
 
+      def query_and_params(query_or_query_string, params)
+        if query_or_query_string.is_a?(::Neo4j::Core::Query)
+          cypher = query_or_query_string.to_cypher
+          [cypher, query_or_query_string.send(:merge_params).merge(params)]
+        else
+          [query_or_query_string, params]
+        end
+      end
+
       def _retry_or_raise(query, params, single_row, retry_count, response)
         response.raise_error unless response.retryable_error?
         retry_count > 0 ? _query_or_fail(query, single_row, params, retry_count - 1) : response.raise_error
       end
 
-      def _query_entity_data(query, id = nil, params = nil)
+      def _query_entity_data(query, id = nil, params = {})
         _query_response(query, params).entity_data(id)
       end
 
-      def _query_response(query, params = nil)
+      def _query_response(query, params = {})
         _query(query, params).tap do |response|
           response.raise_error if response.error?
         end
       end
 
-      def _query(query, params = nil)
+      def _query(query, params = {})
+        query, params = query_and_params(query, params)
+
         curr_tx = Neo4j::Transaction.current
         if curr_tx
           curr_tx._query(query, params)

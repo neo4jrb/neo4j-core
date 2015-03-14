@@ -75,7 +75,7 @@ module Neo4j
       end
 
       def to_java_property(k, v)
-        validate_property(v)
+        validate_property!(v)
 
         k = k.to_s
         case v
