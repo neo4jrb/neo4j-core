@@ -20,10 +20,6 @@ describe Neo4j::Core::Query do
   class Person
   end
 
-  class Note
-    CYPHER_LABEL = 'GreatNote'
-  end
-
   describe 'batch finding' do
     before(:all) do
       create_server_session
@@ -187,10 +183,6 @@ describe Neo4j::Core::Query do
 
     describe '.match(n: Person)' do
       it_generates 'MATCH (n:`Person`)'
-    end
-
-    describe '.match(n: Note)' do
-      it_generates 'MATCH (n:`GreatNote`)'
     end
 
     describe ".match(n: 'Person')" do

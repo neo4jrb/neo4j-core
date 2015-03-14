@@ -69,10 +69,8 @@ module Neo4j
 
         def label_from_key_and_value(key, value, prefer = :var)
           case value
-          when String, Symbol, Array then value
-          when NilClass then nil
-          when Class, Module
-            defined?(value::CYPHER_LABEL) ? value::CYPHER_LABEL : value.name
+          when String, Symbol, Array, NilClass then value
+          when Class, Module then value.name
           when Hash
             if value.values.map(&:class) == [Hash]
               value.first.first
