@@ -82,7 +82,7 @@ module Neo4j
 
       def initialize_resource(data_url)
         response = @connection.get(data_url)
-        expect_response_code(response, 200)
+        expect_response_code!(response, 200)
         data_resource = response.body
         fail "No data_resource for #{response.body}" unless data_resource
         # store the resource data
@@ -106,23 +106,16 @@ module Neo4j
       end
 
       def load_node(neo_id)
-        load_entity(CypherNode, _query("MATCH (n) WHERE ID(n) = #{neo_id} RETURN n"))
+        query.unwrapped.match(:n).where(n: {neo_id: neo_id}).pluck(:n).first
       end
 
       def load_relationship(neo_id)
-        load_entity(CypherRelationship, _query("MATCH (n)-[r]-() WHERE ID(r) = #{neo_id} RETURN r"))
-      end
-
-      def load_entity(clazz, cypher_response)
-        return nil if cypher_response.data.nil? || cypher_response.data[0].nil?
-        data = cypher_response.send(cypher_response.transaction_response? ? :rest_data_with_id : :first_data)
-
-        if cypher_response.error?
-          cypher_response.raise_error
-        elsif cypher_response.error_msg =~ /not found/  # Ugly that the Neo4j API gives us this error message
+        query.unwrapped.optional_match('(n)-[r]-()').where(r: {neo_id: neo_id}).pluck(:r).first
+      rescue Neo4j::Session::CypherError => cypher_error
+        if cypher_error.message.match(/not found$/)
           nil
         else
-          clazz.new(self, data)
+          raise cypher_error
         end
       end
 
@@ -140,7 +133,7 @@ module Neo4j
 
       def schema_properties(query_string)
         response = @connection.get(query_string)
-        expect_response_code(response, 200)
+        expect_response_code!(response, 200)
         {property_keys: response.body.map! { |row| row[:property_keys].map(&:to_sym) }}
       end
 
@@ -231,16 +224,6 @@ module Neo4j
               yielder << CypherNode.new(self, data[0]).wrapper
             end
           end
-        end
-      end
-
-      def map_column(key, map, data)
-        if map[key] == :node
-          CypherNode.new(self, data).wrapper
-        elsif map[key] == :rel || map[:key] || :relationship
-          CypherRelationship.new(self, data)
-        else
-          data
         end
       end
 

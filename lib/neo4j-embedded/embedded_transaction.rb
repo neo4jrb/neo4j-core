@@ -22,12 +22,12 @@ module Neo4j
         "EmbeddedTransaction [nested: #{@pushed_nested} failed?: #{failure?} active: #{Neo4j::Transaction.current == self}]"
       end
 
-      def _delete_tx
+      def delete
         @root_tx.failure
         @root_tx.close
       end
 
-      def _commit_tx
+      def commit
         @root_tx.success
         @root_tx.close
       end
