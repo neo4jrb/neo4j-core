@@ -110,7 +110,13 @@ module Neo4j
       end
 
       def load_relationship(neo_id)
-        query.unwrapped.match('(n)-[r]-()').where(r: {neo_id: neo_id}).pluck(:r).first
+        query.unwrapped.optional_match('(n)-[r]-()').where(r: {neo_id: neo_id}).pluck(:r).first
+      rescue Neo4j::Session::CypherError => cypher_error
+        if cypher_error.message.match(/not found$/)
+          nil
+        else
+          raise cypher_error
+        end
       end
 
       def create_label(name)
