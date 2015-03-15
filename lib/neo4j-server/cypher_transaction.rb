@@ -47,6 +47,8 @@ module Neo4j
       end
 
       def delete
+        return empty_response if !@commit_url || expired?
+
         request(:delete, @query_url, 200, nil, resource_headers)
       end
 
@@ -59,7 +61,7 @@ module Neo4j
       private
 
       def request(action, endpoint_url, expected_code = 200, body = nil, headers = {})
-        connection.send(action, endpoint_url, body).tap do |response|
+        connection.send(action, endpoint_url, body, headers).tap do |response|
           expect_response_code!(response, expected_code)
         end
       end

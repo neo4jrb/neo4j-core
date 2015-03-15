@@ -8,6 +8,9 @@
 	* WHERE clauses with strings now support a second argument for parameters.  Examples:
 	  * `where("foo = {bar}", bar: value)`)
 	  * `where("foo = ?", value)`)
+	* REMOVE clauses now quote labels and support arrays to specify all labels
+	and properties for one variable
+	* RETURN clauses now turn `:neo_id` into `ID(var)`
 
 
 == 4.0.0

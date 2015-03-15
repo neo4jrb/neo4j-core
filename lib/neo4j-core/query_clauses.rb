@@ -69,10 +69,8 @@ module Neo4j
 
         def label_from_key_and_value(key, value, prefer = :var)
           case value
-          when String, Symbol, Array then value
-          when NilClass then nil
-          when Class, Module
-            defined?(value::CYPHER_LABEL) ? value::CYPHER_LABEL : value.name
+          when String, Symbol, Array, NilClass then value
+          when Class, Module then value.name
           when Hash
             if value.values.map(&:class) == [Hash]
               value.first.first
@@ -442,7 +440,7 @@ module Neo4j
 
         def from_key_and_value(key, value)
           case value
-          when String, Symbol then "#{key} = #{value}"
+          when String, Symbol then "#{key}:`#{value}`"
           when Hash
             if @options[:set_props]
               attribute_string = value.map { |k, v| "#{k}: #{v.inspect}" }.join(', ')
@@ -450,6 +448,8 @@ module Neo4j
             else
               value.map { |k, v| key_value_string("#{key}.`#{k}`", v, ['setter'], true) }
             end
+          when Array then value.map { |v| from_key_and_value(key, v) }
+          when NilClass then []
           else
             fail ArgError, value
           end
@@ -481,11 +481,15 @@ module Neo4j
         def from_key_and_value(key, value)
           case value
           when /^:/
-            "#{key}:#{value[1..-1]}"
+            "#{key}:`#{value[1..-1]}`"
           when String
             "#{key}.#{value}"
           when Symbol
-            "#{key}:#{value}"
+            "#{key}:`#{value}`"
+          when Array
+            value.map do |v|
+              from_key_and_value(key, v)
+            end
           else
             fail ArgError, value
           end
@@ -533,7 +537,11 @@ module Neo4j
               from_key_and_value(key, v)
             end.join(', ')
           when String, Symbol
-            "#{key}.#{value}"
+            if value.to_sym == :neo_id
+              "ID(#{key})"
+            else
+              "#{key}.#{value}"
+            end
           else
             fail ArgError, value
           end
