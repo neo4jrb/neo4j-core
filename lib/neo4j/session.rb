@@ -94,21 +94,32 @@ module Neo4j
       #
       # @see also Neo4j::Server::CypherSession#open for :server_db params
       # @param db_type the type of database, e.g. :embedded_db, or :server_db
-      def open(db_type = :server_db, *params)
-        register(create_session(db_type, params))
-      end
-
-      def open_named(db_type, name, default = nil, *params)
-        fail 'Multiple sessions is currently only supported for Neo4j Server connections.' unless db_type == :server_db
-        register(create_session(db_type, params), name, default)
+      def open(db_type = :server_db, endpoint_url = nil, params = {})
+        register(create_session(db_type, endpoint_url, params), params[:name], params[:default])
       end
 
       # @private
-      def create_session(db_type, params = {})
+      def register(session, name = nil, default = nil)
+        if default == true
+          set_current(session)
+        elsif default.nil?
+          set_current(session) unless @@current_session
+        end
+        @@all_sessions[name] = session if name
+        session
+      end
+
+      # @private
+      def unregister(session)
+        @@current_session = nil if @@current_session == session
+      end
+
+      # @private
+      def create_session(db_type, endpoint_url, params = {})
         unless @@factories[db_type]
           fail "Can't connect to database '#{db_type}', available #{@@factories.keys.join(',')}"
         end
-        @@factories[db_type].call(*params)
+        @@factories[db_type].call(endpoint_url, params)
       end
 
       # @return [Neo4j::Session] the current session
@@ -173,22 +184,6 @@ module Neo4j
       # @private
       def _notify_listeners(event, data)
         _listeners.each { |li| li.call(event, data) }
-      end
-
-      # @private
-      def register(session, name = nil, default = nil)
-        if default == true
-          set_current(session)
-        elsif default.nil?
-          set_current(session) unless @@current_session
-        end
-        @@all_sessions[name] = session if name
-        session
-      end
-
-      # @private
-      def unregister(session)
-        @@current_session = nil if @@current_session == session
       end
 
       def inspect

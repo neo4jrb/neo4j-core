@@ -50,7 +50,7 @@ module Neo4j
 
         it 'stores a named session' do
           name = :test
-          test = open_named_session(name)
+          test = Neo4j::Session.open(:server_db, nil, name: name)
           expect(Neo4j::Session.named(name)).to eq(test)
         end
 
