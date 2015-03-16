@@ -74,6 +74,29 @@ describe Neo4j::Core::Query do
     end
   end
 
+  describe '#has_clause?' do
+    subject(:has_clause) { query.has_clause?(clause_method) }
+
+    context 'checking for where' do
+      let(:clause_method) { :where }
+
+      context 'Query with a where' do
+        let(:query) { Neo4j::Core::Query.new.where(true) }
+        it { should be(true) }
+      end
+
+      context 'Query with an order' do
+        let(:query) { Neo4j::Core::Query.new.order(:foo) }
+        it { should be(false) }
+      end
+
+      context 'Query with a where and an order' do
+        let(:query) { Neo4j::Core::Query.new.where(true).order(:foo) }
+        it { should be(true) }
+      end
+    end
+  end
+
   def expects_cypher(cypher, params = nil)
     query = eval("Neo4j::Core::Query.new#{self.class.description}") # rubocop:disable Lint/Eval
     expect(query.to_cypher).to eq(cypher)

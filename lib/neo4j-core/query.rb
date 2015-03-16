@@ -101,15 +101,18 @@ module Neo4j
 
       METHODS = %w(with start match optional_match using where set create create_unique merge on_create_set on_match_set remove unwind delete return order skip limit)
 
-      CLAUSES = METHODS.map { |method| const_get(method.split('_').map(&:capitalize).join + 'Clause') }
+      CLAUSIFY_CLAUSE = Proc.new do |method|
+        const_get(method.to_s.split('_').map(&:capitalize).join + 'Clause')
+      end
+
+      CLAUSES = METHODS.map(&CLAUSIFY_CLAUSE)
 
       METHODS.each_with_index do |clause, i|
         clause_class = CLAUSES[i]
 
-        module_eval(%{
-          def #{clause}(*args)
-            build_deeper_query(#{clause_class}, args)
-          end}, __FILE__, __LINE__)
+        define_method(clause) do |*args|
+          build_deeper_query(clause_class, args)
+        end
       end
 
       alias_method :offset, :skip
@@ -292,6 +295,14 @@ module Neo4j
           MEMOIZED_INSTANCE_VARIABLES.each do |var|
             query.instance_variable_set("@#{var}", nil)
           end
+        end
+      end
+
+      def has_clause?(method)
+        clause_class = CLAUSIFY_CLAUSE.call(method)
+
+        clauses.any? do |clause|
+          clause.is_a?(clause_class)
         end
       end
 
