@@ -102,8 +102,8 @@ module Neo4j
 
       # @private
       def validate_session_num!(db_type)
-        return if db_type != :embedded_db || current.nil?
-        fail InitializationError, "Cannot register #{db_type} session. Multiple sessions only supported for Neo4j Server (:server_db) connections."
+        return unless current && db_type == :embedded_db
+        fail InitializationError, 'Multiple sessions are not supported by Neo4j Embedded.'
       end
       private :validate_session_num!
 

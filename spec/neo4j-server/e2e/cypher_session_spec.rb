@@ -65,13 +65,6 @@ module Neo4j
           test = Neo4j::Session.open(:server_db, nil, name: name, default: true)
           expect(Neo4j::Session.current).to eq(test)
         end
-
-        context 'when a session is active and Neo4j server is not in use' do
-          it 'raises an error' do
-            open_session
-            expect { Neo4j::Session.open(:foo, nil, name: 'foo') }.to raise_error Neo4j::Session::InitializationError
-          end
-        end
       end
 
       describe '_query' do
