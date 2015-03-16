@@ -1,7 +1,7 @@
 module Neo4j
   module Server
-    Neo4j::Session.register_db(:server_db) do |*url_opts|
-      Neo4j::Server::CypherSession.open(*url_opts)
+    Neo4j::Session.register_db(:server_db) do |endpoint_url, url_opts|
+      Neo4j::Server::CypherSession.open(endpoint_url, url_opts)
     end
 
     class CypherSession < Neo4j::Session

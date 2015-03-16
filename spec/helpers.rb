@@ -23,11 +23,11 @@ module Helpers
   end
 
   def create_server_session(options = {})
-    Neo4j::Session.open(:server_db, server_url, {basic_auth: basic_auth_hash}.merge(options))
+    Neo4j::Session.open(:server_db, server_url, {basic_auth: basic_auth_hash}.merge!(options))
   end
 
   def create_named_server_session(name, default = nil)
-    Neo4j::Session.open_named(:server_db, name, default, server_url, basic_auth: basic_auth_hash)
+    Neo4j::Session.open(:server_db, server_url, basic_auth: basic_auth_hash, name: name, default: default)
   end
 
   def session
