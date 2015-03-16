@@ -179,6 +179,11 @@ module Neo4j
 
       include Enumerable
 
+      def count(var = nil)
+        v = var.nil? ? '*' : var
+        self.pluck("count(#{v})").first
+      end
+
       def each
         response = self.response
         if response.is_a?(Neo4j::Server::CypherResponse)

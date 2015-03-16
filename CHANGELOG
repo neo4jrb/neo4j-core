@@ -11,6 +11,9 @@
 	* REMOVE clauses now quote labels and support arrays to specify all labels
 	and properties for one variable
 	* RETURN clauses now turn `:neo_id` into `ID(var)`
+	* New method `#has_clause?` lets you determine if a `Query` object had a
+	clause called upon it in the past
+	* New method `#count` lets you query a count of a variable
 
 
 == 4.0.0
