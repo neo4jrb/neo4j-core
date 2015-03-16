@@ -7,10 +7,6 @@ module Neo4j
         create_server_session
       end
 
-      def open_named_session(name, default = nil)
-        create_named_server_session(name, default)
-      end
-
       it_behaves_like 'Neo4j::Session'
 
       describe '.open' do
@@ -57,8 +53,8 @@ module Neo4j
         it 'does not override the current session when default = false' do
           default = open_session
           expect(Neo4j::Session.current).to eq(default)
-          name = :tesr
-          open_named_session(name)
+          name = :test
+          Neo4j::Session.open(:server_db, nil, name: name)
           expect(Neo4j::Session.current).to eq(default)
         end
 
@@ -66,8 +62,15 @@ module Neo4j
           default = open_session
           expect(Neo4j::Session.current).to eq(default)
           name = :test
-          test = open_named_session(name, true)
+          test = Neo4j::Session.open(:server_db, nil, name: name, default: true)
           expect(Neo4j::Session.current).to eq(test)
+        end
+
+        context 'when a session is active and Neo4j server is not in use' do
+          it 'raises an error' do
+            open_session
+            expect { Neo4j::Session.open(:foo, nil, name: 'foo') }.to raise_error Neo4j::Session::InitializationError
+          end
         end
       end
 

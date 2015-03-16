@@ -50,6 +50,7 @@ module Neo4j
       end
     end
 
+    class InitializationError < RuntimeError; end
 
     # Performs a cypher query.  See {Neo4j::Core::Query} for more details, but basic usage looks like:
     #
@@ -95,29 +96,21 @@ module Neo4j
       # @see also Neo4j::Server::CypherSession#open for :server_db params
       # @param db_type the type of database, e.g. :embedded_db, or :server_db
       def open(db_type = :server_db, endpoint_url = nil, params = {})
+        validate_session_num!(db_type)
         register(create_session(db_type, endpoint_url, params), params[:name], params[:default])
       end
 
       # @private
-      def register(session, name = nil, default = nil)
-        if default == true
-          set_current(session)
-        elsif default.nil?
-          set_current(session) unless @@current_session
-        end
-        @@all_sessions[name] = session if name
-        session
+      def validate_session_num!(db_type)
+        return if db_type != :embedded_db || current.nil?
+        fail InitializationError, "Cannot register #{db_type} session. Multiple sessions only supported for Neo4j Server (:server_db) connections."
       end
-
-      # @private
-      def unregister(session)
-        @@current_session = nil if @@current_session == session
-      end
+      private :validate_session_num!
 
       # @private
       def create_session(db_type, endpoint_url, params = {})
         unless @@factories[db_type]
-          fail "Can't connect to database '#{db_type}', available #{@@factories.keys.join(',')}"
+          fail InitializationError, "Can't connect to database '#{db_type}', available #{@@factories.keys.join(',')}"
         end
         @@factories[db_type].call(endpoint_url, params)
       end
@@ -184,6 +177,22 @@ module Neo4j
       # @private
       def _notify_listeners(event, data)
         _listeners.each { |li| li.call(event, data) }
+      end
+
+      # @private
+      def register(session, name = nil, default = nil)
+        if default == true
+          set_current(session)
+        elsif default.nil?
+          set_current(session) unless @@current_session
+        end
+        @@all_sessions[name] = session if name
+        session
+      end
+
+      # @private
+      def unregister(session)
+        @@current_session = nil if @@current_session == session
       end
 
       def inspect
