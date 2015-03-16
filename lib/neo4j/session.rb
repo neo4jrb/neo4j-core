@@ -95,9 +95,14 @@ module Neo4j
       #
       # @see also Neo4j::Server::CypherSession#open for :server_db params
       # @param db_type the type of database, e.g. :embedded_db, or :server_db
+      # @param [String] endpoint_url The path to the server, either a URL or path to embedded DB
+      # @param [Hash] params Additional configuration options
       def open(db_type = :server_db, endpoint_url = nil, params = {})
         validate_session_num!(db_type)
-        register(create_session(db_type, endpoint_url, params), params[:name], params[:default])
+        name = params[:name]
+        default = params[:default]
+        [:name, :default].each { |k| params.delete(k) }
+        register(create_session(db_type, endpoint_url, params), name, default)
       end
 
       # @private
