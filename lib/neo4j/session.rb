@@ -50,6 +50,7 @@ module Neo4j
       end
     end
 
+    class InitializationError < RuntimeError; end
 
     # Performs a cypher query.  See {Neo4j::Core::Query} for more details, but basic usage looks like:
     #
@@ -94,21 +95,29 @@ module Neo4j
       #
       # @see also Neo4j::Server::CypherSession#open for :server_db params
       # @param db_type the type of database, e.g. :embedded_db, or :server_db
-      def open(db_type = :server_db, *params)
-        register(create_session(db_type, params))
-      end
-
-      def open_named(db_type, name, default = nil, *params)
-        fail 'Multiple sessions is currently only supported for Neo4j Server connections.' unless db_type == :server_db
-        register(create_session(db_type, params), name, default)
+      # @param [String] endpoint_url The path to the server, either a URL or path to embedded DB
+      # @param [Hash] params Additional configuration options
+      def open(db_type = :server_db, endpoint_url = nil, params = {})
+        validate_session_num!(db_type)
+        name = params[:name]
+        default = params[:default]
+        [:name, :default].each { |k| params.delete(k) }
+        register(create_session(db_type, endpoint_url, params), name, default)
       end
 
       # @private
-      def create_session(db_type, params = {})
+      def validate_session_num!(db_type)
+        return unless current && db_type == :embedded_db
+        fail InitializationError, 'Multiple sessions are not supported by Neo4j Embedded.'
+      end
+      private :validate_session_num!
+
+      # @private
+      def create_session(db_type, endpoint_url, params = {})
         unless @@factories[db_type]
-          fail "Can't connect to database '#{db_type}', available #{@@factories.keys.join(',')}"
+          fail InitializationError, "Can't connect to database '#{db_type}', available #{@@factories.keys.join(',')}"
         end
-        @@factories[db_type].call(*params)
+        @@factories[db_type].call(endpoint_url, params)
       end
 
       # @return [Neo4j::Session] the current session

@@ -10,6 +10,6 @@ describe Neo4j::Session do
 
     expect { session.query }.to raise_error 'not implemented, abstract'
     expect { session._query }.to raise_error 'not implemented'
-    expect { create_session(:foo) }.to raise_error
+    expect { Neo4j::Session.open(:foo) }.to raise_error Neo4j::Session::InitializationError
   end
 end
