@@ -74,8 +74,8 @@ describe Neo4j::Core::Query do
     end
   end
 
-  describe '#has_clause?' do
-    subject(:has_clause) { query.has_clause?(clause_method) }
+  describe '#clause?' do
+    subject(:clause) { query.clause?(clause_method) }
 
     context 'checking for where' do
       let(:clause_method) { :where }

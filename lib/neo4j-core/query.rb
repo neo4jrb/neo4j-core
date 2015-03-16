@@ -101,7 +101,7 @@ module Neo4j
 
       METHODS = %w(with start match optional_match using where set create create_unique merge on_create_set on_match_set remove unwind delete return order skip limit)
 
-      CLAUSIFY_CLAUSE = Proc.new do |method|
+      CLAUSIFY_CLAUSE = proc do |method|
         const_get(method.to_s.split('_').map(&:capitalize).join + 'Clause')
       end
 
@@ -181,7 +181,7 @@ module Neo4j
 
       def count(var = nil)
         v = var.nil? ? '*' : var
-        self.pluck("count(#{v})").first
+        pluck("count(#{v})").first
       end
 
       def each
@@ -303,7 +303,7 @@ module Neo4j
         end
       end
 
-      def has_clause?(method)
+      def clause?(method)
         clause_class = CLAUSIFY_CLAUSE.call(method)
 
         clauses.any? do |clause|
