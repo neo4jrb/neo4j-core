@@ -75,7 +75,8 @@ module Neo4j
       end
 
       def constraint?(label_name, property, session = Neo4j::Session.current)
-        !constraints(session).select { |c| c[:label] == label_name.to_s && c[:property_keys].first == property.to_s }.empty?
+        label_constraints = session.connection.get("#{CONSTRAINT_PATH}/#{label_name.to_s}").body
+        !label_constraints.select { |c| c[:label] == label_name.to_s && c[:property_keys].first == property.to_s }.empty?
       end
 
       def indexes(session = Neo4j::Session.current)
@@ -83,7 +84,8 @@ module Neo4j
       end
 
       def index?(label_name, property, session = Neo4j::Session.current)
-        !indexes(session).select { |c| c[:label] == label_name.to_s && c[:property_keys].first == property.to_s }.empty?
+        label_indexes = session.connection.get("#{INDEX_PATH}/#{label_name.to_s}").body
+        !label_indexes.select { |i| i[:label] == label_name.to_s && i[:property_keys].first == property.to_s }.empty?
       end
 
       def drop_all_indexes(session = Neo4j::Session.current)
