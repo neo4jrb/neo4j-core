@@ -9,8 +9,6 @@ RSpec.shared_examples 'Neo4j::Label' do
     @green = Neo4j::Node.create({}, @label2)
   end
 
-  after(:all) { Neo4j::Label.drop_all_constraints  && Neo4j::Label.drop_all_indexes }
-
   describe 'Neo4j::Node' do
     describe 'add_labels' do
       it 'can add labels' do
