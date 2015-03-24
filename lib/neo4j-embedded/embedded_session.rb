@@ -16,7 +16,6 @@ module Neo4j
       extend Neo4j::Core::TxMethods
       def_delegator :@graph_db, :begin_tx
 
-
       def initialize(db_location, config = {})
         @db_location     = db_location
         @auto_commit     = !!config[:auto_commit]

@@ -124,11 +124,11 @@ module Neo4j
       end
 
       def uniqueness_constraints(label)
-        schema_properties("#{@resource_url}schema/constraint/#{label}/uniqueness")
+        schema_properties("/db/data/schema/constraint/#{label}/uniqueness")
       end
 
       def indexes(label)
-        schema_properties("#{@resource_url}schema/index/#{label}")
+        schema_properties("/db/data/schema/index/#{label}")
       end
 
       def schema_properties(query_string)
