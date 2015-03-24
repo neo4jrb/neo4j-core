@@ -16,7 +16,7 @@ module Neo4j
 
       def initialize(source, query, unwrapped = nil)
         @source = source
-        @struct = Struct.new(*source.columns.to_a.map(&:to_sym))
+        @struct = Struct.new(*source.columns.to_a.map!(&:to_sym)) unless source.columns.empty?
         @unread = true
         @query = query
         @unwrapped = unwrapped
@@ -36,7 +36,7 @@ module Neo4j
 
       # @return [Array<Symbol>] the columns in the query result
       def columns
-        @source.columns.map(&:to_sym)
+        @source.columns.map!(&:to_sym)
       end
 
       def each
