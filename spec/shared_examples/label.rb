@@ -168,14 +168,6 @@ RSpec.shared_examples 'Neo4j::Label' do
     end
 
     describe 'constraint class methods' do
-      # before(:all) do
-      #   label = Neo4j::Label.create(:foo)
-      #   label.drop_index('foo', 'bar')
-      #   begin
-      #     label.create_constraint(:bar, type: :unique) unless Neo4j::Label.label_class.constraint?(:foo, :bar)
-      #   rescue; end
-      # end
-
       describe 'constraints' do
         before do
           begin
