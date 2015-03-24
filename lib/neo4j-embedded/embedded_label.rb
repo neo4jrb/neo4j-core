@@ -80,34 +80,6 @@ module Neo4j
             JAVA_CLASS.label(labels.to_s)
           end
         end
-
-        # TODO: Implement this method, similar to CypherLabel
-        def indexes
-          {}
-        end
-
-        # TODO: Implement this method, similar to CypherLabel
-        def constraints
-          {}
-        end
-
-        # TODO: Implement this method, similar to CypherLabel
-        def index?(_label, _property)
-          false
-        end
-
-        # TODO: Implement this method, similar to CypherLabel
-        def constraint(_label, _property)
-          false
-        end
-
-        def drop_all_indexes
-          fail 'Not implemented in embedded mode'
-        end
-
-        def drop_all_constraints
-          fail 'Not implemented in embedded mode'
-        end
       end
     end
   end

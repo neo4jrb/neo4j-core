@@ -64,6 +64,10 @@ module Neo4j
       INDEX_PATH = '/db/data/schema/index/'
       CONSTRAINT_PATH = '/db/data/schema/constraint/'
 
+      def label_class
+        Neo4j::Session.current.db_type == :server_db ? Neo4j::Server::CypherLabel : Neo4j::Embedded::EmbeddedLabel
+      end
+
       # Returns a label of given name that can be used to specifying constraints
       # @param [Symbol,String] name the name of the label
       def create(name, session = Neo4j::Session.current)

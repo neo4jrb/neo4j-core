@@ -10,6 +10,13 @@ RSpec.shared_examples 'Neo4j::Label' do
   end
 
   describe 'Neo4j::Node' do
+    after(:all) do
+      begin
+      Neo4j::Label.drop_all_constraints
+      Neo4j::Label.drop_all_indexes
+      rescue; end
+    end
+
     describe 'add_labels' do
       it 'can add labels' do
         node = Neo4j::Node.create
@@ -89,7 +96,6 @@ RSpec.shared_examples 'Neo4j::Label' do
       end
     end
 
-
     describe 'find_all_nodes' do
       it 'returns all nodes with that label' do
         result = Neo4j::Label.find_all_nodes(@label1)
@@ -128,6 +134,106 @@ RSpec.shared_examples 'Neo4j::Label' do
         result = Neo4j::Label.find_nodes(@random_label, :name, 'r')
         expect(result).to include(@red)
         expect(result.count).to eq(1)
+      end
+    end
+
+    describe 'index class methods' do
+      before(:all) do
+        label = Neo4j::Label.create(:foo)
+        label.create_index('bar')
+      end
+
+      after(:all) do
+        label = Neo4j::Label.create(:foo)
+        label.drop_index('bar')
+      end
+
+      describe 'indexes' do
+        it 'lists all known indexes' do
+          indexes = Neo4j::Label.indexes
+          selected_indexes = indexes.select { |i| i[:property_keys].include?('bar') && i[:label] == 'foo' }
+          expect(selected_indexes).not_to be_empty
+        end
+      end
+
+      describe 'index?' do
+        it 'identifies a known index' do
+          expect(Neo4j::Label.index?('foo', 'bar')).to be_truthy
+        end
+
+        it 'returns false when an index is not defined' do
+          expect(Neo4j::Label.index?('bar', 'baz')).to be_falsey
+        end
+      end
+    end
+
+    describe 'constraint class methods' do
+      # before(:all) do
+      #   label = Neo4j::Label.create(:foo)
+      #   label.drop_index('foo', 'bar')
+      #   begin
+      #     label.create_constraint(:bar, type: :unique) unless Neo4j::Label.label_class.constraint?(:foo, :bar)
+      #   rescue; end
+      # end
+
+      describe 'constraints' do
+        before do
+          begin
+            label = Neo4j::Label.create(:foo_label)
+            label.create_constraint(:bar, type: :unique)
+          end
+        end
+
+        after do
+          begin
+            label = Neo4j::Label.create(:foo_label)
+            label.drop_constraint('bar', type: :unique)
+          end
+        end
+
+        it 'lists all known constraints' do
+          expect(Neo4j::Label.constraints).not_to be_empty
+        end
+      end
+
+      describe 'constraint?' do
+        it 'recognizes a known constraint' do
+          expect(Neo4j::Label.constraint?(:foo_label, :bar)).to be_falsey
+          label = Neo4j::Label.create(:foo_label)
+          label.create_constraint(:bar, type: :unique)
+          expect(Neo4j::Label.constraint?(:foo_label, :bar)).to be_truthy
+        end
+
+        it 'returns false when constraint not defined' do
+          expect(Neo4j::Label.constraint?(:bar, :foo)).to be_falsey
+        end
+      end
+    end
+
+    describe 'drop_all_indexes' do
+      it 'drops all indexes' do
+        expect { Neo4j::Label.drop_all_indexes }.to change { Neo4j::Label.indexes.count }
+      end
+    end
+
+    describe 'drop_all_constraints' do
+      let(:label) { Neo4j::Label.create(:foo) }
+
+      before do
+        label.create_constraint(:bar, type: :unique)
+      end
+
+      after do
+        if Neo4j::Label.index?(:foo, :bar)
+          label.drop_constraint('bar', type: :unique)
+          begin
+            label.drop_index(:bar)
+          rescue; end
+        end
+      end
+
+      it 'drops all constraints' do
+        expect { Neo4j::Label.drop_all_constraints }.to change { Neo4j::Label.constraints.count }
       end
     end
   end

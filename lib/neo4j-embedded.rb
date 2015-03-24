@@ -8,6 +8,7 @@ require 'neo4j-embedded/embedded_label'
 require 'neo4j-embedded/embedded_node'
 require 'neo4j-embedded/embedded_relationship'
 require 'neo4j-embedded/embedded_label'
+require 'neo4j-embedded/label'
 require 'neo4j-embedded/embedded_transaction'
 require 'neo4j-embedded/cypher_response'
 
