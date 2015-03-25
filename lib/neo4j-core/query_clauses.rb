@@ -54,7 +54,14 @@ module Neo4j
           label = label_from_key_and_value(key, value, options[:prefer] || :var)
           attributes = attributes_from_key_and_value(key, value)
 
-          "(#{var}#{format_label(label)}#{attributes_string(attributes)})"
+          prefix_value = value
+          if value.is_a?(Hash)
+            prefix_value = if value.values.any? { |v| v.is_a?(Hash) }
+                             value.keys.join('_')
+                           end
+          end
+
+          "(#{var}#{format_label(label)}#{attributes_string(attributes, [key, prefix_value].compact.join('_') + '_')})"
         end
 
         def var_from_key_and_value(key, value, prefer = :var)
@@ -154,16 +161,17 @@ module Neo4j
           label_arg
         end
 
-        def attributes_string(attributes)
+        def attributes_string(attributes, prefix = '')
           return '' if not attributes
 
           attributes_string = attributes.map do |key, value|
-            v = if value.nil?
-                  'null'
-                else
-                  value.to_s.match(/^{.+}$/) ? value : value.inspect
-                end
-            "#{key}: #{v}"
+            if value.to_s.match(/^{.+}$/)
+              "#{key}: #{value}"
+            else
+              param_key = prefix + key.to_s
+              @params[param_key.to_sym] = value
+              "#{key}: {#{param_key}}"
+            end
           end.join(', ')
 
           " {#{attributes_string}}"

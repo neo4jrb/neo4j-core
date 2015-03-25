@@ -124,7 +124,7 @@ describe Neo4j::Core::Query do
     end
 
     describe '.match(q: {age: 30}).set_props(q: {age: 31})' do
-      it_generates 'MATCH (q {age: 30}) SET q = {age: 31}'
+      it_generates 'MATCH (q {age: {q_age}}) SET q = {age: 31}', q_age: 30
     end
 
     # WITHS
@@ -237,11 +237,11 @@ describe Neo4j::Core::Query do
     end
 
     describe ".match(n: {name: 'Brian', age: 33})" do
-      it_generates "MATCH (n {name: \"Brian\", age: 33})"
+      it_generates 'MATCH (n {name: {n_name}, age: {n_age}})', n_name: 'Brian', n_age: 33
     end
 
     describe ".match(n: {Person: {name: 'Brian', age: 33}})" do
-      it_generates "MATCH (n:`Person` {name: \"Brian\", age: 33})"
+      it_generates 'MATCH (n:`Person` {name: {n_Person_name}, age: {n_Person_age}})', n_Person_name: 'Brian', n_Person_age: 33
     end
 
     describe ".match('n--o')" do
@@ -500,19 +500,19 @@ describe Neo4j::Core::Query do
     end
 
     describe '.create(age: 41, height: 70)' do
-      it_generates 'CREATE ( {age: 41, height: 70})'
+      it_generates 'CREATE ( {age: {age}, height: {height}})', age: 41, height: 70
     end
 
     describe '.create(Person: {age: 41, height: 70})' do
-      it_generates 'CREATE (:`Person` {age: 41, height: 70})'
+      it_generates 'CREATE (:`Person` {age: {Person_age}, height: {Person_height}})', Person_age: 41, Person_height: 70
     end
 
     describe '.create(q: {Person: {age: 41, height: 70}})' do
-      it_generates 'CREATE (q:`Person` {age: 41, height: 70})'
+      it_generates 'CREATE (q:`Person` {age: {q_Person_age}, height: {q_Person_height}})', q_Person_age: 41, q_Person_height: 70
     end
 
     describe '.create(q: {Person: {age: nil, height: 70}})' do
-      it_generates 'CREATE (q:`Person` {age: null, height: 70})'
+      it_generates 'CREATE (q:`Person` {age: {q_Person_age}, height: {q_Person_height}})', q_Person_age: nil, q_Person_height: 70
     end
   end
 
@@ -526,15 +526,15 @@ describe Neo4j::Core::Query do
     end
 
     describe '.create_unique(age: 41, height: 70)' do
-      it_generates 'CREATE UNIQUE ( {age: 41, height: 70})'
+      it_generates 'CREATE UNIQUE ( {age: {age}, height: {height}})', age: 41, height: 70
     end
 
     describe '.create_unique(Person: {age: 41, height: 70})' do
-      it_generates 'CREATE UNIQUE (:`Person` {age: 41, height: 70})'
+      it_generates 'CREATE UNIQUE (:`Person` {age: {Person_age}, height: {Person_height}})', Person_age: 41, Person_height: 70
     end
 
     describe '.create_unique(q: {Person: {age: 41, height: 70}})' do
-      it_generates 'CREATE UNIQUE (q:`Person` {age: 41, height: 70})'
+      it_generates 'CREATE UNIQUE (q:`Person` {age: {q_Person_age}, height: {q_Person_height}})', q_Person_age: 41, q_Person_height: 70
     end
   end
 
@@ -548,15 +548,15 @@ describe Neo4j::Core::Query do
     end
 
     describe '.merge(age: 41, height: 70)' do
-      it_generates 'MERGE ( {age: 41, height: 70})'
+      it_generates 'MERGE ( {age: {age}, height: {height}})', age: 41, height: 70
     end
 
     describe '.merge(Person: {age: 41, height: 70})' do
-      it_generates 'MERGE (:`Person` {age: 41, height: 70})'
+      it_generates 'MERGE (:`Person` {age: {Person_age}, height: {Person_height}})', Person_age: 41, Person_height: 70
     end
 
     describe '.merge(q: {Person: {age: 41, height: 70}})' do
-      it_generates 'MERGE (q:`Person` {age: 41, height: 70})'
+      it_generates 'MERGE (q:`Person` {age: {q_Person_age}, height: {q_Person_height}})', q_Person_age: 41, q_Person_height: 70
     end
   end
 
