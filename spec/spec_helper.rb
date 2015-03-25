@@ -89,6 +89,10 @@ RSpec.configure do |c|
   c.exclusion_filter = {
     api: lambda do |ed|
       RUBY_PLATFORM != 'java' && ed == :embedded
+    end,
+
+    server_only: lambda do |bool|
+      RUBY_PLATFORM == 'java' && bool
     end
   }
 end
