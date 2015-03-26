@@ -107,7 +107,7 @@ module Neo4j
       end
 
       def query(*args)
-        if [[String], [String, String]].include?(args.map(&:class))
+        if [[String], [String, Hash]].include?(args.map(&:class))
           query, params = args[0, 2]
           Neo4j::Embedded::ResultWrapper.new(_query(query, params), query)
         else
