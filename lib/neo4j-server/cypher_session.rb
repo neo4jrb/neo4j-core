@@ -22,9 +22,9 @@ module Neo4j
       # @param [Hash] params could be empty or contain basic authentication user and password
       # @return [Faraday]
       # @see https://github.com/lostisland/faraday
-      def self.create_connection(params)
+      def self.create_connection(params, url = nil)
         init_params = params[:initialize] && params.delete(:initialize)
-        conn = Faraday.new(init_params) do |b|
+        conn = Faraday.new(url, init_params) do |b|
           b.request :basic_auth, params[:basic_auth][:username], params[:basic_auth][:password] if params[:basic_auth]
           b.request :json
           # b.response :logger
@@ -44,8 +44,8 @@ module Neo4j
       # @param [Hash] params faraday params, see #create_connection or an already created faraday connection
       def self.open(endpoint_url = nil, params = {})
         extract_basic_auth(endpoint_url, params)
-        connection = params[:connection] || create_connection(params)
         url = endpoint_url || 'http://localhost:7474'
+        connection = params[:connection] || create_connection(params, url)
         response = connection.get(url)
         fail "Server not available on #{url} (response code #{response.status})" unless response.status == 200
         establish_session(response.body, connection)
