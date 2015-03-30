@@ -74,6 +74,14 @@ describe Neo4j::Core::Query do
     end
   end
 
+  describe 'DEFINED_CLAUSES' do
+    it 'includes a key for each clause' do
+      Neo4j::Core::Query::METHODS.each do |clause_string|
+        expect(Neo4j::Core::Query::DEFINED_CLAUSES).to have_key(clause_string.to_sym)
+      end
+    end
+  end
+
   describe '#clause?' do
     subject(:clause) { query.clause?(clause_method) }
 
@@ -108,7 +116,6 @@ describe Neo4j::Core::Query do
       expects_cypher(cypher, params)
     end
   end
-
 
   describe 'clause combinations' do
     describe ".match(q: Person).where('q.age > 30')" do
