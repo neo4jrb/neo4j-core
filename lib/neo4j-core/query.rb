@@ -14,6 +14,7 @@ module Neo4j
     class Query
       include Neo4j::Core::QueryClauses
       include Neo4j::Core::QueryFindInBatches
+      DEFINED_CLAUSES = {}
 
       def initialize(options = {})
         @session = options[:session] || Neo4j::Session.current
@@ -110,6 +111,7 @@ module Neo4j
       METHODS.each_with_index do |clause, i|
         clause_class = CLAUSES[i]
 
+        DEFINED_CLAUSES[clause.to_sym] = clause_class
         define_method(clause) do |*args|
           build_deeper_query(clause_class, args)
         end
@@ -304,8 +306,7 @@ module Neo4j
       end
 
       def clause?(method)
-        clause_class = CLAUSIFY_CLAUSE.call(method)
-
+        clause_class = DEFINED_CLAUSES[method] || CLAUSIFY_CLAUSE.call(method)
         clauses.any? do |clause|
           clause.is_a?(clause_class)
         end
