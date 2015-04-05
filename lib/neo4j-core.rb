@@ -1,3 +1,5 @@
+require 'ext/kernel'
+
 require 'ostruct'
 require 'forwardable'
 require 'fileutils'
