@@ -171,9 +171,25 @@ RSpec.shared_examples 'Neo4j::Session' do
           @andreas1 = Neo4j::Node.create({name: 'andreas', age: 1}, @label)
         end
 
-        subject { Neo4j::Session.query.match(n: @label).where(n: {name: 'andreas'}).pluck('DISTINCT n.name') }
+        let(:pluck_args) { [] }
+        let(:pluck_result) { Neo4j::Session.query.match(n: @label).where(n: {name: 'andreas'}).pluck(*pluck_args) }
+        subject { pluck_result }
 
-        it { should == ['andreas'] }
+        it 'should raise an error when there are no arguments' do
+          expect { pluck_result }.to raise_error(ArgumentError, 'No columns specified for Query#pluck')
+        end
+
+        context 'plucking DISTINCT name' do
+          let(:pluck_args) { ['DISTINCT n.name'] }
+
+          it { should == ['andreas'] }
+        end
+
+        context 'plucking name and age' do
+          let(:pluck_args) { [{n: [:name, :age]}] }
+
+          it { should match_array([['andreas', 2], ['andreas', 1]]) }
+        end
       end
 
       let(:label_query) { Neo4j::Session.query.match(n: @label) }
