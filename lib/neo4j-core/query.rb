@@ -224,11 +224,12 @@ module Neo4j
       #    Query.new.match(n: :Person).return(p: :name}.pluck('p, DISTINCT p.name') # => Array of [node, name] pairs
       #
       def pluck(*columns)
+        fail ArgumentError, 'No columns specified for Query#pluck' if columns.size.zero?
+
         query = return_query(columns)
         columns = query.response.columns
 
         case columns.size
-        when 0 then fail ArgumentError, 'No columns specified for Query#pluck'
         when 1
           column = columns[0]
           query.map { |row| row[column] }
@@ -245,15 +246,7 @@ module Neo4j
         query = copy
         query.remove_clause_class(ReturnClause)
 
-        columns = columns.flat_map do |column_definition|
-          if column_definition.is_a?(Hash)
-            column_definition.map { |k, v| "#{k}.#{v}" }
-          else
-            column_definition
-          end
-        end.map(&:to_sym)
-
-        query.return(columns)
+        query.return(*columns)
       end
 
       # Returns a CYPHER query string from the object query representation
