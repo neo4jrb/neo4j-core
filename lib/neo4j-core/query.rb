@@ -347,11 +347,17 @@ module Neo4j
 
         def generate_partitioning!
           @partitioning = [[]]
+
           @clauses.each do |clause|
             if clause.nil? && !fresh_partition?
               @partitioning << []
+            elsif clause_is_order_directly_following_with?(clause)
+              second_to_last << clause
+            elsif clause_is_with_following_order?(clause)
+              second_to_last << clause
+              second_to_last.sort_by! { |c| c.is_a?(::Neo4j::Core::QueryClauses::OrderClause) ? 1 : 0 }
             else
-              (clause_is_order_following_with?(clause) ? @partitioning[-2] : @partitioning.last) << clause
+              @partitioning.last << clause
             end
           end
         end
@@ -362,10 +368,18 @@ module Neo4j
           @partitioning.last == []
         end
 
-        def clause_is_order_following_with?(clause)
-          fresh_partition? &&
-            @partitioning[-2] && @partitioning[-2].last.is_a?(::Neo4j::Core::QueryClauses::WithClause) &&
-            clause.is_a?(::Neo4j::Core::QueryClauses::OrderClause)
+        def second_to_last
+          @partitioning[-2]
+        end
+
+        def clause_is_order_directly_following_with?(clause)
+          clause.is_a?(::Neo4j::Core::QueryClauses::OrderClause) &&
+            @partitioning[-2] && @partitioning[-2].last.is_a?(::Neo4j::Core::QueryClauses::WithClause)
+        end
+
+        def clause_is_with_following_order?(clause)
+          clause.is_a?(::Neo4j::Core::QueryClauses::WithClause) &&
+            @partitioning[-2] && @partitioning[-2].any? { |c| c.is_a?(::Neo4j::Core::QueryClauses::OrderClause) }
         end
       end
 
