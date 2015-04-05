@@ -241,13 +241,15 @@ module Neo4j
         end
 
         class << self
+          ARG_HAS_QUESTION_MARK_REGEX = /(^|\s)\?(\s|$)/
+
           def from_args(args, options = {})
             query_string, params = args
-            has_question_mark_regex = /(^|\s)\?(\s|$)/
-            if query_string.is_a?(String) && (query_string.match(has_question_mark_regex) || params.is_a?(Hash))
+
+            if query_string.is_a?(String) && (query_string.match(ARG_HAS_QUESTION_MARK_REGEX) || params.is_a?(Hash))
               if !params.is_a?(Hash)
                 question_mark_params_param = self.question_mark_params_param
-                query_string.gsub!(has_question_mark_regex, "\\1{#{question_mark_params_param}}\\2")
+                query_string.gsub!(ARG_HAS_QUESTION_MARK_REGEX, "\\1{#{question_mark_params_param}}\\2")
                 params = {question_mark_params_param.to_sym => params}
               end
 
