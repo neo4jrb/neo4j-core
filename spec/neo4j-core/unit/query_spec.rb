@@ -166,6 +166,10 @@ describe Neo4j::Core::Query do
       it_generates 'WITH a ORDER BY a.name DESC WHERE (a.name = {a_name})', a_name: 'Foo'
     end
 
+    describe ".order(a: {name: :desc}).with(:a).where(a: {name: 'Foo'})" do
+      it_generates 'WITH a ORDER BY a.name DESC WHERE (a.name = {a_name})', a_name: 'Foo'
+    end
+
     # params
     describe ".match(q: Person).where('q.age = {age}').params(age: 15)" do
       it_generates 'MATCH (q:`Person`) WHERE (q.age = {age})', age: 15
