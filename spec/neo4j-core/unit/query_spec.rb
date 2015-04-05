@@ -162,6 +162,10 @@ describe Neo4j::Core::Query do
       it_generates 'MATCH (q:`Person`), r:Car MATCH (p: Person)-->q'
     end
 
+    describe ".with(:a).order(a: {name: :desc}).where(a: {name: 'Foo'})" do
+      it_generates 'WITH a ORDER BY a.name DESC WHERE (a.name = {a_name})', a_name: 'Foo'
+    end
+
     # params
     describe ".match(q: Person).where('q.age = {age}').params(age: 15)" do
       it_generates 'MATCH (q:`Person`) WHERE (q.age = {age})', age: 15
@@ -314,6 +318,10 @@ describe Neo4j::Core::Query do
 
     describe ".where('q.age IN {age}', age: [30, 32, 34])" do
       it_generates 'WHERE (q.age IN {age})', age: [30, 32, 34]
+    end
+
+    describe ".where('q.name =~ ?', '.*test.*')" do
+      it_generates 'WHERE (q.name =~ {question_mark_param1})', question_mark_param1: '.*test.*'
     end
 
     describe ".where('q.age IN ?', [30, 32, 34])" do

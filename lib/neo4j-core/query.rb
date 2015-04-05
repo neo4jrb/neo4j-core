@@ -100,7 +100,8 @@ module Neo4j
       # DELETE clause
       # @return [Query]
 
-      METHODS = %w(with start match optional_match using where set create create_unique merge on_create_set on_match_set remove unwind delete return order skip limit)
+      METHODS = %w(start match optional_match using where set create create_unique merge on_create_set on_match_set remove unwind delete with return order skip limit)
+      BREAK_METHODS = %(with)
 
       CLAUSIFY_CLAUSE = proc do |method|
         const_get(method.to_s.split('_').map(&:capitalize).join + 'Clause')
@@ -113,7 +114,9 @@ module Neo4j
 
         DEFINED_CLAUSES[clause.to_sym] = clause_class
         define_method(clause) do |*args|
-          build_deeper_query(clause_class, args)
+          build_deeper_query(clause_class, args).ergo do |result|
+            BREAK_METHODS.include?(clause) ? result.break : result
+          end
         end
       end
 
@@ -221,11 +224,12 @@ module Neo4j
       #    Query.new.match(n: :Person).return(p: :name}.pluck('p, DISTINCT p.name') # => Array of [node, name] pairs
       #
       def pluck(*columns)
+        fail ArgumentError, 'No columns specified for Query#pluck' if columns.size.zero?
+
         query = return_query(columns)
         columns = query.response.columns
 
         case columns.size
-        when 0 then fail ArgumentError, 'No columns specified for Query#pluck'
         when 1
           column = columns[0]
           query.map { |row| row[column] }
@@ -242,15 +246,7 @@ module Neo4j
         query = copy
         query.remove_clause_class(ReturnClause)
 
-        columns = columns.flat_map do |column_definition|
-          if column_definition.is_a?(Hash)
-            column_definition.map { |k, v| "#{k}.#{v}" }
-          else
-            column_definition
-          end
-        end.map(&:to_sym)
-
-        query.return(columns)
+        query.return(*columns)
       end
 
       # Returns a CYPHER query string from the object query representation
@@ -260,7 +256,7 @@ module Neo4j
       # @return [String] Resulting cypher query string
       EMPTY = ' '
       def to_cypher
-        cypher_string = partitioned_clauses.map! do |clauses|
+        cypher_string = PartitionedClauses.new(@clauses).map do |clauses|
           clauses_by_class = clauses.group_by(&:class)
 
           cypher_parts = CLAUSES.map do |clause_class|
@@ -337,36 +333,47 @@ module Neo4j
         end
       end
 
-      def break_deeper_query
-        copy.tap do |new_query|
-          new_query.add_clauses [nil]
+      class PartitionedClauses
+        def initialize(clauses)
+          @clauses = clauses
+          @partitioning = [[]]
         end
-      end
 
-      def partitioned_clauses
-        partitioning = [[]]
+        include Enumerable
 
-        @clauses.each do |clause|
-          if clause.nil? && partitioning.last != []
-            partitioning << []
-          else
-            partitioning.last << clause
+        def each
+          generate_partitioning!
+
+          @partitioning.each { |partition| yield partition }
+        end
+
+        def generate_partitioning!
+          @partitioning = [[]]
+          @clauses.each do |clause|
+            if clause.nil? && !fresh_partition?
+              @partitioning << []
+            else
+              (clause_is_order_following_with?(clause) ? @partitioning[-2] : @partitioning.last) << clause
+            end
           end
         end
 
-        partitioning
+        private
+
+        def fresh_partition?
+          @partitioning.last == []
+        end
+
+        def clause_is_order_following_with?(clause)
+          fresh_partition? &&
+            @partitioning[-2] && @partitioning[-2].last.is_a?(::Neo4j::Core::QueryClauses::WithClause) &&
+            clause.is_a?(::Neo4j::Core::QueryClauses::OrderClause)
+        end
       end
 
       def merge_params
         @clauses.compact!
         @merge_params ||= @clauses.inject(@_params) { |params, clause| params.merge!(clause.params) }
-      end
-
-      def sanitize_params(params)
-        passthrough_classes = [String, Numeric, Array, Regexp]
-        params.each do |key, value|
-          params[key] = value.to_s if not passthrough_classes.any? { |klass| value.is_a?(klass) }
-        end
       end
     end
   end

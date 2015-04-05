@@ -139,7 +139,8 @@ module Neo4j
 
         def key_value_string(key, value, previous_keys = [], force_equals = false)
           param = (previous_keys << key).join(UNDERSCORE)
-          param.tr_s!('^a-zA-Z0-9', UNDERSCORE).gsub!(/^_+|_+$/, '')
+          param.tr_s!('^a-zA-Z0-9', UNDERSCORE)
+          param.gsub!(/^_+|_+$/, '')
 
           value = value.first if value.is_a?(Array) && value.size == 1
           @params[param.to_sym] = value
@@ -244,12 +245,15 @@ module Neo4j
         end
 
         class << self
+          ARG_HAS_QUESTION_MARK_REGEX = /(^|\s)\?(\s|$)/
+
           def from_args(args, options = {})
             query_string, params = args
-            if args.size == 2 && (query_string.is_a?(String) && !params.is_a?(String))
+
+            if query_string.is_a?(String) && (query_string.match(ARG_HAS_QUESTION_MARK_REGEX) || params.is_a?(Hash))
               if !params.is_a?(Hash)
                 question_mark_params_param = self.question_mark_params_param
-                query_string.gsub!(/(^|\s)\?(\s|$)/, "\\1{#{question_mark_params_param}}\\2")
+                query_string.gsub!(ARG_HAS_QUESTION_MARK_REGEX, "\\1{#{question_mark_params_param}}\\2")
                 params = {question_mark_params_param.to_sym => params}
               end
 

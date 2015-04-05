@@ -46,7 +46,7 @@ module Neo4j
       end
     end
 
-    class EmbeddedNode
+    class EmbeddedNode < Neo4j::Node
       class << self
         # This method is used to extend a Java Neo4j class so that it includes the same mixins as this class.
         Java::OrgNeo4jKernelImplCore::NodeProxy.class_eval do
@@ -189,10 +189,6 @@ module Neo4j
               ToJava.type_to_java(match[:type]),
               match[:between] && match[:between].neo_id
             ]
-          end
-
-          def class
-            Neo4j::Node
           end
 
           include Neo4j::Node::Wrapper
