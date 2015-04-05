@@ -379,13 +379,6 @@ module Neo4j
       def merge_params
         @merge_params ||= @clauses.compact.inject(@_params) { |params, clause| params.merge(clause.params) }
       end
-
-      def sanitize_params(params)
-        passthrough_classes = [String, Numeric, Array, Regexp]
-        params.each do |key, value|
-          params[key] = value.to_s if not passthrough_classes.any? { |klass| value.is_a?(klass) }
-        end
-      end
     end
   end
 end
