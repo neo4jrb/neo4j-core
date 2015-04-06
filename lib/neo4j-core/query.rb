@@ -100,7 +100,7 @@ module Neo4j
       # DELETE clause
       # @return [Query]
 
-      METHODS = %w(start match optional_match using where set create create_unique merge on_create_set on_match_set remove unwind delete with return order skip limit)
+      METHODS = %w(start match optional_match using where create create_unique merge set on_create_set on_match_set remove unwind delete with return order skip limit)
       BREAK_METHODS = %(with)
 
       CLAUSIFY_CLAUSE = proc do |method|
