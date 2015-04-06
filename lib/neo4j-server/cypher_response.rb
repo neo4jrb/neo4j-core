@@ -36,7 +36,7 @@ module Neo4j
           "Enumerable query: '#{@query}'"
         end
 
-        def each(&block)
+        def each
           @response.each_data_row do |row|
             yield struct_rows(row)
           end

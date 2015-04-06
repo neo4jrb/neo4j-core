@@ -198,7 +198,8 @@ module Neo4j
         end
       end
 
-      def ensure_single_relationship(&block)
+      def ensure_single_relationship
+        fail 'Expected a block' unless block_given?
         result = yield
         fail "Expected to only find one relationship from node #{neo_id} matching #{match.inspect} but found #{result.count}" if result.count > 1
         result.first
