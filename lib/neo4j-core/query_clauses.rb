@@ -114,7 +114,13 @@ module Neo4j
         end
 
         class << self
-          attr_reader :keyword, :keyword_downcase
+          def keyword
+            self::KEYWORD
+          end
+
+          def keyword_downcase
+            keyword.downcase
+          end
 
           def from_args(args, options = {})
             args.flatten!
@@ -131,7 +137,7 @@ module Neo4j
             string = clause_string(clauses)
             string.strip!
 
-            "#{@keyword} #{string}" if string.size > 0
+            "#{keyword} #{string}" if string.size > 0
           end
         end
 
@@ -184,7 +190,7 @@ module Neo4j
       end
 
       class StartClause < Clause
-        @keyword = 'START'
+        KEYWORD = 'START'
 
         def from_symbol(value)
           from_string(value.to_s)
@@ -207,7 +213,7 @@ module Neo4j
       end
 
       class WhereClause < Clause
-        @keyword = 'WHERE'
+        KEYWORD = 'WHERE'
 
         def from_key_and_value(key, value, previous_keys = [])
           case value
@@ -277,7 +283,7 @@ module Neo4j
 
 
       class MatchClause < Clause
-        @keyword = 'MATCH'
+        KEYWORD = 'MATCH'
 
         def from_symbol(value)
           from_string(value.to_s)
@@ -295,11 +301,11 @@ module Neo4j
       end
 
       class OptionalMatchClause < MatchClause
-        @keyword = 'OPTIONAL MATCH'
+        KEYWORD = 'OPTIONAL MATCH'
       end
 
       class WithClause < Clause
-        @keyword = 'WITH'
+        KEYWORD = 'WITH'
 
         def from_symbol(value)
           from_string(value.to_s)
@@ -317,17 +323,17 @@ module Neo4j
       end
 
       class UsingClause < Clause
-        @keyword = 'USING'
+        KEYWORD = 'USING'
 
         class << self
           def clause_string(clauses)
-            clauses.map!(&:value).join(" #{@keyword} ")
+            clauses.map!(&:value).join(" #{keyword} ")
           end
         end
       end
 
       class CreateClause < Clause
-        @keyword = 'CREATE'
+        KEYWORD = 'CREATE'
 
         def from_string(value)
           value
@@ -359,15 +365,15 @@ module Neo4j
       end
 
       class CreateUniqueClause < CreateClause
-        @keyword = 'CREATE UNIQUE'
+        KEYWORD = 'CREATE UNIQUE'
       end
 
       class MergeClause < CreateClause
-        @keyword = 'MERGE'
+        KEYWORD = 'MERGE'
       end
 
       class DeleteClause < Clause
-        @keyword = 'DELETE'
+        KEYWORD = 'DELETE'
 
         def from_symbol(value)
           from_string(value.to_s)
@@ -381,7 +387,7 @@ module Neo4j
       end
 
       class OrderClause < Clause
-        @keyword = 'ORDER BY'
+        KEYWORD = 'ORDER BY'
 
         def from_symbol(value)
           from_string(value.to_s)
@@ -408,8 +414,7 @@ module Neo4j
       end
 
       class LimitClause < Clause
-        @keyword = 'LIMIT'
-        @keyword_downcase = keyword.downcase
+        KEYWORD = 'LIMIT'
 
         def from_string(value)
           clause_id = "#{self.class.keyword_downcase}_#{value}"
@@ -431,8 +436,7 @@ module Neo4j
       end
 
       class SkipClause < Clause
-        @keyword = 'SKIP'
-        @keyword_downcase = @keyword.downcase
+        KEYWORD = 'SKIP'
 
         def from_string(value)
           clause_id = "#{self.class.keyword_downcase}_#{value}"
@@ -454,7 +458,7 @@ module Neo4j
       end
 
       class SetClause < Clause
-        @keyword = 'SET'
+        KEYWORD = 'SET'
 
         def from_key_and_value(key, value)
           case value
@@ -481,7 +485,7 @@ module Neo4j
       end
 
       class OnCreateSetClause < SetClause
-        @keyword = 'ON CREATE SET'
+        KEYWORD = 'ON CREATE SET'
 
         def initialize(*args)
           super
@@ -490,11 +494,11 @@ module Neo4j
       end
 
       class OnMatchSetClause < OnCreateSetClause
-        @keyword = 'ON MATCH SET'
+        KEYWORD = 'ON MATCH SET'
       end
 
       class RemoveClause < Clause
-        @keyword = 'REMOVE'
+        KEYWORD = 'REMOVE'
 
         def from_key_and_value(key, value)
           case value
@@ -521,7 +525,7 @@ module Neo4j
       end
 
       class UnwindClause < Clause
-        @keyword = 'UNWIND'
+        KEYWORD = 'UNWIND'
 
         def from_key_and_value(key, value)
           case value
@@ -542,7 +546,7 @@ module Neo4j
       end
 
       class ReturnClause < Clause
-        @keyword = 'RETURN'
+        KEYWORD = 'RETURN'
 
         def from_symbol(value)
           from_string(value.to_s)
