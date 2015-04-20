@@ -170,6 +170,8 @@ module Neo4j
 
       # @private
       def match(clazz, returns, match = {})
+        ::Neo4j::Node.validate_match!(match)
+
         cypher_rel = match[:type] ? "[r:`#{match[:type]}`]" : '[r]'
         query = self.query
 

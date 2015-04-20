@@ -6,6 +6,7 @@ module Neo4j
 
       def initialize(node, match)
         @node = node
+        ::Neo4j::Node.validate_match!(match)
         @match = match
       end
 
@@ -184,6 +185,8 @@ module Neo4j
           end
 
           def _parse_match(match)
+            ::Neo4j::Node.validate_match!(match)
+
             [
               ToJava.dir_to_java(match[:dir] || :both),
               ToJava.type_to_java(match[:type]),

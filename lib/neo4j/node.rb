@@ -188,6 +188,13 @@ module Neo4j
       def find_nodes(label, value = nil, session = Neo4j::Session.current!)
         session.find_nodes(label, value)
       end
+
+      def validate_match!(match)
+        invalid_match_keys = match.keys - [:type, :dir, :between]
+        raise "Invalid match keys: #{invalid_match_keys.inspect}" if !invalid_match_keys.empty?
+
+        raise "Invalid dir: #{match[:dir]}" if ![nil, :incoming, :outgoing, :both].include?(match[:dir])
+      end
     end
 
     def initialize
