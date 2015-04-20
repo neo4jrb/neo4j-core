@@ -173,7 +173,7 @@ module Neo4j
         ::Neo4j::Node.validate_match!(match)
 
         query = self.query
-        
+
         query = query.match(:p).where(p: {neo_id: match[:between].neo_id}) if match[:between]
 
         r = query.match("(n)#{relationship_arrow(match)}(p)").return(returns).response
