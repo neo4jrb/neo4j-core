@@ -170,12 +170,13 @@ module Neo4j
 
       # @private
       def match(clazz, returns, match = {})
-        cypher_rel = match[:type] ? "[r:`#{match[:type]}`]" : '[r]'
+        ::Neo4j::Node.validate_match!(match)
+
         query = self.query
 
         query = query.match(:p).where(p: {neo_id: match[:between].neo_id}) if match[:between]
 
-        r = query.match("(n)#{relationship_arrow(cypher_rel, match[:dir])}(p)").return(returns).response
+        r = query.match("(n)#{relationship_arrow(match)}(p)").return(returns).response
 
         r.raise_error if r.error?
 
@@ -188,13 +189,15 @@ module Neo4j
 
       private
 
-      def relationship_arrow(rel_spec, direction = nil)
-        case direction || :both
+      def relationship_arrow(match)
+        rel_spec = match[:type] ? "[r:`#{match[:type]}`]" : '[r]'
+
+        case match[:dir] || :both
         when :outgoing then "-#{rel_spec}->"
         when :incoming then "<-#{rel_spec}-"
         when :both then "-#{rel_spec}-"
         else
-          fail "Invalid value for relationship_arrow direction: #{direction.inspect}"
+          fail "Invalid value for relationship_arrow direction: #{match[:dir].inspect}"
         end
       end
 
