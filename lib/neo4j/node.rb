@@ -191,9 +191,9 @@ module Neo4j
 
       def validate_match!(match)
         invalid_match_keys = match.keys - [:type, :dir, :between]
-        raise "Invalid match keys: #{invalid_match_keys.inspect}" if !invalid_match_keys.empty?
+        fail "Invalid match keys: #{invalid_match_keys.inspect}" if !invalid_match_keys.empty?
 
-        raise "Invalid dir: #{match[:dir]}" if ![nil, :incoming, :outgoing, :both].include?(match[:dir])
+        fail "Invalid dir: #{match[:dir]}" if ![nil, :incoming, :outgoing, :both].include?(match[:dir])
       end
     end
 
