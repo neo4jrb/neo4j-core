@@ -13,8 +13,12 @@ module Neo4j
         factory    = Java::OrgNeo4jGraphdbFactory::HighlyAvailableGraphDatabaseFactory.new
         db_service = factory.newHighlyAvailableDatabaseBuilder(db_location)
 
-        fail Error, 'Need properties file for HA configuration' unless properties_file
-        db_service.loadPropertiesFromFile(properties_file)
+        unless properties_file || properties_map
+          fail Error, 'Need properties for HA configuration'
+        end
+        db_service.loadPropertiesFromFile(properties_file) if properties_file
+        db_service.setConfig(properties_map)               if properties_map
+
         @graph_db = db_service.newGraphDatabase
         Neo4j::Session._notify_listeners(:session_available, self)
       end
