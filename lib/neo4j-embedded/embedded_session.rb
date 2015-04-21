@@ -20,7 +20,10 @@ module Neo4j
         @db_location     = db_location
         @auto_commit     = !!config[:auto_commit]
         @properties_file = config[:properties_file]
-        @properties_map  = config[:properties_map]
+        if config[:properties_map]
+          props = config[:properties_map].inject({}) { |m,(k,v)| m[k.to_s] = v.to_s }
+          @properties_map = java.util.HashMap.new(props)
+        end
         Neo4j::Session.register(self)
       end
 
