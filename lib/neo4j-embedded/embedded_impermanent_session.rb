@@ -9,7 +9,7 @@ module Neo4j
     class EmbeddedImpermanentSession < EmbeddedSession
       def start
         fail Error, 'Embedded Neo4j db is already running' if running?
-        # puts "Start test impermanent embedded Neo4j db at #{db_location}"
+        puts "Start test impermanent embedded Neo4j db"
         @graph_db = Java::OrgNeo4jTest::TestGraphDatabaseFactory.new.newImpermanentDatabase
         Neo4j::Session._notify_listeners(:session_available, self)
       end
