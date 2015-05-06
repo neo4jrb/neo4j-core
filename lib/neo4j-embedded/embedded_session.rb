@@ -37,7 +37,7 @@ module Neo4j
 
       def version
         # Wow
-        version_string = graph_db.to_java(Java::OrgNeo4jKernel::GraphDatabaseAPI).getDependencyResolver.resolveDependency(Java::OrgNeo4jKernel::KernelData.java_class).version.to_s
+        version_string = @graph_db.to_java(Java::OrgNeo4jKernel::GraphDatabaseAPI).getDependencyResolver.resolveDependency(Java::OrgNeo4jKernel::KernelData.java_class).version.to_s
         version_string.split(' ')[-1]
       end
 
@@ -74,12 +74,14 @@ module Neo4j
       end
 
       def shutdown
-        graph_db && graph_db.shutdown
+        @graph_db && @graph_db.shutdown
+
+        Neo4j::Session.clear_listeners
         @graph_db = nil
       end
 
       def running?
-        !!graph_db
+        !!@graph_db
       end
 
       def create_label(name)
@@ -157,10 +159,10 @@ module Neo4j
 
       def create_node(properties = nil, labels = [])
         if labels.empty?
-          graph_db.create_node
+          @graph_db.create_node
         else
           labels = EmbeddedLabel.as_java(labels)
-          graph_db.create_node(labels)
+          @graph_db.create_node(labels)
         end.tap do |java_node|
           properties.each_pair { |k, v| java_node[k] = v } if properties
         end
