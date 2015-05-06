@@ -493,6 +493,20 @@ RSpec.shared_examples 'Neo4j::Node auto tx' do
           end
         end
 
+        describe 'invalid values' do
+          it 'validates dir' do
+            expect { node_a.rels(dir: :incoming) }.not_to raise_error
+            expect { node_a.rels(dir: :outgoing) }.not_to raise_error
+            expect { node_a.rels(dir: :both) }.not_to raise_error
+            expect { node_a.rels(dir: :invalid) }.to raise_error
+          end
+
+          it 'validates expected keys' do
+            expect { node_a.rels }.not_to raise_error
+            expect { node_a.rels(invalid: true) }.to raise_error
+          end
+        end
+
         describe 'rels(type: :work)' do
           it 'finds any dir of one relationship type' do
             rel_a = node_a.create_rel(:best_friend, node_b, age: 42)

@@ -12,6 +12,9 @@ module Neo4j
 
       class Clause
         include CypherTranslator
+        UNDERSCORE = '_'
+        COMMA_SPACE = ', '
+        AND = ' AND '
 
         attr_accessor :params
 
@@ -57,11 +60,13 @@ module Neo4j
           prefix_value = value
           if value.is_a?(Hash)
             prefix_value = if value.values.any? { |v| v.is_a?(Hash) }
-                             value.keys.join('_')
+                             value.keys.join(UNDERSCORE)
                            end
           end
 
-          "(#{var}#{format_label(label)}#{attributes_string(attributes, [key, prefix_value].compact.join('_') + '_')})"
+          prefix_array = [key, prefix_value].tap(&:compact!).join(UNDERSCORE)
+          formatted_attributes = attributes_string(attributes, "#{prefix_array}#{UNDERSCORE}")
+          "(#{var}#{format_label(label)}#{formatted_attributes})"
         end
 
         def var_from_key_and_value(key, value, prefer = :var)
@@ -98,7 +103,7 @@ module Neo4j
         end
 
 
-        def attributes_from_key_and_value(key, value)
+        def attributes_from_key_and_value(_key, value)
           return nil unless value.is_a?(Hash)
 
           if value.values.map(&:class) == [Hash]
@@ -109,12 +114,17 @@ module Neo4j
         end
 
         class << self
-          attr_reader :keyword
+          def keyword
+            self::KEYWORD
+          end
+
+          def keyword_downcase
+            keyword.downcase
+          end
 
           def from_args(args, options = {})
-            args.flatten.map do |arg|
-              from_arg(arg, options)
-            end.compact
+            args.flatten!
+            args.map { |arg| from_arg(arg, options) }.tap(&:compact!)
           end
 
           def from_arg(arg, options = {})
@@ -127,15 +137,15 @@ module Neo4j
             string = clause_string(clauses)
             string.strip!
 
-            "#{@keyword} #{string}" if string.size > 0
+            "#{keyword} #{string}" if string.size > 0
           end
         end
 
         private
 
         def key_value_string(key, value, previous_keys = [], force_equals = false)
-          param = (previous_keys << key).join('_')
-          param.tr_s!('^a-zA-Z0-9', '_')
+          param = (previous_keys << key).join(UNDERSCORE)
+          param.tr_s!('^a-zA-Z0-9', UNDERSCORE)
           param.gsub!(/^_+|_+$/, '')
 
           value = value.first if value.is_a?(Array) && value.size == 1
@@ -173,14 +183,14 @@ module Neo4j
               @params[param_key.to_sym] = value
               "#{key}: {#{param_key}}"
             end
-          end.join(', ')
+          end.join(Clause::COMMA_SPACE)
 
           " {#{attributes_string}}"
         end
       end
 
       class StartClause < Clause
-        @keyword = 'START'
+        KEYWORD = 'START'
 
         def from_symbol(value)
           from_string(value.to_s)
@@ -197,13 +207,13 @@ module Neo4j
 
         class << self
           def clause_string(clauses)
-            clauses.map!(&:value).join(', ')
+            clauses.map!(&:value).join(Clause::COMMA_SPACE)
           end
         end
       end
 
       class WhereClause < Clause
-        @keyword = 'WHERE'
+        KEYWORD = 'WHERE'
 
         def from_key_and_value(key, value, previous_keys = [])
           case value
@@ -218,7 +228,7 @@ module Neo4j
 
         class << self
           def clause_string(clauses)
-            clauses.map(&:value).flatten.map { |value| "(#{value})" }.join(' AND ')
+            clauses.map!(&:value).tap(&:flatten!).map! { |value| "(#{value})" }.join(Clause::AND)
           end
         end
 
@@ -232,7 +242,7 @@ module Neo4j
             else
               "#{key}.#{from_key_and_value(k, v, previous_keys + [key])}"
             end
-          end.join(' AND ')
+          end.join(AND)
         end
 
         def regexp_key_value_string(key, value)
@@ -273,7 +283,7 @@ module Neo4j
 
 
       class MatchClause < Clause
-        @keyword = 'MATCH'
+        KEYWORD = 'MATCH'
 
         def from_symbol(value)
           from_string(value.to_s)
@@ -285,17 +295,17 @@ module Neo4j
 
         class << self
           def clause_string(clauses)
-            clauses.map!(&:value).join(', ')
+            clauses.map!(&:value).join(Clause::COMMA_SPACE)
           end
         end
       end
 
       class OptionalMatchClause < MatchClause
-        @keyword = 'OPTIONAL MATCH'
+        KEYWORD = 'OPTIONAL MATCH'
       end
 
       class WithClause < Clause
-        @keyword = 'WITH'
+        KEYWORD = 'WITH'
 
         def from_symbol(value)
           from_string(value.to_s)
@@ -307,23 +317,23 @@ module Neo4j
 
         class << self
           def clause_string(clauses)
-            clauses.map!(&:value).join(', ')
+            clauses.map!(&:value).join(Clause::COMMA_SPACE)
           end
         end
       end
 
       class UsingClause < Clause
-        @keyword = 'USING'
+        KEYWORD = 'USING'
 
         class << self
           def clause_string(clauses)
-            clauses.map!(&:value).join(" #{@keyword} ")
+            clauses.map!(&:value).join(" #{keyword} ")
           end
         end
       end
 
       class CreateClause < Clause
-        @keyword = 'CREATE'
+        KEYWORD = 'CREATE'
 
         def from_string(value)
           value
@@ -355,15 +365,15 @@ module Neo4j
       end
 
       class CreateUniqueClause < CreateClause
-        @keyword = 'CREATE UNIQUE'
+        KEYWORD = 'CREATE UNIQUE'
       end
 
       class MergeClause < CreateClause
-        @keyword = 'MERGE'
+        KEYWORD = 'MERGE'
       end
 
       class DeleteClause < Clause
-        @keyword = 'DELETE'
+        KEYWORD = 'DELETE'
 
         def from_symbol(value)
           from_string(value.to_s)
@@ -371,13 +381,13 @@ module Neo4j
 
         class << self
           def clause_string(clauses)
-            clauses.map!(&:value).join(', ')
+            clauses.map!(&:value).join(Clause::COMMA_SPACE)
           end
         end
       end
 
       class OrderClause < Clause
-        @keyword = 'ORDER BY'
+        KEYWORD = 'ORDER BY'
 
         def from_symbol(value)
           from_string(value.to_s)
@@ -398,22 +408,22 @@ module Neo4j
 
         class << self
           def clause_string(clauses)
-            clauses.map!(&:value).join(', ')
+            clauses.map!(&:value).join(Clause::COMMA_SPACE)
           end
         end
       end
 
       class LimitClause < Clause
-        @keyword = 'LIMIT'
+        KEYWORD = 'LIMIT'
 
         def from_string(value)
-          clause_id = "#{self.class.keyword.downcase}_#{value}"
+          clause_id = "#{self.class.keyword_downcase}_#{value}"
           @params[clause_id] = value.to_i
           "{#{clause_id}}"
         end
 
         def from_integer(value)
-          clause_id = "#{self.class.keyword.downcase}_#{value}"
+          clause_id = "#{self.class.keyword_downcase}_#{value}"
           @params[clause_id] = value
           "{#{clause_id}}"
         end
@@ -426,16 +436,16 @@ module Neo4j
       end
 
       class SkipClause < Clause
-        @keyword = 'SKIP'
+        KEYWORD = 'SKIP'
 
         def from_string(value)
-          clause_id = "#{self.class.keyword.downcase}_#{value}"
+          clause_id = "#{self.class.keyword_downcase}_#{value}"
           @params[clause_id] = value.to_i
           "{#{clause_id}}"
         end
 
         def from_integer(value)
-          clause_id = "#{self.class.keyword.downcase}_#{value}"
+          clause_id = "#{self.class.keyword_downcase}_#{value}"
           @params[clause_id] = value
           "{#{clause_id}}"
         end
@@ -448,14 +458,14 @@ module Neo4j
       end
 
       class SetClause < Clause
-        @keyword = 'SET'
+        KEYWORD = 'SET'
 
         def from_key_and_value(key, value)
           case value
           when String, Symbol then "#{key}:`#{value}`"
           when Hash
             if @options[:set_props]
-              attribute_string = value.map { |k, v| "#{k}: #{v.inspect}" }.join(', ')
+              attribute_string = value.map { |k, v| "#{k}: #{v.inspect}" }.join(Clause::COMMA_SPACE)
               "#{key} = {#{attribute_string}}"
             else
               value.map { |k, v| key_value_string("#{key}.`#{k}`", v, ['setter'], true) }
@@ -469,13 +479,13 @@ module Neo4j
 
         class << self
           def clause_string(clauses)
-            clauses.map!(&:value).join(', ')
+            clauses.map!(&:value).join(Clause::COMMA_SPACE)
           end
         end
       end
 
       class OnCreateSetClause < SetClause
-        @keyword = 'ON CREATE SET'
+        KEYWORD = 'ON CREATE SET'
 
         def initialize(*args)
           super
@@ -484,11 +494,11 @@ module Neo4j
       end
 
       class OnMatchSetClause < OnCreateSetClause
-        @keyword = 'ON MATCH SET'
+        KEYWORD = 'ON MATCH SET'
       end
 
       class RemoveClause < Clause
-        @keyword = 'REMOVE'
+        KEYWORD = 'REMOVE'
 
         def from_key_and_value(key, value)
           case value
@@ -509,13 +519,13 @@ module Neo4j
 
         class << self
           def clause_string(clauses)
-            clauses.map!(&:value).join(', ')
+            clauses.map!(&:value).join(Clause::COMMA_SPACE)
           end
         end
       end
 
       class UnwindClause < Clause
-        @keyword = 'UNWIND'
+        KEYWORD = 'UNWIND'
 
         def from_key_and_value(key, value)
           case value
@@ -536,7 +546,7 @@ module Neo4j
       end
 
       class ReturnClause < Clause
-        @keyword = 'RETURN'
+        KEYWORD = 'RETURN'
 
         def from_symbol(value)
           from_string(value.to_s)
@@ -547,7 +557,7 @@ module Neo4j
           when Array
             value.map do |v|
               from_key_and_value(key, v)
-            end.join(', ')
+            end.join(Clause::COMMA_SPACE)
           when String, Symbol
             if value.to_sym == :neo_id
               "ID(#{key})"
@@ -561,7 +571,7 @@ module Neo4j
 
         class << self
           def clause_string(clauses)
-            clauses.map!(&:value).join(', ')
+            clauses.map!(&:value).join(Clause::COMMA_SPACE)
           end
         end
       end
