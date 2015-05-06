@@ -168,6 +168,10 @@ module Neo4j
         "#{gem}-gem/#{version} (https://github.com/neo4jrb/#{gem})"
       end
 
+      def clear_listeners
+        @@listeners = []
+      end
+
       # @private
       def add_listener(&listener)
         _listeners << listener
