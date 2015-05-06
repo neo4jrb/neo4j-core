@@ -69,6 +69,8 @@ module Neo4j
 
       def shutdown
         graph_db && graph_db.shutdown
+
+        Neo4j::Session.clear_listeners
         @graph_db = nil
       end
 
