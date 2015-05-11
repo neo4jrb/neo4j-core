@@ -179,7 +179,7 @@ module Neo4j
             if value.to_s.match(/^{.+}$/)
               "#{key}: #{value}"
             else
-              param_key = prefix + key.to_s
+              param_key = "#{prefix}#{key}".tap { |s| s.gsub!('::', '_') }
               @params[param_key.to_sym] = value
               "#{key}: {#{param_key}}"
             end
