@@ -8,5 +8,5 @@ rvm:
   - jruby-1.7.16
   # - jruby-19mode
 env:
-  - NEO4J_VERSION=community-2.2.0-RC01
+  - NEO4J_VERSION=community-2.2.1
   - NEO4J_VERSION=community-2.1.7
