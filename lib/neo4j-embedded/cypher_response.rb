@@ -56,7 +56,7 @@ module Neo4j
       private
 
       def unwrap(value)
-        if value.respond_to?(:to_a)
+        if !value.nil? && value.respond_to?(:to_a)
           value.map { |v| unwrap(v) }
         else
           (!value.respond_to?(:wrapper) || unwrapped?) ? value : value.wrapper
