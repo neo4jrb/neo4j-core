@@ -61,17 +61,21 @@ namespace :neo4j do
     end
   end
 
+  def system_or_fail(command)
+    system(command) or fail "Unable to run: #{command}" # rubocop:disable Style/AndOr
+  end
+
   def start_windows_server(command, args)
-    if `reg query "HKU\\S-1-5-19"`.size > 0
-      `#{install_location(args)}/bin/Neo4j.bat #{command}`  # start service
+    if system_or_fail!('reg query "HKU\\S-1-5-19"').size > 0
+      system_or_fail("#{install_location(args)}/bin/Neo4j.bat #{command}")  # start service
     else
       puts 'Starting Neo4j directly, not as a service.'
-      `#{install_location(args)}/bin/Neo4j.bat`
+      system_or_fail("#{install_location(args)}/bin/Neo4j.bat")
     end
   end
 
   def start_starnix_server(command, args)
-    `#{install_location(args)}/bin/neo4j #{command}`
+    system_or_fail("#{install_location(args)}/bin/neo4j #{command}")
   end
 
   desc 'Install Neo4j with auth disabled in v2.2+, example neo4j:install[community-2.1.3,development]'
@@ -101,15 +105,15 @@ namespace :neo4j do
       end
 
       # Install if running with Admin Privileges
-      if `reg query "HKU\\S-1-5-19"`.size > 0
-        `"#{install_location(args)}/bin/neo4j install"`
+      if system_or_fail('reg query "HKU\\S-1-5-19"').size > 0
+        system_or_fail("\"#{install_location(args)}/bin/neo4j install\"")
         puts 'Neo4j Installed as a service.'
       end
 
     else
-      `tar -xvf #{downloaded_file}`
-      `mv neo4j-#{edition} #{install_location(args)}`
-      `rm #{downloaded_file}`
+      system_or_fail("tar -xvf #{downloaded_file}")
+      system_or_fail("mv neo4j-#{edition} #{install_location(args)}")
+      system_or_fail("rm #{downloaded_file}")
       puts 'Neo4j Installed in to neo4j directory.'
     end
     rake_auth_toggle(args, :disable) unless /-2\.0|1\.[0-9]/.match(args[:edition])
@@ -137,81 +141,58 @@ namespace :neo4j do
     File.open(location, 'w') { |file| file.puts replace }
   end
 
+  def validate_is_system_admin!
+    return unless OS::Underlying.windows?
+    return if system_or_fail("reg query \"HKU\\S-1-5-19\"").size > 0
+
+    fail 'You do not have administrative rights to stop the Neo4j Service'
+  end
+
+  def run_neo4j_command_or_fail!(args, command)
+    binary = OS::Underlying.windows? ? 'Neo4j.bat' : 'neo4j'
+
+    system_or_fail("#{install_location(args)}/bin/#{binary} #{command}")
+  end
+
   desc 'Stop the Neo4j Server'
   task :stop, :environment do |_, args|
     puts "Stopping Neo4j #{get_environment(args)}..."
-    if OS::Underlying.windows?
-      if `reg query "HKU\\S-1-5-19"`.size > 0
-        `#{install_location(args)}/bin/Neo4j.bat stop`  # stop service
-      else
-        puts 'You do not have administrative rights to stop the Neo4j Service'
-      end
-    else
-      `#{install_location(args)}/bin/neo4j stop`
-    end
+    validate_is_system_admin!
+
+    run_neo4j_command_or_fail!(args, :stop)
   end
 
   desc 'Get info the Neo4j Server'
   task :info, :environment do |_, args|
     puts "Info from Neo4j #{get_environment(args)}..."
-    if OS::Underlying.windows?
-      if `reg query "HKU\\S-1-5-19"`.size > 0
-        `#{install_location(args)}/bin/Neo4j.bat info`  # stop service
-      else
-        puts 'You do not have administrative rights to get info from the Neo4j Service'
-      end
-    else
-      puts `#{install_location(args)}/bin/neo4j info`
-    end
+    validate_is_system_admin!
+
+    run_neo4j_command_or_fail!(args, :info)
   end
 
   desc 'Restart the Neo4j Server'
   task :restart, :environment do |_, args|
     puts "Restarting Neo4j #{get_environment(args)}..."
-    if OS::Underlying.windows?
-      if `reg query "HKU\\S-1-5-19"`.size > 0
-        `#{install_location(args)}/bin/Neo4j.bat restart`
-      else
-        puts 'You do not have administrative rights to restart the Neo4j Service'
-      end
-    else
-      `#{install_location(args)}/bin/neo4j restart`
-    end
+    validate_is_system_admin!
+
+    run_neo4j_command_or_fail!(args, :restart)
   end
 
   desc 'Reset the Neo4j Server'
   task :reset_yes_i_am_sure, :environment do |_, args|
-    # Stop the server
-    if OS::Underlying.windows?
-      if `reg query "HKU\\S-1-5-19"`.size > 0
-        `#{install_location(args)}/bin/Neo4j.bat stop`
+    validate_is_system_admin!
 
-        # Reset the database
-        FileUtils.rm_rf("#{install_location(args)}/data/graph.db")
-        FileUtils.mkdir("#{install_location(args)}/data/graph.db")
+    run_neo4j_command_or_fail!(args, :stop)
 
-        # Remove log files
-        FileUtils.rm_rf("#{install_location(args)}/data/log")
-        FileUtils.mkdir("#{install_location(args)}/data/log")
+    # Reset the database
+    FileUtils.rm_rf("#{install_location(args)}/data/graph.db")
+    FileUtils.mkdir("#{install_location(args)}/data/graph.db")
 
-        `#{install_location(args)}/bin/Neo4j.bat start`
-      else
-        puts 'You do not have administrative rights to reset the Neo4j Service'
-      end
-    else
-      `#{install_location(args)}/bin/neo4j stop`
+    # Remove log files
+    FileUtils.rm_rf("#{install_location(args)}/data/log")
+    FileUtils.mkdir("#{install_location(args)}/data/log")
 
-      # Reset the database
-      FileUtils.rm_rf("#{install_location(args)}/data/graph.db")
-      FileUtils.mkdir("#{install_location(args)}/data/graph.db")
-
-      # Remove log files
-      FileUtils.rm_rf("#{install_location(args)}/data/log")
-      FileUtils.mkdir("#{install_location(args)}/data/log")
-
-      # Start the server
-      `#{install_location(args)}/bin/neo4j start`
-    end
+    run_neo4j_command_or_fail!(args, :start)
   end
 
   desc 'Neo4j 2.2: Change connection password'
