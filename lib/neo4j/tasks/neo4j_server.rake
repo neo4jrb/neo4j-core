@@ -62,7 +62,7 @@ namespace :neo4j do
   end
 
   def system_or_fail(command)
-    system(command) or fail "Unable to run: #{command}"
+    system(command) or fail "Unable to run: #{command}" # rubocop:disable Style/AndOr
   end
 
   def start_windows_server(command, args)
@@ -144,8 +144,8 @@ namespace :neo4j do
   def validate_is_system_admin!
     return unless OS::Underlying.windows?
     return if system_or_fail("reg query \"HKU\\S-1-5-19\"").size > 0
-    
-    fail 'You do not have administrative rights to stop the Neo4j Service' 
+
+    fail 'You do not have administrative rights to stop the Neo4j Service'
   end
 
   def run_neo4j_command_or_fail!(args, command)
