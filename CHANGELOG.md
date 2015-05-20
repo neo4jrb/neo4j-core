@@ -3,6 +3,9 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased][unreleased]
+- Nothing yet, placeholder
+
 ## [5.0.0] - 2015-05-20
 ### Changed
 - Ruby 2.0.0 now required (>= 2.2.1 is recommended)
