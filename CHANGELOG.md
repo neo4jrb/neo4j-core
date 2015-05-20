@@ -44,7 +44,7 @@ clause called upon it in the past
 * New method `#count` lets you query a count of a variable
 
 
-## [4.0.0]
+## [v4.0.0]
 This release focuses mostly on performance and security.
 * Fixed a few n+1 queries, force the use of params in more common locations.
 * The CypherTransaction class was heavily refactored to improve the number of database connections required per transaction. This may be considered a breaking API change. Using `Neo4j::Transaction.new` or `Neo4j::Transaction.run` as instructed in all docs and examples protects the user from this, so there should be no changes required to old code in most cases.
