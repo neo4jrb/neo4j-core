@@ -16,6 +16,8 @@ module Neo4j
       include Neo4j::Core::QueryFindInBatches
       DEFINED_CLAUSES = {}
 
+      attr_accessor :clauses
+
       def initialize(options = {})
         @session = options[:session] || Neo4j::Session.current
 
@@ -312,7 +314,7 @@ module Neo4j
 
       protected
 
-      attr_accessor :session, :options, :clauses, :_params
+      attr_accessor :session, :options, :_params
 
       def add_clauses(clauses)
         @clauses += clauses
