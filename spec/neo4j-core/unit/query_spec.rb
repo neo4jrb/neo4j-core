@@ -105,13 +105,14 @@ describe Neo4j::Core::Query do
     end
   end
 
-  def expects_cypher(cypher, params = nil)
+  def expects_cypher(cypher, params = {})
     query = eval("Neo4j::Core::Query.new#{self.class.description}") # rubocop:disable Lint/Eval
     expect(query.to_cypher).to eq(cypher)
-    expect(query.send(:merge_params)).to eq(params) if params
+    query_params = query.send(:merge_params) || {}
+    expect(query_params).to eq(params) if params.size > 0 || query_params.size > 0
   end
 
-  def self.it_generates(cypher, params = nil)
+  def self.it_generates(cypher, params = {})
     it "generates #{cypher}" do
       expects_cypher(cypher, params)
     end
@@ -166,8 +167,24 @@ describe Neo4j::Core::Query do
       it_generates 'WITH a ORDER BY a.name DESC WHERE (a.name = {a_name})', a_name: 'Foo'
     end
 
+    describe ".with(:a).limit(2).where(a: {name: 'Foo'})" do
+      it_generates 'WITH a LIMIT {limit_2} WHERE (a.name = {a_name})', a_name: 'Foo', limit_2: 2
+    end
+
+    describe ".with(:a).order(a: {name: :desc}).limit(2).where(a: {name: 'Foo'})" do
+      it_generates 'WITH a ORDER BY a.name DESC LIMIT {limit_2} WHERE (a.name = {a_name})', a_name: 'Foo', limit_2: 2
+    end
+
     describe ".order(a: {name: :desc}).with(:a).where(a: {name: 'Foo'})" do
       it_generates 'WITH a ORDER BY a.name DESC WHERE (a.name = {a_name})', a_name: 'Foo'
+    end
+
+    describe ".limit(2).with(:a).where(a: {name: 'Foo'})" do
+      it_generates 'WITH a LIMIT {limit_2} WHERE (a.name = {a_name})', a_name: 'Foo', limit_2: 2
+    end
+ 
+    describe ".order(a: {name: :desc}).limit(2).with(:a).where(a: {name: 'Foo'})" do
+      it_generates 'WITH a ORDER BY a.name DESC LIMIT {limit_2} WHERE (a.name = {a_name})', a_name: 'Foo', limit_2: 2
     end
 
     # params
@@ -350,7 +367,7 @@ describe Neo4j::Core::Query do
     end
 
     describe '.where(q: {neo_id: 22})' do
-      it_generates 'WHERE (ID(q) = {ID_q})'
+      it_generates 'WHERE (ID(q) = {ID_q})', ID_q: 22
     end
 
     describe ".where(q: {age: 30, name: 'Brian'})" do
@@ -455,15 +472,15 @@ describe Neo4j::Core::Query do
 
   describe '#limit' do
     describe '.limit(3)' do
-      it_generates 'LIMIT {limit_3}'
+      it_generates 'LIMIT {limit_3}', limit_3: 3
     end
 
     describe ".limit('3')" do
-      it_generates 'LIMIT {limit_3}'
+      it_generates 'LIMIT {limit_3}', limit_3: 3
     end
 
     describe '.limit(3).limit(5)' do
-      it_generates 'LIMIT {limit_5}'
+      it_generates 'LIMIT {limit_5}', limit_5: 5
     end
   end
 
@@ -471,19 +488,19 @@ describe Neo4j::Core::Query do
 
   describe '#skip' do
     describe '.skip(5)' do
-      it_generates 'SKIP {skip_5}'
+      it_generates 'SKIP {skip_5}', skip_5: 5
     end
 
     describe ".skip('5')" do
-      it_generates 'SKIP {skip_5}'
+      it_generates 'SKIP {skip_5}', skip_5: 5
     end
 
     describe '.skip(5).skip(10)' do
-      it_generates 'SKIP {skip_10}'
+      it_generates 'SKIP {skip_10}', skip_10: 10
     end
 
     describe '.offset(6)' do
-      it_generates 'SKIP {skip_6}'
+      it_generates 'SKIP {skip_6}', skip_6: 6
     end
   end
 
