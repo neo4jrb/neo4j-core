@@ -16,7 +16,7 @@ module Neo4j
         COMMA_SPACE = ', '
         AND = ' AND '
 
-        attr_accessor :params
+        attr_accessor :params, :arg
 
         def initialize(arg, options = {})
           @arg = arg
