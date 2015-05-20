@@ -418,13 +418,13 @@ module Neo4j
 
         def from_string(value)
           clause_id = "#{self.class.keyword_downcase}_#{value}"
-          @params[clause_id] = value.to_i
+          @params[clause_id.to_sym] = value.to_i
           "{#{clause_id}}"
         end
 
         def from_integer(value)
           clause_id = "#{self.class.keyword_downcase}_#{value}"
-          @params[clause_id] = value
+          @params[clause_id.to_sym] = value
           "{#{clause_id}}"
         end
 
@@ -440,13 +440,13 @@ module Neo4j
 
         def from_string(value)
           clause_id = "#{self.class.keyword_downcase}_#{value}"
-          @params[clause_id] = value.to_i
+          @params[clause_id.to_sym] = value.to_i
           "{#{clause_id}}"
         end
 
         def from_integer(value)
           clause_id = "#{self.class.keyword_downcase}_#{value}"
-          @params[clause_id] = value
+          @params[clause_id.to_sym] = value
           "{#{clause_id}}"
         end
 
