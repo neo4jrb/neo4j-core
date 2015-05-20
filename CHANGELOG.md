@@ -7,14 +7,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Nothing yet, placeholder
 
 ## [5.0.0] - 2015-05-20
+
 ### Changed
 - Ruby 2.0.0 now required (>= 2.2.1 is recommended)
 - Rake tasks `neo4j:(install|start|stop|restart|info|reset_yes_i_am_sure)` now output log messages / errors
 - In `Query` chains, a `with` followed immediately by a `limit` and/or an `order` will have the `limit`/`order` clauses applied to it as you would expect
 - Major refactoring using `rubocop` and speed improvements
 - Queries are retried on failure to deal with `RWLock` errors
+
 ### Fixed
 - Bug when starting/stopping embedded sessions repeatedly (like for tests) fixed
+
 ### Added
 - `Query#count` method now available
 - `Query#clause?` method now available to determine if a `Query` object has a particular clause defined
@@ -28,17 +31,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 * Many instances of using strings were changed to use symbols
 * Certain query responses are now automatically retried
 * `Neo4j::Core::Query` changes
-	* WHERE clauses from `Query` chains are now surrounded by parentheses to avoid problems
-	* WHERE clauses now support Arrays and `nil` values for labels
-	* WHERE clauses with strings now support a second argument for parameters.  Examples:
-	  * `where("foo = {bar}", bar: value)`)
-	  * `where("foo = ?", value)`)
-	* REMOVE clauses now quote labels and support arrays to specify all labels
-	and properties for one variable
-	* RETURN clauses now turn `:neo_id` into `ID(var)`
-	* New method `#clause?` lets you determine if a `Query` object had a
-	clause called upon it in the past
-	* New method `#count` lets you query a count of a variable
+* WHERE clauses from `Query` chains are now surrounded by parentheses to avoid problems
+* WHERE clauses now support Arrays and `nil` values for labels
+* WHERE clauses with strings now support a second argument for parameters.  Examples:
+  * `where("foo = {bar}", bar: value)`)
+  * `where("foo = ?", value)`)
+* REMOVE clauses now quote labels and support arrays to specify all labels
+and properties for one variable
+* RETURN clauses now turn `:neo_id` into `ID(var)`
+* New method `#clause?` lets you determine if a `Query` object had a
+clause called upon it in the past
+* New method `#count` lets you query a count of a variable
 
 
 ## [4.0.0]
