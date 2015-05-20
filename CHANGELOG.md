@@ -24,6 +24,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Arrays can now be passed as labels in a `Query` chain (e.g. `.match(n: [:Person, "Animal"])` generates: MATCH (n:`Person`:`Animal`) )
 - The `Query#set` and `Query#remove` methods now support setting labels (either via `Symbol`s or `Array`s)
 
+(There are probably other changes too!)
+
 **Changes above this point should conform to [http://keepachangelog.com/]**
 
 ## [4.1.0]
