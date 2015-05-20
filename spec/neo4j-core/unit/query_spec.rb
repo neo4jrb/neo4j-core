@@ -182,7 +182,7 @@ describe Neo4j::Core::Query do
     describe ".limit(2).with(:a).where(a: {name: 'Foo'})" do
       it_generates 'WITH a LIMIT {limit_2} WHERE (a.name = {a_name})', a_name: 'Foo', limit_2: 2
     end
- 
+
     describe ".order(a: {name: :desc}).limit(2).with(:a).where(a: {name: 'Foo'})" do
       it_generates 'WITH a ORDER BY a.name DESC LIMIT {limit_2} WHERE (a.name = {a_name})', a_name: 'Foo', limit_2: 2
     end
