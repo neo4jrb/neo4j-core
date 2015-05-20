@@ -26,7 +26,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 **Changes above this point should conform to [http://keepachangelog.com/]**
 
-## [4.1.0]
+## [v4.1.0]
 * A lot of work working with rubocop to clean up code
 * Many instances of using strings were changed to use symbols
 * Certain query responses are now automatically retried
