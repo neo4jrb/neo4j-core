@@ -1,4 +1,26 @@
-== 4.1.0
+# Change Log
+All notable changes to this project will be documented in this file.
+This file should follow the standards specified on [http://keepachangelog.com/]
+This project adheres to [Semantic Versioning](http://semver.org/).
+
+## [5.0.0] - 2015-05-20
+### Changed
+- Ruby 2.0.0 now required (>= 2.2.1 is recommended)
+- Rake tasks `neo4j:(install|start|stop|restart|info|reset_yes_i_am_sure)` now output log messages / errors
+- In `Query` chains, a `with` followed immediately by a `limit` and/or an `order` will have the `limit`/`order` clauses applied to it as you would expect
+- Major refactoring using `rubocop` and speed improvements
+- Queries are retried on failure to deal with `RWLock` errors
+### Fixed
+- Bug when starting/stopping embedded sessions repeatedly (like for tests) fixed
+### Added
+- `Query#count` method now available
+- `Query#clause?` method now available to determine if a `Query` object has a particular clause defined
+- Arrays can now be passed as labels in a `Query` chain (e.g. `.match(n: [:Person, "Animal"])` generates: MATCH (n:`Person`:`Animal`) )
+- The `Query#set` and `Query#remove` methods now support setting labels (either via `Symbol`s or `Array`s)
+
+**Changes above this point should conform to [http://keepachangelog.com/]**
+
+## [4.1.0]
 * A lot of work working with rubocop to clean up code
 * Many instances of using strings were changed to use symbols
 * Certain query responses are now automatically retried
@@ -16,18 +38,18 @@
 	* New method `#count` lets you query a count of a variable
 
 
-== 4.0.0
+## [4.0.0]
 This release focuses mostly on performance and security.
 * Fixed a few n+1 queries, force the use of params in more common locations.
 * The CypherTransaction class was heavily refactored to improve the number of database connections required per transaction. This may be considered a breaking API change. Using `Neo4j::Transaction.new` or `Neo4j::Transaction.run` as instructed in all docs and examples protects the user from this, so there should be no changes required to old code in most cases.
 * New Rake task: `neo4j:start_no_wait` -- thanks, @telzul!
 * Massive refactoring and general cleanup by Brian.
 
-== 3.1.1
+## [3.1.1]
 * Force more basic, common queries to use params. Early benchmarks suggest big performance improvements.
 * Auth improvements. You can now use a valid Neo4j token with any username to authenticate.
 
-== 3.1.0
+## [3.1.0]
 * Swapped out `START n=node...` for `MATCH (n) WHERE ID(n)...` for compatibility with Neo4j 2.2.
 * Added a new class, CypherAuthentication, to support Neo4j 2.2's new authentication endpoint.
 * Modified the `neo4j:install` rake task to disable authentication in Neo4j 2.2.
@@ -37,34 +59,34 @@ This release focuses mostly on performance and security.
 * More tweaks to the string escaping process.
 * Mild refactoring for DRY and performance.
 
-== 3.0.8
+## [3.0.8]
 * Small bugfix. Releasing so neo4jrb/neo4j doesn't need to pull from master in its new release.
 
-== 3.0.7
+## [3.0.7]
 * Move improved escaping of Cypher params
 
-== 3.0.6
+## [3.0.6]
 * When using Neo4j >= 2.1.5, use the metadata keys in Cypher responses to find labels when loading nodes
 * Adds `version` method to Embedded and Server sessions
 * Improved escaping of Cypher params
 
-== 3.0.5
+## [3.0.5]
 * Bug fix: automatic parsing of basic auth params in URL (Thanks, Miha Rekar!)
 * Adds find_in_batches method, see github wiki for documentation: https://github.com/neo4jrb/neo4j-core/wiki
 
-== 3.0.4
+## [3.0.4]
 * Bug fixes to sanitize params and remove blank clauses
 
-== 3.0.3
+## [3.0.3]
 * Adds a user agent string to connections to identify the driver with the server
 
-== 3.0.2
+## [3.0.2]
 * Improved detection of transaction responses to prevent conflicts with property names
 
-== 3.0.1
+## [3.0.1]
 * Improved handling of cypher responses, particularly within transactions
 
-== 3.0.0
+## [3.0.0]
 No changes from rc 5
 
 == 3.0.0.rc.5
