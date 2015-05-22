@@ -132,7 +132,7 @@ describe Neo4j::Core::Query do
     end
 
     describe '.match(q: {age: 30}).set_props(q: {age: 31})' do
-      it_generates 'MATCH (q {age: {q_age}}) SET q = {age: 31}', q_age: 30
+      it_generates 'MATCH (q {age: {q_age}}) SET q = {q_set_props}', q_age: 30, q_set_props: {age: 31}
     end
 
     # WITHS
@@ -625,7 +625,7 @@ describe Neo4j::Core::Query do
     end
 
     describe ".set_props(n: {name: 'Brian', age: 30})" do
-      it_generates "SET n = {name: \"Brian\", age: 30}"
+      it_generates 'SET n = {n_set_props}', n_set_props: {name: 'Brian', age: 30}
     end
   end
 

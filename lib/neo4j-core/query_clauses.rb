@@ -465,8 +465,8 @@ module Neo4j
           when String, Symbol then "#{key}:`#{value}`"
           when Hash
             if @options[:set_props]
-              attribute_string = value.map { |k, v| "#{k}: #{v.inspect}" }.join(Clause::COMMA_SPACE)
-              "#{key} = {#{attribute_string}}"
+              @params["#{key}_set_props".freeze.to_sym] = value
+              "#{key} = {#{key}_set_props}"
             else
               value.map { |k, v| key_value_string("#{key}.`#{k}`", v, ['setter'], true) }
             end
