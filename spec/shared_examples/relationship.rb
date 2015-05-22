@@ -46,6 +46,15 @@ RSpec.shared_examples 'Neo4j::Relationship' do
     end
   end
 
+  describe 'create_rel' do
+    it 'can create relationships with array properties' do
+      a = Neo4j::Node.create
+      b = Neo4j::Node.create
+      a.create_rel('test_rel', b, foo: ['bar'])
+      expect(a.rels[0].props[:foo]).to eq(['bar'])
+    end
+  end
+
   describe 'rel_type' do
     it 'returns the type' do
       a = Neo4j::Node.create
