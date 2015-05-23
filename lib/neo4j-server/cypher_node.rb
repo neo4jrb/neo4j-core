@@ -31,7 +31,7 @@ module Neo4j
       # (see Neo4j::Node#create_rel)
       def create_rel(type, other_node, props = nil)
         q = @session.query.match(:a, :b).where(a: {neo_id: neo_id}, b: {neo_id: other_node.neo_id})
-            .create("(a)-[r:`#{type}`]->(b)").break.set_props(r: props).return(r: :neo_id)
+            .create("(a)-[r:`#{type}`]->(b)").break.set(r: props).return(r: :neo_id)
 
         id = @session._query_or_fail(q, true)
 
