@@ -143,15 +143,15 @@ module Neo4j
 
         private
 
-        def key_value_string(key, value, previous_keys = [], force_equals = false)
+        def key_value_string(key, value, previous_keys = [], is_set = false)
           param = (previous_keys << key).join(UNDERSCORE)
           param.tr_s!('^a-zA-Z0-9', UNDERSCORE)
           param.gsub!(/^_+|_+$/, '')
 
-          value = value.first if value.is_a?(Array) && value.size == 1
+          value = value.first if !is_set && value.is_a?(Array) && value.size == 1
           @params[param.to_sym] = value
 
-          if !value.is_a?(Array) || force_equals
+          if !value.is_a?(Array) || is_set
             "#{key} = {#{param}}"
           else
             "#{key} IN {#{param}}"
