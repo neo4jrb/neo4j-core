@@ -51,7 +51,7 @@ RSpec.shared_examples 'Neo4j::Relationship' do
       a = Neo4j::Node.create
       b = Neo4j::Node.create
       a.create_rel('test_rel', b, foo: ['bar'])
-      expect(a.rels[0].props[:foo]).to eq(['bar'])
+      expect(a.rels.to_a.first.props[:foo]).to eq(['bar'])
     end
   end
 
