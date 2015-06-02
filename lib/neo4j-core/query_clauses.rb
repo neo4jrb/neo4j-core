@@ -16,7 +16,7 @@ module Neo4j
         COMMA_SPACE = ', '
         AND = ' AND '
 
-        attr_accessor :params
+        attr_accessor :params, :arg
 
         def initialize(arg, options = {})
           @arg = arg
@@ -143,15 +143,15 @@ module Neo4j
 
         private
 
-        def key_value_string(key, value, previous_keys = [], force_equals = false)
+        def key_value_string(key, value, previous_keys = [], is_set = false)
           param = (previous_keys << key).join(UNDERSCORE)
           param.tr_s!('^a-zA-Z0-9', UNDERSCORE)
           param.gsub!(/^_+|_+$/, '')
 
-          value = value.first if value.is_a?(Array) && value.size == 1
+          value = value.first if !is_set && value.is_a?(Array) && value.size == 1
           @params[param.to_sym] = value
 
-          if !value.is_a?(Array) || force_equals
+          if !value.is_a?(Array) || is_set
             "#{key} = {#{param}}"
           else
             "#{key} IN {#{param}}"
@@ -179,7 +179,7 @@ module Neo4j
             if value.to_s.match(/^{.+}$/)
               "#{key}: #{value}"
             else
-              param_key = prefix + key.to_s
+              param_key = "#{prefix}#{key}".gsub('::', '_')
               @params[param_key.to_sym] = value
               "#{key}: {#{param_key}}"
             end
@@ -418,13 +418,13 @@ module Neo4j
 
         def from_string(value)
           clause_id = "#{self.class.keyword_downcase}_#{value}"
-          @params[clause_id] = value.to_i
+          @params[clause_id.to_sym] = value.to_i
           "{#{clause_id}}"
         end
 
         def from_integer(value)
           clause_id = "#{self.class.keyword_downcase}_#{value}"
-          @params[clause_id] = value
+          @params[clause_id.to_sym] = value
           "{#{clause_id}}"
         end
 
@@ -440,13 +440,13 @@ module Neo4j
 
         def from_string(value)
           clause_id = "#{self.class.keyword_downcase}_#{value}"
-          @params[clause_id] = value.to_i
+          @params[clause_id.to_sym] = value.to_i
           "{#{clause_id}}"
         end
 
         def from_integer(value)
           clause_id = "#{self.class.keyword_downcase}_#{value}"
-          @params[clause_id] = value
+          @params[clause_id.to_sym] = value
           "{#{clause_id}}"
         end
 
@@ -465,8 +465,8 @@ module Neo4j
           when String, Symbol then "#{key}:`#{value}`"
           when Hash
             if @options[:set_props]
-              attribute_string = value.map { |k, v| "#{k}: #{v.inspect}" }.join(Clause::COMMA_SPACE)
-              "#{key} = {#{attribute_string}}"
+              @params["#{key}_set_props".freeze.to_sym] = value
+              "#{key} = {#{key}_set_props}"
             else
               value.map { |k, v| key_value_string("#{key}.`#{k}`", v, ['setter'], true) }
             end

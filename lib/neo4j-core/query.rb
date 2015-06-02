@@ -16,6 +16,8 @@ module Neo4j
       include Neo4j::Core::QueryFindInBatches
       DEFINED_CLAUSES = {}
 
+      attr_accessor :clauses
+
       def initialize(options = {})
         @session = options[:session] || Neo4j::Session.current
 
@@ -312,7 +314,7 @@ module Neo4j
 
       protected
 
-      attr_accessor :session, :options, :clauses, :_params
+      attr_accessor :session, :options, :_params
 
       def add_clauses(clauses)
         @clauses += clauses
@@ -353,9 +355,9 @@ module Neo4j
           @clauses.each do |clause|
             if clause.nil? && !fresh_partition?
               @partitioning << []
-            elsif clause_is_order_directly_following_with?(clause)
+            elsif clause_is_order_or_limit_directly_following_with_or_order?(clause)
               second_to_last << clause
-            elsif clause_is_with_following_order?(clause)
+            elsif clause_is_with_following_order_or_limit?(clause)
               second_to_last << clause
               second_to_last.sort_by! { |c| c.is_a?(::Neo4j::Core::QueryClauses::OrderClause) ? 1 : 0 }
             else
@@ -374,14 +376,21 @@ module Neo4j
           @partitioning[-2]
         end
 
-        def clause_is_order_directly_following_with?(clause)
-          clause.is_a?(::Neo4j::Core::QueryClauses::OrderClause) &&
-            @partitioning[-2] && @partitioning[-2].last.is_a?(::Neo4j::Core::QueryClauses::WithClause)
+        def clause_is_order_or_limit_directly_following_with_or_order?(clause)
+          self.class.clause_is_order_or_limit?(clause) &&
+            @partitioning[-2] &&
+            (@partitioning[-2].last.is_a?(::Neo4j::Core::QueryClauses::WithClause) ||
+              @partitioning[-2].last.is_a?(::Neo4j::Core::QueryClauses::OrderClause))
         end
 
-        def clause_is_with_following_order?(clause)
+        def clause_is_with_following_order_or_limit?(clause)
           clause.is_a?(::Neo4j::Core::QueryClauses::WithClause) &&
-            @partitioning[-2] && @partitioning[-2].any? { |c| c.is_a?(::Neo4j::Core::QueryClauses::OrderClause) }
+            @partitioning[-2] && @partitioning[-2].any? { |c| self.class.clause_is_order_or_limit?(c) }
+        end
+
+        def self.clause_is_order_or_limit?(clause)
+          clause.is_a?(::Neo4j::Core::QueryClauses::OrderClause) ||
+            clause.is_a?(::Neo4j::Core::QueryClauses::LimitClause)
         end
       end
 
