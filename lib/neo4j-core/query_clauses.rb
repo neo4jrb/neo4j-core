@@ -399,7 +399,7 @@ module Neo4j
             "#{key}.#{value}"
           when Array
             value.map do |v|
-              v.is_a?(Hash) ?  from_key_and_value(key, v) : "#{key}.#{v}"
+              v.is_a?(Hash) ? from_key_and_value(key, v) : "#{key}.#{v}"
             end
           when Hash
             value.map { |k, v| "#{key}.#{k} #{v.upcase}" }
