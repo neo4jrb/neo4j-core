@@ -236,9 +236,7 @@ module Neo4j
 
       EMPTY = ''
       def self.log_with
-        clear = \e[0m
-        yellow = \e[33m
-        cyan = \e[36m
+        clear, yellow, cyan = %W(\e[0m \e[33m \e[36m)
         ActiveSupport::Notifications.subscribe('neo4j.cypher_query') do |_, start, finish, _id, payload|
           ms = (finish - start) * 1000
           params_string = (payload[:params].size > 0 ? "| #{payload[:params].inspect}" : EMPTY)
