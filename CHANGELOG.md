@@ -6,6 +6,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased][unreleased]
 - Nothing yet, placeholder
 
+## [5.0.0.rc.4] - 2015-06-05
+
+### Changed
+- Allow properties_map Hash in HA configuration
+
 ## [5.0.0.rc.2] - 2015-05-20
 
 ### Changed
