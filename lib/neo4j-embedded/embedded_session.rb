@@ -11,7 +11,7 @@ module Neo4j
       class Error < StandardError
       end
 
-      attr_reader :graph_db, :db_location, :properties_file
+      attr_reader :graph_db, :db_location, :properties_file, :properties_map
       extend Forwardable
       extend Neo4j::Core::TxMethods
       def_delegator :@graph_db, :begin_tx
@@ -20,6 +20,10 @@ module Neo4j
         @db_location     = db_location
         @auto_commit     = !!config[:auto_commit]
         @properties_file = config[:properties_file]
+        if config[:properties_map]
+          props = config[:properties_map].each_with_object({}) { |(k, v), m| m[k.to_s.to_java] = v.to_s.to_java }
+          @properties_map = java.util.HashMap.new(props)
+        end
         Neo4j::Session.register(self)
       end
 
@@ -43,6 +47,8 @@ module Neo4j
         factory    = Java::OrgNeo4jGraphdbFactory::GraphDatabaseFactory.new
         db_service = factory.newEmbeddedDatabaseBuilder(db_location)
         db_service.loadPropertiesFromFile(properties_file) if properties_file
+        db_service.setConfig(properties_map)               if properties_map
+
         @graph_db = db_service.newGraphDatabase
         Neo4j::Session._notify_listeners(:session_available, self)
         @engine = Java::OrgNeo4jCypherJavacompat::ExecutionEngine.new(@graph_db)
