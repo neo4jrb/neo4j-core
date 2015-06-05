@@ -21,7 +21,7 @@ module Neo4j
         @auto_commit     = !!config[:auto_commit]
         @properties_file = config[:properties_file]
         if config[:properties_map]
-          props = config[:properties_map].inject({}) { |m, (k, v)| m[k.to_s.to_java] = v.to_s.to_java; m }
+          props = config[:properties_map].each_with_object({}) { |(k, v), m| m[k.to_s.to_java] = v.to_s.to_java }
           @properties_map = java.util.HashMap.new(props)
         end
         Neo4j::Session.register(self)
