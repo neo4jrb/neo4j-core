@@ -11,6 +11,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Allow properties_map Hash in HA configuration
 
+
+## [5.0.0.rc.3] - 2015-05-22
+
+### Fixed
+- Error when creating a relationship property as a array value of size one, value is set to first item in array instead (see https://github.com/neo4jrb/neo4j/issues/814)
+
 ## [5.0.0.rc.2] - 2015-05-20
 
 ### Changed
