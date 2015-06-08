@@ -53,9 +53,12 @@ RSpec.shared_examples 'Neo4j::Node with tx' do
 
     describe 'Neo4j::Node.create' do
       around(:example) do |example|
-        tx = Neo4j::Transaction.new
-        example.run
-        tx.close
+        begin
+          tx = Neo4j::Transaction.new
+          example.run
+        ensure
+          tx.close
+        end
       end
 
       subject(:created_node) do
@@ -70,6 +73,21 @@ RSpec.shared_examples 'Neo4j::Node with tx' do
         end
 
         it_behaves_like 'a node with properties and id'
+      end
+    end
+
+    describe 'returning a hash from cypher' do
+      let(:node) { Neo4j::Node.create({name: 'Foo', thing: 'bar'}, :person) }
+      it 'is not mistaken for a malformed object' do
+        begin
+          tx = Neo4j::Transaction.new
+          Neo4j::Session.current.query.match(:person).pluck('person limit 1')
+          response = Neo4j::Session.current.query.match(:person).pluck('person, { name: person.name, labels: LABELS(person)[0]} as ph').first
+          expect(response[1]).to be_a(Hash)
+
+        ensure
+          tx.close if Neo4j::Transaction.current
+        end
       end
     end
   end
