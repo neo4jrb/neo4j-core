@@ -6,6 +6,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased][unreleased]
 - Nothing yet, placeholder
 
+### Fixed
+- Maps returned from Cypher were being treated as node/rel objects in Server mode, Arrays in Embedded. (See https://github.com/neo4jrb/neo4j-core/issues/211)
+
 ## [5.0.0.rc.4] - 2015-06-05
 
 ### Changed
