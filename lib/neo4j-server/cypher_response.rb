@@ -75,7 +75,7 @@ module Neo4j
       end
 
       def map_row_value(value, session)
-        if value.is_a?(Hash)
+        if value.is_a?(Hash) && looks_like_an_object?(value)
           hash_value_as_object(value, session)
         elsif value.is_a?(Array)
           value.map! { |v| map_row_value(v, session) }
@@ -97,6 +97,14 @@ module Neo4j
                 end
         basic_obj = (node?(value) ? CypherNode : CypherRelationship).new(session, data)
         unwrapped? ? basic_obj : basic_obj.wrapper
+      end
+
+      def looks_like_an_object?(value)
+        if transaction_response?
+          mapped_rest_data[:outgoing_relationships] || (mapped_rest_data[:start] && mapped_rest_data[:properties])
+        else
+          value[:labels] || value[:type]
+        end
       end
 
       def unwrapped!

@@ -57,7 +57,7 @@ module Neo4j
 
       def unwrap(value)
         if !value.nil? && value.respond_to?(:to_a)
-          value.map { |v| unwrap(v) }
+          value.respond_to?(:to_hash) ? value.to_hash : value.map { |v| unwrap(v) }
         else
           (!value.respond_to?(:wrapper) || unwrapped?) ? value : value.wrapper
         end
