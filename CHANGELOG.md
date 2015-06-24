@@ -6,6 +6,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased][unreleased]
 - Nothing yet, placeholder
 
+## [5.0.1] - 2015-06-23
+
+### Fixed
+
+- Collections returned from Cypher within transactions were being misinterpreted. (https://github.com/neo4jrb/neo4j-core/pull/213)
+
 ## [5.0.0] - 2015-06-18
 
 ### Fixed
