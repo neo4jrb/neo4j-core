@@ -77,15 +77,15 @@ RSpec.shared_examples 'Neo4j::Node with tx' do
     end
 
     describe 'complex structures' do
-      let!(:node) { Neo4j::Node.create({name: 'Foo'}, :Person)}
+      let!(:node) { Neo4j::Node.create({name: 'Foo'}, :Person) }
 
       describe 'returning a collection' do
         it 'does not raise an error' do
           begin
-          tx = Neo4j::Transaction.new
-          expect { Neo4j::Session.current.query.match(p: :Person).pluck('collect(p)') }.not_to raise_error
-          ensure
-            tx.close
+            tx = Neo4j::Transaction.new
+            expect { Neo4j::Session.current.query.match(p: :Person).pluck('collect(p)') }.not_to raise_error
+            ensure
+              tx.close
           end
         end
 
@@ -108,7 +108,7 @@ RSpec.shared_examples 'Neo4j::Node with tx' do
             tx = Neo4j::Transaction.new
             Neo4j::Session.current.query.match(person: 'Person').pluck('person limit 1')
             response = Neo4j::Session.current.query.match(person: 'Person').where(person: {name: 'Foo'})
-                           .pluck('person, { name: person.name, labels: LABELS(person)[0]} as ph').first
+                       .pluck('person, { name: person.name, labels: LABELS(person)[0]} as ph').first
             expect(response[1]).to be_a(Hash)
             # Behavior differs slightly in JRuby/Embedded.
             key = response[1].key?('name') ? 'name' : :name
