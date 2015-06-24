@@ -94,7 +94,7 @@ RSpec.shared_examples 'Neo4j::Node with tx' do
             tx = Neo4j::Transaction.new
             result = Neo4j::Session.current.query.match(p: :Person).pluck('collect(p)').first
             expect(result).to be_a(Array)
-            expect(result.first).to be_a(Neo4j::Node)
+            expect(result.first).to respond_to(:neo_id)
             expect(result.first.labels).to include(:Person)
           ensure
             tx.close
