@@ -76,21 +76,46 @@ RSpec.shared_examples 'Neo4j::Node with tx' do
       end
     end
 
-    describe 'returning a hash from cypher' do
-      before { Neo4j::Node.create({name: 'Foo'}, :person) }
+    describe 'complex structures' do
+      let!(:node) { Neo4j::Node.create({name: 'Foo'}, :Person)}
 
-      it 'is not mistaken for a malformed object' do
-        begin
+      describe 'returning a collection' do
+        it 'does not raise an error' do
+          begin
           tx = Neo4j::Transaction.new
-          Neo4j::Session.current.query.match(person: 'person').pluck('person limit 1')
-          response = Neo4j::Session.current.query.match(person: 'person').where(person: {name: 'Foo'})
-                     .pluck('person, { name: person.name, labels: LABELS(person)[0]} as ph').first
-          expect(response[1]).to be_a(Hash)
-          # Behavior differs slightly in JRuby/Embedded.
-          key = response[1].key?('name') ? 'name' : :name
-          expect(response[1][key]).to eq 'Foo'
-        ensure
-          tx.close if Neo4j::Transaction.current
+          expect { Neo4j::Session.current.query.match(p: :Person).pluck('collect(p)') }.not_to raise_error
+          ensure
+            tx.close
+          end
+        end
+
+        it 'returns a node within an array' do
+          begin
+            tx = Neo4j::Transaction.new
+            result = Neo4j::Session.current.query.match(p: :Person).pluck('collect(p)').first
+            expect(result).to be_a(Array)
+            expect(result.first).to be_a(Neo4j::Node)
+            expect(result.first.labels).to include(:Person)
+          ensure
+            tx.close
+          end
+        end
+      end
+
+      describe 'returning a hash from cypher' do
+        it 'is not mistaken for a malformed object' do
+          begin
+            tx = Neo4j::Transaction.new
+            Neo4j::Session.current.query.match(person: 'Person').pluck('person limit 1')
+            response = Neo4j::Session.current.query.match(person: 'Person').where(person: {name: 'Foo'})
+                           .pluck('person, { name: person.name, labels: LABELS(person)[0]} as ph').first
+            expect(response[1]).to be_a(Hash)
+            # Behavior differs slightly in JRuby/Embedded.
+            key = response[1].key?('name') ? 'name' : :name
+            expect(response[1][key]).to eq 'Foo'
+          ensure
+            tx.close if Neo4j::Transaction.current
+          end
         end
       end
     end

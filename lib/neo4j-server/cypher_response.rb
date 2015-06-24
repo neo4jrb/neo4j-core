@@ -263,7 +263,8 @@ module Neo4j
       attr_reader :result_index
 
       def mapped_rest_data
-        response.body[:results][0][:data][result_index][:rest][row_index]
+        data = response.body[:results][0][:data][result_index][:rest][row_index]
+        data.is_a?(Array) ? data.first : data
       end
     end
   end
