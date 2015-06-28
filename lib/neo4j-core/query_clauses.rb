@@ -148,13 +148,27 @@ module Neo4j
           param.tr_s!('^a-zA-Z0-9', UNDERSCORE)
           param.gsub!(/^_+|_+$/, '')
 
-          value = value.first if !is_set && value.is_a?(Array) && value.size == 1
-          @params[param.to_sym] = value
+          if value.is_a?(Range)
+            add_params("#{param}_range_min" => value.min, "#{param}_range_max" => value.max)
 
-          if !value.is_a?(Array) || is_set
-            "#{key} = {#{param}}"
+            "#{key} IN RANGE({#{param}_range_min}, {#{param}_range_max})"
           else
-            "#{key} IN {#{param}}"
+            value = value.first if value.is_a?(Array) && value.size == 1
+            operator = (value.is_a?(Array) && !is_set) ? 'IN' : '='
+
+            add_param(param, value)
+
+            "#{key} #{operator} {#{param}}"
+          end
+        end
+
+        def add_param(key, value)
+          @params[key.freeze.to_sym] = value
+        end
+
+        def add_params(params)
+          params.each do |key, value|
+            add_param(key, value)
           end
         end
 
@@ -180,7 +194,7 @@ module Neo4j
               "#{key}: #{value}"
             else
               param_key = "#{prefix}#{key}".gsub('::', '_')
-              @params[param_key.to_sym] = value
+              add_param(param_key, value)
               "#{key}: {#{param_key}}"
             end
           end.join(Clause::COMMA_SPACE)
@@ -220,7 +234,7 @@ module Neo4j
           when Hash then hash_key_value_string(key, value, previous_keys)
           when NilClass then "#{key} IS NULL"
           when Regexp then regexp_key_value_string(key, value)
-          when Array then key_value_string(key, value, previous_keys)
+          when Array, Range then key_value_string(key, value, previous_keys)
           else
             key_value_string(key, value, previous_keys)
           end
@@ -418,13 +432,13 @@ module Neo4j
 
         def from_string(value)
           clause_id = "#{self.class.keyword_downcase}_#{value}"
-          @params[clause_id.to_sym] = value.to_i
+          add_param(clause_id, value.to_i)
           "{#{clause_id}}"
         end
 
         def from_integer(value)
           clause_id = "#{self.class.keyword_downcase}_#{value}"
-          @params[clause_id.to_sym] = value
+          add_param(clause_id, value)
           "{#{clause_id}}"
         end
 
@@ -440,13 +454,13 @@ module Neo4j
 
         def from_string(value)
           clause_id = "#{self.class.keyword_downcase}_#{value}"
-          @params[clause_id.to_sym] = value.to_i
+          add_param(clause_id, value.to_i)
           "{#{clause_id}}"
         end
 
         def from_integer(value)
           clause_id = "#{self.class.keyword_downcase}_#{value}"
-          @params[clause_id.to_sym] = value
+          add_param(clause_id, value)
           "{#{clause_id}}"
         end
 
@@ -465,7 +479,7 @@ module Neo4j
           when String, Symbol then "#{key}:`#{value}`"
           when Hash
             if @options[:set_props]
-              @params["#{key}_set_props".freeze.to_sym] = value
+              add_param("#{key}_set_props", value)
               "#{key} = {#{key}_set_props}"
             else
               value.map { |k, v| key_value_string("#{key}.`#{k}`", v, ['setter'], true) }

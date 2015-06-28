@@ -377,6 +377,11 @@ describe Neo4j::Core::Query do
     describe ".where(q: {age: 30, name: 'Brian'}).where('r.grade = 80')" do
       it_generates 'WHERE (q.age = {q_age} AND q.name = {q_name}) AND (r.grade = 80)', q_age: 30, q_name: 'Brian'
     end
+
+
+    describe ".where(q: {age: (30..40)})" do
+      it_generates 'WHERE (q.age IN RANGE({q_age_range_min}, {q_age_range_max}))', q_age_range_min: 30, q_age_range_max: 40
+    end
   end
 
   # UNWIND
