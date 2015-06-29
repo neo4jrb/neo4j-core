@@ -379,7 +379,7 @@ describe Neo4j::Core::Query do
     end
 
 
-    describe ".where(q: {age: (30..40)})" do
+    describe '.where(q: {age: (30..40)})' do
       it_generates 'WHERE (q.age IN RANGE({q_age_range_min}, {q_age_range_max}))', q_age_range_min: 30, q_age_range_max: 40
     end
   end

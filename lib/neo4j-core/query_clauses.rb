@@ -153,14 +153,17 @@ module Neo4j
 
             "#{key} IN RANGE({#{param}_range_min}, {#{param}_range_max})"
           else
-            array_value = value.is_a?(Array) && !is_set
-            value = value.first if array_value && value.size == 1
-            operator = array_value ? 'IN' : '='
+            value = value.first if array_value?(value, is_set) && value.size == 1
+            operator = array_value?(value, is_set) ? 'IN' : '='
 
             add_param(param, value)
 
             "#{key} #{operator} {#{param}}"
           end
+        end
+
+        def array_value?(value, is_set)
+          value.is_a?(Array) && !is_set
         end
 
         def add_param(key, value)

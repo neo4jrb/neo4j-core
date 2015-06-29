@@ -112,7 +112,6 @@ RSpec.shared_examples 'Neo4j::Relationship' do
   end
 
   describe 'del' do
-    require 'pry'
     let(:rel_a) do
       node_a.create_rel(:best_friend, node_b)
     end
