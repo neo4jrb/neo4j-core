@@ -195,13 +195,9 @@ module Neo4j
       end
 
       def _query_entity_data(query, id = nil, params = {})
-        _query_response(query, params).entity_data(id)
-      end
-
-      def _query_response(query, params = {})
         _query(query, params).tap do |response|
           response.raise_error if response.error?
-        end
+        end.entity_data(id)
       end
 
       def _query(query, params = {}, options = {})
