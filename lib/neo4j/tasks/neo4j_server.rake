@@ -78,9 +78,21 @@ namespace :neo4j do
     system_or_fail("#{install_location(args)}/bin/neo4j #{command}")
   end
 
-  desc 'Install Neo4j with auth disabled in v2.2+, example neo4j:install[community-2.1.3,development]'
+  def get_edition(args)
+    edition_string = args[:edition]
+
+    edition_string.gsub(/-latest$/) do
+      require 'open-uri'
+      puts 'Retrieving latest version...'
+      latest_version = JSON.parse(open('https://api.github.com/repos/neo4j/neo4j/releases/latest').read)['tag_name']
+      puts "Latest version is: #{latest_version}"
+      "-#{latest_version}"
+    end
+  end
+
+  desc 'Install Neo4j with auth disabled in v2.2+, example neo4j:install[community-latest,development]'
   task :install, :edition, :environment do |_, args|
-    edition = args[:edition]
+    edition = get_edition(args)
     environment = get_environment(args)
     puts "Installing Neo4j-#{edition} environment: #{environment}"
 
