@@ -204,17 +204,19 @@ module Neo4j
         end
       end
 
-      def _query(query, params = {})
+      def _query(query, params = {}, options = {})
         query, params = query_and_params(query, params)
 
         curr_tx = Neo4j::Transaction.current
-        if curr_tx
-          curr_tx._query(query, params)
-        else
-          url = resource_url(:cypher)
-          query = params.nil? ? {'query' => query} : {'query' => query, 'params' => params}
-          response = @connection.post(url, query)
-          CypherResponse.create_with_no_tx(response)
+        ActiveSupport::Notifications.instrument('neo4j.cypher_query', context: options[:context] || 'CYPHER', cypher: query, params: params) do
+          if curr_tx
+            curr_tx._query(query, params)
+          else
+            url = resource_url(:cypher)
+            query = params.nil? ? {'query' => query} : {'query' => query, 'params' => params}
+            response = @connection.post(url, query)
+            CypherResponse.create_with_no_tx(response)
+          end
         end
       end
 

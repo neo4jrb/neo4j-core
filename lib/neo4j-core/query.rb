@@ -174,9 +174,9 @@ module Neo4j
       def response
         return @response if @response
         cypher = to_cypher
-        @response = ActiveSupport::Notifications.instrument('neo4j.cypher_query', context: @options[:context] || 'CYPHER', cypher: cypher, params: merge_params) do
-          @session._query(cypher, merge_params)
-        end
+
+        @response = @session._query(cypher, merge_params, context: @options[:context])
+
         if !response.respond_to?(:error?) || !response.error?
           response
         else
