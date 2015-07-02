@@ -237,7 +237,7 @@ module Neo4j
         clear, yellow, cyan = %W(\e[0m \e[33m \e[36m)
         ActiveSupport::Notifications.subscribe('neo4j.cypher_query') do |_, start, finish, _id, payload|
           ms = (finish - start) * 1000
-          params_string = (payload[:params].size > 0 ? "| #{payload[:params].inspect}" : EMPTY)
+          params_string = (payload[:params] && payload[:params].size > 0 ? "| #{payload[:params].inspect}" : EMPTY)
           yield(" #{cyan}#{payload[:context]}#{clear} #{yellow}#{ms.round}ms#{clear} #{payload[:cypher]} #{params_string}")
         end
       end
