@@ -6,6 +6,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased][unreleased]
 - Nothing yet, placeholder
 
+## [5.0.3] - 2015-07-01
+
+### Fixed
+- Crash in query logging when params were not given.
+
+## [5.0.2] - 2015-07-01
+
 ### Added
 - Support Ruby ranges for querying by changing to Cypher RANGE
 
