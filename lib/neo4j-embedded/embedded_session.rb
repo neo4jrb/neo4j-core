@@ -137,9 +137,11 @@ module Neo4j
       # Remember that you should close the resource iterator.
       # @param [String] q the cypher query as a String
       # @return (see #query)
-      def _query(q, params = {}, options = {})
-        @engine ||= Java::OrgNeo4jCypherJavacompat::ExecutionEngine.new(@graph_db)
-        @engine.execute(q, Neo4j::Core::HashWithIndifferentAccess.new(params))
+      def _query(query, params = {}, options = {})
+        ActiveSupport::Notifications.instrument('neo4j.cypher_query', context: options[:context] || 'CYPHER', cypher: query, params: params) do
+          @engine ||= Java::OrgNeo4jCypherJavacompat::ExecutionEngine.new(@graph_db)
+          @engine.execute(query, Neo4j::Core::HashWithIndifferentAccess.new(params))
+        end
       rescue StandardError => e
         raise Neo4j::Session::CypherError.new(e.message, e.class, 'cypher error')
       end
