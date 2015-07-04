@@ -146,7 +146,7 @@ namespace :neo4j do
   task :config, :environment, :port do |_, args|
     port = args[:port]
     fail 'no port given' unless port
-    puts "Config Neo4j #{get_environment(args)} for port #{port}"
+    puts "Config Neo4j #{get_environment(args)} for ports #{port} / #{port.to_i - 1}"
     location = config_location(args)
     text = File.read(location)
     replace = Neo4j::Tasks::ConfigServer.config(text, port)

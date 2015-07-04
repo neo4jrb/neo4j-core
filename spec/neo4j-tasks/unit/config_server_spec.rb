@@ -29,12 +29,14 @@ org.neo4j.server.webserver.https.enabled=true
 org.neo4j.server.webserver.https.else=true
 org.neo4j.server.webserver.port=7474
 org.neo4j.server.webserver.https.enabled=true
+org.neo4j.server.webserver.https.port=7473
       HERE
     end
 
     it 'sets the server port' do
       # org.neo4j.server.webserver.port=7474
-      expect(mod.config(data, 8888)).to match(/org.neo4j.server.webserver.port=8888/)
+      expect(mod.config(data, 8888)).to match('org.neo4j.server.webserver.port=8888')
+      expect(mod.config(data, 8888)).to match('org.neo4j.server.webserver.https.port=8887')
     end
   end
 

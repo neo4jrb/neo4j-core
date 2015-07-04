@@ -3,7 +3,8 @@ module Neo4j
     module ConfigServer
       def config(source_text, port)
         s = set_property(source_text, 'org.neo4j.server.webserver.https.enabled', 'false')
-        set_property(s, 'org.neo4j.server.webserver.port', port)
+        s = set_property(s, 'org.neo4j.server.webserver.port', port)
+        set_property(s, 'org.neo4j.server.webserver.https.port', port.to_i - 1)
       end
 
       def set_property(source_text, property, value)
