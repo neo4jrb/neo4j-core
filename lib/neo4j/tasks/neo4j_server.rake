@@ -153,9 +153,8 @@ namespace :neo4j do
     fail 'no port given' unless port
     puts "Config Neo4j #{get_environment(args)} for ports #{port} / #{port.to_i - 1}"
     location = config_location(args)
-    text = File.read(location)
-    replace = Neo4j::Tasks::ConfigServer.config(text, port)
-    File.open(location, 'w') { |file| file.puts replace }
+    replace = Neo4j::Tasks::ConfigServer.config(location.read, port)
+    location.open('w') { |file| file.puts replace }
   end
 
   def validate_is_system_admin!
@@ -214,19 +213,23 @@ namespace :neo4j do
     run_neo4j_command_or_fail!(args, :start)
   end
 
+  def prompt_for(prompt)
+    puts prompt
+    put ' > '
+    STDIN.gets.chomp
+  end
+
   desc 'Neo4j 2.2: Change connection password'
   task :change_password do
     puts 'This will change the password for a Neo4j server'
-    puts 'Enter target IP address or host name without protocal and port, press enter for http://localhost:7474'
-    address = STDIN.gets.chomp
+
+    address = prompt_for 'Enter target IP address or host name without protocal and port, press enter for http://localhost:7474'
     target_address = address.empty? ? 'http://localhost:7474' : address
 
-    puts 'Input current password. Leave blank if this is a fresh installation of Neo4j.'
-    password = STDIN.gets.chomp
+    password = prompt_for 'Input current password. Leave blank if this is a fresh installation of Neo4j.'
     old_password = password.empty? ? 'neo4j' : password
 
-    puts 'Input new password.'
-    new_password = STDIN.gets.chomp
+    new_password = prompt_for 'Input new password.'
     fail 'A new password is required' if new_password.empty?
 
     body = Neo4j::Tasks::ConfigServer.change_password(target_address, old_password, new_password)
@@ -241,9 +244,8 @@ namespace :neo4j do
 
   def rake_auth_toggle(args, status)
     location = config_location(args)
-    text = File.read(location)
-    replace = Neo4j::Tasks::ConfigServer.toggle_auth(status, text)
-    File.open(location, 'w') { |file| file.puts replace }
+    replace = Neo4j::Tasks::ConfigServer.toggle_auth(status, location.read)
+    location.open('w') { |file| file.puts replace }
   end
 
   def auth_toggle_complete(status)
