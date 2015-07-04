@@ -6,6 +6,9 @@ require 'zip'
 require 'httparty'
 require 'pathname'
 require File.expand_path('../config_server', __FILE__)
+require File.expand_path('../windows_server_manager', __FILE__)
+require File.expand_path('../starnix_server_manager', __FILE__)
+
 
 namespace :neo4j do
   def file_name
@@ -52,30 +55,8 @@ namespace :neo4j do
     install_location!(args).join('conf/neo4j-server.properties')
   end
 
-  def start_server(command, args)
-    puts "Starting Neo4j #{get_environment(args)}..."
-    if OS::Underlying.windows?
-      start_windows_server(command, args)
-    else
-      start_starnix_server(command, args)
-    end
-  end
-
   def system_or_fail(command)
     system(command.to_s) or fail "Unable to run: #{command}" # rubocop:disable Style/AndOr
-  end
-
-  def start_windows_server(command, args)
-    if local_service?
-      system_or_fail(install_location!(args).join("/bin/Neo4j.bat #{command}"))  # start service
-    else
-      puts 'Starting Neo4j directly, not as a service.'
-      system_or_fail(install_location!(args).join('/bin/Neo4j.bat'))
-    end
-  end
-
-  def start_starnix_server(command, args)
-    system_or_fail(install_location!(args).join("bin/neo4j #{command}"))
   end
 
   def get_edition(args)
@@ -90,8 +71,12 @@ namespace :neo4j do
     end
   end
 
-  def local_service?
+  def nt_admin?
     system_or_fail('reg query "HKU\\S-1-5-19"').size > 0
+  end
+
+  def server_manager(environment)
+    ::Neo4j::Tasks::ServerManager.new_for_os(environment)
   end
 
   desc 'Install Neo4j with auth disabled in v2.2+, example neo4j:install[community-latest,development]'
@@ -121,7 +106,7 @@ namespace :neo4j do
       end
 
       # Install if running with Admin Privileges
-      if local_service?
+      if nt_admin?
         bin_path = install_location!(args).join('bin/neo4j')
         system_or_fail("\"#{bin_path} install\"")
         puts 'Neo4j Installed as a service.'
@@ -139,12 +124,14 @@ namespace :neo4j do
 
   desc 'Start the Neo4j Server'
   task :start, :environment do |_, args|
-    start_server('start', args)
+    server_manager = server_manager(args[:environment])
+    server_manager.start
   end
 
   desc 'Start the Neo4j Server asynchronously'
   task :start_no_wait, :environment do |_, args|
-    start_server('start-no-wait', args)
+    server_manager = server_manager(args[:environment])
+    server_manager.start(false)
   end
 
   desc 'Configure Server, e.g. rake neo4j:config[development,8888]'
@@ -159,7 +146,7 @@ namespace :neo4j do
 
   def validate_is_system_admin!
     return unless OS::Underlying.windows?
-    return if local_service?
+    return if nt_admin?
 
     fail 'You do not have administrative rights to stop the Neo4j Service'
   end
@@ -172,26 +159,20 @@ namespace :neo4j do
 
   desc 'Stop the Neo4j Server'
   task :stop, :environment do |_, args|
-    puts "Stopping Neo4j #{get_environment(args)}..."
-    validate_is_system_admin!
-
-    run_neo4j_command_or_fail!(args, :stop)
+    server_manager = server_manager(args[:environment])
+    server_manager.stop
   end
 
   desc 'Get info the Neo4j Server'
   task :info, :environment do |_, args|
-    puts "Info from Neo4j #{get_environment(args)}..."
-    validate_is_system_admin!
-
-    run_neo4j_command_or_fail!(args, :info)
+    server_manager = server_manager(args[:environment])
+    server_manager.info
   end
 
   desc 'Restart the Neo4j Server'
   task :restart, :environment do |_, args|
-    puts "Restarting Neo4j #{get_environment(args)}..."
-    validate_is_system_admin!
-
-    run_neo4j_command_or_fail!(args, :restart)
+    server_manager = server_manager(args[:environment])
+    server_manager.restart
   end
 
   desc 'Reset the Neo4j Server'
