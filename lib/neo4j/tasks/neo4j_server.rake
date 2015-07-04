@@ -4,6 +4,7 @@ require 'os'
 require 'httparty'
 require 'zip'
 require 'httparty'
+require 'pathname'
 require File.expand_path('../config_server', __FILE__)
 
 namespace :neo4j do
@@ -39,13 +40,16 @@ namespace :neo4j do
     args[:environment] || 'development'
   end
 
-  def install_location(args)
-    FileUtils.mkdir_p('db/neo4j')
-    "db/neo4j/#{get_environment(args)}"
+  BASE_INSTALL_DIR = Pathname.new('db/neo4j')
+
+  def install_location!(args)
+    FileUtils.mkdir_p(BASE_INSTALL_DIR)
+
+    BASE_INSTALL_DIR.join(get_environment(args))
   end
 
   def config_location(args)
-    "#{install_location(args)}/conf/neo4j-server.properties"
+    install_location!(args).join('conf/neo4j-server.properties')
   end
 
   def start_server(command, args)
@@ -58,20 +62,20 @@ namespace :neo4j do
   end
 
   def system_or_fail(command)
-    system(command) or fail "Unable to run: #{command}" # rubocop:disable Style/AndOr
+    system(command.to_s) or fail "Unable to run: #{command}" # rubocop:disable Style/AndOr
   end
 
   def start_windows_server(command, args)
     if local_service?
-      system_or_fail("#{install_location(args)}/bin/Neo4j.bat #{command}")  # start service
+      system_or_fail(install_location!(args).join("/bin/Neo4j.bat #{command}"))  # start service
     else
       puts 'Starting Neo4j directly, not as a service.'
-      system_or_fail("#{install_location(args)}/bin/Neo4j.bat")
+      system_or_fail(install_location!(args).join('/bin/Neo4j.bat'))
     end
   end
 
   def start_starnix_server(command, args)
-    system_or_fail("#{install_location(args)}/bin/neo4j #{command}")
+    system_or_fail(install_location!(args).join("bin/neo4j #{command}"))
   end
 
   def get_edition(args)
@@ -100,7 +104,7 @@ namespace :neo4j do
 
     if OS::Underlying.windows?
       # Extract and move to neo4j directory
-      unless File.exist?(install_location(args))
+      unless install_location!(args).exist?
         Zip::ZipFile.open(downloaded_file) do |zip_file|
           zip_file.each do |f|
             f_path = File.join('.', f.name)
@@ -112,19 +116,20 @@ namespace :neo4j do
             end
           end
         end
-        FileUtils.mv "neo4j-#{edition}", install_location(args)
+        FileUtils.mv "neo4j-#{edition}", install_location!(args)
         FileUtils.rm downloaded_file
       end
 
       # Install if running with Admin Privileges
       if local_service?
-        system_or_fail("\"#{install_location(args)}/bin/neo4j install\"")
+        bin_path = install_location!(args).join('bin/neo4j')
+        system_or_fail("\"#{bin_path} install\"")
         puts 'Neo4j Installed as a service.'
       end
 
     else
       system_or_fail("tar -xvf #{downloaded_file}")
-      system_or_fail("mv neo4j-#{edition} #{install_location(args)}")
+      system_or_fail("mv neo4j-#{edition} #{install_location!(args)}")
       system_or_fail("rm #{downloaded_file}")
       puts 'Neo4j Installed in to neo4j directory.'
     end
@@ -163,7 +168,7 @@ namespace :neo4j do
   def run_neo4j_command_or_fail!(args, command)
     binary = OS::Underlying.windows? ? 'Neo4j.bat' : 'neo4j'
 
-    system_or_fail("#{install_location(args)}/bin/#{binary} #{command}")
+    system_or_fail(install_location!(args).join("bin/#{binary} #{command}"))
   end
 
   desc 'Stop the Neo4j Server'
@@ -197,12 +202,14 @@ namespace :neo4j do
     run_neo4j_command_or_fail!(args, :stop)
 
     # Reset the database
-    FileUtils.rm_rf("#{install_location(args)}/data/graph.db")
-    FileUtils.mkdir("#{install_location(args)}/data/graph.db")
+    database_dir = install_location!(args).join('data/graph.db')
+    FileUtils.rm_rf(database_dir)
+    FileUtils.mkdir(database_dir)
 
     # Remove log files
-    FileUtils.rm_rf("#{install_location(args)}/data/log")
-    FileUtils.mkdir("#{install_location(args)}/data/log")
+    log_dir = install_location!(args).join('data/log')
+    FileUtils.rm_rf(log_dir)
+    FileUtils.mkdir(log_dir)
 
     run_neo4j_command_or_fail!(args, :start)
   end
