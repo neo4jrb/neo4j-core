@@ -15,10 +15,6 @@ namespace :neo4j do
     "http://dist.neo4j.org/neo4j-#{edition}-#{OS::Underlying.windows? ? 'windows.zip' : 'unix.tar.gz'}"
   end
 
-  def download_neo4j_unless_exists(edition)
-    download_neo4j(edition) unless File.exist?(file_name)
-  end
-
   def download_neo4j(edition)
     success = false
 
@@ -66,7 +62,7 @@ namespace :neo4j do
   end
 
   def start_windows_server(command, args)
-    if system_or_fail!('reg query "HKU\\S-1-5-19"').size > 0
+    if local_service?
       system_or_fail("#{install_location(args)}/bin/Neo4j.bat #{command}")  # start service
     else
       puts 'Starting Neo4j directly, not as a service.'
@@ -90,13 +86,17 @@ namespace :neo4j do
     end
   end
 
+  def local_service?
+    system_or_fail('reg query "HKU\\S-1-5-19"').size > 0
+  end
+
   desc 'Install Neo4j with auth disabled in v2.2+, example neo4j:install[community-latest,development]'
   task :install, :edition, :environment do |_, args|
     edition = get_edition(args)
     environment = get_environment(args)
     puts "Installing Neo4j-#{edition} environment: #{environment}"
 
-    downloaded_file = download_neo4j_unless_exists edition
+    downloaded_file = download_neo4j(edition) unless File.exist?(file_name)
 
     if OS::Underlying.windows?
       # Extract and move to neo4j directory
@@ -117,7 +117,7 @@ namespace :neo4j do
       end
 
       # Install if running with Admin Privileges
-      if system_or_fail('reg query "HKU\\S-1-5-19"').size > 0
+      if local_service?
         system_or_fail("\"#{install_location(args)}/bin/neo4j install\"")
         puts 'Neo4j Installed as a service.'
       end
@@ -155,7 +155,7 @@ namespace :neo4j do
 
   def validate_is_system_admin!
     return unless OS::Underlying.windows?
-    return if system_or_fail("reg query \"HKU\\S-1-5-19\"").size > 0
+    return if local_service?
 
     fail 'You do not have administrative rights to stop the Neo4j Service'
   end
