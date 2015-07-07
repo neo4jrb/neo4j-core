@@ -64,17 +64,15 @@ module Neo4j
         start
       end
 
-      def change_password!
+      def self.change_password!
         puts 'This will change the password for a Neo4j server'
 
-        address = prompt_for 'Enter target IP address or host name without protocal and port, press enter for http://localhost:7474'
-        target_address = address.empty? ? 'http://localhost:7474' : address
+        target_address = prompt_for 'Enter target IP address or host name without protocal and port', 'http://localhost:7474'
 
-        password = prompt_for 'Input current password. Leave blank if this is a fresh installation of Neo4j.'
-        old_password = password.empty? ? 'neo4j' : password
+        old_password = prompt_for 'Input current password. Leave blank for a fresh installation of Neo4j', 'neo4j'
 
         new_password = prompt_for 'Input new password.'
-        fail 'A new password is required' if new_password.blank?
+        fail 'A new password is required' if new_password == false
 
         body = change_password_request(target_address, old_password, new_password)
         if body['errors']
@@ -89,20 +87,16 @@ module Neo4j
       def set_auth_enabeled!(enabled)
         value = (!!enabled).to_s
         set_config_properties(
-          {
-            'dbms.security.authorization_enabled' => value,
-            'dbms.security.auth_enabled' => value
-            })
+          'dbms.security.authorization_enabled' => value,
+          'dbms.security.auth_enabled' => value)
       end
 
       def set_port!(port)
         puts "Config Neo4j #{@environment} for ports #{port} / #{port - 1}"
 
-        set_config_properties({
-            'org.neo4j.server.webserver.https.enabled' => false,
-            'org.neo4j.server.webserver.port' => port,
-            'org.neo4j.server.webserver.https.port' => port - 1
-          })
+        set_config_properties('org.neo4j.server.webserver.https.enabled' => false,
+                              'org.neo4j.server.webserver.port' => port,
+                              'org.neo4j.server.webserver.https.port' => port - 1)
       end
 
       # END MAIN COMMANDS
@@ -118,10 +112,12 @@ module Neo4j
         end
       end
 
-      def self.new_for_os(environment, path)
-        manager_class = OS::Underlying.windows? ? WindowsServerManager : StarnixServerManager
+      def self.class_for_os
+        OS::Underlying.windows? ? WindowsServerManager : StarnixServerManager
+      end
 
-        manager_class.new(environment, path)
+      def self.new_for_os(environment, path)
+        class_for_os.new(environment, path)
       end
 
       protected
@@ -185,16 +181,18 @@ module Neo4j
       # @param [String] old_password The existing password for the "neo4j" user account
       # @param [String] new_password The new password you want to use. Shocking, isn't it?
       # @return [Hash] The response from the server indicating success/failure.
-      def change_password_request(target_address, old_password, new_password)
+      def self.change_password_request(target_address, old_password, new_password)
         uri = URI.parse("#{target_address}/user/neo4j/password")
         response = Net::HTTP.post_form(uri, 'password' => old_password, 'new_password' => new_password)
         JSON.parse(response.body)
       end
 
-      def prompt_for(prompt)
+      def self.prompt_for(prompt, default = false)
         puts prompt
-        put ' > '
-        STDIN.gets.chomp
+        print "#{default ? '[' + default.to_s + ']' : ''} > "
+        result = STDIN.gets.chomp
+        result = result.blank? ? default : result
+        result
       end
     end
   end

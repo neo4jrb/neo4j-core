@@ -3,7 +3,6 @@ require File.expand_path('../server_manager', __FILE__)
 module Neo4j
   module Tasks
     class WindowsServerManager < ServerManager
-
       def neo4j_binary_filename
         'Neo4j.bat'
       end
@@ -11,10 +10,10 @@ module Neo4j
       def install
         super
 
-        if nt_admin?
-          system_or_fail(neo4j_command_path(:install))
-          puts 'Neo4j Installed as a service.'
-        end
+        return if !nt_admin?
+
+        system_or_fail(neo4j_command_path(:install))
+        puts 'Neo4j Installed as a service.'
       end
 
       def validate_is_system_admin!
@@ -52,7 +51,6 @@ module Neo4j
       def nt_admin?
         system_or_fail('reg query "HKU\\S-1-5-19"').size > 0
       end
-
     end
   end
 end

@@ -17,6 +17,10 @@ namespace :neo4j do
     BASE_INSTALL_DIR.join((environment || :development).to_s)
   end
 
+  def server_manager_class
+    ::Neo4j::Tasks::ServerManager.class_for_os
+  end
+
   def server_manager(environment, path)
     ::Neo4j::Tasks::ServerManager.new_for_os(environment, path)
   end
@@ -74,9 +78,8 @@ namespace :neo4j do
   end
 
   desc 'Neo4j 2.2: Change connection password'
-  task :change_password do
-    server_manager = server_manager(args[:environment], server_path(args[:environment]))
-    server_manager.change_password!
+  task :change_password do |_, args|
+    server_manager_class.change_password!
   end
 
   desc 'Neo4j 2.2: Enable Auth'
@@ -84,7 +87,7 @@ namespace :neo4j do
     server_manager = server_manager(args[:environment], server_path(args[:environment]))
     server_manager.set_auth_enabeled!(true)
 
-    puts "Neo4j basic authentication enabled. Restart server to apply."
+    puts 'Neo4j basic authentication enabled. Restart server to apply.'
   end
 
   desc 'Neo4j 2.2: Disable Auth'
@@ -92,6 +95,6 @@ namespace :neo4j do
     server_manager = server_manager(args[:environment], server_path(args[:environment]))
     server_manager.set_auth_enabeled!(false)
 
-    puts "Neo4j basic authentication disabled. Restart server to apply."
+    puts 'Neo4j basic authentication disabled. Restart server to apply.'
   end
 end

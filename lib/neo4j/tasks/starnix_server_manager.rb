@@ -3,7 +3,6 @@ require File.expand_path('../server_manager', __FILE__)
 module Neo4j
   module Tasks
     class StarnixServerManager < ServerManager
-
       def neo4j_binary_filename
         'neo4j'
       end
@@ -22,7 +21,6 @@ module Neo4j
       def download_url(version)
         "http://dist.neo4j.org/neo4j-#{version}-unix.tar.gz"
       end
-
     end
   end
 end
