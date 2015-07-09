@@ -91,7 +91,8 @@ namespace :neo4j do
   end
 
   desc 'Install Neo4j with auth disabled in v2.2+, example neo4j:install[community-latest,development]'
-  task :install, :edition, :environment do |_, args|
+  task :install, [:edition, :environment] do |_, args|
+    args.with_default_arguments(:edition => 'community-latest', :environment => 'development')
     edition = get_edition(args)
     environment = get_environment(args)
     puts "Installing Neo4j-#{edition} environment: #{environment}"
