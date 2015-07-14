@@ -6,6 +6,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased][unreleased]
 - Nothing yet, placeholder
 
+## [5.0.4] - 2015-07-14
+
+### Changed
+- Added default arguments to `neo4j:install` rake task
+
 ## [5.0.3] - 2015-07-01
 
 ### Fixed
