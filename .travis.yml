@@ -3,10 +3,11 @@ script:
   - "bundle exec rake neo4j:install[$NEO4J_VERSION] neo4j:disable_auth neo4j:start default --trace"
 language: ruby
 rvm:
-  - 2.2.0
+  - 2.2.2
   - 2.1.5
-  - jruby-1.7.16
+  - jruby-1.7.18
   # - jruby-19mode
 env:
   - NEO4J_VERSION=community-2.2.1
   - NEO4J_VERSION=community-2.1.7
+sudo: false
