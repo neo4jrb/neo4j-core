@@ -213,6 +213,12 @@ module Neo4j
           it { is_expected.to be_truthy }
         end
       end
+
+      describe 'CypherResponse::ConstraintError' do
+        it 'inherits from ResponseError' do
+          expect(CypherResponse::ConstraintError.new(nil, nil, nil)).to be_a(CypherResponse::ResponseError)
+        end
+      end
     end
   end
 end

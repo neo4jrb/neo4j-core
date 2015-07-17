@@ -230,6 +230,28 @@ RSpec.shared_examples 'Neo4j::Label' do
     end
   end
 
+  describe 'unsatisfied constraint' do
+    let(:label) { Neo4j::Label.create(:MyFoo) }
+    before do
+      if Neo4j::Transaction.current
+        Neo4j::Transaction.current.failure
+        Neo4j::Transaction.current.close
+      end
+      Neo4j::Session.current.query.match('(n:MyFoo)').delete(:n).exec
+      label.create_constraint(:bar, type: :unique)
+    end
+
+    after do
+      label.drop_constraint(:bar, type: :unique)
+      Neo4j::Session.current.query.match('(n:MyFoo)').delete(:n).exec
+    end
+
+    it 'raises a ConstraintError' do
+      expect { Neo4j::Node.create({bar: 'dawn'}, :MyFoo) }.not_to raise_error
+      expect { Neo4j::Node.create({bar: 'dawn'}, :MyFoo) }.to raise_error { Neo4j::Server::CypherResponse::ConstraintError }
+    end
+  end
+
   describe 'instance methods' do
     describe 'create_index' do
       it 'creates an index on given properties' do

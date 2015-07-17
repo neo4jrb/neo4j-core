@@ -13,6 +13,7 @@ module Neo4j
         end
       end
 
+      class ConstraintError < ResponseError; end
 
       class HashEnumeration
         include Enumerable
@@ -201,9 +202,15 @@ module Neo4j
         self
       end
 
+      CONSTRAINT_ERROR = 'Neo.ClientError.Schema.ConstraintViolation'
       def raise_error
         fail 'Tried to raise error without an error' unless @error
-        fail ResponseError.new(@error_msg, @error_status, @error_code)
+        error_class = constraint_error? ? ConstraintError : ResponseError
+        fail error_class.new(@error_msg, @error_status, @error_code)
+      end
+
+      def constraint_error?
+        @error_code == CONSTRAINT_ERROR || @error_msg.include?('already exists with')
       end
 
       def raise_cypher_error
@@ -228,11 +235,7 @@ module Neo4j
 
         new(response, true).tap do |cr|
           body = response.body
-          if body[:errors].empty?
-            cr.set_data(body[:results].first)
-          else
-            cr.set_error(body[:errors].first)
-          end
+          body[:errors].empty? ? cr.set_data(body[:results].first) : cr.set_error(body[:errors].first)
         end
       end
 
