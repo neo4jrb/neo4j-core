@@ -184,6 +184,14 @@ module Neo4j
         end
       end
 
+      def match_nodes(hash)
+        hash.inject(self) do |query, (variable, node_object)|
+          query
+            .match(variable => node_object.labels)
+            .where(variable => {neo_id: node_object.neo_id})
+        end
+      end
+
       include Enumerable
 
       def count(var = nil)
