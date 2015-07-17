@@ -13,7 +13,7 @@ module Neo4j
         end
       end
 
-      class ConstraintError < ResponseError; end
+      class ConstraintViolationError < ResponseError; end
 
       class HashEnumeration
         include Enumerable
@@ -205,7 +205,7 @@ module Neo4j
       CONSTRAINT_ERROR = 'Neo.ClientError.Schema.ConstraintViolation'
       def raise_error
         fail 'Tried to raise error without an error' unless @error
-        error_class = constraint_error? ? ConstraintError : ResponseError
+        error_class = constraint_error? ? ConstraintViolationError : ResponseError
         fail error_class.new(@error_msg, @error_status, @error_code)
       end
 

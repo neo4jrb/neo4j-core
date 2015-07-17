@@ -214,9 +214,9 @@ module Neo4j
         end
       end
 
-      describe 'CypherResponse::ConstraintError' do
+      describe 'CypherResponse::ConstraintViolationError' do
         it 'inherits from ResponseError' do
-          expect(CypherResponse::ConstraintError.new(nil, nil, nil)).to be_a(CypherResponse::ResponseError)
+          expect(CypherResponse::ConstraintViolationError.new(nil, nil, nil)).to be_a(CypherResponse::ResponseError)
         end
       end
     end

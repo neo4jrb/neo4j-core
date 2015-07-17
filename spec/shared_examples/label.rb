@@ -246,9 +246,9 @@ RSpec.shared_examples 'Neo4j::Label' do
       Neo4j::Session.current.query.match('(n:MyFoo)').delete(:n).exec
     end
 
-    it 'raises a ConstraintError' do
+    it 'raises a ConstraintViolationError' do
       expect { Neo4j::Node.create({bar: 'dawn'}, :MyFoo) }.not_to raise_error
-      expect { Neo4j::Node.create({bar: 'dawn'}, :MyFoo) }.to raise_error { Neo4j::Server::CypherResponse::ConstraintError }
+      expect { Neo4j::Node.create({bar: 'dawn'}, :MyFoo) }.to raise_error { Neo4j::Server::CypherResponse::ConstraintViolationError }
     end
   end
 
