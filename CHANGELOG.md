@@ -6,6 +6,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased][unreleased]
 - Nothing yet, placeholder
 
+## [5.0.6] - 2015-07-19
+
+### Added
+- Added `Query#match_nodes` method to easily match variables to nodes/neo_ids
+
+## [5.0.5] - 2015-07-14
+
+### Fixed
+- Refactoring of instrumentation done in 5.0.2 caused errors in embedded mode
+
 ## [5.0.4] - 2015-07-14
 
 ### Changed
