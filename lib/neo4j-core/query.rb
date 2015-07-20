@@ -186,9 +186,13 @@ module Neo4j
 
       def match_nodes(hash)
         hash.inject(self) do |query, (variable, node_object)|
+          neo_id = if node_object.respond_to?(:neo_id)
+            node_object.neo_id
+          else
+            node_object
+          end
           query
-            .match(variable => node_object.labels)
-            .where(variable => {neo_id: node_object.neo_id})
+            .match(variable).where(variable => {neo_id: neo_id})
         end
       end
 
