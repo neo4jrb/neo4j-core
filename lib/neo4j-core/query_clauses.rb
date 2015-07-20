@@ -134,12 +134,24 @@ module Neo4j
           def to_cypher(clauses, options = {})
             @question_mark_param_index = 1
 
-            join = respond_to?(:clause_join) ? clause_join : ''
-            join += (options[:pretty] ? "\n  " : '')
+            join = clause_join + (options[:pretty] ? "\n  " : '')
             string = clause_strings(clauses).join(join)
             string.strip!
 
-            "#{keyword} #{string}" if string.size > 0
+            final_keyword = if options[:pretty]
+                              "#{clause_color}#{keyword}#{ANSI::CLEAR}"
+                            else
+                              keyword
+                            end
+            "#{final_keyword} #{string}" if string.size > 0
+          end
+
+          def clause_join
+            ''
+          end
+
+          def clause_color
+            ANSI::CYAN
           end
         end
 
@@ -354,7 +366,7 @@ module Neo4j
 
           def clause_join
             Clause::COMMA_SPACE
-          end          
+          end
         end
       end
 
@@ -368,7 +380,7 @@ module Neo4j
 
           def clause_join
             " #{keyword} "
-          end          
+          end
         end
       end
 
@@ -405,6 +417,10 @@ module Neo4j
           def clause_join
             ', '
           end
+
+          def clause_color
+            ANSI::GREEN
+          end
         end
       end
 
@@ -414,6 +430,12 @@ module Neo4j
 
       class MergeClause < CreateClause
         KEYWORD = 'MERGE'
+
+        class << self
+          def clause_color
+            ANSI::YELLOW
+          end
+        end
       end
 
       class DeleteClause < Clause
@@ -430,6 +452,10 @@ module Neo4j
 
           def clause_join
             Clause::COMMA_SPACE
+          end
+
+          def clause_color
+            ANSI::RED
           end
         end
       end
@@ -536,6 +562,10 @@ module Neo4j
 
           def clause_join
             Clause::COMMA_SPACE
+          end
+
+          def clause_color
+            ANSI::YELLOW
           end
         end
       end

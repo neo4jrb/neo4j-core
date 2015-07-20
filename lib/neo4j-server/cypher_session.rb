@@ -234,11 +234,10 @@ module Neo4j
 
       EMPTY = ''
       def self.log_with
-        clear, yellow, cyan = %W(\e[0m \e[33m \e[36m)
         ActiveSupport::Notifications.subscribe('neo4j.cypher_query') do |_, start, finish, _id, payload|
           ms = (finish - start) * 1000
           params_string = (payload[:params] && payload[:params].size > 0 ? "| #{payload[:params].inspect}" : EMPTY)
-          yield(" #{cyan}#{payload[:context]}#{clear} #{yellow}#{ms.round}ms#{clear} #{payload[:cypher]} #{params_string}")
+          yield(" #{ANSI::CYAN}#{payload[:context]}#{ANSI::CLEAR} #{ANSI::YELLOW}#{ms.round}ms#{ANSI::CLEAR} #{payload[:cypher]} #{params_string}")
         end
       end
     end
