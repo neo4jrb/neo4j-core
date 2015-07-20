@@ -384,6 +384,39 @@ describe Neo4j::Core::Query do
     end
   end
 
+  describe '#match_nodes' do
+    context 'one node object' do
+      let(:node_object) { double(neo_id: 246) }
+
+      describe '.match_nodes(var: node_object)' do
+        it_generates 'MATCH var WHERE (ID(var) = {ID_var})', ID_var: 246
+      end
+    end
+
+    context 'integer' do
+      describe '.match_nodes(var: 924)' do
+        it_generates 'MATCH var WHERE (ID(var) = {ID_var})', ID_var: 924
+      end
+    end
+
+    context 'two node objects' do
+      let(:user) { double(neo_id: 246) }
+      let(:post) { double(neo_id: 123) }
+
+      describe '.match_nodes(user: user, post: post)' do
+        it_generates 'MATCH user, post WHERE (ID(user) = {ID_user}) AND (ID(post) = {ID_post})', ID_user: 246, ID_post: 123
+      end
+    end
+
+    context 'node object and integer' do
+      let(:user) { double(neo_id: 246) }
+
+      describe '.match_nodes(user: user, post: 652)' do
+        it_generates 'MATCH user, post WHERE (ID(user) = {ID_user}) AND (ID(post) = {ID_post})', ID_user: 246, ID_post: 652
+      end
+    end
+  end
+
   # UNWIND
 
   describe '#unwind' do
