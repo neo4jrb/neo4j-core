@@ -268,20 +268,25 @@ module Neo4j
       #
       # @return [String] Resulting cypher query string
       EMPTY = ' '
-      def to_cypher
+      NEWLINE = "\n"
+      def to_cypher(options = {})
         cypher_string = PartitionedClauses.new(@clauses).map do |clauses|
           clauses_by_class = clauses.group_by(&:class)
 
           cypher_parts = CLAUSES.map do |clause_class|
-            clause_class.to_cypher(clauses) if clauses = clauses_by_class[clause_class]
+            clause_class.to_cypher(clauses, options) if clauses = clauses_by_class[clause_class]
           end
 
           cypher_parts.compact!
-          cypher_parts.join(EMPTY).tap(&:strip!)
-        end.join EMPTY
+          cypher_parts.join(options[:pretty] ? NEWLINE : EMPTY).tap(&:strip!)
+        end.join(options[:pretty] ? NEWLINE : EMPTY)
 
         cypher_string = "CYPHER #{@options[:parser]} #{cypher_string}" if @options[:parser]
         cypher_string.tap(&:strip!)
+      end
+
+      def print_cypher
+        puts to_cypher(pretty: true)
       end
 
       # Returns a CYPHER query specifying the union of the callee object's query and the argument's query

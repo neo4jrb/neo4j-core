@@ -131,10 +131,12 @@ module Neo4j
             new(arg, options) if !arg.respond_to?(:empty?) || !arg.empty?
           end
 
-          def to_cypher(clauses)
+          def to_cypher(clauses, options = {})
             @question_mark_param_index = 1
 
-            string = clause_string(clauses)
+            join = respond_to?(:clause_join) ? clause_join : ''
+            join += (options[:pretty] ? "\n  " : '')
+            string = clause_strings(clauses).join(join)
             string.strip!
 
             "#{keyword} #{string}" if string.size > 0
@@ -224,8 +226,12 @@ module Neo4j
         end
 
         class << self
-          def clause_string(clauses)
-            clauses.map!(&:value).join(Clause::COMMA_SPACE)
+          def clause_strings(clauses)
+            clauses.map!(&:value)
+          end
+
+          def clause_join
+            Clause::COMMA_SPACE
           end
         end
       end
@@ -245,8 +251,12 @@ module Neo4j
         end
 
         class << self
-          def clause_string(clauses)
-            clauses.map!(&:value).tap(&:flatten!).map! { |value| "(#{value})" }.join(Clause::AND)
+          def clause_strings(clauses)
+            clauses.map!(&:value).tap(&:flatten!).map! { |value| "(#{value})" }
+          end
+
+          def clause_join
+            Clause::AND
           end
         end
 
@@ -312,8 +322,12 @@ module Neo4j
         end
 
         class << self
-          def clause_string(clauses)
-            clauses.map!(&:value).join(Clause::COMMA_SPACE)
+          def clause_strings(clauses)
+            clauses.map!(&:value)
+          end
+
+          def clause_join
+            Clause::COMMA_SPACE
           end
         end
       end
@@ -334,9 +348,13 @@ module Neo4j
         end
 
         class << self
-          def clause_string(clauses)
-            clauses.map!(&:value).join(Clause::COMMA_SPACE)
+          def clause_strings(clauses)
+            clauses.map!(&:value)
           end
+
+          def clause_join
+            Clause::COMMA_SPACE
+          end          
         end
       end
 
@@ -344,9 +362,13 @@ module Neo4j
         KEYWORD = 'USING'
 
         class << self
-          def clause_string(clauses)
-            clauses.map!(&:value).join(" #{keyword} ")
+          def clause_strings(clauses)
+            clauses.map!(&:value)
           end
+
+          def clause_join
+            " #{keyword} "
+          end          
         end
       end
 
@@ -376,8 +398,12 @@ module Neo4j
         end
 
         class << self
-          def clause_string(clauses)
-            clauses.map!(&:value).join(', ')
+          def clause_strings(clauses)
+            clauses.map!(&:value)
+          end
+
+          def clause_join
+            ', '
           end
         end
       end
@@ -398,8 +424,12 @@ module Neo4j
         end
 
         class << self
-          def clause_string(clauses)
-            clauses.map!(&:value).join(Clause::COMMA_SPACE)
+          def clause_strings(clauses)
+            clauses.map!(&:value)
+          end
+
+          def clause_join
+            Clause::COMMA_SPACE
           end
         end
       end
@@ -425,8 +455,12 @@ module Neo4j
         end
 
         class << self
-          def clause_string(clauses)
-            clauses.map!(&:value).join(Clause::COMMA_SPACE)
+          def clause_strings(clauses)
+            clauses.map!(&:value)
+          end
+
+          def clause_join
+            Clause::COMMA_SPACE
           end
         end
       end
@@ -447,8 +481,8 @@ module Neo4j
         end
 
         class << self
-          def clause_string(clauses)
-            clauses.last.value
+          def clause_strings(clauses)
+            [clauses.last.value]
           end
         end
       end
@@ -469,8 +503,8 @@ module Neo4j
         end
 
         class << self
-          def clause_string(clauses)
-            clauses.last.value
+          def clause_strings(clauses)
+            [clauses.last.value]
           end
         end
       end
@@ -496,8 +530,12 @@ module Neo4j
         end
 
         class << self
-          def clause_string(clauses)
-            clauses.map!(&:value).join(Clause::COMMA_SPACE)
+          def clause_strings(clauses)
+            clauses.map!(&:value)
+          end
+
+          def clause_join
+            Clause::COMMA_SPACE
           end
         end
       end
@@ -536,8 +574,12 @@ module Neo4j
         end
 
         class << self
-          def clause_string(clauses)
-            clauses.map!(&:value).join(Clause::COMMA_SPACE)
+          def clause_strings(clauses)
+            clauses.map!(&:value)
+          end
+
+          def clause_join
+            Clause::COMMA_SPACE
           end
         end
       end
@@ -557,8 +599,12 @@ module Neo4j
         end
 
         class << self
-          def clause_string(clauses)
-            clauses.map!(&:value).join(' UNWIND ')
+          def clause_strings(clauses)
+            clauses.map!(&:value)
+          end
+
+          def clause_join
+            ' UNWIND '
           end
         end
       end
@@ -588,8 +634,12 @@ module Neo4j
         end
 
         class << self
-          def clause_string(clauses)
-            clauses.map!(&:value).join(Clause::COMMA_SPACE)
+          def clause_strings(clauses)
+            clauses.map!(&:value)
+          end
+
+          def clause_join
+            Clause::COMMA_SPACE
           end
         end
       end
