@@ -433,7 +433,7 @@ module Neo4j
 
         class << self
           def clause_color
-            ANSI::YELLOW
+            ANSI::MAGENTA
           end
         end
       end
