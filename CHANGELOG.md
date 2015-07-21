@@ -4,7 +4,9 @@ This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
-- Nothing yet, placeholder
+
+### Added
+- Support pretty cypher queries via `Query#print_cypher` and `Query#to_cypher` with `pretty: true`
 
 ## [5.0.6] - 2015-07-19
 
