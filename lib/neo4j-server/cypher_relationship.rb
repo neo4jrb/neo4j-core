@@ -127,7 +127,7 @@ module Neo4j
       end
 
       def neo_id_integer(id_or_url)
-        id_or_url.is_a?(Integer) ? id_or_url : id_or_url.match(/\d+$/)[0].to_i
+        id_or_url.is_a?(Integer) ? id_or_url : id_or_url.split('/').last.to_i
       end
     end
   end
