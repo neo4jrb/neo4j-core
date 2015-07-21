@@ -135,8 +135,10 @@ module Neo4j
             @question_mark_param_index = 1
 
             join = clause_join + (options[:pretty] ? "\n  " : '')
-            string = clause_strings(clauses).join(join)
-            string.strip!
+
+            strings = clause_strings(clauses)
+            string = ((options[:pretty] && strings.size > 1) ? "\n  " : '')
+            string += strings.join(join).strip
 
             final_keyword = if options[:pretty]
                               "#{clause_color}#{keyword}#{ANSI::CLEAR}"

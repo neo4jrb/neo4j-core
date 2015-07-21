@@ -18,6 +18,10 @@ module Neo4j
 
       attr_accessor :clauses
 
+      class << self
+        attr_accessor :pretty_cypher
+      end
+
       def initialize(options = {})
         @session = options[:session] || Neo4j::Session.current
 
@@ -174,8 +178,9 @@ module Neo4j
       def response
         return @response if @response
         cypher = to_cypher
+        pretty_cypher = to_cypher(pretty: true) if self.class.pretty_cypher
 
-        @response = @session._query(cypher, merge_params, context: @options[:context])
+        @response = @session._query(cypher, merge_params, context: @options[:context], pretty_cypher: pretty_cypher)
 
         if !response.respond_to?(:error?) || !response.error?
           response
