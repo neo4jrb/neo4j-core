@@ -10,7 +10,7 @@ It can be used standalone without the neo4j gem.
  * http://neo4jrb.readthedocs.org/en/stable/
  * https://github.com/neo4jrb/neo4j-core/wiki
 
-# 2.x Documentation
+### 2.x Documentation
 
 https://github.com/neo4jrb/neo4j-core/tree/v2.x
 
