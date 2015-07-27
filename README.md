@@ -45,7 +45,7 @@ All new documentation will be done via our [readthedocs](http://neo4jrb.readthed
 * [Brian Underwood](https://github.com/cheerfulstoic)
 * [Chris Grigg](https://github.com/subvertallchris)
 
-* Consulting support? Contact [Chris](http://subvertallmedia.com/) and/or [Brian](http://www.brian-underwood.codes/)
+Consulting support? Contact [Chris](http://subvertallmedia.com/) and/or [Brian](http://www.brian-underwood.codes/)
 
 ## Contributing
 
