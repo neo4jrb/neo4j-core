@@ -1,13 +1,18 @@
-# Neo4j-core v3.0 [![Code Climate](https://codeclimate.com/github/neo4jrb/neo4j-core.png)](https://codeclimate.com/github/neo4jrb/neo4j-core) [![Build Status](https://travis-ci.org/neo4jrb/neo4j-core.png)](https://travis-ci.org/neo4jrb/neo4j-core) [![Coverage Status](https://coveralls.io/repos/neo4jrb/neo4j-core/badge.png?branch=master)](https://coveralls.io/r/neo4jrb/neo4j-core?branch=master) [![PullReview stats](https://www.pullreview.com/github/neo4jrb/neo4j-core/badges/master.svg?)](https://www.pullreview.com/github/neo4jrb/neo4j-core/reviews/master)
+# Neo4j-core [![Code Climate](https://codeclimate.com/github/neo4jrb/neo4j-core.png)](https://codeclimate.com/github/neo4jrb/neo4j-core) [![Build Status](https://travis-ci.org/neo4jrb/neo4j-core.png)](https://travis-ci.org/neo4jrb/neo4j-core) [![Coverage Status](https://coveralls.io/repos/neo4jrb/neo4j-core/badge.png?branch=master)](https://coveralls.io/r/neo4jrb/neo4j-core?branch=master) [![PullReview stats](https://www.pullreview.com/github/neo4jrb/neo4j-core/badges/master.svg?)](https://www.pullreview.com/github/neo4jrb/neo4j-core/reviews/master)
 
 A simple Ruby wrapper around the Neo4j graph database that works with the server and embedded Neo4j API. This gem can be used both from JRuby and normal MRI.
 It can be used standalone without the neo4j gem.
 
 ## Documentation
 
-* [3.0 Documentation](https://github.com/neo4jrb/neo4j-core/wiki)
-* [2.x Documentation](https://github.com/neo4jrb/neo4j-core/tree/v2.x)
+### 3.0+ Documentation:
 
+ * http://neo4jrb.readthedocs.org/en/stable/
+ * https://github.com/neo4jrb/neo4j-core/wiki
+
+# 2.x Documentation
+
+https://github.com/neo4jrb/neo4j-core/tree/v2.x
 
 ## Support
 
