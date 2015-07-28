@@ -17,6 +17,7 @@ require 'neo4j/entity_equality'
 require 'neo4j/node'
 require 'neo4j/label'
 require 'neo4j/session'
+require 'neo4j/ansi'
 
 require 'neo4j/relationship'
 require 'neo4j/transaction'
