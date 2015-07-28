@@ -1,6 +1,82 @@
 require 'spec_helper'
 
+class DocGenerator
+  QUERY_DOCS_PATH = File.join('..', 'neo4j', 'docs')
+
+  RST_HEADER_ORDER = %w(- ~ ^)
+
+  def initialize(filename)
+    @filename = filename
+    @last_headers = []
+
+    base_path = File.join(QUERY_DOCS_PATH, "#{filename}.base")
+    @enabled = ENV['GENERATE_QUERY_DOCS'] && File.exist?(base_path)
+
+    return if !@enabled
+
+    path = File.join(QUERY_DOCS_PATH, 'QueryClauseMethods.rst')
+    `cp #{base_path} #{path}`
+
+    @file = File.open(path, 'a')
+  end
+
+  def get_headers(context_class)
+    parts = context_class.name.split('::')
+    headers = (3..parts.size - 1).map { |i| Kernel.const_get(parts[0, i].join('::')).description }
+
+    first_different_index = headers.each_with_index.detect do |header, index|
+      @last_headers[index] != header
+    end
+
+    @last_headers = headers
+
+    return if !first_different_index
+
+    headers[first_different_index[1]..-1]
+  end
+
+  def add_headers(context_class)
+    headers = get_headers(context_class)
+
+    return if headers.nil?
+
+    headers.each_with_index do |header, index|
+      @file.puts header
+      @file.puts RST_HEADER_ORDER[index] * header.size
+      @file.puts
+    end
+  end
+
+  def add_query_doc_line(context_class, query_code, cypher, params = {})
+    return if !@enabled
+
+    add_headers(context_class)
+
+    @file.puts <<-RST
+:Ruby:
+  .. code-block:: ruby
+
+    #{query_code}
+
+:Cypher:
+  .. code-block:: cypher
+
+    #{cypher}
+
+RST
+
+    @file.puts "**Parameters:** ``#{params.inspect}``" unless params.empty?
+    @file.puts
+    @file.puts '------------'
+    @file.puts
+  end
+end
+
 describe Neo4j::Core::Query do
+  before(:all) do
+    @doc_generator = DocGenerator.new('QueryClauseMethods.rst')
+  end
+
   describe 'options' do
     let(:query) { Neo4j::Core::Query.new(parser: 2.0) }
 
@@ -105,120 +181,20 @@ describe Neo4j::Core::Query do
     end
   end
 
+
   def expects_cypher(cypher, params = {})
     query = eval("Neo4j::Core::Query.new#{self.class.description}") # rubocop:disable Lint/Eval
+    @doc_generator.add_query_doc_line(self.class, self.class.description, cypher, params)
+
     expect(query.to_cypher).to eq(cypher)
+
     query_params = query.send(:merge_params) || {}
-    expect(query_params).to eq(params) if params.size > 0 || query_params.size > 0
+    expect(query_params).to eq(params) unless params.empty? && query_params.empty?
   end
 
   def self.it_generates(cypher, params = {})
     it "generates #{cypher}" do
       expects_cypher(cypher, params)
-    end
-  end
-
-  describe 'clause combinations' do
-    describe ".match(q: Person).where('q.age > 30')" do
-      it_generates 'MATCH (q:`Person`) WHERE (q.age > 30)'
-    end
-
-    describe ".where('q.age > 30').match(q: Person)" do
-      it_generates 'MATCH (q:`Person`) WHERE (q.age > 30)'
-    end
-
-    describe ".where('q.age > 30').start('n').match(q: Person)" do
-      it_generates 'START n MATCH (q:`Person`) WHERE (q.age > 30)'
-    end
-
-    describe '.match(q: {age: 30}).set_props(q: {age: 31})' do
-      it_generates 'MATCH (q {age: {q_age}}) SET q = {q_set_props}', q_age: 30, q_set_props: {age: 31}
-    end
-
-    # WITHS
-
-    describe ".match(q: Person).with('count(q) AS count')" do
-      it_generates 'MATCH (q:`Person`) WITH count(q) AS count'
-    end
-
-    describe ".match(q: Person).with('count(q) AS count').where('count > 2')" do
-      it_generates 'MATCH (q:`Person`) WITH count(q) AS count WHERE (count > 2)'
-    end
-
-    describe ".match(q: Person).with(count: 'count(q)').where('count > 2').with(new_count: 'count + 5')" do
-      it_generates 'MATCH (q:`Person`) WITH count(q) AS count WHERE (count > 2) WITH count + 5 AS new_count'
-    end
-
-    # breaks
-
-    describe ".match(q: Person).match('r:Car').break.match('(p: Person)-->q')" do
-      it_generates 'MATCH (q:`Person`), r:Car MATCH (p: Person)-->q'
-    end
-
-    describe ".match(q: Person).break.match('r:Car').break.match('(p: Person)-->q')" do
-      it_generates 'MATCH (q:`Person`) MATCH r:Car MATCH (p: Person)-->q'
-    end
-
-    describe ".match(q: Person).match('r:Car').break.break.match('(p: Person)-->q')" do
-      it_generates 'MATCH (q:`Person`), r:Car MATCH (p: Person)-->q'
-    end
-
-    describe ".with(:a).order(a: {name: :desc}).where(a: {name: 'Foo'})" do
-      it_generates 'WITH a ORDER BY a.name DESC WHERE (a.name = {a_name})', a_name: 'Foo'
-    end
-
-    describe ".with(:a).limit(2).where(a: {name: 'Foo'})" do
-      it_generates 'WITH a LIMIT {limit_2} WHERE (a.name = {a_name})', a_name: 'Foo', limit_2: 2
-    end
-
-    describe ".with(:a).order(a: {name: :desc}).limit(2).where(a: {name: 'Foo'})" do
-      it_generates 'WITH a ORDER BY a.name DESC LIMIT {limit_2} WHERE (a.name = {a_name})', a_name: 'Foo', limit_2: 2
-    end
-
-    describe ".order(a: {name: :desc}).with(:a).where(a: {name: 'Foo'})" do
-      it_generates 'WITH a ORDER BY a.name DESC WHERE (a.name = {a_name})', a_name: 'Foo'
-    end
-
-    describe ".limit(2).with(:a).where(a: {name: 'Foo'})" do
-      it_generates 'WITH a LIMIT {limit_2} WHERE (a.name = {a_name})', a_name: 'Foo', limit_2: 2
-    end
-
-    describe ".order(a: {name: :desc}).limit(2).with(:a).where(a: {name: 'Foo'})" do
-      it_generates 'WITH a ORDER BY a.name DESC LIMIT {limit_2} WHERE (a.name = {a_name})', a_name: 'Foo', limit_2: 2
-    end
-
-    # params
-    describe ".match(q: Person).where('q.age = {age}').params(age: 15)" do
-      it_generates 'MATCH (q:`Person`) WHERE (q.age = {age})', age: 15
-    end
-  end
-
-  describe 'merging queries' do
-    let(:query1) { Neo4j::Core::Query.new.match(p: Person) }
-    let(:query2) { Neo4j::Core::Query.new.match(c: :Car) }
-
-    it 'Merging two matches' do
-      expect((query1 & query2).to_cypher).to eq('MATCH (p:`Person`), (c:`Car`)')
-    end
-
-    it 'Makes a query that allows further querying' do
-      expect((query1 & query2).match('(p)-[:DRIVES]->(c)').to_cypher).to eq('MATCH (p:`Person`), (c:`Car`), (p)-[:DRIVES]->(c)')
-    end
-
-    it 'merges params'
-
-    it 'merges options'
-  end
-
-  # START
-
-  describe '#start' do
-    describe ".start('r=node:nodes(name = \"Brian\")')" do
-      it_generates "START r=node:nodes(name = \"Brian\")"
-    end
-
-    describe ".start(r: 'node:nodes(name = \"Brian\")')" do
-      it_generates "START r = node:nodes(name = \"Brian\")"
     end
   end
 
@@ -777,7 +753,6 @@ describe Neo4j::Core::Query do
   # FOREACH
 
 
-
   # UNION
 
   describe '#union_cypher' do
@@ -794,5 +769,111 @@ describe Neo4j::Core::Query do
 
       expect(result).to eq('MATCH (n:`Person`) UNION ALL MATCH (o:`Person`) WHERE (o.age = {o_age})')
     end
+  end
+
+
+  # START
+
+  describe '#start' do
+    describe ".start('r=node:nodes(name = \"Brian\")')" do
+      it_generates "START r=node:nodes(name = \"Brian\")"
+    end
+
+    describe ".start(r: 'node:nodes(name = \"Brian\")')" do
+      it_generates "START r = node:nodes(name = \"Brian\")"
+    end
+  end
+
+
+  describe 'clause combinations' do
+    describe ".match(q: Person).where('q.age > 30')" do
+      it_generates 'MATCH (q:`Person`) WHERE (q.age > 30)'
+    end
+
+    describe ".where('q.age > 30').match(q: Person)" do
+      it_generates 'MATCH (q:`Person`) WHERE (q.age > 30)'
+    end
+
+    describe ".where('q.age > 30').start('n').match(q: Person)" do
+      it_generates 'START n MATCH (q:`Person`) WHERE (q.age > 30)'
+    end
+
+    describe '.match(q: {age: 30}).set_props(q: {age: 31})' do
+      it_generates 'MATCH (q {age: {q_age}}) SET q = {q_set_props}', q_age: 30, q_set_props: {age: 31}
+    end
+
+    # WITHS
+
+    describe ".match(q: Person).with('count(q) AS count')" do
+      it_generates 'MATCH (q:`Person`) WITH count(q) AS count'
+    end
+
+    describe ".match(q: Person).with('count(q) AS count').where('count > 2')" do
+      it_generates 'MATCH (q:`Person`) WITH count(q) AS count WHERE (count > 2)'
+    end
+
+    describe ".match(q: Person).with(count: 'count(q)').where('count > 2').with(new_count: 'count + 5')" do
+      it_generates 'MATCH (q:`Person`) WITH count(q) AS count WHERE (count > 2) WITH count + 5 AS new_count'
+    end
+
+    # breaks
+
+    describe ".match(q: Person).match('r:Car').break.match('(p: Person)-->q')" do
+      it_generates 'MATCH (q:`Person`), r:Car MATCH (p: Person)-->q'
+    end
+
+    describe ".match(q: Person).break.match('r:Car').break.match('(p: Person)-->q')" do
+      it_generates 'MATCH (q:`Person`) MATCH r:Car MATCH (p: Person)-->q'
+    end
+
+    describe ".match(q: Person).match('r:Car').break.break.match('(p: Person)-->q')" do
+      it_generates 'MATCH (q:`Person`), r:Car MATCH (p: Person)-->q'
+    end
+
+    describe ".with(:a).order(a: {name: :desc}).where(a: {name: 'Foo'})" do
+      it_generates 'WITH a ORDER BY a.name DESC WHERE (a.name = {a_name})', a_name: 'Foo'
+    end
+
+    describe ".with(:a).limit(2).where(a: {name: 'Foo'})" do
+      it_generates 'WITH a LIMIT {limit_2} WHERE (a.name = {a_name})', a_name: 'Foo', limit_2: 2
+    end
+
+    describe ".with(:a).order(a: {name: :desc}).limit(2).where(a: {name: 'Foo'})" do
+      it_generates 'WITH a ORDER BY a.name DESC LIMIT {limit_2} WHERE (a.name = {a_name})', a_name: 'Foo', limit_2: 2
+    end
+
+    describe ".order(a: {name: :desc}).with(:a).where(a: {name: 'Foo'})" do
+      it_generates 'WITH a ORDER BY a.name DESC WHERE (a.name = {a_name})', a_name: 'Foo'
+    end
+
+    describe ".limit(2).with(:a).where(a: {name: 'Foo'})" do
+      it_generates 'WITH a LIMIT {limit_2} WHERE (a.name = {a_name})', a_name: 'Foo', limit_2: 2
+    end
+
+    describe ".order(a: {name: :desc}).limit(2).with(:a).where(a: {name: 'Foo'})" do
+      it_generates 'WITH a ORDER BY a.name DESC LIMIT {limit_2} WHERE (a.name = {a_name})', a_name: 'Foo', limit_2: 2
+    end
+
+    # params
+    describe ".match(q: Person).where('q.age = {age}').params(age: 15)" do
+      it_generates 'MATCH (q:`Person`) WHERE (q.age = {age})', age: 15
+    end
+  end
+
+  describe 'merging queries' do
+    let(:query1) { Neo4j::Core::Query.new.match(p: Person) }
+    let(:query2) { Neo4j::Core::Query.new.match(c: :Car) }
+
+    it 'Merging two matches' do
+      expect((query1 & query2).to_cypher).to eq('MATCH (p:`Person`), (c:`Car`)')
+    end
+
+    it 'Makes a query that allows further querying' do
+      expect((query1 & query2).match('(p)-[:DRIVES]->(c)').to_cypher).to eq('MATCH (p:`Person`), (c:`Car`), (p)-[:DRIVES]->(c)')
+    end
+
+    it 'merges params'
+
+    it 'merges options'
   end
 end
