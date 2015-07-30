@@ -178,7 +178,7 @@ module Neo4j
       def response
         return @response if @response
         cypher = to_cypher
-        pretty_cypher = to_cypher(pretty: true) if self.class.pretty_cypher
+        pretty_cypher = to_cypher(pretty: true).gsub(/\e[^m]+m/, '') #if self.class.pretty_cypher
 
         @response = @session._query(cypher, merge_params, context: @options[:context], pretty_cypher: pretty_cypher)
 
@@ -291,7 +291,7 @@ module Neo4j
       end
 
       def print_cypher
-        puts to_cypher(pretty: true)
+        puts to_cypher(pretty: true).gsub(/\e[^m]+m/, '')
       end
 
       # Returns a CYPHER query specifying the union of the callee object's query and the argument's query
