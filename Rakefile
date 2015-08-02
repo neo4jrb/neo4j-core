@@ -1,6 +1,5 @@
 require 'rake'
 require 'bundler/gem_tasks'
-load 'neo4j/tasks/neo4j_server.rake'
 require 'yard'
 
 load './spec/lib/yard_rspec.rb'
