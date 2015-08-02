@@ -112,11 +112,9 @@ module Neo4j
       def load_relationship(neo_id)
         query.unwrapped.optional_match('(n)-[r]-()').where(r: {neo_id: neo_id}).pluck(:r).first
       rescue Neo4j::Session::CypherError => cypher_error
-        if cypher_error.message.match(/not found$/)
-          nil
-        else
-          raise cypher_error
-        end
+        return nil if cypher_error.message.match(/not found$/)
+
+        raise cypher_error
       end
 
       def create_label(name)
@@ -204,7 +202,8 @@ module Neo4j
         query, params = query_and_params(query, params)
 
         curr_tx = Neo4j::Transaction.current
-        ActiveSupport::Notifications.instrument('neo4j.cypher_query', context: options[:context] || 'CYPHER', cypher: query, params: params) do
+        ActiveSupport::Notifications.instrument('neo4j.cypher_query', params: params, context: options[:context],
+                                                                      cypher: query, pretty_cypher: options[:pretty_cypher]) do
           if curr_tx
             curr_tx._query(query, params)
           else
@@ -233,12 +232,14 @@ module Neo4j
       end
 
       EMPTY = ''
+      NEWLINE_W_SPACES = "\n  "
       def self.log_with
-        clear, yellow, cyan = %W(\e[0m \e[33m \e[36m)
         ActiveSupport::Notifications.subscribe('neo4j.cypher_query') do |_, start, finish, _id, payload|
           ms = (finish - start) * 1000
           params_string = (payload[:params] && payload[:params].size > 0 ? "| #{payload[:params].inspect}" : EMPTY)
-          yield(" #{cyan}#{payload[:context]}#{clear} #{yellow}#{ms.round}ms#{clear} #{payload[:cypher]} #{params_string}")
+          cypher = payload[:pretty_cypher] ? NEWLINE_W_SPACES + payload[:pretty_cypher].gsub(/\n/, NEWLINE_W_SPACES) : payload[:cypher]
+
+          yield(" #{ANSI::CYAN}#{payload[:context] || 'CYPHER'}#{ANSI::CLEAR} #{ANSI::YELLOW}#{ms.round}ms#{ANSI::CLEAR} #{cypher} #{params_string}")
         end
       end
     end
