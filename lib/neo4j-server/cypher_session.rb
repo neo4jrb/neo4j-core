@@ -1,3 +1,5 @@
+require 'uri'
+
 module Neo4j
   module Server
     Neo4j::Session.register_db(:server_db) do |endpoint_url, url_opts|
