@@ -378,7 +378,7 @@ describe Neo4j::Core::Query do
       it_generates 'WHERE (q.age = {q_age} AND q.name = {q_name}) AND (r.grade = 80)', q_age: 30, q_name: 'Brian'
     end
 
-    describe ".where(q: {name: /Brian.*/i})" do
+    describe '.where(q: {name: /Brian.*/i})' do
       it_generates 'WHERE (q.name =~ {q_name})', q_name: '(?i)Brian.*'
     end
 
