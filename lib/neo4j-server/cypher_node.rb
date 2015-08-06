@@ -2,7 +2,6 @@ module Neo4j
   module Server
     class CypherNode < Neo4j::Node
       include Neo4j::Server::Resource
-      include Neo4j::Core::CypherTranslator
       include Neo4j::Core::ActiveEntity
 
       def initialize(session, value)

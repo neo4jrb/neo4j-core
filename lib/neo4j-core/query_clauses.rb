@@ -11,7 +11,6 @@ module Neo4j
 
 
       class Clause
-        include CypherTranslator
         UNDERSCORE = '_'
         COMMA_SPACE = ', '
         AND = ' AND '

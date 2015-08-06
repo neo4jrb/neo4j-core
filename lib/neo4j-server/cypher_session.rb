@@ -8,7 +8,6 @@ module Neo4j
 
     class CypherSession < Neo4j::Session
       include Resource
-      include Neo4j::Core::CypherTranslator
 
       alias_method :super_query, :query
       attr_reader :connection
@@ -102,7 +101,11 @@ module Neo4j
       end
 
       def create_node(props = nil, labels = [])
-        id = _query_or_fail(cypher_string(labels, props), true, cypher_prop_list!(props))
+        label_string = labels.empty? ? '' : (":" + labels.map { |k| "`#{k}`" }.join(':'))
+        prop_identifier = '{props}' unless props.nil?
+        cypher_string = "CREATE (n#{label_string} #{prop_identifier}) RETURN ID(n)"
+
+        id = _query_or_fail(cypher_string, true, props: props)
         value = props.nil? ? id : {id: id, metadata: {labels: labels}, data: props}
         CypherNode.new(self, value)
       end
