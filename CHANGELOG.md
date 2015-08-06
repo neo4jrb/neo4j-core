@@ -8,6 +8,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Support pretty cypher queries via `Query#print_cypher` and `Query#to_cypher` with `pretty: true`
 
+## [5.0.9] - 2015-08-06
+
+### Fixed
+- nil passed to limit results in no LIMIT clause
+
 ## [5.0.8] - 2015-08-06
 
 ### Fixed
