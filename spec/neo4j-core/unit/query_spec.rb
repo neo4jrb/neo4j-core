@@ -523,6 +523,10 @@ describe Neo4j::Core::Query do
     describe '.limit(3).limit(5)' do
       it_generates 'LIMIT {limit_5}', limit_5: 5
     end
+
+    describe '.limit(nil)' do
+      it_generates ''
+    end
   end
 
   # SKIP

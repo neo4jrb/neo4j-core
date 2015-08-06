@@ -25,7 +25,7 @@ module Neo4j
         end
 
         def value
-          [String, Symbol, Integer, Hash].each do |arg_class|
+          [String, Symbol, Integer, Hash, NilClass].each do |arg_class|
             from_method = "from_#{arg_class.name.downcase}"
             return send(from_method, @arg) if @arg.is_a?(arg_class) && self.respond_to?(from_method)
           end
@@ -454,6 +454,10 @@ module Neo4j
           clause_id = "#{self.class.keyword_downcase}_#{value}"
           add_param(clause_id, value)
           "{#{clause_id}}"
+        end
+
+        def from_nilclass(value)
+          ''
         end
 
         class << self
