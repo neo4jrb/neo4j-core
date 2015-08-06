@@ -141,12 +141,16 @@ module Neo4j
           end
         end
 
+        def self.paramaterize_key!(key)
+          key.tr_s!('^a-zA-Z0-9', UNDERSCORE)
+          key.gsub!(/^_+|_+$/, '')
+        end
+
         private
 
         def key_value_string(key, value, previous_keys = [], is_set = false)
           param = (previous_keys << key).join(UNDERSCORE)
-          param.tr_s!('^a-zA-Z0-9', UNDERSCORE)
-          param.gsub!(/^_+|_+$/, '')
+          self.class.paramaterize_key!(param)
 
           if value.is_a?(Range)
             add_params("#{param}_range_min" => value.min, "#{param}_range_max" => value.max)
@@ -237,7 +241,7 @@ module Neo4j
           case value
           when Hash then hash_key_value_string(key, value, previous_keys)
           when NilClass then "#{key} IS NULL"
-          when Regexp then regexp_key_value_string(key, value)
+          when Regexp then regexp_key_value_string(key, value, previous_keys)
           when Array, Range then key_value_string(key, value, previous_keys)
           else
             key_value_string(key, value, previous_keys)
@@ -263,9 +267,15 @@ module Neo4j
           end.join(AND)
         end
 
-        def regexp_key_value_string(key, value)
+        def regexp_key_value_string(key, value, previous_keys)
           pattern = (value.casefold? ? '(?i)' : '') + value.source
-          "#{key} =~ #{escape_value(pattern.gsub(/\\/, '\\\\\\'))}"
+
+          param = [previous_keys + [key]].join(UNDERSCORE)
+          self.class.paramaterize_key!(param)
+
+          add_params(param => pattern)
+
+          "#{key} =~ {#{param}}"
         end
 
         class << self
