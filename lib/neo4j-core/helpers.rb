@@ -1,11 +1,5 @@
 module Neo4j
   module Core
-    module ArgumentHelper
-      def self.session(args)
-        args.last.is_a?(Neo4j::Session) ? args.pop : Neo4j::Session.current!
-      end
-    end
-
     module TxMethods
       def tx_methods(*methods)
         methods.each do |method|

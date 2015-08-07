@@ -168,7 +168,12 @@ module Neo4j
     class << self
       # Creates a node
       def create(props = nil, *labels_or_db)
-        session = Neo4j::Core::ArgumentHelper.session(labels_or_db)
+        session = if labels_or_db.last.is_a?(Neo4j::Session)
+                    labels_or_db.pop
+                  else
+                    Neo4j::Session.current!
+        end
+
         session.create_node(props, labels_or_db)
       end
 
