@@ -14,9 +14,9 @@ Lint/HandleExceptions:
 Lint/UnusedMethodArgument:
   Enabled: false
 
-# Offense count: 10
+# Offense count: 15
 Metrics/AbcSize:
-  Max: 18
+  Max: 17
 
 # Offense count: 9
 # Configuration parameters: CountComments.

@@ -112,8 +112,6 @@ module Neo4j
       end
 
       def set_label(*label_names)
-        q = match_start_query
-
         labels_to_add = label_names.map(&:to_sym).uniq
         labels_to_remove = labels - label_names
 
@@ -121,10 +119,15 @@ module Neo4j
         labels_to_add -= common_labels
         labels_to_remove -= common_labels
 
-        q = q.remove(n: labels_to_remove) unless labels_to_remove.empty?
-        q = q.set(n: labels_to_add) unless labels_to_add.empty?
+        query = _set_label_query(labels_to_add, labels_to_remove)
+        @session._query_or_fail(query, false) unless (labels_to_add + labels_to_remove).empty?
+      end
 
-        @session._query_or_fail(q, false) unless (labels_to_add + labels_to_remove).empty?
+      def _set_label_query(labels_to_add, labels_to_remove)
+        query = match_start_query
+        query = query.remove(n: labels_to_remove) unless labels_to_remove.empty?
+        query = query.set(n: labels_to_add) unless labels_to_add.empty?
+        query
       end
 
       # (see Neo4j::Node#del)
