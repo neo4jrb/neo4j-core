@@ -9,7 +9,6 @@ require 'neo4j/property_validator'
 require 'neo4j/property_container'
 require 'neo4j-core/active_entity'
 require 'neo4j-core/helpers'
-require 'neo4j-core/cypher_translator'
 require 'neo4j-core/query_find_in_batches'
 require 'neo4j-core/query'
 

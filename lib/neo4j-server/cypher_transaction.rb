@@ -9,7 +9,6 @@ module Neo4j
     # If a transaction is created and then closed without performing any queries, an OpenStruct is returned that behaves like a successfully closed query.
     class CypherTransaction
       include Neo4j::Transaction::Instance
-      include Neo4j::Core::CypherTranslator ##!!!!
       include Resource
 
       attr_reader :commit_url, :query_url, :base_url, :connection

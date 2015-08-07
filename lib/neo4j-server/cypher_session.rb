@@ -102,7 +102,10 @@ module Neo4j
 
       def create_node(props = nil, labels = [])
         label_string = labels.empty? ? '' : (":" + labels.map { |k| "`#{k}`" }.join(':'))
-        prop_identifier = '{props}' unless props.nil?
+        if !props.nil?
+          prop_identifier = '{props}'
+          props.each_key { |k| props.delete(k) if props[k].nil? }
+        end
         cypher_string = "CREATE (n#{label_string} #{prop_identifier}) RETURN ID(n)"
 
         id = _query_or_fail(cypher_string, true, props: props)
