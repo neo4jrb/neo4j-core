@@ -172,7 +172,7 @@ module Neo4j
                     labels_or_db.pop
                   else
                     Neo4j::Session.current!
-        end
+                  end
 
         session.create_node(props, labels_or_db)
       end
