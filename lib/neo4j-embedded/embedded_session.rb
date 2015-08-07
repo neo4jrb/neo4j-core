@@ -4,7 +4,6 @@ Neo4j::Session.register_db(:embedded_db) do |*args|
   Neo4j::Embedded::EmbeddedSession.new(*args)
 end
 
-
 module Neo4j
   module Embedded
     class EmbeddedSession < Neo4j::Session
@@ -141,7 +140,7 @@ module Neo4j
         ActiveSupport::Notifications.instrument('neo4j.cypher_query', params: params, context: options[:context],
                                                                       cypher: query, pretty_cypher: options[:pretty_cypher], params: params) do
           @engine ||= Java::OrgNeo4jCypherJavacompat::ExecutionEngine.new(@graph_db)
-          @engine.execute(query, Neo4j::Core::HashWithIndifferentAccess.new(params))
+          @engine.execute(query, HashWithIndifferentAccess.new(params))
         end
       rescue StandardError => e
         raise Neo4j::Session::CypherError.new(e.message, e.class, 'cypher error')
