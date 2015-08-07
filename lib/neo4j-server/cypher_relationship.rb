@@ -94,7 +94,7 @@ module Neo4j
         return if properties.empty?
 
         params = {}
-        q = "#{match_start} SET " + properties.keys.each_with_index.map do |k, i|
+        q = "#{match_start} SET " + properties.keys.each_with_index.map do |k, _i|
           param = k.to_s.tr_s('^a-zA-Z0-9', '_').gsub(/^_+|_+$/, '')
           params[param] = properties[k]
 
