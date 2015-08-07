@@ -11,7 +11,6 @@ module Neo4j
 
 
       class Clause
-        include CypherTranslator
         UNDERSCORE = '_'
         COMMA_SPACE = ', '
         AND = ' AND '
@@ -53,8 +52,10 @@ module Neo4j
         end
 
         def node_from_key_and_value(key, value, options = {})
-          var = var_from_key_and_value(key, value, options[:prefer] || :var)
-          label = label_from_key_and_value(key, value, options[:prefer] || :var)
+          prefer = options[:prefer] || :var
+          var = var_from_key_and_value(key, value, prefer)
+          label = label_from_key_and_value(key, value, prefer)
+
           attributes = attributes_from_key_and_value(key, value)
 
           prefix_value = value
@@ -134,18 +135,23 @@ module Neo4j
           def to_cypher(clauses, options = {})
             @question_mark_param_index = 1
 
-            join = clause_join + (options[:pretty] ? "\n  " : '')
-
-            strings = clause_strings(clauses)
-            string = ((options[:pretty] && strings.size > 1) ? "\n  " : '')
-            string += strings.join(join).strip
+            string = clause_string(clauses, options)
 
             final_keyword = if options[:pretty]
                               "#{clause_color}#{keyword}#{ANSI::CLEAR}"
                             else
                               keyword
                             end
+
             "#{final_keyword} #{string}" if string.size > 0
+          end
+
+          def clause_string(clauses, options = {})
+            join_string = clause_join + (options[:pretty] ? "\n  " : '')
+
+            strings = clause_strings(clauses)
+            string = ((options[:pretty] && strings.size > 1) ? "\n  " : '')
+            string + strings.join(join_string).strip
           end
 
           def clause_join

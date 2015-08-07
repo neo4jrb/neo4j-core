@@ -13,4 +13,4 @@ require 'neo4j-embedded/embedded_transaction'
 require 'neo4j-embedded/cypher_response'
 
 # TODO: replace this with https://github.com/intridea/hashie gem
-require 'neo4j-core/hash_with_indifferent_access'
+require 'active_support/hash_with_indifferent_access'

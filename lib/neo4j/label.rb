@@ -60,7 +60,6 @@ module Neo4j
     end
 
     class << self
-      include Neo4j::Core::CypherTranslator
       INDEX_PATH = '/db/data/schema/index/'
       CONSTRAINT_PATH = '/db/data/schema/constraint/'
 

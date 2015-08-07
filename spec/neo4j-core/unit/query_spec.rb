@@ -182,9 +182,13 @@ describe Neo4j::Core::Query do
   end
 
 
+  def add_query_doc_line(cypher, params = {})
+    @doc_generator.add_query_doc_line(self.class, self.class.description, cypher, params)
+  end
+
   def expects_cypher(cypher, params = {})
     query = eval("Neo4j::Core::Query.new#{self.class.description}") # rubocop:disable Lint/Eval
-    @doc_generator.add_query_doc_line(self.class, self.class.description, cypher, params)
+    add_query_doc_line(cypher, params)
 
     expect(query.to_cypher).to eq(cypher)
 
