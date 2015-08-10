@@ -11,7 +11,6 @@ module Neo4j
 
 
       class Clause
-        include CypherTranslator
         UNDERSCORE = '_'
         COMMA_SPACE = ', '
         AND = ' AND '
@@ -25,7 +24,7 @@ module Neo4j
         end
 
         def value
-          [String, Symbol, Integer, Hash].each do |arg_class|
+          [String, Symbol, Integer, Hash, NilClass].each do |arg_class|
             from_method = "from_#{arg_class.name.downcase}"
             return send(from_method, @arg) if @arg.is_a?(arg_class) && self.respond_to?(from_method)
           end
@@ -53,8 +52,10 @@ module Neo4j
         end
 
         def node_from_key_and_value(key, value, options = {})
-          var = var_from_key_and_value(key, value, options[:prefer] || :var)
-          label = label_from_key_and_value(key, value, options[:prefer] || :var)
+          prefer = options[:prefer] || :var
+          var = var_from_key_and_value(key, value, prefer)
+          label = label_from_key_and_value(key, value, prefer)
+
           attributes = attributes_from_key_and_value(key, value)
 
           prefix_value = value
@@ -134,18 +135,23 @@ module Neo4j
           def to_cypher(clauses, options = {})
             @question_mark_param_index = 1
 
-            join = clause_join + (options[:pretty] ? "\n  " : '')
-
-            strings = clause_strings(clauses)
-            string = ((options[:pretty] && strings.size > 1) ? "\n  " : '')
-            string += strings.join(join).strip
+            string = clause_string(clauses, options)
 
             final_keyword = if options[:pretty]
                               "#{clause_color}#{keyword}#{ANSI::CLEAR}"
                             else
                               keyword
                             end
+
             "#{final_keyword} #{string}" if string.size > 0
+          end
+
+          def clause_string(clauses, options = {})
+            join_string = clause_join + (options[:pretty] ? "\n  " : '')
+
+            strings = clause_strings(clauses)
+            string = ((options[:pretty] && strings.size > 1) ? "\n  " : '')
+            string + strings.join(join_string).strip
           end
 
           def clause_join
@@ -157,12 +163,16 @@ module Neo4j
           end
         end
 
+        def self.paramaterize_key!(key)
+          key.tr_s!('^a-zA-Z0-9', UNDERSCORE)
+          key.gsub!(/^_+|_+$/, '')
+        end
+
         private
 
         def key_value_string(key, value, previous_keys = [], is_set = false)
           param = (previous_keys << key).join(UNDERSCORE)
-          param.tr_s!('^a-zA-Z0-9', UNDERSCORE)
-          param.gsub!(/^_+|_+$/, '')
+          self.class.paramaterize_key!(param)
 
           if value.is_a?(Range)
             add_params("#{param}_range_min" => value.min, "#{param}_range_max" => value.max)
@@ -257,7 +267,7 @@ module Neo4j
           case value
           when Hash then hash_key_value_string(key, value, previous_keys)
           when NilClass then "#{key} IS NULL"
-          when Regexp then regexp_key_value_string(key, value)
+          when Regexp then regexp_key_value_string(key, value, previous_keys)
           when Array, Range then key_value_string(key, value, previous_keys)
           else
             key_value_string(key, value, previous_keys)
@@ -287,9 +297,15 @@ module Neo4j
           end.join(AND)
         end
 
-        def regexp_key_value_string(key, value)
+        def regexp_key_value_string(key, value, previous_keys)
           pattern = (value.casefold? ? '(?i)' : '') + value.source
-          "#{key} =~ #{escape_value(pattern.gsub(/\\/, '\\\\\\'))}"
+
+          param = [previous_keys + [key]].join(UNDERSCORE)
+          self.class.paramaterize_key!(param)
+
+          add_params(param => pattern)
+
+          "#{key} =~ {#{param}}"
         end
 
         class << self
@@ -506,6 +522,10 @@ module Neo4j
           clause_id = "#{self.class.keyword_downcase}_#{value}"
           add_param(clause_id, value)
           "{#{clause_id}}"
+        end
+
+        def from_nilclass(value)
+          ''
         end
 
         class << self

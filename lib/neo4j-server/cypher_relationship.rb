@@ -2,7 +2,6 @@ module Neo4j
   module Server
     class CypherRelationship < Neo4j::Relationship
       include Neo4j::Server::Resource
-      include Neo4j::Core::CypherTranslator
       include Neo4j::Core::ActiveEntity
 
       def initialize(session, value)
@@ -93,10 +92,17 @@ module Neo4j
       # (see Neo4j::Relationship#update_props)
       def update_props(properties)
         return if properties.empty?
-        q = "#{match_start} SET " + properties.keys.map do |k|
-          "n.`#{k}`= #{escape_value(properties[k])}"
+
+        params = {}
+        q = "#{match_start} SET " + properties.keys.each_with_index.map do |k, _i|
+          param = k.to_s.tr_s('^a-zA-Z0-9', '_').gsub(/^_+|_+$/, '')
+          params[param] = properties[k]
+
+          "n.`#{k}`= {#{param}}"
         end.join(',')
-        @session._query_or_fail(q, false, neo_id: neo_id)
+
+        @session._query_or_fail(q, false, params.merge(neo_id: neo_id))
+
         properties
       end
 

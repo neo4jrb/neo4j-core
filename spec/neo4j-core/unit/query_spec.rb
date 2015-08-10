@@ -182,9 +182,13 @@ describe Neo4j::Core::Query do
   end
 
 
+  def add_query_doc_line(cypher, params = {})
+    @doc_generator.add_query_doc_line(self.class, self.class.description, cypher, params)
+  end
+
   def expects_cypher(cypher, params = {})
     query = eval("Neo4j::Core::Query.new#{self.class.description}") # rubocop:disable Lint/Eval
-    @doc_generator.add_query_doc_line(self.class, self.class.description, cypher, params)
+    add_query_doc_line(cypher, params)
 
     expect(query.to_cypher).to eq(cypher)
 
@@ -354,6 +358,13 @@ describe Neo4j::Core::Query do
       it_generates 'WHERE (q.age = {q_age} AND q.name = {q_name}) AND (r.grade = 80)', q_age: 30, q_name: 'Brian'
     end
 
+    describe '.where(q: {name: /Brian.*/i})' do
+      it_generates 'WHERE (q.name =~ {q_name})', q_name: '(?i)Brian.*'
+    end
+
+    describe '.where(name: /Brian.*/i)' do
+      it_generates 'WHERE (name =~ {name})', name: '(?i)Brian.*'
+    end
 
     describe '.where(q: {age: (30..40)})' do
       it_generates 'WHERE (q.age IN RANGE({q_age_range_min}, {q_age_range_max}))', q_age_range_min: 30, q_age_range_max: 40
@@ -495,6 +506,10 @@ describe Neo4j::Core::Query do
 
     describe '.limit(3).limit(5)' do
       it_generates 'LIMIT {limit_5}', limit_5: 5
+    end
+
+    describe '.limit(nil)' do
+      it_generates ''
     end
   end
 

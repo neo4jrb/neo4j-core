@@ -1,3 +1,5 @@
+require 'uri'
+
 module Neo4j
   module Server
     Neo4j::Session.register_db(:server_db) do |endpoint_url, url_opts|
@@ -6,7 +8,6 @@ module Neo4j
 
     class CypherSession < Neo4j::Session
       include Resource
-      include Neo4j::Core::CypherTranslator
 
       alias_method :super_query, :query
       attr_reader :connection
@@ -100,9 +101,14 @@ module Neo4j
       end
 
       def create_node(props = nil, labels = [])
-        id = _query_or_fail(cypher_string(labels, props), true, cypher_prop_list!(props))
-        value = props.nil? ? id : {id: id, metadata: {labels: labels}, data: props}
-        CypherNode.new(self, value)
+        label_string = labels.empty? ? '' : (':' + labels.map { |k| "`#{k}`" }.join(':'))
+        if !props.nil?
+          prop = '{props}'
+          props.each_key { |k| props.delete(k) if props[k].nil? }
+        end
+
+        id = _query_or_fail("CREATE (n#{label_string} #{prop}) RETURN ID(n)", true, props: props)
+        CypherNode.new(self, props.nil? ? id : {id: id, metadata: {labels: labels}, data: props})
       end
 
       def load_node(neo_id)
@@ -209,9 +215,8 @@ module Neo4j
           if curr_tx
             curr_tx._query(query, params)
           else
-            url = resource_url(:cypher)
             query = params.nil? ? {'query' => query} : {'query' => query, 'params' => params}
-            response = @connection.post(url, query)
+            response = @connection.post(resource_url(:cypher), query)
             CypherResponse.create_with_no_tx(response)
           end
         end

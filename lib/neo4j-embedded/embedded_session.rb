@@ -4,7 +4,6 @@ Neo4j::Session.register_db(:embedded_db) do |*args|
   Neo4j::Embedded::EmbeddedSession.new(*args)
 end
 
-
 module Neo4j
   module Embedded
     class EmbeddedSession < Neo4j::Session
@@ -17,14 +16,20 @@ module Neo4j
       def_delegator :@graph_db, :begin_tx
 
       def initialize(db_location, config = {})
+        @config          = config
         @db_location     = db_location
-        @auto_commit     = !!config[:auto_commit]
-        @properties_file = config[:properties_file]
-        if config[:properties_map]
-          props = config[:properties_map].each_with_object({}) { |(k, v), m| m[k.to_s.to_java] = v.to_s.to_java }
-          @properties_map = java.util.HashMap.new(props)
-        end
+        @auto_commit     = !!@config[:auto_commit]
+        @properties_file = @config[:properties_file]
         Neo4j::Session.register(self)
+      end
+
+      def properties_map
+        return @properties_map if @properties_map
+
+        props = @config[:properties_map].each_with_object({}) do |(k, v), m|
+          m[k.to_s.to_java] = v.to_s.to_java
+        end
+        @properties_map = java.util.HashMap.new(props)
       end
 
       def db_type
@@ -141,7 +146,7 @@ module Neo4j
         ActiveSupport::Notifications.instrument('neo4j.cypher_query', params: params, context: options[:context],
                                                                       cypher: query, pretty_cypher: options[:pretty_cypher], params: params) do
           @engine ||= Java::OrgNeo4jCypherJavacompat::ExecutionEngine.new(@graph_db)
-          @engine.execute(query, Neo4j::Core::HashWithIndifferentAccess.new(params))
+          @engine.execute(query, HashWithIndifferentAccess.new(params))
         end
       rescue StandardError => e
         raise Neo4j::Session::CypherError.new(e.message, e.class, 'cypher error')

@@ -8,6 +8,21 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Support pretty cypher queries via `Query#print_cypher` and `Query#to_cypher` with `pretty: true`
 
+## [5.0.9] - 2015-08-06
+
+### Fixed
+- nil passed to limit results in no LIMIT clause
+
+## [5.0.8] - 2015-08-06
+
+### Fixed
+- Parameterize regular expressions passed into `where` clauses
+
+## [5.0.7] - 2015-08-03
+
+### Fixed
+- `require 'uri'` in `CypherSession` for environments where it isn't already `require`d (Issue #221)
+
 ## [5.0.6] - 2015-07-19
 
 ### Added
