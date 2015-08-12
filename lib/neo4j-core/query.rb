@@ -30,6 +30,10 @@ module Neo4j
         @_params = {}
       end
 
+      def inspect
+        "<Query CYPHER: #{ANSI::YELLOW}#{to_cypher.inspect}#{ANSI::CLEAR}>"
+      end
+
       # @method start *args
       # START clause
       # @return [Query]
