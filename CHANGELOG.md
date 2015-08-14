@@ -5,6 +5,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
 
+
+## [5.1.0.rc.1] - 2015-08-14
+
 ### Added
 - Support pretty cypher queries via `Query#print_cypher` and `Query#to_cypher` with `pretty: true`
 
