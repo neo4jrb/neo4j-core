@@ -31,7 +31,7 @@ module Neo4j
       end
 
       def inspect
-        "#<Query CYPHER: #{to_cypher.inspect}>"
+        "#<Query CYPHER: #{ANSI::YELLOW}#{to_cypher.inspect}#{ANSI::CLEAR}>"
       end
 
       # @method start *args
