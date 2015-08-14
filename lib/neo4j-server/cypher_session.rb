@@ -208,8 +208,6 @@ module Neo4j
         query, params = query_and_params(query, params)
 
         curr_tx = Neo4j::Transaction.current
-        puts options[:pretty_cypher]
-        puts
         ActiveSupport::Notifications.instrument('neo4j.cypher_query', params: params, context: options[:context],
                                                                       cypher: query, pretty_cypher: options[:pretty_cypher]) do
           if curr_tx
