@@ -141,6 +141,12 @@ module Neo4j
         query.order(*args)
       end
 
+      # Works the same as the #where method, but the clause is surrounded by a
+      # Cypher NOT() function
+      def where_not(*args)
+        build_deeper_query(WhereClause, args, not: true)
+      end
+
       # Works the same as the #set method, but when given a nested array it will set properties rather than setting entire objects
       # @example
       #    # Creates a query representing the cypher: MATCH (n:Person) SET n.age = 19

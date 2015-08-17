@@ -5,6 +5,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
 
+## [5.1.0.rc.4] - 2015-08-16
+
+### Added
+- Query#where_not method to make certain `WHERE NOT()` statements easier
+
+## [5.1.0.rc.2-3] - 2015-08-14
+
+### Fixed
+- Bugs from code that was supposed to be on a branch
 
 ## [5.1.0.rc.1] - 2015-08-14
 
