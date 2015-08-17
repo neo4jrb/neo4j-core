@@ -16,6 +16,7 @@ module Neo4j
         AND = ' AND '
 
         attr_accessor :params, :arg
+        attr_reader :options
 
         def initialize(arg, options = {})
           @arg = arg
@@ -276,7 +277,11 @@ module Neo4j
 
         class << self
           def clause_strings(clauses)
-            clauses.map!(&:value).tap(&:flatten!).map! { |value| "(#{value})" }
+            clauses.flat_map do |clause|
+              Array(clause.value).map do |v|
+                (clause.options[:not] ? 'NOT' : '') + "(#{v})"
+              end
+            end
           end
 
           def clause_join
@@ -332,13 +337,17 @@ module Neo4j
           end
 
           def question_mark_params_param
-            result = "question_mark_param#{@question_mark_param_index}"
-            @question_mark_param_index += 1
-            result
+            "question_mark_param#{question_mark_param_index}"
+          end
+
+          def question_mark_param_index
+            @question_mark_param_index ||= 1
+            @question_mark_param_index.tap do
+              @question_mark_param_index += 1
+            end
           end
         end
       end
-
 
       class MatchClause < Clause
         KEYWORD = 'MATCH'

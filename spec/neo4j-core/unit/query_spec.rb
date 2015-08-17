@@ -371,6 +371,45 @@ describe Neo4j::Core::Query do
     end
   end
 
+  describe '#where_not' do
+    describe '.where_not()' do
+      it_generates ''
+    end
+
+    describe '.where_not({})' do
+      it_generates ''
+    end
+
+    describe ".where_not('q.age > 30')" do
+      it_generates 'WHERE NOT(q.age > 30)'
+    end
+
+    describe ".where_not('q.age' => 30)" do
+      it_generates 'WHERE NOT(q.age = {q_age})', q_age: 30
+    end
+
+    describe ".where_not('q.age IN ?', [30, 32, 34])" do
+      it_generates 'WHERE NOT(q.age IN {question_mark_param1})', question_mark_param1: [30, 32, 34]
+    end
+
+    describe ".where_not(q: {age: 30, name: 'Brian'})" do
+      it_generates 'WHERE NOT(q.age = {q_age} AND q.name = {q_name})', q_age: 30, q_name: 'Brian'
+    end
+
+    describe '.where_not(q: {name: /Brian.*/i})' do
+      it_generates 'WHERE NOT(q.name =~ {q_name})', q_name: '(?i)Brian.*'
+    end
+
+
+    describe ".where('q.age > 10').where_not('q.age > 30')" do
+      it_generates 'WHERE (q.age > 10) AND NOT(q.age > 30)'
+    end
+
+    describe ".where_not('q.age > 30').where('q.age > 10')" do
+      it_generates 'WHERE NOT(q.age > 30) AND (q.age > 10)'
+    end
+  end
+
   describe '#match_nodes' do
     context 'one node object' do
       let(:node_object) { double(neo_id: 246) }
