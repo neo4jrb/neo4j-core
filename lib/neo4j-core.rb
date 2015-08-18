@@ -23,6 +23,7 @@ require 'neo4j/transaction'
 
 require 'neo4j-server'
 
+require 'rake'
 require 'neo4j/rake_tasks'
 
 if RUBY_PLATFORM == 'java'
