@@ -12,14 +12,10 @@ Lint/ShadowingOuterLocalVariable:
 # Style configuration
 #---------------------------
 
-# Offense count: 169
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
 Style/HashSyntax:
   Enabled: true
   EnforcedStyle: ruby19
 
-# Cop supports --auto-correct.
 Style/SpaceInsideHashLiteralBraces:
   Enabled: true
   EnforcedStyle: no_space
