@@ -30,7 +30,7 @@ module Neo4j
 
       describe 'start' do
         before do
-          Neo4j::Session.current &&  Neo4j::Session.current.close
+          Neo4j::Session.current && Neo4j::Session.current.close
         end
 
         it 'starts the database' do
@@ -56,7 +56,7 @@ module Neo4j
 
       describe 'shutdown' do
         before do
-          Neo4j::Session.current &&  Neo4j::Session.current.close
+          Neo4j::Session.current && Neo4j::Session.current.close
         end
 
         it 'starts the database' do

@@ -76,7 +76,7 @@ module Neo4j
           response = CypherResponse.new(nil, nil)
           response.set_data(data: [[0]], columns: ['ID(n)'])
 
-          expect(response.to_struct_enumeration.to_a).to eq([hash_to_struct(response, :'ID(n)' => 0)])
+          expect(response.to_struct_enumeration.to_a).to eq([hash_to_struct(response, 'ID(n)': 0)])
         end
 
         it 'creates an enumerable of hash key multiple values' do
@@ -95,7 +95,7 @@ module Neo4j
           response = CypherResponse.new(nil, nil)
           response.set_data(data: [['Billy'], ['Jimmy']], columns: ['person.name'])
 
-          expect(response.to_node_enumeration.to_a).to eq([hash_to_struct(response, :'person.name' => 'Billy'), hash_to_struct(response, :'person.name' => 'Jimmy')])
+          expect(response.to_node_enumeration.to_a).to eq([hash_to_struct(response, 'person.name': 'Billy'), hash_to_struct(response, 'person.name': 'Jimmy')])
         end
 
         context 'with full node response' do

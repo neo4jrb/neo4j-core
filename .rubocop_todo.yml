@@ -75,15 +75,6 @@ Style/ClassVars:
 Style/Documentation:
   Enabled: false
 
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: AllowForAlignment.
-Style/ExtraSpacing:
-  Exclude:
-    - 'Guardfile'
-    - 'lib/neo4j-server/cypher_relationship.rb'
-    - 'spec/neo4j-embedded/e2e/embedded_session_spec.rb'
-
 # Offense count: 7
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles, UseHashRocketsWithSymbolValues.

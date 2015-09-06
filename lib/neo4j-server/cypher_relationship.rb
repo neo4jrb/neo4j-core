@@ -85,7 +85,7 @@ module Neo4j
 
       # (see Neo4j::Relationship#props=)
       def props=(properties)
-        @session._query_or_fail("#{match_start} SET n = { props }", false,  props: properties, neo_id: neo_id)
+        @session._query_or_fail("#{match_start} SET n = { props }", false, props: properties, neo_id: neo_id)
         properties
       end
 
