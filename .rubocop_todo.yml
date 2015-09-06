@@ -83,9 +83,3 @@ Style/RescueEnsureAlignment:
     - 'spec/shared_examples/label.rb'
     - 'spec/shared_examples/node_with_tx.rb'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: MultiSpaceAllowedForOperators.
-Style/SpaceAroundOperators:
-  Exclude:
-    - 'spec/neo4j-embedded/e2e/embedded_session_spec.rb'

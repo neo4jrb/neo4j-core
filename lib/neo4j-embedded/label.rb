@@ -22,7 +22,8 @@ module Neo4j
           schema.get_indexes.to_a.each do |i|
             begin
               i.drop
-            rescue Java::JavaLang::IllegalStateException; end
+            rescue Java::JavaLang::IllegalStateException
+            end
           end
         end
       end
