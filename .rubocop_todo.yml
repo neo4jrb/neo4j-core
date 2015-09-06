@@ -77,14 +77,6 @@ Style/Documentation:
 
 # Offense count: 4
 # Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles, AllowInnerSlashes.
-Style/RegexpLiteral:
-  Exclude:
-    - 'Guardfile'
-    - 'lib/neo4j-server/resource.rb'
-
-# Offense count: 4
-# Cop supports --auto-correct.
 Style/RescueEnsureAlignment:
   Exclude:
     - 'lib/neo4j-embedded/label.rb'
