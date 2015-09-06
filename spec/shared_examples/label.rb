@@ -12,9 +12,10 @@ RSpec.shared_examples 'Neo4j::Label' do
   describe 'Neo4j::Node' do
     after(:all) do
       begin
-      Neo4j::Label.drop_all_constraints
-      Neo4j::Label.drop_all_indexes
-                                                                                                                                                                                                                                              rescue; end
+        Neo4j::Label.drop_all_constraints
+        Neo4j::Label.drop_all_indexes
+      rescue
+      end
     end
 
     describe 'add_labels' do
@@ -220,7 +221,8 @@ RSpec.shared_examples 'Neo4j::Label' do
           label.drop_constraint('bar', type: :unique)
           begin
             label.drop_index(:bar)
-                                                                                                                                                                                                                                                  rescue; end
+          rescue
+          end
         end
       end
 
