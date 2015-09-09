@@ -264,6 +264,8 @@ module Neo4j
       class WhereClause < Clause
         KEYWORD = 'WHERE'
 
+        PAREN_SURROUND_REGEX = /^\s*\(.+\)\s*$/
+
         def from_key_and_value(key, value, previous_keys = [])
           case value
           when Hash then hash_key_value_string(key, value, previous_keys)
@@ -279,7 +281,7 @@ module Neo4j
           def clause_strings(clauses)
             clauses.flat_map do |clause|
               Array(clause.value).map do |v|
-                (clause.options[:not] ? 'NOT' : '') + "(#{v})"
+                (clause.options[:not] ? 'NOT' : '') + (v.to_s.match(PAREN_SURROUND_REGEX) ? v.to_s : "(#{v})")
               end
             end
           end
@@ -314,7 +316,7 @@ module Neo4j
         end
 
         class << self
-          ARG_HAS_QUESTION_MARK_REGEX = /(^|\s)\?(\s|$)/
+          ARG_HAS_QUESTION_MARK_REGEX = /(^|\(|\s)\?(\s|\)|$)/
 
           def from_args(args, options = {})
             query_string, params = args
@@ -322,7 +324,7 @@ module Neo4j
             if query_string.is_a?(String) && (query_string.match(ARG_HAS_QUESTION_MARK_REGEX) || params.is_a?(Hash))
               if !params.is_a?(Hash)
                 question_mark_params_param = self.question_mark_params_param
-                query_string.gsub!(ARG_HAS_QUESTION_MARK_REGEX, "\\1{#{question_mark_params_param}}\\2")
+                query_string = query_string.gsub(ARG_HAS_QUESTION_MARK_REGEX, "\\1{#{question_mark_params_param}}\\2")
                 params = {question_mark_params_param.to_sym => params}
               end
 

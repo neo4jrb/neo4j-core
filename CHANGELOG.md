@@ -5,8 +5,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
 
+## [5.1.3] - 2015-09-09
+
 ### Added
 - `Query#optional_match_nodes` method
+
+## [5.1.2] - 2015-08-30
+
+### Fixed
+- Using parethesis in `where` method call shouldn't make double parens and should allow for question mark params to work correctly
 
 ## [5.1.0.rc.4] - 2015-08-16
 

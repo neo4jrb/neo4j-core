@@ -7,6 +7,7 @@ gemspec
 
 group 'development' do
   gem 'guard-rspec', require: false
+  gem 'overcommit'
 end
 
 group 'test' do
