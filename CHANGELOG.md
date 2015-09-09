@@ -5,6 +5,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
 
+### Added
+- `Query#optional_match_nodes` method
+
 ## [5.1.0.rc.4] - 2015-08-16
 
 ### Added

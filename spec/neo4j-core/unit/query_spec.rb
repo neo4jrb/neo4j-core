@@ -260,6 +260,10 @@ describe Neo4j::Core::Query do
       it_generates 'MATCH n--o'
     end
 
+    describe ".match('n--o', 'o--p')" do
+      it_generates 'MATCH n--o, o--p'
+    end
+
     describe ".match('n--o').match('o--p')" do
       it_generates 'MATCH n--o, o--p'
     end
@@ -416,6 +420,10 @@ describe Neo4j::Core::Query do
 
       describe '.match_nodes(var: node_object)' do
         it_generates 'MATCH var WHERE (ID(var) = {ID_var})', ID_var: 246
+      end
+
+      describe '.optional_match_nodes(var: node_object)' do
+        it_generates 'OPTIONAL MATCH var WHERE (ID(var) = {ID_var})', ID_var: 246
       end
     end
 

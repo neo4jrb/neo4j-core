@@ -199,15 +199,20 @@ module Neo4j
         end
       end
 
-      def match_nodes(hash)
+      def match_nodes(hash, optional_match = false)
         hash.inject(self) do |query, (variable, node_object)|
           neo_id = if node_object.respond_to?(:neo_id)
                      node_object.neo_id
                    else
                      node_object
                    end
-          query.match(variable).where(variable => {neo_id: neo_id})
+          match_method = optional_match ? :optional_match : :match
+          query.send(match_method, variable).where(variable => {neo_id: neo_id})
         end
+      end
+
+      def optional_match_nodes(hash)
+        match_nodes(hash, true)
       end
 
       include Enumerable
