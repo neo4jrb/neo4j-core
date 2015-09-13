@@ -165,7 +165,7 @@ RSpec.shared_examples 'Neo4j::Relationship' do
     it 'allows strange property names' do
       a = n1.create_rel(:knows, n2)
       a.update_props('1' => 2, ' ha ' => 'ho')
-      expect(a.props).to eq("1": 2, " ha ": 'ho')
+      expect(a.props).to eq(:'1' => 2, :' ha ' => 'ho')
     end
   end
 end

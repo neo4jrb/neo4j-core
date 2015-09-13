@@ -316,7 +316,7 @@ RSpec.shared_examples 'Neo4j::Node auto tx' do
         it 'allows strange property names' do
           a = Neo4j::Node.create
           a.update_props('1' => 2, 'h#a' => 'ho')
-          expect(a.props).to eq("1": 2, "h#a": 'ho')
+          expect(a.props).to eq(:'1' => 2, :'h#a' => 'ho')
         end
       end
 
