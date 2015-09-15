@@ -16,17 +16,21 @@ module Neo4j
           end
 
           ROW_REST = %w(row REST)
-          def query(cypher_string, parameters = {})
+
+          def queries(queries_and_parameters)
             fail 'Query attempted without a connection' if @connection.nil?
 
-            data = {statements: [{statement: cypher_string, parameters: parameters, resultDataContents: ROW_REST}]}
+            statements_data = queries_and_parameters.map do |query, parameters|
+              {
+                statement: query,
+                parameters: parameters || {},
+                resultDataContents: ROW_REST
+              }
+            end
 
-            response = @connection.post(full_transaction_url, data)
+            faraday_response = @connection.post(full_transaction_url, {statements: statements_data})
 
-            require 'pry'
-            binding.pry
-
-            Responses::HTTP.new(response)
+            Responses::HTTP.new(faraday_response).results
           end
 
           class Response < Responses::Base

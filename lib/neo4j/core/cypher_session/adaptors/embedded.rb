@@ -11,7 +11,7 @@ module Neo4j
           def connect
           end
 
-          def query(cypher_string, parameters = {})
+          def queries(queries_and_parameters)
           end
         end
       end

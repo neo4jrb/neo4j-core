@@ -11,7 +11,11 @@ module Neo4j
           end
 
           def query(*args)
-            fail '#query not implemented!'
+            queries([cypher_string, parameters])[0]
+          end
+
+          def queries(queries_and_parameters)
+            fail '#queries not implemented!'
           end
         end
       end
