@@ -5,13 +5,13 @@ module Neo4j
     class CypherSession
       module Adaptors
         class Embedded < Base
-          def initialize(path, options = {})
+          def initialize(_path, _options = {})
           end
 
           def connect
           end
 
-          def queries(queries_and_parameters)
+          def queries(_queries_and_parameters)
           end
         end
       end

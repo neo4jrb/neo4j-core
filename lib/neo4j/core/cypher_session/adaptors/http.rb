@@ -6,7 +6,7 @@ module Neo4j
     class CypherSession
       module Adaptors
         class HTTP < Base
-          def initialize(url, options = {})
+          def initialize(url, _options = {})
             @url = url
             @url_components = url_components!(url)
           end
@@ -28,14 +28,13 @@ module Neo4j
               }
             end
 
-            faraday_response = @connection.post(full_transaction_url, {statements: statements_data})
+            faraday_response = @connection.post(full_transaction_url, statements: statements_data)
 
             Responses::HTTP.new(faraday_response).results
           end
 
           class Response < Responses::Base
-            def initialize(response_data)
-
+            def initialize(_response_data)
             end
           end
 

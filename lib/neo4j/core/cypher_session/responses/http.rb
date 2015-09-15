@@ -42,7 +42,6 @@ module Neo4j
               else
                 fail "Was not able to determine result entity type: #{rest_data.inspect}"
               end
-
             end
           end
         end

@@ -6,15 +6,15 @@ module Neo4j
         MAP = {}
 
         class Base
-          def connect(*args)
+          def connect(*_args)
             fail '#connect not implemented!'
           end
 
-          def query(*args)
+          def query(*_args)
             queries([cypher_string, parameters])[0]
           end
 
-          def queries(queries_and_parameters)
+          def queries(_queries_and_parameters)
             fail '#queries not implemented!'
           end
         end

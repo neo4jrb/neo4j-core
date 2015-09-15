@@ -10,7 +10,7 @@ module Neo4j
   module Core
     class CypherSession
       def initialize(adaptor)
-        raise ArgumentError, "Invalid adaptor: #{adaptor.inspect}" if !adaptor.is_a?(Adaptors::Base)
+        fail ArgumentError, "Invalid adaptor: #{adaptor.inspect}" if !adaptor.is_a?(Adaptors::Base)
 
         @adaptor = adaptor
 
