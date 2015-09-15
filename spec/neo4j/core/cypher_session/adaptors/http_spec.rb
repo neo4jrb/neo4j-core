@@ -22,7 +22,7 @@ describe Neo4j::Core::CypherSession::Adaptors::HTTP do
     it 'Can make a query' do
       adaptor.connect
 
-      adaptor.query('MERGE (n:Foo)-[rel:r]->(o:Bar:Baz) RETURN n, rel, o LIMIT 1')
+      adaptor.query('MERGE path=n-[rel:r]->(o) RETURN n, rel, o, path LIMIT 1')
     end
   end
 end

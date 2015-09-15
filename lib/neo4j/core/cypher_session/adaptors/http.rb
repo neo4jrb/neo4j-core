@@ -23,6 +23,9 @@ module Neo4j
 
             response = @connection.post(full_transaction_url, data)
 
+            require 'pry'
+            binding.pry
+
             Responses::HTTP.new(response)
           end
 
