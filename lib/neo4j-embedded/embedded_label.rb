@@ -15,21 +15,18 @@ module Neo4j
       end
 
       def find_nodes(key = nil, value = nil)
-        iterator = _find_nodes(key, value)
+        iterator = if key
+                     @session.graph_db.find_nodes_by_label_and_property(as_java, key, value).iterator
+                   else
+                     ggo = Java::OrgNeo4jTooling::GlobalGraphOperations.at(@session.graph_db)
+                     ggo.getAllNodesWithLabel(as_java).iterator
+                   end
+
         iterator.to_a.map(&:wrapper)
       ensure
         iterator && iterator.close
       end
       tx_methods :find_nodes
-
-      def _find_nodes(key = nil, value = nil)
-        if key
-          @session.graph_db.find_nodes_by_label_and_property(as_java, key, value).iterator
-        else
-          ggo = Java::OrgNeo4jTooling::GlobalGraphOperations.at(@session.graph_db)
-          ggo.getAllNodesWithLabel(as_java).iterator
-        end
-      end
 
       def as_java
         self.class.as_java(@name.to_s)
@@ -75,6 +72,7 @@ module Neo4j
         def as_java(labels)
           if labels.is_a?(Array)
             return nil if labels.empty?
+
             labels.inject([]) { |result, label| result << JAVA_CLASS.label(label.to_s) }.to_java(JAVA_CLASS)
           else
             JAVA_CLASS.label(labels.to_s)

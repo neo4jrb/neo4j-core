@@ -6,9 +6,13 @@ module Neo4j
     class CypherSession
       module Adaptors
         class HTTP < Base
+          # @transaction_state valid states
+          # nil, :open_requested, :open, :close_requested
+
           def initialize(url, _options = {})
             @url = url
             @url_components = url_components!(url)
+            @transaction_state = nil
           end
 
           def connect
@@ -27,21 +31,63 @@ module Neo4j
                 resultDataContents: ROW_REST
               }
             end
+            request_data = {statements: statements_data}
 
-            faraday_response = @connection.post(full_transaction_url, statements: statements_data)
+            # context option not implemented
+            faraday_response = self.class.instrument_queries(queries_and_parameters) do
+              @connection.post(full_transaction_url, request_data)
+            end
 
-            Responses::HTTP.new(faraday_response).results
+            store_transaction_id!(faraday_response)
+
+            Responses::HTTP.new(faraday_response, request_data).results
           end
 
-          class Response < Responses::Base
-            def initialize(_response_data)
+          def start_transaction
+            case @transaction_state
+            when :open
+              return
+            when :close_requested
+              fail 'Cannot start transaction when a close has been requested'
             end
+
+            @transaction_state = :open_requested
+          end
+
+          def end_transaction
+            if @transaction_state.nil?
+              fail 'Cannot close transaction without starting one'
+            end
+
+            # This needs thought through more...
+            @transaction_state = :close_requested
+            queries([])
+            @transaction_state = nil
+
+            true
           end
 
           private
 
+          def store_transaction_id!(faraday_response)
+            location = faraday_response.env[:response_headers][:location]
+
+            return if !location
+
+            @transaction_id = location.split('/').last.to_i
+          end
+
           def full_transaction_url
-            "#{@protocol}://#{@host}:#{@port}/db/data/transaction/commit"
+            url_base = "#{@protocol}://#{@host}:#{@port}/db/data/transaction"
+
+            path = case @transaction_state
+                   when nil then '/commit'
+                   when :open_requested then ''
+                   when :open then "/#{@transaction_id}"
+                   when :close_requested then "/#{@transaction_id}/commit"
+                   end
+
+            url_base + path
           end
 
           def connection

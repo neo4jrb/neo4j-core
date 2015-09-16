@@ -11,7 +11,7 @@ module Neo4j
         def initialize(columns, rows)
           @columns = columns.map(&:to_sym)
           @rows = rows
-          @struct_class = Struct.new('CypherResult', *columns)
+          @struct_class = Struct.new(*@columns)
         end
 
         def structs

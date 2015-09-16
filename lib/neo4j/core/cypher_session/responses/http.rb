@@ -5,9 +5,13 @@ module Neo4j
     class CypherSession
       module Responses
         class HTTP < Base
-          attr_reader :results
+          attr_reader :results, :request_data
 
-          def initialize(faraday_response)
+          def initialize(faraday_response, request_data)
+            @request_data = request_data
+
+            validate_faraday_response!(faraday_response)
+
             @results = faraday_response.body[:results].map do |result_data|
               result_from_data(result_data[:columns], result_data[:data])
             end
@@ -61,6 +65,16 @@ module Neo4j
             end
 
             ::Neo4j::Core::Path.new(nodes, relationships, rest_datum[:directions])
+          end
+
+          def validate_faraday_response!(faraday_response)
+            if error = faraday_response.body[:errors][0]
+              fail CypherError, "#{ANSI::CYAN}#{error[:code]}#{ANSI::CLEAR}: #{error[:message]}"
+            end
+
+            return if (200..299).include?(status = faraday_response.status)
+
+            fail CypherError, "Expected 200-series response for #{faraday_response.env.url} (got #{status})"
           end
         end
       end

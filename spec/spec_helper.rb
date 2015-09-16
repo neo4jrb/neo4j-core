@@ -44,10 +44,37 @@ RSpec.configure do |c|
   c.include Helpers
 end
 
+require 'neo4j/core/cypher_session'
+
+module Neo4jSpecHelpers
+  def log_queries!
+    Neo4j::Core::CypherSession.subscribe_to_queries do |message|
+      puts message
+    end
+  end
+
+  # rubocop:disable Style/GlobalVars
+  def expect_queries(count)
+    start_count = $expect_queries_count
+    yield
+    expect($expect_queries_count - start_count).to eq(count)
+  end
+
+  def setup_query_subscription(adaptor_class)
+    $expect_queries_count = 0
+
+    adaptor_class.subscribe_to_queries do |_message|
+      $expect_queries_count += 1
+    end
+  end
+  # rubocop:enable Style/GlobalVars
+end
 
 FileUtils.rm_rf(EMBEDDED_DB_PATH)
 
 RSpec.configure do |c|
+  c.include Neo4jSpecHelpers
+
   c.before(:all, api: :server) do
     Neo4j::Session.current.close if Neo4j::Session.current
     create_server_session

@@ -4,6 +4,8 @@ require 'neo4j/core/cypher_session/adaptors/http'
 describe Neo4j::Core::CypherSession::Adaptors::HTTP do
   let(:adaptor_class) { Neo4j::Core::CypherSession::Adaptors::HTTP }
 
+  before(:all) { setup_query_subscription(Neo4j::Core::CypherSession::Adaptors::HTTP) }
+
   describe '#initialize' do
     it 'validates URLs' do
       expect { adaptor_class.new('url') }.to raise_error ArgumentError, /Invalid URL:/
@@ -16,13 +18,34 @@ describe Neo4j::Core::CypherSession::Adaptors::HTTP do
     end
   end
 
+  let(:url) { ENV['NEO4J_URL'] }
+  let(:adaptor) { adaptor_class.new(url) }
+
+  before { adaptor.connect }
+
   describe '#query' do
-    let(:adaptor) { adaptor_class.new(ENV['NEO4J_URL']) }
-
     it 'Can make a query' do
-      adaptor.connect
-
       adaptor.query('MERGE path=n-[rel:r]->(o) RETURN n, rel, o, path LIMIT 1')
+    end
+  end
+
+  describe 'transactions' do
+    it 'lets you execute a query in a transaction' do
+      expect_queries(2) do
+        adaptor.start_transaction
+        adaptor.query('MATCH n RETURN n LIMIT 1')
+        adaptor.end_transaction
+      end
+
+      expect_queries(2) do
+        adaptor.transaction do
+          adaptor.query('MATCH n RETURN n LIMIT 1')
+        end
+      end
+    end
+
+    it 'does not allow transactions in the wrong order' do
+      expect { adaptor.end_transaction }.to raise_error(RuntimeError, /Cannot close transaction without starting one/)
     end
   end
 end
