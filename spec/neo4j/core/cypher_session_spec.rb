@@ -11,7 +11,8 @@ describe Neo4j::Core::CypherSession do
 
     it 'takes an Adaptors::Base object' do
       expect do
-        Neo4j::Core::CypherSession.new(Neo4j::Core::CypherSession::Adaptors::HTTP.new('url'))
+        http_adaptor = Neo4j::Core::CypherSession::Adaptors::HTTP.new(ENV['NEO4J_URL'])
+        Neo4j::Core::CypherSession.new(http_adaptor)
       end.not_to raise_error
     end
   end

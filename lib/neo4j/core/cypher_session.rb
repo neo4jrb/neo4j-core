@@ -17,8 +17,16 @@ module Neo4j
         @adaptor.connect
       end
 
-      def query(query_string, parameters = {})
-        @adaptor.query(query_string, parameters)
+      %w(
+        query
+        queries
+        start_transaction
+        end_transaction
+        transactions
+      ).each do |method|
+        define_method(method) do |*args|
+          @adaptor.send(method, *args)
+        end
       end
     end
   end
