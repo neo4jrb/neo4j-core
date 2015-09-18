@@ -25,6 +25,7 @@ module Neo4j
             Result.new(columns, rows)
           end
 
+          # TODO: Iterate over arrays and resolve elements within
           def resolve_result_element(row_data, rest_data)
             row_data.each_with_index.map do |row_datum, i|
               rest_datum = rest_data[i]
@@ -37,7 +38,7 @@ module Neo4j
               when rest_datum[:directions]
                 resolve_path(row_datum, rest_datum)
               else
-                fail "Was not able to determine result entity type: #{rest_data.inspect}"
+                row_datum
               end
             end
           end
