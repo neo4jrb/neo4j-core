@@ -1,4 +1,6 @@
-require 'neo4j-core/query_clauses'
+require 'neo4j/core/query/clauses'
+require 'neo4j/core/query/find_in_batches'
+require 'neo4j/core/query/parameters'
 require 'active_support/notifications'
 
 module Neo4j
@@ -12,8 +14,8 @@ module Neo4j
     # See also the following link for full cypher language documentation:
     # http://docs.neo4j.org/chunked/milestone/cypher-query-lang.html
     class Query
-      include Neo4j::Core::QueryClauses
-      include Neo4j::Core::QueryFindInBatches
+      include Neo4j::Core::Query::Clauses
+      include Neo4j::Core::Query::FindInBatches
       DEFINED_CLAUSES = {}
 
       attr_accessor :clauses
@@ -28,6 +30,7 @@ module Neo4j
         @options = options
         @clauses = []
         @_params = {}
+        @params = Parameters.new
       end
 
       def inspect
@@ -151,7 +154,7 @@ module Neo4j
       # @example
       #    # Creates a query representing the cypher: MATCH (n:Person) SET n.age = 19
       #    Query.new.match(n: :Person).set_props(n: {age: 19})
-      def set_props(*args)
+      def set_props(*args) # rubocop:disable Style/AccessorMethodName
         build_deeper_query(SetClause, args, set_props: true)
       end
 
@@ -171,9 +174,9 @@ module Neo4j
       #   Query.new.match('(q: Person {id: {id}})').params(id: 12)
       #
       def params(args)
-        @_params = @_params.merge(args)
-
-        self
+        copy.tap do |new_query|
+          new_query.instance_variable_get('@params').add_params(args)
+        end
       end
 
       def unwrapped
@@ -187,6 +190,7 @@ module Neo4j
 
       def response
         return @response if @response
+
         cypher = to_cypher
         pretty_cypher = to_cypher(pretty: true) if self.class.pretty_cypher
 
@@ -290,19 +294,25 @@ module Neo4j
       EMPTY = ' '
       NEWLINE = "\n"
       def to_cypher(options = {})
-        cypher_string = PartitionedClauses.new(@clauses).map do |clauses|
+        separator = options[:pretty] ? NEWLINE : EMPTY
+
+        cypher_string = partitioned_clauses.map do |clauses|
           clauses_by_class = clauses.group_by(&:class)
 
           cypher_parts = CLAUSES.map do |clause_class|
-            clause_class.to_cypher(clauses, options) if clauses = clauses_by_class[clause_class]
+            clause_class.to_cypher(clauses, options[:pretty]) if clauses = clauses_by_class[clause_class]
           end
 
           cypher_parts.compact!
-          cypher_parts.join(options[:pretty] ? NEWLINE : EMPTY).tap(&:strip!)
-        end.join(options[:pretty] ? NEWLINE : EMPTY)
+          cypher_parts.join(separator).tap(&:strip!)
+        end.join(separator)
 
         cypher_string = "CYPHER #{@options[:parser]} #{cypher_string}" if @options[:parser]
         cypher_string.tap(&:strip!)
+      end
+
+      def partitioned_clauses
+        @partitioned_clauses ||= PartitionedClauses.new(@clauses)
       end
 
       def print_cypher
@@ -332,20 +342,18 @@ module Neo4j
         end.params(other._params)
       end
 
-      MEMOIZED_INSTANCE_VARIABLES = [:response, :merge_params]
       def copy
         dup.tap do |query|
-          MEMOIZED_INSTANCE_VARIABLES.each do |var|
-            query.instance_variable_set("@#{var}", nil)
-          end
+          to_cypher
+          query.instance_variable_set('@params', @params.copy)
+          query.instance_variable_set('@partitioned_clauses', nil)
+          query.instance_variable_set('@response', nil)
         end
       end
 
       def clause?(method)
         clause_class = DEFINED_CLAUSES[method] || CLAUSIFY_CLAUSE.call(method)
-        clauses.any? do |clause|
-          clause.is_a?(clause_class)
-        end
+        clauses.any? { |clause| clause.is_a?(clause_class) }
       end
 
       protected
@@ -357,9 +365,7 @@ module Neo4j
       end
 
       def remove_clause_class(clause_class)
-        @clauses = @clauses.reject do |clause|
-          clause.is_a?(clause_class)
-        end
+        @clauses = @clauses.reject { |clause| clause.is_a?(clause_class) }
       end
 
       private
@@ -367,7 +373,7 @@ module Neo4j
       def build_deeper_query(clause_class, args = {}, options = {})
         copy.tap do |new_query|
           new_query.add_clauses [nil] if [nil, WithClause].include?(clause_class)
-          new_query.add_clauses clause_class.from_args(args, options) if clause_class
+          new_query.add_clauses clause_class.from_args(args, new_query.instance_variable_get('@params'), options) if clause_class
         end
       end
 
@@ -395,7 +401,7 @@ module Neo4j
               second_to_last << clause
             elsif clause_is_with_following_order_or_limit?(clause)
               second_to_last << clause
-              second_to_last.sort_by! { |c| c.is_a?(::Neo4j::Core::QueryClauses::OrderClause) ? 1 : 0 }
+              second_to_last.sort_by! { |c| c.is_a?(::Neo4j::Core::Query::Clauses::OrderClause) ? 1 : 0 }
             else
               @partitioning.last << clause
             end
@@ -415,24 +421,24 @@ module Neo4j
         def clause_is_order_or_limit_directly_following_with_or_order?(clause)
           self.class.clause_is_order_or_limit?(clause) &&
             @partitioning[-2] &&
-            (@partitioning[-2].last.is_a?(::Neo4j::Core::QueryClauses::WithClause) ||
-              @partitioning[-2].last.is_a?(::Neo4j::Core::QueryClauses::OrderClause))
+            (@partitioning[-2].last.is_a?(::Neo4j::Core::Query::Clauses::WithClause) ||
+              @partitioning[-2].last.is_a?(::Neo4j::Core::Query::Clauses::OrderClause))
         end
 
         def clause_is_with_following_order_or_limit?(clause)
-          clause.is_a?(::Neo4j::Core::QueryClauses::WithClause) &&
+          clause.is_a?(::Neo4j::Core::Query::Clauses::WithClause) &&
             @partitioning[-2] && @partitioning[-2].any? { |c| self.class.clause_is_order_or_limit?(c) }
         end
 
         def self.clause_is_order_or_limit?(clause)
-          clause.is_a?(::Neo4j::Core::QueryClauses::OrderClause) ||
-            clause.is_a?(::Neo4j::Core::QueryClauses::LimitClause)
+          clause.is_a?(::Neo4j::Core::Query::Clauses::OrderClause) ||
+            clause.is_a?(::Neo4j::Core::Query::Clauses::LimitClause)
         end
       end
 
+      # SHOULD BE DEPRECATED
       def merge_params
-        @clauses.compact!
-        @merge_params ||= @clauses.inject(@_params) { |params, clause| params.merge!(clause.params) }
+        @params.to_hash
       end
     end
   end

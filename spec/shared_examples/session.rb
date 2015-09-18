@@ -273,8 +273,8 @@ RSpec.shared_examples 'Neo4j::Session' do
         describe 'label: :person, return: [:name, :age]' do
           it 'returns two properties in a hash' do
             result = session.query.match(n: :person).return(n: [:name, :age])
-            expect(result.first).to respond_to('n.name')
-            expect(result.first).to respond_to('n.age')
+            expect(result.first.members).to include(:'n.name')
+            expect(result.first.members).to include(:'n.age')
           end
         end
 
