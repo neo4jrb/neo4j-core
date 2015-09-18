@@ -78,7 +78,7 @@ module Neo4j
           end
 
           def full_transaction_url
-            url_base = "#{@protocol}://#{@host}:#{@port}/db/data/transaction"
+            url_base = "#{scheme}://#{host}:#{port}/db/data/transaction"
 
             path = case @transaction_state
                    when nil then '/commit'
@@ -92,7 +92,7 @@ module Neo4j
 
           def connection
             Faraday.new(@url) do |c|
-              c.request :basic_auth, @username, @password if !@username.nil? && !@password.nil?
+              c.request :basic_auth, user, password
               c.request :multi_json
 
               c.response :multi_json, symbolize_keys: true, content_type: 'application/json'
@@ -103,16 +103,29 @@ module Neo4j
             end
           end
 
-          URL_REGEXP = Regexp.new('^(https?)://(?:([^:]+):([^@]+)@)?([a-z0-9\.\-]+):(\d+)/?$', 'i')
-
           def url_components!(url)
-            match = url.match(URL_REGEXP)
+            @uri = URI(url)
 
-            fail ArgumentError, "Invalid URL: #{url.inspect}" if !match
-
-            _, @protocol, @username, @password, @host, @port = match.to_a
+            if !@uri.is_a?(URI::HTTP)
+              fail ArgumentError, "Invalid URL: #{url.inspect}"
+            end
 
             true
+          end
+
+          def scheme
+            @uri.scheme
+          end
+
+          URI_DEFAULTS = {
+            user: 'neo4j', password: 'neo4j',
+            host: 'localhost', port: 7474
+          }
+
+          URI_DEFAULTS.each do |method, value|
+            define_method(method) do
+              @uri.send(method) || value
+            end
           end
 
           def user_agent_string

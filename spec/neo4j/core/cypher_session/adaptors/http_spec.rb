@@ -9,7 +9,7 @@ describe Neo4j::Core::CypherSession::Adaptors::HTTP do
   describe '#initialize' do
     it 'validates URLs' do
       expect { adaptor_class.new('url') }.to raise_error ArgumentError, /Invalid URL:/
-      expect { adaptor_class.new('https://foo@localhost:7474') }.to raise_error ArgumentError, /Invalid URL:/
+      expect { adaptor_class.new('https://foo@localhost:7474') }.not_to raise_error
 
       expect { adaptor_class.new('http://localhost:7474') }.not_to raise_error
       expect { adaptor_class.new('https://localhost:7474') }.not_to raise_error
@@ -46,6 +46,18 @@ describe Neo4j::Core::CypherSession::Adaptors::HTTP do
 
     it 'does not allow transactions in the wrong order' do
       expect { adaptor.end_transaction }.to raise_error(RuntimeError, /Cannot close transaction without starting one/)
+    end
+  end
+
+  describe 'results' do
+    it 'symbolizes keys for Neo4j objects' do
+      result = adaptor.query('RETURN {a: 1} AS obj')
+
+      expect(result.hashes).to eq([{obj: {a: 1}}])
+
+      structs = result.structs
+      expect(structs.size).to be(1)
+      expect(structs[0].obj).to eq(a: 1)
     end
   end
 end
