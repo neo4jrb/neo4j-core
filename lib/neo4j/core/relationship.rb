@@ -3,6 +3,8 @@ module Neo4j
     class Relationship
       attr_reader :id, :type, :properties
 
+      include Wrappable
+
       def initialize(id, type, properties)
         @id = id
         @type = type.to_sym unless type.nil?

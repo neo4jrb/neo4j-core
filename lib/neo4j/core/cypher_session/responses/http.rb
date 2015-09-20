@@ -49,13 +49,13 @@ module Neo4j
           def wrap_node(rest_datum)
             ::Neo4j::Core::Node.new(rest_datum[:metadata][:id],
                                     rest_datum[:metadata][:labels],
-                                    rest_datum[:data])
+                                    rest_datum[:data]).wrap
           end
 
           def wrap_relationship(rest_datum)
             ::Neo4j::Core::Relationship.new(rest_datum[:metadata][:id],
                                             rest_datum[:metadata][:type],
-                                            rest_datum[:data])
+                                            rest_datum[:data]).wrap
           end
 
           def wrap_path(row_datum, rest_datum)
@@ -66,7 +66,7 @@ module Neo4j
               Relationship.from_url(url, row_datum[(2 * i) + 1])
             end
 
-            ::Neo4j::Core::Path.new(nodes, relationships, rest_datum[:directions])
+            ::Neo4j::Core::Path.new(nodes, relationships, rest_datum[:directions]).wrap
           end
 
           def validate_faraday_response!(faraday_response)

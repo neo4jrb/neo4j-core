@@ -69,5 +69,47 @@ describe Neo4j::Core::CypherSession::Adaptors::HTTP do
       expect(structs.size).to be(1)
       expect(structs[0].obj).to eq(a: 1)
     end
+
+    context 'wrapper class exists' do
+      before do
+        stub_const 'WrapperClass', (Class.new do
+          attr_reader :wrapped_object
+
+          def initialize(obj)
+            @wrapped_object = obj
+          end
+        end)
+
+        Neo4j::Core::Node.wrapper_callback(->(obj) { WrapperClass.new(obj) })
+        Neo4j::Core::Relationship.wrapper_callback(->(obj) { WrapperClass.new(obj) })
+        Neo4j::Core::Path.wrapper_callback(->(obj) { WrapperClass.new(obj) })
+      end
+
+      after do
+        Neo4j::Core::Node.clear_wrapper_callback
+        Neo4j::Core::Path.clear_wrapper_callback
+        Neo4j::Core::Relationship.clear_wrapper_callback
+      end
+
+      # Normally I don't think you wouldn't wrap nodes/relationships/paths
+      # with the same class.  It's just expedient to do so in this spec
+      it 'Returns wrapped objects from results' do
+        result = adaptor.query('CREATE path=(n {a: 1})-[r:foo {b: 2}]->(b) RETURN n,r,path')
+
+        result_entity = result.hashes[0][:n]
+        expect(result_entity).to be_a(WrapperClass)
+        expect(result_entity.wrapped_object).to be_a(Neo4j::Core::Node)
+        expect(result_entity.wrapped_object.properties).to eq(a: 1)
+
+        result_entity = result.hashes[0][:r]
+        expect(result_entity).to be_a(WrapperClass)
+        expect(result_entity.wrapped_object).to be_a(Neo4j::Core::Relationship)
+        expect(result_entity.wrapped_object.properties).to eq(b: 2)
+
+        result_entity = result.hashes[0][:path]
+        expect(result_entity).to be_a(WrapperClass)
+        expect(result_entity.wrapped_object).to be_a(Neo4j::Core::Path)
+      end
+    end
   end
 end

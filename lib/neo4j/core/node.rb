@@ -1,8 +1,12 @@
+require 'neo4j/core/wrappable'
+
 module Neo4j
   module Core
     class Node
       attr_reader :id, :labels, :properties
       alias_method :props, :properties
+
+      include Wrappable
 
       def initialize(id, labels, properties = {})
         @id = id

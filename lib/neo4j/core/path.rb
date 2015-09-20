@@ -3,6 +3,8 @@ module Neo4j
     class Path
       attr_reader :nodes, :relationships, :directions
 
+      include Wrappable
+
       def initialize(nodes, relationships, directions)
         @nodes = nodes
         @relationships = relationships
