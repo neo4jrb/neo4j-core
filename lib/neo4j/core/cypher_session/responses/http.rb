@@ -19,28 +19,28 @@ module Neo4j
 
           def result_from_data(columns, entities_data)
             rows = entities_data.map do |entity_data|
-              resolve_result_element entity_data[:row], entity_data[:rest]
+              wrap_result_element entity_data[:row], entity_data[:rest]
             end
 
             Result.new(columns, rows)
           end
 
-          # TODO: Iterate over arrays and resolve elements within
-          def resolve_result_element(row_data, rest_data)
+          # TODO: Iterate over arrays and wrap elements within
+          def wrap_result_element(row_data, rest_data)
             row_data.each_with_index.map do |row_datum, i|
               rest_datum = rest_data[i]
 
               if rest_datum.is_a?(Array)
-                return resolve_result_element(row_datum, rest_datum)
+                return wrap_result_element(row_datum, rest_datum)
               end
 
               case
               when rest_datum[:labels]
-                resolve_node(rest_datum)
+                wrap_node(rest_datum)
               when rest_datum[:type]
-                resolve_relationship(rest_datum)
+                wrap_relationship(rest_datum)
               when rest_datum[:directions]
-                resolve_path(row_datum, rest_datum)
+                wrap_path(row_datum, rest_datum)
               else
                 row_datum
               end
@@ -49,19 +49,19 @@ module Neo4j
 
           private
 
-          def resolve_node(rest_datum)
+          def wrap_node(rest_datum)
             ::Neo4j::Core::Node.new(rest_datum[:metadata][:id],
                                     rest_datum[:metadata][:labels],
                                     rest_datum[:data])
           end
 
-          def resolve_relationship(rest_datum)
+          def wrap_relationship(rest_datum)
             ::Neo4j::Core::Relationship.new(rest_datum[:metadata][:id],
                                             rest_datum[:metadata][:type],
                                             rest_datum[:data])
           end
 
-          def resolve_path(row_datum, rest_datum)
+          def wrap_path(row_datum, rest_datum)
             nodes = rest_datum[:nodes].each_with_index.map do |url, i|
               Node.from_url(url, row_datum[2 * i])
             end
