@@ -50,12 +50,22 @@ describe Neo4j::Core::CypherSession::Adaptors::HTTP do
   end
 
   describe 'results' do
+    it 'handles array results' do
+      result = adaptor.query("CREATE (a {b: 'c'}) RETURN [a]")
+
+      expect(result.hashes).to be_a(Array)
+      expect(result.hashes.size).to be(1)
+      expect(result.hashes[0][:'[a]']).to be_a(Neo4j::Core::Node)
+      expect(result.hashes[0][:'[a]'].properties).to eq(b: 'c')
+    end
+
     it 'symbolizes keys for Neo4j objects' do
       result = adaptor.query('RETURN {a: 1} AS obj')
 
       expect(result.hashes).to eq([{obj: {a: 1}}])
 
       structs = result.structs
+      expect(structs).to be_a(Array)
       expect(structs.size).to be(1)
       expect(structs[0].obj).to eq(a: 1)
     end

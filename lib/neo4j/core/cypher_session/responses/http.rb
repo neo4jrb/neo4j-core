@@ -30,6 +30,10 @@ module Neo4j
             row_data.each_with_index.map do |row_datum, i|
               rest_datum = rest_data[i]
 
+              if rest_datum.is_a?(Array)
+                return resolve_result_element(row_datum, rest_datum)
+              end
+
               case
               when rest_datum[:labels]
                 resolve_node(rest_datum)
