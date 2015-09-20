@@ -104,7 +104,7 @@ module Neo4j
           end
 
           def url_components!(url)
-            @uri = URI(url)
+            @uri = URI(url || 'http://localhost:7474')
 
             if !@uri.is_a?(URI::HTTP)
               fail ArgumentError, "Invalid URL: #{url.inspect}"
@@ -113,11 +113,8 @@ module Neo4j
             true
           end
 
-          def scheme
-            @uri.scheme
-          end
-
           URI_DEFAULTS = {
+            scheme: 'http',
             user: 'neo4j', password: 'neo4j',
             host: 'localhost', port: 7474
           }
