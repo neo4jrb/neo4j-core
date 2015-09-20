@@ -19,27 +19,24 @@ module Neo4j
 
           def result_from_data(columns, entities_data)
             rows = entities_data.map do |entity_data|
-              wrap_result_element entity_data[:row], entity_data[:rest]
+              wrap_entity entity_data[:row], entity_data[:rest]
             end
 
             Result.new(columns, rows)
           end
 
           # TODO: Iterate over arrays and wrap elements within
-          def wrap_result_element(row_data, rest_data)
+          def wrap_entity(row_data, rest_data)
             row_data.each_with_index.map do |row_datum, i|
               rest_datum = rest_data[i]
 
-              if rest_datum.is_a?(Array)
-                return wrap_result_element(row_datum, rest_datum)
-              end
+              return wrap_entity(row_datum, rest_datum) if rest_datum.is_a?(Array)
 
-              case
-              when rest_datum[:labels]
+              if rest_datum[:labels]
                 wrap_node(rest_datum)
-              when rest_datum[:type]
+              elsif rest_datum[:type]
                 wrap_relationship(rest_datum)
-              when rest_datum[:directions]
+              elsif rest_datum[:directions]
                 wrap_path(row_datum, rest_datum)
               else
                 row_datum
