@@ -2,6 +2,7 @@ module Neo4j
   module Core
     class Node
       attr_reader :id, :labels, :properties
+      alias_method :props, :properties
 
       def initialize(id, labels, properties = {})
         @id = id
