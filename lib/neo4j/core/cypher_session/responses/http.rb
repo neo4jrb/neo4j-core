@@ -36,7 +36,7 @@ module Neo4j
                 wrap_node(rest_datum)
               elsif rest_datum[:type]
                 wrap_relationship(rest_datum)
-              elsif rest_datum[:directions]
+              elsif rest_datum[:start]
                 wrap_path(row_datum, rest_datum)
               else
                 row_datum
@@ -47,14 +47,16 @@ module Neo4j
           private
 
           def wrap_node(rest_datum)
-            ::Neo4j::Core::Node.new(rest_datum[:metadata][:id],
-                                    rest_datum[:metadata][:labels],
+            metadata_data = rest_datum[:metadata]
+            ::Neo4j::Core::Node.new(id_from_rest_datum(rest_datum),
+                                    metadata_data && metadata_data[:labels],
                                     rest_datum[:data]).wrap
           end
 
           def wrap_relationship(rest_datum)
-            ::Neo4j::Core::Relationship.new(rest_datum[:metadata][:id],
-                                            rest_datum[:metadata][:type],
+            metadata_data = rest_datum[:metadata]
+            ::Neo4j::Core::Relationship.new(id_from_rest_datum(rest_datum),
+                                            metadata_data && metadata_data[:type],
                                             rest_datum[:data]).wrap
           end
 
@@ -67,6 +69,14 @@ module Neo4j
             end
 
             ::Neo4j::Core::Path.new(nodes, relationships, rest_datum[:directions]).wrap
+          end
+
+          def id_from_rest_datum(rest_datum)
+            if rest_datum[:metadata]
+              rest_datum[:metadata][:id]
+            else
+              rest_datum[:self].split('/').last.to_i
+            end
           end
 
           def validate_faraday_response!(faraday_response)
