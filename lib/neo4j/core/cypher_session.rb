@@ -1,11 +1,5 @@
 require 'neo4j/core/cypher_session/adaptors/http'
 
-# TODOs:
-# Execute cypher queries
-# Execute cypher queries as a batch
-# Transactions
-# Returns nodes, relationships, and paths
-
 module Neo4j
   module Core
     class CypherSession
