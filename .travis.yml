@@ -9,6 +9,7 @@ rvm:
   # - jruby-19mode
 env:
   # - NEO4J_VERSION=community-latest
+  - NEO4J_VERSION=community-2.3.0-M03
   - NEO4J_VERSION=community-2.2.3
   - NEO4J_VERSION=community-2.1.8
 sudo: false
