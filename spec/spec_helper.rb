@@ -60,10 +60,10 @@ module Neo4jSpecHelpers
     expect($expect_queries_count - start_count).to eq(count)
   end
 
-  def setup_query_subscription(adaptor_class)
+  def setup_query_subscription
     $expect_queries_count = 0
 
-    adaptor_class.subscribe_to_queries do |_message|
+    Neo4j::Core::CypherSession::Adaptors::Base.subscribe_to_queries do |_message|
       $expect_queries_count += 1
     end
   end

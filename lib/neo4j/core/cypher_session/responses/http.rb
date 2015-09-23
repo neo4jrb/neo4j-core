@@ -25,7 +25,6 @@ module Neo4j
             Result.new(columns, rows)
           end
 
-          # TODO: Iterate over arrays and wrap elements within
           def wrap_entity(row_data, rest_data)
             row_data.each_with_index.map do |row_datum, i|
               rest_datum = rest_data[i]
