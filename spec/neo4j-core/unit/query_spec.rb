@@ -671,6 +671,10 @@ describe Neo4j::Core::Query do
       it_generates 'MERGE (:Person)'
     end
 
+    describe '.merge(:Person).merge(:Thing)' do
+      it_generates 'MERGE (:Person) MERGE (:Thing)'
+    end
+
     describe '.merge(age: 41, height: 70)' do
       it_generates 'MERGE ( {age: {age}, height: {height}})', age: 41, height: 70
     end
