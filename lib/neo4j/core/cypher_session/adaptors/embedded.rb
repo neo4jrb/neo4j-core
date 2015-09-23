@@ -9,6 +9,7 @@ module Neo4j
           def initialize(path, options = {})
             puts 'init...'
             fail 'JRuby is required for embedded mode' if RUBY_PLATFORM != 'java'
+            fail ArgumentError, "Invalid path: #{path}" if !File.directory?(path)
 
             @path = path
             @options = options
@@ -29,11 +30,25 @@ module Neo4j
             # I think that this is the best way to do a batch in embedded...
             # Should probably do within a transaction in case of errors...
 
-            execution_results = queries_and_parameters.map do |query, parameters|
-              engine.execute(query, HashWithIndifferentAccess.new(parameters))
+            transaction do
+              execution_results = queries_and_parameters.map do |query, parameters|
+                engine.execute(query, HashWithIndifferentAccess.new(parameters))
+              end
+
+              Responses::Embedded.new(execution_results).results
+            end
+          end
+
+          def start_transaction
+            @transaction = @graph_db.begin_tx
+          end
+
+          def end_transaction
+            if @transaction.nil?
+              fail 'Cannot close transaction without starting one'
             end
 
-            Responses::Embedded.new(execution_results).results
+            @transaction.success
           end
 
           private

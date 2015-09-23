@@ -33,7 +33,6 @@ module Neo4j
             start_transaction
 
             yield
-
           ensure
             end_transaction
           end

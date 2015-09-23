@@ -24,14 +24,29 @@ module Neo4j
           end
 
           def wrap_entity(entity)
-            case entity
-            when Java::OrgNeo4jKernelImplCore::NodeProxy
-              ::Neo4j::Core::Node.new(entity.get_id, labels, props)
-            when Java::OrgNeo4jKernelImplCore::RelationshipProxy
-            when Java::OrgNeo4jCypherInternalCompilerV2_2::PathImpl
+            return entity.map {|e| wrap_entity(e) } if entity.respond_to?(:to_a)
+
+            if entity.is_a?(Java::OrgNeo4jKernelImplCore::NodeProxy)
+              ::Neo4j::Core::Node.new(entity.get_id,
+                                      entity.get_labels.to_a,
+                                      get_entity_properties(entity))
+            elsif entity.is_a?(Java::OrgNeo4jKernelImplCore::RelationshipProxy)
+              ::Neo4j::Core::Relationship.new(entity.get_id,
+                                              entity.get_type.name,
+                                              get_entity_properties(entity))
+            elsif entity.respond_to?(:path_entities)
+              ::Neo4j::Core::Path.new(entity.nodes.map(&method(:wrap_entity)),
+                                      entity.relationships.map(&method(:wrap_entity)),
+                                      nil)
             else
               # Convert from Java?
-              execution_result_entity
+              entity
+            end
+          end
+
+          def get_entity_properties(entity)
+            entity.get_property_keys.each_with_object({}) do |key, result|
+              result[key.to_sym] = entity.get_property(key)
             end
           end
         end

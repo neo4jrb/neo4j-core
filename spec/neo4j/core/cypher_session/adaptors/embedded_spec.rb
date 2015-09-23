@@ -9,7 +9,7 @@ describe Neo4j::Core::CypherSession::Adaptors::Embedded do
   if RUBY_PLATFORM == 'java'
     describe '#initialize' do
       it 'validates path' do
-        expect { adaptor_class.new('/notadirectory') }.to raise_error ArgumentError, /Invalid Path:/
+        expect { adaptor_class.new('/notadirectory') }.to raise_error ArgumentError, /Invalid path:/
         expect { adaptor_class.new('/') }.not_to raise_error
       end
     end
