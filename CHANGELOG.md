@@ -5,6 +5,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
 
+## [5.1.4] - 2015-09-24
+
+### Changed
+- Update `neo4j-rake_tasks` version (which now uses `rubyzip` gem instead of `zip` gem)
+
 ## [5.1.3] - 2015-09-09
 
 ### Added
