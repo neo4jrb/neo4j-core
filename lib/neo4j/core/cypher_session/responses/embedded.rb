@@ -24,24 +24,36 @@ module Neo4j
           end
 
           def wrap_entity(entity)
-            return entity.map {|e| wrap_entity(e) } if entity.respond_to?(:to_a)
+            return entity.map { |e| wrap_entity(e) } if entity.respond_to?(:to_a)
 
             if entity.is_a?(Java::OrgNeo4jKernelImplCore::NodeProxy)
-              ::Neo4j::Core::Node.new(entity.get_id,
-                                      entity.get_labels.to_a,
-                                      get_entity_properties(entity))
+              wrap_node(entity)
             elsif entity.is_a?(Java::OrgNeo4jKernelImplCore::RelationshipProxy)
-              ::Neo4j::Core::Relationship.new(entity.get_id,
-                                              entity.get_type.name,
-                                              get_entity_properties(entity))
+              wrap_relationship(entity)
             elsif entity.respond_to?(:path_entities)
-              ::Neo4j::Core::Path.new(entity.nodes.map(&method(:wrap_entity)),
-                                      entity.relationships.map(&method(:wrap_entity)),
-                                      nil)
+              wrap_path(entity)
             else
               # Convert from Java?
               entity
             end
+          end
+
+          def wrap_node(entity)
+            ::Neo4j::Core::Node.new(entity.get_id,
+                                    entity.get_labels.to_a,
+                                    get_entity_properties(entity))
+          end
+
+          def wrap_relationship(entity)
+            ::Neo4j::Core::Relationship.new(entity.get_id,
+                                            entity.get_type.name,
+                                            get_entity_properties(entity))
+          end
+
+          def wrap_path(entity)
+            ::Neo4j::Core::Path.new(entity.nodes.map(&method(:wrap_node)),
+                                    entity.relationships.map(&method(:wrap_relationship)),
+                                    nil)
           end
 
           def get_entity_properties(entity)
