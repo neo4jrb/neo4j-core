@@ -175,7 +175,7 @@ describe Neo4j::Core::Query do
       end
 
       context 'Query with a where and an order' do
-        let(:query) { Neo4j::Core::Query.new.where(true).order(:foo) }
+        let(:query) { Neo4j::Core::Query.new.where('true').order(:foo) }
         it { should be(true) }
       end
     end
