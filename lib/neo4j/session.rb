@@ -185,7 +185,7 @@ module Neo4j
 
       # @private
       def _notify_listeners(event, data)
-        _listeners.pop.call(event, data) until _listeners.empty?
+        _listeners.shift.call(event, data) until _listeners.empty?
       end
 
       # @private
