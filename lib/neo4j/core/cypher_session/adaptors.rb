@@ -43,7 +43,7 @@ module Neo4j
           EMPTY = ''
           NEWLINE_W_SPACES = "\n  "
 
-          instrument(:query, 'neo4j.core.cypher_query', %w(cypher pretty_cypher parameters context)) do |_, start, finish, _id, payload|
+          instrument(:query, 'neo4j.core.cypher_query', %w(cypher pretty_cypher parameters context)) do |_, _start, _finish, _id, payload|
             params_string = (payload[:params] && payload[:params].size > 0 ? "| #{payload[:params].inspect}" : EMPTY)
             cypher = payload[:pretty_cypher] ? NEWLINE_W_SPACES + payload[:pretty_cypher].gsub(/\n/, NEWLINE_W_SPACES) : payload[:cypher]
 
@@ -53,7 +53,7 @@ module Neo4j
           class << self
             def instrument_queries(queries_and_parameters)
               queries_and_parameters.each do |cypher, parameters|
-                instrument_query(cypher, nil, parameters, nil) { }
+                instrument_query(cypher, nil, parameters, nil) {}
               end
             end
           end
