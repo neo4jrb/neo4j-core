@@ -12,4 +12,46 @@ describe Neo4j::Session do
     expect { session._query }.to raise_error 'not implemented'
     expect { Neo4j::Session.open(:foo) }.to raise_error Neo4j::Session::InitializationError
   end
+
+  describe '#on_next_session_available' do
+    let(:foo) { double('Code to be executed when a session is established', called: :foo) }
+
+    context 'with no session active' do
+      before { Neo4j::Session.current.close if Neo4j::Session.current }
+
+      it 'adds the block to the listeners queue' do
+        expect do
+          Neo4j::Session.on_next_session_available { foo.called }
+        end.to change { Neo4j::Session._listeners }
+      end
+
+      it 'does not immediately execute the contents of the block' do
+        expect(foo).not_to receive(:called)
+        Neo4j::Session.on_next_session_available { foo.called }
+      end
+
+      context 'on session available' do
+        before do
+          Neo4j::Session.current.close if Neo4j::Session.current
+          Neo4j::Session.on_next_session_available { foo.called }
+        end
+
+        it 'calls the block and empties the queue' do
+          expect(foo).to receive(:called).exactly(1).times
+          expect { create_appropriate_session }.to change { Neo4j::Session._listeners.empty? }
+        end
+      end
+    end
+
+    context 'with active session' do
+      before { create_appropriate_session unless Neo4j::Session.current }
+
+      it 'immediately calls the block without adding to the listeners queue' do
+        expect(foo).to receive(:called).exactly(1).times
+        expect do
+          Neo4j::Session.on_next_session_available { foo.called }
+        end.not_to change { Neo4j::Session._listeners }
+      end
+    end
+  end
 end
