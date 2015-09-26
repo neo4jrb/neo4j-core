@@ -24,7 +24,7 @@ module Neo4j
           end
 
           def wrap_entity(entity)
-            return entity.map { |e| wrap_entity(e) } if entity.respond_to?(:to_a)
+            return entity.to_a.map { |e| wrap_entity(e) } if entity.respond_to?(:to_a)
 
             if entity.is_a?(Java::OrgNeo4jKernelImplCore::NodeProxy)
               wrap_node(entity)
