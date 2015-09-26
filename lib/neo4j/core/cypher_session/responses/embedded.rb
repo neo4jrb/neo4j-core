@@ -41,19 +41,19 @@ module Neo4j
           def wrap_node(entity)
             ::Neo4j::Core::Node.new(entity.get_id,
                                     entity.get_labels.to_a,
-                                    get_entity_properties(entity))
+                                    get_entity_properties(entity)).wrap
           end
 
           def wrap_relationship(entity)
             ::Neo4j::Core::Relationship.new(entity.get_id,
                                             entity.get_type.name,
-                                            get_entity_properties(entity))
+                                            get_entity_properties(entity)).wrap
           end
 
           def wrap_path(entity)
             ::Neo4j::Core::Path.new(entity.nodes.map(&method(:wrap_node)),
                                     entity.relationships.map(&method(:wrap_relationship)),
-                                    nil)
+                                    nil).wrap
           end
 
           def get_entity_properties(entity)
