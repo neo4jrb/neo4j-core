@@ -26,7 +26,7 @@ require 'neo4j-server'
 require 'rake'
 require 'neo4j/rake_tasks'
 
-if RUBY_PLATFORM == 'java'
+if RUBY_PLATFORM == 'java' && !ENV['WITHOUT_NEO4J_EMBEDDED']
   require 'neo4j-embedded'
 else
   # just for the tests

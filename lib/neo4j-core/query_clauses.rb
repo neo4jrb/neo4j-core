@@ -450,6 +450,10 @@ module Neo4j
           def clause_color
             ANSI::MAGENTA
           end
+
+          def clause_join
+            ' MERGE '
+          end
         end
       end
 
