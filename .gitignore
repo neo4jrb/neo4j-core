@@ -29,4 +29,5 @@ target
 Gemfile.lock
 coverage
 .DS_Store
-
+.ruby-version
+.ruby-gemset
