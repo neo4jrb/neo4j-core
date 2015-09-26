@@ -31,6 +31,8 @@ module Neo4j
             # Should probably do within a transaction in case of errors...
 
             transaction do
+              self.class.instrument_queries(queries_and_parameters)
+
               execution_results = queries_and_parameters.map do |query, parameters|
                 engine.execute(query, HashWithIndifferentAccess.new(parameters))
               end

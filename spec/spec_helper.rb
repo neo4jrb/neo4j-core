@@ -48,7 +48,13 @@ require 'neo4j/core/cypher_session'
 
 module Neo4jSpecHelpers
   def log_queries!
-    Neo4j::Core::CypherSession.subscribe_to_queries do |message|
+    Neo4j::Server::CypherSession.log_with do |message|
+      puts message
+    end
+    Neo4j::Core::CypherSession::Adaptors::Base.subscribe_to_query do |message|
+      puts message
+    end
+    Neo4j::Core::CypherSession::Adaptors::HTTP.subscribe_to_request do |message|
       puts message
     end
   end
@@ -63,8 +69,22 @@ module Neo4jSpecHelpers
   def setup_query_subscription
     $expect_queries_count = 0
 
-    Neo4j::Core::CypherSession::Adaptors::Base.subscribe_to_queries do |_message|
+    Neo4j::Core::CypherSession::Adaptors::Base.subscribe_to_query do |_message|
       $expect_queries_count += 1
+    end
+  end
+
+  def expect_http_requests(count)
+    start_count = $expect_http_request_count
+    yield
+    expect($expect_http_request_count - start_count).to eq(count)
+  end
+
+  def setup_http_request_subscription
+    $expect_http_request_count = 0
+
+    Neo4j::Core::CypherSession::Adaptors::HTTP.subscribe_to_request do |_message|
+      $expect_http_request_count += 1
     end
   end
   # rubocop:enable Style/GlobalVars

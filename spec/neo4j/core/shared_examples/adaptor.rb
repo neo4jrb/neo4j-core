@@ -13,13 +13,13 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
 
   describe 'transactions' do
     it 'lets you execute a query in a transaction' do
-      expect_queries(2) do
+      expect_queries(1) do
         adaptor.start_transaction
         adaptor.query('MATCH n RETURN n LIMIT 1')
         adaptor.end_transaction
       end
 
-      expect_queries(2) do
+      expect_queries(1) do
         adaptor.transaction do
           adaptor.query('MATCH n RETURN n LIMIT 1')
         end

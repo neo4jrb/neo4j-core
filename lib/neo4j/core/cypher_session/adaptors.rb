@@ -1,3 +1,4 @@
+require 'neo4j/core/instrumentable'
 
 module Neo4j
   module Core
@@ -6,6 +7,8 @@ module Neo4j
         MAP = {}
 
         class Base
+          include Neo4j::Core::Instrumentable
+
           def connect(*_args)
             fail '#connect not implemented!'
           end
@@ -37,33 +40,20 @@ module Neo4j
             end_transaction
           end
 
+          EMPTY = ''
+          NEWLINE_W_SPACES = "\n  "
+
+          instrument(:query, 'neo4j.core.cypher_query', %w(cypher pretty_cypher parameters context)) do |_, start, finish, _id, payload|
+            params_string = (payload[:params] && payload[:params].size > 0 ? "| #{payload[:params].inspect}" : EMPTY)
+            cypher = payload[:pretty_cypher] ? NEWLINE_W_SPACES + payload[:pretty_cypher].gsub(/\n/, NEWLINE_W_SPACES) : payload[:cypher]
+
+            " #{ANSI::CYAN}#{payload[:context] || 'CYPHER'}#{ANSI::CLEAR} #{cypher} #{params_string}"
+          end
+
           class << self
-            EMPTY = ''
-            NEWLINE_W_SPACES = "\n  "
-
-            # Missing context
-            def subscribe_to_queries
-              ActiveSupport::Notifications.subscribe('neo4j.cypher_query') do |_, start, finish, _id, payload|
-                ms = (finish - start) * 1000
-                queries_and_parameters = payload[:queries_and_parameters]
-                lines = []
-                lines << "#{ANSI::CYAN}CYPHER#{ANSI::CLEAR}: #{queries_and_parameters.size} queries in #{ANSI::YELLOW}#{ms.round}ms#{ANSI::CLEAR}"
-
-                queries_and_parameters.each do |query, parameters|
-                  params_string = (parameters && parameters.size > 0 ? "| #{parameters.inspect}" : EMPTY)
-
-                  lines << "  #{query} #{params_string}"
-                end
-
-                yield lines.join("\n")
-              end
-            end
-
-            def instrument_queries(queries_and_parameters, options = {})
-              ActiveSupport::Notifications.instrument('neo4j.cypher_query',
-                                                      queries_and_parameters: queries_and_parameters,
-                                                      context: options[:context]) do
-                yield
+            def instrument_queries(queries_and_parameters)
+              queries_and_parameters.each do |cypher, parameters|
+                instrument_query(cypher, nil, parameters, nil) { }
               end
             end
           end

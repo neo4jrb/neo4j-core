@@ -35,8 +35,11 @@ module Neo4j
             request_data = {statements: statements_data}
 
             # context option not implemented
-            faraday_response = self.class.instrument_queries(queries_and_parameters) do
-              @connection.post(full_transaction_url, request_data)
+            self.class.instrument_queries(queries_and_parameters)
+
+            url = full_transaction_url
+            faraday_response = self.class.instrument_request(url, request_data) do
+              @connection.post(url, request_data)
             end
 
             store_transaction_id!(faraday_response)
@@ -66,6 +69,12 @@ module Neo4j
             @transaction_state = nil
 
             true
+          end
+
+          instrument(:request, 'neo4j.core.http.request', %w(url body)) do |_, start, finish, _id, payload|
+            ms = (finish - start) * 1000
+
+            " #{ANSI::BLUE}HTTP REQUEST:#{ANSI::CLEAR} #{ANSI::YELLOW}#{ms.round}ms#{ANSI::CLEAR} #{payload[:url]}"
           end
 
           private

@@ -3,6 +3,7 @@ require 'neo4j/core/cypher_session/adaptors/http'
 require './spec/neo4j/core/shared_examples/adaptor'
 
 describe Neo4j::Core::CypherSession::Adaptors::HTTP do
+  before(:all) { setup_http_request_subscription }
   let(:adaptor_class) { Neo4j::Core::CypherSession::Adaptors::HTTP }
 
   describe '#initialize' do
@@ -21,6 +22,22 @@ describe Neo4j::Core::CypherSession::Adaptors::HTTP do
   let(:adaptor) { adaptor_class.new(url) }
 
   before { adaptor.connect }
+
+  describe 'transactions' do
+    it 'lets you execute a query in a transaction' do
+      expect_http_requests(2) do
+        adaptor.start_transaction
+        adaptor.query('MATCH n RETURN n LIMIT 1')
+        adaptor.end_transaction
+      end
+
+      expect_http_requests(2) do
+        adaptor.transaction do
+          adaptor.query('MATCH n RETURN n LIMIT 1')
+        end
+      end
+    end
+  end
 
   it_behaves_like 'Neo4j::Core::CypherSession::Adaptor'
 end
