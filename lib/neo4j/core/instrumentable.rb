@@ -26,9 +26,7 @@ module Neo4j
               hash = arguments.each_with_index.each_with_object({}) do |(argument, i), result|
                 result[argument.to_sym] = args[i]
               end
-              ActiveSupport::Notifications.instrument(label, hash) do
-                b.call
-              end
+              ActiveSupport::Notifications.instrument(label, hash) { b.call }
             end
           end
         end

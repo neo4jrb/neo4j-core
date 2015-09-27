@@ -26,11 +26,8 @@ module Neo4j
             fail 'Query attempted without a connection' if @connection.nil?
 
             statements_data = queries_and_parameters.map do |query, parameters|
-              {
-                statement: query,
-                parameters: parameters || {},
-                resultDataContents: ROW_REST
-              }
+              {statement: query, parameters: parameters || {},
+               resultDataContents: ROW_REST}
             end
             request_data = {statements: statements_data}
 

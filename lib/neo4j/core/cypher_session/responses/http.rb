@@ -29,9 +29,9 @@ module Neo4j
             row_data.each_with_index.map do |row_datum, i|
               rest_datum = rest_data[i]
 
-              return wrap_entity(row_datum, rest_datum) if rest_datum.is_a?(Array)
-
-              if rest_datum[:labels]
+              if rest_datum.is_a?(Array)
+                wrap_entity(row_datum, rest_datum)
+              elsif rest_datum[:labels]
                 wrap_node(rest_datum)
               elsif rest_datum[:type]
                 wrap_relationship(rest_datum)

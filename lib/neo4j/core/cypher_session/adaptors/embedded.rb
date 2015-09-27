@@ -31,13 +31,15 @@ module Neo4j
             # Should probably do within a transaction in case of errors...
 
             transaction do
-              self.class.instrument_queries(queries_and_parameters)
+              self.class.instrument_transaction do
+                self.class.instrument_queries(queries_and_parameters)
 
-              execution_results = queries_and_parameters.map do |query, parameters|
-                engine.execute(query, HashWithIndifferentAccess.new(parameters))
+                execution_results = queries_and_parameters.map do |query, parameters|
+                  engine.execute(query, HashWithIndifferentAccess.new(parameters))
+                end
+
+                Responses::Embedded.new(execution_results).results
               end
-
-              Responses::Embedded.new(execution_results).results
             end
           end
 
@@ -51,6 +53,12 @@ module Neo4j
             end
 
             @transaction.success
+          end
+
+          instrument(:transaction, 'neo4j.core.embedded.transaction', []) do |_, start, finish, _id, _payload|
+            ms = (finish - start) * 1000
+
+            " #{ANSI::BLUE}EMBEDDED CYPHER TRANSACTION:#{ANSI::CLEAR} #{ANSI::YELLOW}#{ms.round}ms#{ANSI::CLEAR}"
           end
 
           private

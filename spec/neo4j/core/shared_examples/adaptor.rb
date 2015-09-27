@@ -37,8 +37,9 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
 
       expect(result.hashes).to be_a(Array)
       expect(result.hashes.size).to be(1)
-      expect(result.hashes[0][:'[a]']).to be_a(Neo4j::Core::Node)
-      expect(result.hashes[0][:'[a]'].properties).to eq(b: 'c')
+      expect(result.hashes[0][:'[a]']).to be_a(Array)
+      expect(result.hashes[0][:'[a]'][0]).to be_a(Neo4j::Core::Node)
+      expect(result.hashes[0][:'[a]'][0].properties).to eq(b: 'c')
     end
 
     it 'symbolizes keys for Neo4j objects' do
