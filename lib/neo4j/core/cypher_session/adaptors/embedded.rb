@@ -52,6 +52,7 @@ module Neo4j
             end
 
             @transaction.success
+            @transaction.close
           end
 
           instrument(:transaction, 'neo4j.core.embedded.transaction', []) do |_, start, finish, _id, _payload|

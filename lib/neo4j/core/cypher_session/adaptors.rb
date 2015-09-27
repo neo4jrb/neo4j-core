@@ -41,7 +41,7 @@ module Neo4j
             query_set(query_builder.queries)
           end
 
-          def query_set(queries)
+          def query_set(_queries)
             fail '#queries not implemented!'
           end
 
