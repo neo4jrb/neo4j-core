@@ -18,6 +18,49 @@ module Neo4j
 
       attr_accessor :clauses
 
+      class Parameters
+        def initialize(hash = nil)
+          @parameters = (hash || {})
+        end
+
+        def to_hash
+          @parameters
+        end
+
+        def copy
+          self.class.new(@parameters.dup)
+        end
+
+        def add_param(key, value)
+          free_param_key(key).tap do |k|
+            @parameters[k.freeze] = value
+          end
+        end
+
+        def remove_param(key)
+          @parameters.delete(key.to_sym)
+        end
+
+        def add_params(params)
+          params.map do |key, value|
+            add_param(key, value)
+          end
+        end
+
+        private
+
+        def free_param_key(key)
+          k = key.to_sym
+
+          return k if !@parameters.key?(k)
+
+          i = 2
+          i += 1 while @parameters.key?("#{key}#{i}".to_sym)
+
+          "#{key}#{i}".to_sym
+        end
+      end
+
       class << self
         attr_accessor :pretty_cypher
       end
@@ -28,6 +71,7 @@ module Neo4j
         @options = options
         @clauses = []
         @_params = {}
+        @params = Parameters.new
       end
 
       def inspect
@@ -171,9 +215,9 @@ module Neo4j
       #   Query.new.match('(q: Person {id: {id}})').params(id: 12)
       #
       def params(args)
-        @_params = @_params.merge(args)
-
-        self
+        copy.tap do |new_query|
+          new_query.instance_variable_get('@params').add_params(args)
+        end
       end
 
       def unwrapped
@@ -187,6 +231,7 @@ module Neo4j
 
       def response
         return @response if @response
+
         cypher = to_cypher
         pretty_cypher = to_cypher(pretty: true) if self.class.pretty_cypher
 
@@ -268,9 +313,7 @@ module Neo4j
           query.map { |row| row[column] }
         else
           query.map do |row|
-            columns.map do |column|
-              row[column]
-            end
+            columns.map { |column| row[column] }
           end
         end
       end
@@ -290,19 +333,24 @@ module Neo4j
       EMPTY = ' '
       NEWLINE = "\n"
       def to_cypher(options = {})
-        cypher_string = PartitionedClauses.new(@clauses).map do |clauses|
+        join_string = options[:pretty] ? NEWLINE : EMPTY
+
+        cypher_string = partitioned_clauses.map do |clauses|
           clauses_by_class = clauses.group_by(&:class)
 
           cypher_parts = CLAUSES.map do |clause_class|
-            clause_class.to_cypher(clauses, options) if clauses = clauses_by_class[clause_class]
-          end
+            clause_class.to_cypher(clauses, options[:pretty]) if clauses = clauses_by_class[clause_class]
+          end.compact
 
-          cypher_parts.compact!
-          cypher_parts.join(options[:pretty] ? NEWLINE : EMPTY).tap(&:strip!)
-        end.join(options[:pretty] ? NEWLINE : EMPTY)
+          cypher_parts.join(join_string).tap(&:strip!)
+        end.join(join_string)
 
         cypher_string = "CYPHER #{@options[:parser]} #{cypher_string}" if @options[:parser]
         cypher_string.tap(&:strip!)
+      end
+
+      def partitioned_clauses
+        @partitioned_clauses ||= PartitionedClauses.new(@clauses)
       end
 
       def print_cypher
@@ -332,12 +380,12 @@ module Neo4j
         end.params(other._params)
       end
 
-      MEMOIZED_INSTANCE_VARIABLES = [:response, :merge_params]
       def copy
         dup.tap do |query|
-          MEMOIZED_INSTANCE_VARIABLES.each do |var|
-            query.instance_variable_set("@#{var}", nil)
-          end
+          to_cypher
+          query.instance_variable_set('@params', @params.copy)
+          query.instance_variable_set('@partitioned_clauses', nil)
+          query.instance_variable_set('@response', nil)
         end
       end
 
@@ -357,9 +405,7 @@ module Neo4j
       end
 
       def remove_clause_class(clause_class)
-        @clauses = @clauses.reject do |clause|
-          clause.is_a?(clause_class)
-        end
+        @clauses = @clauses.reject { |clause| clause.is_a?(clause_class) }
       end
 
       private
@@ -367,7 +413,7 @@ module Neo4j
       def build_deeper_query(clause_class, args = {}, options = {})
         copy.tap do |new_query|
           new_query.add_clauses [nil] if [nil, WithClause].include?(clause_class)
-          new_query.add_clauses clause_class.from_args(args, options) if clause_class
+          new_query.add_clauses clause_class.from_args(args, new_query.instance_variable_get('@params'), options) if clause_class
         end
       end
 
@@ -430,9 +476,9 @@ module Neo4j
         end
       end
 
+      # SHOULD BE DEPRECATED
       def merge_params
-        @clauses.compact!
-        @merge_params ||= @clauses.inject(@_params) { |params, clause| params.merge!(clause.params) }
+        @params.to_hash
       end
     end
   end

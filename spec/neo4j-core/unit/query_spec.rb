@@ -175,7 +175,7 @@ describe Neo4j::Core::Query do
       end
 
       context 'Query with a where and an order' do
-        let(:query) { Neo4j::Core::Query.new.where(true).order(:foo) }
+        let(:query) { Neo4j::Core::Query.new.where('true').order(:foo) }
         it { should be(true) }
       end
     end
@@ -330,23 +330,23 @@ describe Neo4j::Core::Query do
     end
 
     describe ".where('q.name =~ ?', '.*test.*')" do
-      it_generates 'WHERE (q.name =~ {question_mark_param1})', question_mark_param1: '.*test.*'
+      it_generates 'WHERE (q.name =~ {question_mark_param})', question_mark_param: '.*test.*'
     end
 
     describe ".where('(q.name =~ ?)', '.*test.*')" do
-      it_generates 'WHERE (q.name =~ {question_mark_param1})', question_mark_param1: '.*test.*'
+      it_generates 'WHERE (q.name =~ {question_mark_param})', question_mark_param: '.*test.*'
     end
 
     describe ".where('(LOWER(str(q.name)) =~ ?)', '.*test.*')" do
-      it_generates 'WHERE (LOWER(str(q.name)) =~ {question_mark_param1})', question_mark_param1: '.*test.*'
+      it_generates 'WHERE (LOWER(str(q.name)) =~ {question_mark_param})', question_mark_param: '.*test.*'
     end
 
     describe ".where('q.age IN ?', [30, 32, 34])" do
-      it_generates 'WHERE (q.age IN {question_mark_param1})', question_mark_param1: [30, 32, 34]
+      it_generates 'WHERE (q.age IN {question_mark_param})', question_mark_param: [30, 32, 34]
     end
 
     describe ".where('q.age IN ?', [30, 32, 34]).where('q.age != ?', 60)" do
-      it_generates 'WHERE (q.age IN {question_mark_param1}) AND (q.age != {question_mark_param2})', question_mark_param1: [30, 32, 34], question_mark_param2: 60
+      it_generates 'WHERE (q.age IN {question_mark_param}) AND (q.age != {question_mark_param2})', question_mark_param: [30, 32, 34], question_mark_param2: 60
     end
 
 
@@ -382,6 +382,10 @@ describe Neo4j::Core::Query do
       it_generates 'WHERE (name =~ {name})', name: '(?i)Brian.*'
     end
 
+    describe '.where(name: /Brian.*/i).where(name: /Smith.*/i)' do
+      it_generates 'WHERE (name =~ {name}) AND (name =~ {name2})', name: '(?i)Brian.*', name2: '(?i)Smith.*'
+    end
+
     describe '.where(q: {age: (30..40)})' do
       it_generates 'WHERE (q.age IN RANGE({q_age_range_min}, {q_age_range_max}))', q_age_range_min: 30, q_age_range_max: 40
     end
@@ -405,7 +409,7 @@ describe Neo4j::Core::Query do
     end
 
     describe ".where_not('q.age IN ?', [30, 32, 34])" do
-      it_generates 'WHERE NOT(q.age IN {question_mark_param1})', question_mark_param1: [30, 32, 34]
+      it_generates 'WHERE NOT(q.age IN {question_mark_param})', question_mark_param: [30, 32, 34]
     end
 
     describe ".where_not(q: {age: 30, name: 'Brian'})" do
