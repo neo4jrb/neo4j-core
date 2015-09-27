@@ -24,7 +24,10 @@ module Neo4j
           end
 
           def wrap_entity(entity)
-            return entity.to_a.map { |e| wrap_entity(e) } if entity.respond_to?(:to_a)
+            if entity.is_a?(Array) ||
+               entity.is_a?(Java::ScalaCollectionConvert::Wrappers::SeqWrapper)
+              return entity.to_a.map { |e| wrap_entity(e) }
+            end
 
             if entity.is_a?(Java::OrgNeo4jKernelImplCore::NodeProxy)
               wrap_node(entity)
@@ -33,8 +36,12 @@ module Neo4j
             elsif entity.respond_to?(:path_entities)
               wrap_path(entity)
             else
-              # Convert from Java?
-              entity
+              if entity.is_a?(Java::ScalaCollectionConvert::Wrappers::MapWrapper)
+                entity.each_with_object({}) {|(k, v), r| r[k.to_sym] = v }
+              else
+                # Convert from Java?
+                entity
+              end
             end
           end
 

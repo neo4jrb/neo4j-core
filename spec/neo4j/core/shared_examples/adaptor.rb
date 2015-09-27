@@ -11,25 +11,25 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
     end
   end
 
-  describe 'transactions' do
-    it 'lets you execute a query in a transaction' do
-      expect_queries(1) do
-        adaptor.start_transaction
-        adaptor.query('MATCH n RETURN n LIMIT 1')
-        adaptor.end_transaction
-      end
+  #describe 'transactions' do
+  #  it 'lets you execute a query in a transaction' do
+  #    expect_queries(1) do
+  #      adaptor.start_transaction
+  #      adaptor.query('MATCH n RETURN n LIMIT 1')
+  #      adaptor.end_transaction
+  #    end
 
-      expect_queries(1) do
-        adaptor.transaction do
-          adaptor.query('MATCH n RETURN n LIMIT 1')
-        end
-      end
-    end
+  #    expect_queries(1) do
+  #      adaptor.transaction do
+  #        adaptor.query('MATCH n RETURN n LIMIT 1')
+  #      end
+  #    end
+  #  end
 
-    it 'does not allow transactions in the wrong order' do
-      expect { adaptor.end_transaction }.to raise_error(RuntimeError, /Cannot close transaction without starting one/)
-    end
-  end
+  #  it 'does not allow transactions in the wrong order' do
+  #    expect { adaptor.end_transaction }.to raise_error(RuntimeError, /Cannot close transaction without starting one/)
+  #  end
+  #end
 
   describe 'results' do
     it 'handles array results' do
@@ -42,24 +42,16 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
       expect(result.hashes[0][:'[a]'][0].properties).to eq(b: 'c')
     end
 
-#    it 'symbolizes keys for Neo4j objects' do
-#      puts 1
-#      result = adaptor.query('RETURN {a: 1} AS obj')
-#
-#      # Didn't output 2...
-#      puts 2
-#      expect(result.hashes).to eq([{obj: {a: 1}}])
-#
-#      puts 3
-#      structs = result.structs
-#      puts 4
-#      expect(structs).to be_a(Array)
-#      puts 5
-#      expect(structs.size).to be(1)
-#      puts 6
-#      expect(structs[0].obj).to eq(a: 1)
-#      puts 7
-#    end
+    it 'symbolizes keys for Neo4j objects' do
+      result = adaptor.query('RETURN {a: 1} AS obj')
+
+      expect(result.hashes).to eq([{obj: {a: 1}}])
+
+      structs = result.structs
+      expect(structs).to be_a(Array)
+      expect(structs.size).to be(1)
+      expect(structs[0].obj).to eq(a: 1)
+    end
 
     context 'wrapper class exists' do
       before do
@@ -84,23 +76,23 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
 
       # Normally I don't think you wouldn't wrap nodes/relationships/paths
       # with the same class.  It's just expedient to do so in this spec
-#      it 'Returns wrapped objects from results' do
-#        result = adaptor.query('CREATE path=(n {a: 1})-[r:foo {b: 2}]->(b) RETURN n,r,path')
-#
-#        result_entity = result.hashes[0][:n]
-#        expect(result_entity).to be_a(WrapperClass)
-#        expect(result_entity.wrapped_object).to be_a(Neo4j::Core::Node)
-#        expect(result_entity.wrapped_object.properties).to eq(a: 1)
-#
-#        result_entity = result.hashes[0][:r]
-#        expect(result_entity).to be_a(WrapperClass)
-#        expect(result_entity.wrapped_object).to be_a(Neo4j::Core::Relationship)
-#        expect(result_entity.wrapped_object.properties).to eq(b: 2)
-#
-#        result_entity = result.hashes[0][:path]
-#        expect(result_entity).to be_a(WrapperClass)
-#        expect(result_entity.wrapped_object).to be_a(Neo4j::Core::Path)
-#      end
+      it 'Returns wrapped objects from results' do
+        result = adaptor.query('CREATE path=(n {a: 1})-[r:foo {b: 2}]->(b) RETURN n,r,path')
+
+        result_entity = result.hashes[0][:n]
+        expect(result_entity).to be_a(WrapperClass)
+        expect(result_entity.wrapped_object).to be_a(Neo4j::Core::Node)
+        expect(result_entity.wrapped_object.properties).to eq(a: 1)
+
+        result_entity = result.hashes[0][:r]
+        expect(result_entity).to be_a(WrapperClass)
+        expect(result_entity.wrapped_object).to be_a(Neo4j::Core::Relationship)
+        expect(result_entity.wrapped_object.properties).to eq(b: 2)
+
+        result_entity = result.hashes[0][:path]
+        expect(result_entity).to be_a(WrapperClass)
+        expect(result_entity.wrapped_object).to be_a(Neo4j::Core::Path)
+      end
     end
   end
 end
