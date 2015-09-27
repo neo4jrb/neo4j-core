@@ -13,11 +13,35 @@ module Neo4j
             fail '#connect not implemented!'
           end
 
-          def query(cypher_string, parameters = {})
-            queries([[cypher_string, parameters]])[0]
+          Query = Struct.new(:cypher, :parameters, :pretty_cypher, :context)
+
+          class QueryBuilder
+            attr_reader :queries
+
+            def initialize
+              @queries = []
+            end
+
+            def query(cypher, parameters = {})
+              @queries << Query.new(cypher, parameters)
+            end
           end
 
-          def queries(_queries_and_parameters)
+          def query(cypher, parameters = {})
+            queries do |batch|
+              batch.query(cypher, parameters)
+            end[0]
+          end
+
+          def queries
+            query_builder = QueryBuilder.new
+
+            yield query_builder
+
+            query_set(query_builder.queries)
+          end
+
+          def query_set(queries)
             fail '#queries not implemented!'
           end
 
@@ -43,17 +67,18 @@ module Neo4j
           EMPTY = ''
           NEWLINE_W_SPACES = "\n  "
 
-          instrument(:query, 'neo4j.core.cypher_query', %w(cypher pretty_cypher parameters context)) do |_, _start, _finish, _id, payload|
-            params_string = (payload[:params] && payload[:params].size > 0 ? "| #{payload[:params].inspect}" : EMPTY)
-            cypher = payload[:pretty_cypher] ? NEWLINE_W_SPACES + payload[:pretty_cypher].gsub(/\n/, NEWLINE_W_SPACES) : payload[:cypher]
+          instrument(:query, 'neo4j.core.cypher_query', %w(query)) do |_, _start, _finish, _id, payload|
+            query = payload[:query]
+            params_string = (query.parameters && query.parameters.size > 0 ? "| #{query.parameters.inspect}" : EMPTY)
+            cypher = query.pretty_cypher ? NEWLINE_W_SPACES + query.pretty_cypher.gsub(/\n/, NEWLINE_W_SPACES) : query.cypher
 
-            " #{ANSI::CYAN}#{payload[:context] || 'CYPHER'}#{ANSI::CLEAR} #{cypher} #{params_string}"
+            " #{ANSI::CYAN}#{query.context || 'CYPHER'}#{ANSI::CLEAR} #{cypher} #{params_string}"
           end
 
           class << self
-            def instrument_queries(queries_and_parameters)
-              queries_and_parameters.each do |cypher, parameters|
-                instrument_query(cypher, nil, parameters, nil) {}
+            def instrument_queries(queries)
+              queries.each do |query|
+                instrument_query(query) {}
               end
             end
           end

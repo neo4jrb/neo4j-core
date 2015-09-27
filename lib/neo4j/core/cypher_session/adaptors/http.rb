@@ -22,17 +22,17 @@ module Neo4j
 
           ROW_REST = %w(row REST)
 
-          def queries(queries_and_parameters)
+          def query_set(queries)
             fail 'Query attempted without a connection' if @connection.nil?
 
-            statements_data = queries_and_parameters.map do |query, parameters|
-              {statement: query, parameters: parameters || {},
+            statements_data = queries.map do |query|
+              {statement: query.cypher, parameters: query.parameters || {},
                resultDataContents: ROW_REST}
             end
             request_data = {statements: statements_data}
 
             # context option not implemented
-            self.class.instrument_queries(queries_and_parameters)
+            self.class.instrument_queries(queries)
 
             url = full_transaction_url
             faraday_response = self.class.instrument_request(url, request_data) do
@@ -62,7 +62,7 @@ module Neo4j
 
             # This needs thought through more...
             @transaction_state = :close_requested
-            queries([])
+            query_set([])
             @transaction_state = nil
 
             true

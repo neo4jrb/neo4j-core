@@ -4,6 +4,7 @@ require './spec/neo4j/core/shared_examples/adaptor'
 require 'tmpdir'
 
 describe Neo4j::Core::CypherSession::Adaptors::Embedded do
+  before(:all) { log_queries! }
   let(:adaptor_class) { Neo4j::Core::CypherSession::Adaptors::Embedded }
 
   if RUBY_PLATFORM == 'java'

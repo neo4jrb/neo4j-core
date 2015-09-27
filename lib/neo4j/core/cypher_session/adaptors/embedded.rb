@@ -25,17 +25,16 @@ module Neo4j
             @graph_db = db_service.newGraphDatabase
           end
 
-          def queries(queries_and_parameters)
-            puts 'queries...'
+          def query_set(queries)
             # I think that this is the best way to do a batch in embedded...
             # Should probably do within a transaction in case of errors...
 
             transaction do
               self.class.instrument_transaction do
-                self.class.instrument_queries(queries_and_parameters)
+                self.class.instrument_queries(queries)
 
-                execution_results = queries_and_parameters.map do |query, parameters|
-                  engine.execute(query, HashWithIndifferentAccess.new(parameters))
+                execution_results = queries.map do |query|
+                  engine.execute(query.cypher, HashWithIndifferentAccess.new(query.parameters))
                 end
 
                 Responses::Embedded.new(execution_results).results
