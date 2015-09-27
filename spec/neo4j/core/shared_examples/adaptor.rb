@@ -11,7 +11,7 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
     end
   end
 
-  #describe 'transactions' do
+  # describe 'transactions' do
   #  it 'lets you execute a query in a transaction' do
   #    expect_queries(1) do
   #      adaptor.start_transaction
@@ -29,7 +29,7 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
   #  it 'does not allow transactions in the wrong order' do
   #    expect { adaptor.end_transaction }.to raise_error(RuntimeError, /Cannot close transaction without starting one/)
   #  end
-  #end
+  # end
 
   describe 'results' do
     it 'handles array results' do
