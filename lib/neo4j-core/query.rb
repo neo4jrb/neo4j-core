@@ -313,9 +313,7 @@ module Neo4j
           query.map { |row| row[column] }
         else
           query.map do |row|
-            columns.map do |column|
-              row[column]
-            end
+            columns.map { |column| row[column] }
           end
         end
       end
@@ -335,16 +333,17 @@ module Neo4j
       EMPTY = ' '
       NEWLINE = "\n"
       def to_cypher(options = {})
+        join_string = options[:pretty] ? NEWLINE : EMPTY
+
         cypher_string = partitioned_clauses.map do |clauses|
           clauses_by_class = clauses.group_by(&:class)
 
           cypher_parts = CLAUSES.map do |clause_class|
             clause_class.to_cypher(clauses, options[:pretty]) if clauses = clauses_by_class[clause_class]
-          end
+          end.compact
 
-          cypher_parts.compact!
-          cypher_parts.join(options[:pretty] ? NEWLINE : EMPTY).tap(&:strip!)
-        end.join(options[:pretty] ? NEWLINE : EMPTY)
+          cypher_parts.join(join_string).tap(&:strip!)
+        end.join(join_string)
 
         cypher_string = "CYPHER #{@options[:parser]} #{cypher_string}" if @options[:parser]
         cypher_string.tap(&:strip!)
@@ -406,9 +405,7 @@ module Neo4j
       end
 
       def remove_clause_class(clause_class)
-        @clauses = @clauses.reject do |clause|
-          clause.is_a?(clause_class)
-        end
+        @clauses = @clauses.reject { |clause| clause.is_a?(clause_class) }
       end
 
       private
