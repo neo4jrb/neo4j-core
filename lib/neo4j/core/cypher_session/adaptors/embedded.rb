@@ -7,7 +7,6 @@ module Neo4j
       module Adaptors
         class Embedded < Base
           def initialize(path, options = {})
-            puts 'init...'
             fail 'JRuby is required for embedded mode' if RUBY_PLATFORM != 'java'
             fail ArgumentError, "Invalid path: #{path}" if !File.directory?(path)
 
@@ -16,7 +15,6 @@ module Neo4j
           end
 
           def connect
-            puts 'connect...'
             factory    = Java::OrgNeo4jGraphdbFactory::GraphDatabaseFactory.new
             db_service = factory.newEmbeddedDatabaseBuilder(@path)
             db_service.loadPropertiesFromFile(@options[:properties_file]) if @options[:properties_file]
