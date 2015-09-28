@@ -14,6 +14,14 @@ module Neo4j
           @struct_class = Struct.new(*@columns)
         end
 
+        include Enumerable
+
+        def each
+          structs.each do |struct|
+            yield struct
+          end
+        end
+
         def structs
           @structs ||= rows.map do |row|
             @struct_class.new(*row)

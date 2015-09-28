@@ -31,12 +31,8 @@ module Neo4j
 
               if rest_datum.is_a?(Array)
                 wrap_entity(row_datum, rest_datum)
-              elsif rest_datum[:labels]
-                wrap_node(rest_datum)
-              elsif rest_datum[:type]
-                wrap_relationship(rest_datum)
-              elsif rest_datum[:start]
-                wrap_path(row_datum, rest_datum)
+              elsif (ident = identify_entity(rest_datum))
+                send("wrap_#{ident}", rest_datum, row_datum)
               else
                 row_datum
               end
@@ -45,21 +41,35 @@ module Neo4j
 
           private
 
-          def wrap_node(rest_datum)
+          def identify_entity(rest_datum)
+            self_string = rest_datum[:self]
+            if self_string
+              type = self_string.split('/')[-2]
+              if type == 'node'
+                :node
+              elsif type == 'relationship'
+                :relationship
+              end
+            elsif [:nodes, :relationships, :start, :end, :length].all? { |k| rest_datum.key?(k) }
+              :path
+            end
+          end
+
+          def wrap_node(rest_datum, _)
             metadata_data = rest_datum[:metadata]
             ::Neo4j::Core::Node.new(id_from_rest_datum(rest_datum),
                                     metadata_data && metadata_data[:labels],
                                     rest_datum[:data]).wrap
           end
 
-          def wrap_relationship(rest_datum)
+          def wrap_relationship(rest_datum, _)
             metadata_data = rest_datum[:metadata]
             ::Neo4j::Core::Relationship.new(id_from_rest_datum(rest_datum),
                                             metadata_data && metadata_data[:type],
                                             rest_datum[:data]).wrap
           end
 
-          def wrap_path(row_datum, rest_datum)
+          def wrap_path(rest_datum, row_datum)
             nodes = rest_datum[:nodes].each_with_index.map do |url, i|
               Node.from_url(url, row_datum[2 * i])
             end
