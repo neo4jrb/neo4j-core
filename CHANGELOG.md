@@ -5,6 +5,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
 
+## [5.1.6] - 2015-09-29
+
+### Fixed
+- Fix identification of objects returned from Neo4j which look like nodes or relationships
+
 ## [5.1.5] - 2015-09-27
 
 ### Changed
