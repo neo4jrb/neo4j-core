@@ -86,18 +86,32 @@ module Neo4j
       end
 
       def hash_value_as_object(value, session)
-        data =  case
-                when transaction_response?
-                  add_transaction_entity_id
-                  mapped_rest_data
-                when value[:labels] || value[:type]
-                  add_entity_id(value)
-                  value
-                else
-                  return value
-                end
+        if transaction_response?
+          add_transaction_entity_id
+          data = mapped_rest_data
+        elsif [:node, :relationship].include?(identify_entity(value))
+          add_entity_id(value)
+          data = value
+        else
+          return value
+        end
+
         basic_obj = (node?(value) ? CypherNode : CypherRelationship).new(session, data)
         unwrapped? ? basic_obj : basic_obj.wrapper
+      end
+
+      def identify_entity(data)
+        self_string = data[:self]
+        if self_string
+          type = self_string.split('/')[-2]
+          if type == 'node'
+            :node
+          elsif type == 'relationship'
+            :relationship
+          end
+        elsif [:nodes, :relationships, :start, :end, :length].all? { |k| data.key?(k) }
+          :path
+        end
       end
 
       def looks_like_an_object?(value)
@@ -272,3 +286,4 @@ module Neo4j
     end
   end
 end
+
