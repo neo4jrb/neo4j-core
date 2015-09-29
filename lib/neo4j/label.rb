@@ -59,6 +59,13 @@ module Neo4j
       session._query_or_fail(cypher)
     end
 
+    private
+
+    def validate_index_options!(options)
+      return unless options[:type] && options[:type] != :exact
+      fail "Type #{options[:type]} is not supported"
+    end
+
     class << self
       INDEX_PATH = '/db/data/schema/index/'
       CONSTRAINT_PATH = '/db/data/schema/constraint/'

@@ -258,17 +258,24 @@ RSpec.shared_examples 'Neo4j::Label' do
     describe 'create_index' do
       it 'creates an index on given properties' do
         people = Neo4j::Label.create(:people1)
-        people.drop_index(:name, :things)
+        [:name, :things].each { |i| people.drop_index(i) }
         people.create_index(:name)
         people.create_index(:things)
         expect(people.indexes[:property_keys].count).to eq(2)
+      end
+
+      context 'with invalid options' do
+        it 'raises an error' do
+          people = Neo4j::Label.create(:people1)
+          expect { people.create_index(:name, type: :footype) }.to raise_error StandardError, /is not supported/
+        end
       end
     end
 
     describe 'indexes' do
       it 'returns which properties is indexed' do
         people = Neo4j::Label.create(:people2)
-        people.drop_index(:name1, :name2)
+        [:name1, :name2].each { |i| people.drop_index(i) }
         people.create_index(:name1)
         people.create_index(:name2)
         expect(people.indexes[:property_keys]).to match_array([[:name1], [:name2]])
@@ -278,7 +285,7 @@ RSpec.shared_examples 'Neo4j::Label' do
     describe 'drop_index' do
       it 'drops a index' do
         people = Neo4j::Label.create(:people)
-        people.drop_index(:name, :foo)
+        [:name, :foo].each { |i| people.drop_index(i) }
         people.create_index(:name)
         people.create_index(:foo)
         people.drop_index(:foo)
