@@ -38,9 +38,7 @@ module Neo4j
         end
 
         def each
-          @response.each_data_row do |row|
-            yield struct_rows(row)
-          end
+          @response.each_data_row { |row| yield struct_rows(row) }
         end
 
         def struct_rows(row)
@@ -165,7 +163,7 @@ module Neo4j
         data[:id] = if data[:metadata] && data[:metadata][:id]
                       data[:metadata][:id]
                     else
-                      self.class.id_from_url(data[:self])
+                      data[:self].split('/')[-1].to_i
                     end
         data
       end
@@ -194,11 +192,7 @@ module Neo4j
       end
 
       def each_data_row
-        if @uncommited
-          data.each { |r| yield r[:row] }
-        else
-          data.each { |r| yield r }
-        end
+        data.each { |r| yield (@uncommited ? r[:row] : r) }
       end
 
       def set_data(response)
@@ -235,10 +229,8 @@ module Neo4j
 
       def self.create_with_no_tx(response)
         case response.status
-        when 200
-          new(response).set_data(response.body)
-        when 400
-          new(response).set_error(response.body)
+        when 200 then new(response).set_data(response.body)
+        when 400 then new(response).set_error(response.body)
         else
           fail "Unknown response code #{response.status} for #{response.env[:url]}"
         end
@@ -267,17 +259,9 @@ module Neo4j
         rest_data
       end
 
-      class << self
-        def id_from_url(url)
-          url.split('/')[-1].to_i
-        end
-      end
-
       private
 
-      attr_reader :row_index
-
-      attr_reader :result_index
+      attr_reader :row_index, :result_index
 
       def mapped_rest_data
         data = response.body[:results][0][:data][result_index][:rest][row_index]
@@ -286,4 +270,3 @@ module Neo4j
     end
   end
 end
-
