@@ -68,6 +68,10 @@ module Neo4j
             true
           end
 
+          def version
+            @version ||= @connection.get(db_data_url).body[:neo4j_version]
+          end
+
           instrument(:request, 'neo4j.core.http.request', %w(url body)) do |_, start, finish, _id, payload|
             ms = (finish - start) * 1000
 
@@ -85,7 +89,6 @@ module Neo4j
           end
 
           def full_transaction_url
-            url_base = "#{scheme}://#{host}:#{port}/db/data/transaction"
 
             path = case @transaction_state
                    when nil then '/commit'
@@ -94,7 +97,15 @@ module Neo4j
                    when :close_requested then "/#{@transaction_id}/commit"
                    end
 
-            url_base + path
+            db_data_url + 'transaction' + path
+          end
+
+          def db_data_url
+            url_base + 'db/data/'
+          end
+
+          def url_base
+            "#{scheme}://#{host}:#{port}/"
           end
 
           def connection

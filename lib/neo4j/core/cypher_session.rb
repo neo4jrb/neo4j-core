@@ -16,6 +16,7 @@ module Neo4j
         queries
         start_transaction
         end_transaction
+        version
         transactions
       ).each do |method|
         define_method(method) do |*args|

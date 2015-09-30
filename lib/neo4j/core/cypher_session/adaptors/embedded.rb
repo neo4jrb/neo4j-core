@@ -53,6 +53,16 @@ module Neo4j
             @transaction.close
           end
 
+          def version
+            if defined?(::Neo4j::Community)
+              ::Neo4j::Community::NEO_VERSION
+            elsif defined?(::Neo4j::Enterprise)
+              ::Neo4j::Enterprise::NEO_VERSION
+            else
+              raise 'Could not determine embedded version!'
+            end
+          end
+
           instrument(:transaction, 'neo4j.core.embedded.transaction', []) do |_, start, finish, _id, _payload|
             ms = (finish - start) * 1000
 

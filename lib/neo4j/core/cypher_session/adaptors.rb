@@ -68,6 +68,10 @@ module Neo4j
             fail '#end_transaction not implemented!'
           end
 
+          def version(*_args)
+            fail '#version not implemented!'
+          end
+
           # Uses #start_transaction and #end_transaction to allow
           # execution of queries within a block to be part of a
           # full transaction
