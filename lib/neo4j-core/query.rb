@@ -202,11 +202,8 @@ module Neo4j
 
       def match_nodes(hash, optional_match = false)
         hash.inject(self) do |query, (variable, node_object)|
-          neo_id = if node_object.respond_to?(:neo_id)
-                     node_object.neo_id
-                   else
-                     node_object
-                   end
+          neo_id = (node_object.respond_to?(:neo_id) ? node_object.neo_id : node_object)
+
           match_method = optional_match ? :optional_match : :match
           query.send(match_method, variable).where(variable => {neo_id: neo_id})
         end
@@ -268,11 +265,7 @@ module Neo4j
           column = columns[0]
           query.map { |row| row[column] }
         else
-          query.map do |row|
-            columns.map do |column|
-              row[column]
-            end
-          end
+          query.map { |row| columns.map { |column| row[column] } }
         end
       end
 
@@ -358,9 +351,7 @@ module Neo4j
 
       def clause?(method)
         clause_class = DEFINED_CLAUSES[method] || CLAUSIFY_CLAUSE.call(method)
-        clauses.any? do |clause|
-          clause.is_a?(clause_class)
-        end
+        clauses.any? { |clause| clause.is_a?(clause_class) }
       end
 
       protected
@@ -372,9 +363,7 @@ module Neo4j
       end
 
       def remove_clause_class(clause_class)
-        @clauses = @clauses.reject do |clause|
-          clause.is_a?(clause_class)
-        end
+        @clauses = @clauses.reject { |clause| clause.is_a?(clause_class) }
       end
 
       private
