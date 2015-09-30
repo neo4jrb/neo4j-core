@@ -59,7 +59,7 @@ module Neo4j
             elsif defined?(::Neo4j::Enterprise)
               ::Neo4j::Enterprise::NEO_VERSION
             else
-              raise 'Could not determine embedded version!'
+              fail 'Could not determine embedded version!'
             end
           end
 

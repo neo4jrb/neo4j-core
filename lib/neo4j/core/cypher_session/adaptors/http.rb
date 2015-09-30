@@ -89,7 +89,6 @@ module Neo4j
           end
 
           def full_transaction_url
-
             path = case @transaction_state
                    when nil then '/commit'
                    when :open_requested then ''
