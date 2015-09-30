@@ -11,6 +11,29 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
     end
   end
 
+  describe '#queries' do
+    it 'allows for multiple queries' do
+      result = adaptor.queries do
+        append 'CREATE (n:Label1) RETURN n'
+        append 'CREATE (n:Label2) RETURN n'
+      end
+
+      expect(result[0].to_a[0].n).to be_a(Neo4j::Core::Node)
+      expect(result[1].to_a[0].n).to be_a(Neo4j::Core::Node)
+      expect(result[0].to_a[0].n.labels).to eq([:Label1])
+      expect(result[1].to_a[0].n.labels).to eq([:Label2])
+    end
+
+    it 'allows for building with Query API' do
+      result = adaptor.queries do
+        append query.create(n: {Label1: {}}).return(:n)
+      end
+
+      expect(result[0].to_a[0].n).to be_a(Neo4j::Core::Node)
+      expect(result[0].to_a[0].n.labels).to eq([:Label1])
+    end
+  end
+
   # describe 'transactions' do
   #  it 'lets you execute a query in a transaction' do
   #    expect_queries(1) do

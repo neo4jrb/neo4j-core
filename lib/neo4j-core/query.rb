@@ -23,7 +23,8 @@ module Neo4j
       end
 
       def initialize(options = {})
-        @session = options[:session] || Neo4j::Session.current
+        @session = options[:session]
+        @session = Neo4j::Session.current if !options.key?(:session)
 
         @options = options
         @clauses = []
@@ -303,6 +304,20 @@ module Neo4j
 
         cypher_string = "CYPHER #{@options[:parser]} #{cypher_string}" if @options[:parser]
         cypher_string.tap(&:strip!)
+      end
+      alias_method :cypher, :to_cypher
+
+      def pretty_cypher
+        to_cypher(pretty: true)
+      end
+
+      def context
+        @options[:context]
+      end
+
+      def parameters
+        to_cypher
+        merge_params
       end
 
       def print_cypher

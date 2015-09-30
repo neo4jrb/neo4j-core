@@ -42,13 +42,13 @@ describe Neo4j::Core::CypherSession::Adaptors::HTTP do
   describe 'unwrapping' do
     it 'is not fooled by returned Maps with key expected for nodes/rels/paths' do
       result = adaptor.query('RETURN {labels: 1} AS r')
-      expect(result[0].r).to eq(labels: 1)
+      expect(result.to_a[0].r).to eq(labels: 1)
 
       result = adaptor.query('RETURN {type: 1} AS r')
-      expect(result[0].r).to eq(type: 1)
+      expect(result.to_a[0].r).to eq(type: 1)
 
       result = adaptor.query('RETURN {start: 1} AS r')
-      expect(result[0].r).to eq(start: 1)
+      expect(result.to_a[0].r).to eq(start: 1)
     end
   end
 
