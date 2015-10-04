@@ -66,7 +66,8 @@ module Neo4j
       end
 
       def initialize(options = {})
-        @session = options[:session] || Neo4j::Session.current
+        @session = options[:session]
+        @session = Neo4j::Session.current if !options.key?(:session)
 
         @options = options
         @clauses = []
@@ -246,11 +247,8 @@ module Neo4j
 
       def match_nodes(hash, optional_match = false)
         hash.inject(self) do |query, (variable, node_object)|
-          neo_id = if node_object.respond_to?(:neo_id)
-                     node_object.neo_id
-                   else
-                     node_object
-                   end
+          neo_id = (node_object.respond_to?(:neo_id) ? node_object.neo_id : node_object)
+
           match_method = optional_match ? :optional_match : :match
           query.send(match_method, variable).where(variable => {neo_id: neo_id})
         end
@@ -312,9 +310,7 @@ module Neo4j
           column = columns[0]
           query.map { |row| row[column] }
         else
-          query.map do |row|
-            columns.map { |column| row[column] }
-          end
+          query.map { |row| columns.map { |column| row[column] } }
         end
       end
 
@@ -347,6 +343,20 @@ module Neo4j
 
         cypher_string = "CYPHER #{@options[:parser]} #{cypher_string}" if @options[:parser]
         cypher_string.tap(&:strip!)
+      end
+      alias_method :cypher, :to_cypher
+
+      def pretty_cypher
+        to_cypher(pretty: true)
+      end
+
+      def context
+        @options[:context]
+      end
+
+      def parameters
+        to_cypher
+        merge_params
       end
 
       def partitioned_clauses
@@ -391,9 +401,7 @@ module Neo4j
 
       def clause?(method)
         clause_class = DEFINED_CLAUSES[method] || CLAUSIFY_CLAUSE.call(method)
-        clauses.any? do |clause|
-          clause.is_a?(clause_class)
-        end
+        clauses.any? { |clause| clause.is_a?(clause_class) }
       end
 
       protected

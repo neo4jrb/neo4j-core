@@ -42,6 +42,7 @@ module Neo4j
 
       def version
         # Wow
+        # Yeah, agreed...
         version_string = @graph_db.to_java(Java::OrgNeo4jKernel::GraphDatabaseAPI).getDependencyResolver.resolveDependency(Java::OrgNeo4jKernel::KernelData.java_class).version.to_s
         version_string.split(' ')[-1]
       end

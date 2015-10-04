@@ -44,10 +44,60 @@ RSpec.configure do |c|
   c.include Helpers
 end
 
+require 'neo4j/core/cypher_session'
+
+module Neo4jSpecHelpers
+  def log_queries!
+    Neo4j::Server::CypherSession.log_with do |message|
+      puts message
+    end
+    Neo4j::Core::CypherSession::Adaptors::Base.subscribe_to_query do |message|
+      puts message
+    end
+    Neo4j::Core::CypherSession::Adaptors::HTTP.subscribe_to_request do |message|
+      puts message
+    end
+    Neo4j::Core::CypherSession::Adaptors::Embedded.subscribe_to_transaction do |message|
+      puts message
+    end
+  end
+
+  # rubocop:disable Style/GlobalVars
+  def expect_queries(count)
+    start_count = $expect_queries_count
+    yield
+    expect($expect_queries_count - start_count).to eq(count)
+  end
+
+  def setup_query_subscription
+    $expect_queries_count = 0
+
+    Neo4j::Core::CypherSession::Adaptors::Base.subscribe_to_query do |_message|
+      $expect_queries_count += 1
+    end
+  end
+
+  def expect_http_requests(count)
+    start_count = $expect_http_request_count
+    yield
+    expect($expect_http_request_count - start_count).to eq(count)
+  end
+
+  def setup_http_request_subscription
+    $expect_http_request_count = 0
+
+    Neo4j::Core::CypherSession::Adaptors::HTTP.subscribe_to_request do |_message|
+      $expect_http_request_count += 1
+    end
+  end
+  # rubocop:enable Style/GlobalVars
+end
 
 FileUtils.rm_rf(EMBEDDED_DB_PATH)
 
 RSpec.configure do |c|
+  c.include Neo4jSpecHelpers
+
   c.before(:all, api: :server) do
     Neo4j::Session.current.close if Neo4j::Session.current
     create_server_session
