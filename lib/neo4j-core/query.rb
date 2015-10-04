@@ -42,9 +42,7 @@ module Neo4j
         end
 
         def add_params(params)
-          params.map do |key, value|
-            add_param(key, value)
-          end
+          params.map { |key, value| add_param(key, value) }
         end
 
         private
@@ -216,9 +214,7 @@ module Neo4j
       #   Query.new.match('(q: Person {id: {id}})').params(id: 12)
       #
       def params(args)
-        copy.tap do |new_query|
-          new_query.instance_variable_get('@params').add_params(args)
-        end
+        copy.tap { |new_query| new_query.instance_variable_get('@params').add_params(args) }
       end
 
       def unwrapped
@@ -285,9 +281,7 @@ module Neo4j
       # @return [Boolean] true if successful
       # @raise [Neo4j::Server::CypherResponse::ResponseError] Raises errors from neo4j server
       def exec
-        response
-
-        true
+        response && true
       end
 
       # Return the specified columns as an array.
@@ -315,8 +309,7 @@ module Neo4j
       end
 
       def return_query(columns)
-        query = copy
-        query.remove_clause_class(ReturnClause)
+        (query = copy).remove_clause_class(ReturnClause)
 
         query.return(*columns)
       end
