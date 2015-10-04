@@ -2,7 +2,7 @@ module Neo4j
   module Embedded
     class EmbeddedRelationship
       class << self
-        if Neo4j::Core::Config.using_new_session?
+        if !Neo4j::Core::Config.using_new_session?
           Java::OrgNeo4jKernelImplCore::RelationshipProxy.class_eval do
             include Neo4j::Embedded::Property
             include Neo4j::EntityEquality

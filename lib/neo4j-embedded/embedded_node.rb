@@ -49,7 +49,7 @@ module Neo4j
 
     class EmbeddedNode < Neo4j::Node
       class << self
-        if Neo4j::Core::Config.using_new_session?
+        if !Neo4j::Core::Config.using_new_session?
           # This method is used to extend a Java Neo4j class so that it includes the same mixins as this class.
           Java::OrgNeo4jKernelImplCore::NodeProxy.class_eval do
             include Neo4j::Embedded::Property

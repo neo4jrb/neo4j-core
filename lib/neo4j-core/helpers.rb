@@ -16,7 +16,7 @@ module Neo4j
 
     module Config
       def self.using_new_session?
-        !ENV.key?('LEGACY_NEO4J_SESSIONS') && ENV.key?('NEW_NEO4J_SESSIONS')
+        !ENV.key?('LEGACY_NEO4J_SESSIONS') || ENV.key?('NEW_NEO4J_SESSIONS')
       end
     end
   end
