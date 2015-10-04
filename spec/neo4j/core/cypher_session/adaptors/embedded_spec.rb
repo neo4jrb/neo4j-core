@@ -16,10 +16,13 @@ describe Neo4j::Core::CypherSession::Adaptors::Embedded do
         end
       end
 
-      let(:path) { Dir.mktmpdir('neo4jrb_embedded_adaptor_spec') }
-      let(:adaptor) { adaptor_class.new(path) }
+      before(:all) do
+        path = Dir.mktmpdir('neo4jrb_embedded_adaptor_spec')
+        @adaptor = Neo4j::Core::CypherSession::Adaptors::Embedded.new(path)
+        @adaptor.connect
+      end
 
-      before { adaptor.connect }
+      let(:adaptor) { @adaptor }
 
       it_behaves_like 'Neo4j::Core::CypherSession::Adaptor'
     else

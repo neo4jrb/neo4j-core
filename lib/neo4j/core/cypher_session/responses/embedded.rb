@@ -40,7 +40,7 @@ module Neo4j
 
           def wrap_node(entity)
             ::Neo4j::Core::Node.new(entity.get_id,
-                                    entity.get_labels.to_a,
+                                    entity.get_labels.map(&:to_s),
                                     get_entity_properties(entity)).wrap
           end
 
