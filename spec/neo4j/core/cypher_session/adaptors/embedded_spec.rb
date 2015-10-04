@@ -3,7 +3,7 @@ require 'neo4j/core/cypher_session/adaptors/embedded'
 require './spec/neo4j/core/shared_examples/adaptor'
 require 'tmpdir'
 
-describe Neo4j::Core::CypherSession::Adaptors::Embedded do
+describe Neo4j::Core::CypherSession::Adaptors::Embedded, new_cypher_session: true do
   let(:adaptor_class) { Neo4j::Core::CypherSession::Adaptors::Embedded }
 
   if Neo4j::Core::Config.using_new_session?
