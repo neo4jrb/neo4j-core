@@ -568,7 +568,7 @@ describe Neo4j::Core::Query do
     end
 
     describe '.limit(3).limit(5)' do
-      it_generates 'LIMIT {limit_5}', limit_5: 5
+      it_generates 'LIMIT {limit_5}', limit_3: 3, limit_5: 5
     end
 
     describe '.limit(nil)' do
@@ -588,7 +588,7 @@ describe Neo4j::Core::Query do
     end
 
     describe '.skip(5).skip(10)' do
-      it_generates 'SKIP {skip_10}', skip_10: 10
+      it_generates 'SKIP {skip_10}', skip_5: 5, skip_10: 10
     end
 
     describe '.offset(6)' do
