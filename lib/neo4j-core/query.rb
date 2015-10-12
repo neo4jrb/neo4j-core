@@ -158,9 +158,7 @@ module Neo4j
       METHODS = %w(start match optional_match using where create create_unique merge set on_create_set on_match_set remove unwind delete with return order skip limit)
       BREAK_METHODS = %(with)
 
-      CLAUSIFY_CLAUSE = proc do |method|
-        const_get(method.to_s.split('_').map(&:capitalize).join + 'Clause')
-      end
+      CLAUSIFY_CLAUSE = proc { |method| const_get(method.to_s.split('_').map(&:capitalize).join + 'Clause') }
 
       CLAUSES = METHODS.map(&CLAUSIFY_CLAUSE)
 
@@ -216,9 +214,7 @@ module Neo4j
       #   Query.new.match('(q: Person {id: {id}})').params(id: 12)
       #
       def params(args)
-        copy.tap do |new_query|
-          new_query.instance_variable_get('@params').add_params(args)
-        end
+        copy.tap { |new_query| new_query.instance_variable_get('@params').add_params(args) }
       end
 
       def unwrapped
@@ -238,11 +234,7 @@ module Neo4j
 
         @response = @session._query(cypher, merge_params, context: @options[:context], pretty_cypher: pretty_cypher)
 
-        if !response.respond_to?(:error?) || !response.error?
-          response
-        else
-          response.raise_cypher_error
-        end
+        (!response.respond_to?(:error?) || !response.error?) ? response : response.raise_cypher_error
       end
 
       def match_nodes(hash, optional_match = false)
@@ -486,6 +478,8 @@ module Neo4j
 
       # SHOULD BE DEPRECATED
       def merge_params
+        @clauses.compact!
+        @merge_params ||= @clauses.inject(@params.to_hash) { |params, clause| params.merge!(clause.params) }
         @params.to_hash
       end
     end

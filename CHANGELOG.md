@@ -5,6 +5,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
 
+### Changed
+- Removed `Neo4j::Session#on_session_available`, replaced with `Neo4j::Session#on_next_session_available`. The new method will empty its queue as it is played.
+- Refactored `Neo4j::Label#create_index` and `Neo4j::Label#create_constraint` to have compatible signatures. As part of the refactoring of `Neo4j::Label#creator_index`, the method no longer accepts multiple properties. The method will need to be called once for each, when needed.
+
 ## [5.1.6] - 2015-09-29
 
 ### Fixed
