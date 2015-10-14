@@ -149,8 +149,8 @@ module Neo4j
 
       # Registers a callback which will be called immediately if session is already available,
       # or called when it later becomes available.
-      def on_session_available
-        yield Neo4j::Session.current if Neo4j::Session.current
+      def on_next_session_available
+        return yield(Neo4j::Session.current) if Neo4j::Session.current
 
         add_listener do |event, data|
           yield data if event == :session_available
@@ -185,7 +185,7 @@ module Neo4j
 
       # @private
       def _notify_listeners(event, data)
-        _listeners.each { |li| li.call(event, data) }
+        _listeners.shift.call(event, data) until _listeners.empty?
       end
 
       # @private

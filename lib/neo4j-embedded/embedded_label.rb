@@ -32,9 +32,11 @@ module Neo4j
         self.class.as_java(@name.to_s)
       end
 
-      def create_index(*properties)
-        index_creator = @session.graph_db.schema.index_for(as_java)
+      def create_index(property, options = {}, session = Neo4j::Session.current)
+        validate_index_options!(options)
+        index_creator = session.graph_db.schema.index_for(as_java)
         # we can also use the PropertyConstraintCreator here
+        properties = property.is_a?(Array) ? property : [property]
         properties.inject(index_creator) { |creator, key| creator.on(key.to_s) }.create
       end
       tx_methods :create_index
@@ -59,8 +61,10 @@ module Neo4j
       tx_methods :uniqueness_constraints
 
 
-      def drop_index(*properties)
-        @session.graph_db.schema.indexes(as_java).each do |index_def|
+      def drop_index(property, options = {}, session = Neo4j::Session.current)
+        validate_index_options!(options)
+        properties = property.is_a?(Array) ? property : [property]
+        session.graph_db.schema.indexes(as_java).each do |index_def|
           # at least one match, TODO
           keys = index_def.property_keys.map(&:to_sym)
           index_def.drop if (properties - keys).count < properties.count

@@ -22,6 +22,10 @@ module Helpers
     ENV['NEO4J_URL'] || 'http://localhost:7474'
   end
 
+  def create_appropriate_session
+    defined?(Neo4j::Community) && RUBY_PLATFORM == 'java' ? create_embedded_session.start : create_server_session
+  end
+
   def create_server_session(options = {})
     Neo4j::Session.open(:server_db, server_url, {basic_auth: basic_auth_hash}.merge!(options))
   end
