@@ -5,6 +5,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
 
+
+## [5.1.7] - 2015-10-14
+
+### Added
+- Update `neo4j-rake_tasks` to add `shell` task
+
 ## [5.1.6] - 2015-09-29
 
 ### Fixed
