@@ -3,7 +3,13 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [6.0.0.alpha.1] - 2015-10-12 
+## [6.0.0.alpha.2] - 2015-10-17
+
+### Changed
+
+- Depends on `neo4j-rake_tasks` ~> 0.3.0.
+
+## [6.0.0.alpha.1] - 2015-10-12
 
 ### Changed
 - Removed `Neo4j::Session#on_session_available`, replaced with `Neo4j::Session#on_next_session_available`. The new method will empty its queue as it is played.
