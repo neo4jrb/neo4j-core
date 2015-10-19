@@ -8,6 +8,9 @@ module Neo4j
 
       include Wrappable
 
+      # Perhaps we should deprecate this?
+      alias_method :neo_id, :id
+
       def initialize(id, labels, properties = {})
         @id = id
         @labels = labels.map(&:to_sym) unless labels.nil?

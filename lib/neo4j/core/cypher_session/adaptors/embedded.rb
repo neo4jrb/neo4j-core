@@ -53,6 +53,10 @@ module Neo4j
             @transaction.close
           end
 
+          def transaction_started?
+            !!@transaction
+          end
+
           def version
             if defined?(::Neo4j::Community)
               ::Neo4j::Community::NEO_VERSION

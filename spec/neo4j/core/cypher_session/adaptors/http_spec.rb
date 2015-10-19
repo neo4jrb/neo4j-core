@@ -31,6 +31,11 @@ describe Neo4j::Core::CypherSession::Adaptors::HTTP, new_cypher_session: true do
         adaptor.end_transaction
       end
 
+      expect_http_requests(0) do
+        adaptor.transaction do
+        end
+      end
+
       expect_http_requests(2) do
         adaptor.transaction do
           adaptor.query('MATCH n RETURN n LIMIT 1')

@@ -42,9 +42,9 @@ module Neo4j
             end
           end
 
-          def query(cypher, parameters = {})
+          def query(*args)
             queries do
-              append(cypher, parameters)
+              append(*args)
             end[0]
           end
 
@@ -68,6 +68,10 @@ module Neo4j
             fail '#end_transaction not implemented!'
           end
 
+          def transaction_started?(*_args)
+            fail '#transaction_started? not implemented!'
+          end
+
           def version(*_args)
             fail '#version not implemented!'
           end
@@ -80,7 +84,7 @@ module Neo4j
 
             yield
           ensure
-            end_transaction
+            end_transaction if transaction_started?
           end
 
           EMPTY = ''

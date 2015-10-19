@@ -17,10 +17,11 @@ module Neo4j
         start_transaction
         end_transaction
         version
-        transactions
-      ).each do |method|
-        define_method(method) do |*args|
-          @adaptor.send(method, *args)
+        transaction
+        transaction_started?
+      ).each do |method, &block|
+        define_method(method) do |*args, &block|
+          @adaptor.send(method, *args, &block)
         end
       end
     end

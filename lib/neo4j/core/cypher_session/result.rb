@@ -11,7 +11,8 @@ module Neo4j
         def initialize(columns, rows)
           @columns = columns.map(&:to_sym)
           @rows = rows
-          @struct_class = Struct.new(*@columns)
+          puts '@columns', @columns.inspect
+          @struct_class = Struct.new(:index, *@columns)
         end
 
         include Enumerable
@@ -23,8 +24,8 @@ module Neo4j
         end
 
         def structs
-          @structs ||= rows.map do |row|
-            @struct_class.new(*row)
+          @structs ||= rows.each_with_index.map do |row, index|
+            @struct_class.new(index, *row)
           end
         end
 

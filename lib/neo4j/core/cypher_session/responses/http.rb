@@ -89,8 +89,12 @@ module Neo4j
           end
 
           def validate_faraday_response!(faraday_response)
-            if error = faraday_response.body[:errors][0]
-              fail CypherError, "#{ANSI::CYAN}#{error[:code]}#{ANSI::CLEAR}: #{error[:message]}"
+            if faraday_response.body.is_a?(Hash) && error = faraday_response.body[:errors][0]
+              error = <<-ERROR
+  Request to: #{ANSI::BOLD}#{faraday_response.env.url.to_s}#{ANSI::CLEAR}
+  #{ANSI::CYAN}#{error[:code]}#{ANSI::CLEAR}: #{error[:message]}
+ERROR
+              fail CypherError, error
             end
 
             return if (200..299).include?(status = faraday_response.status)
