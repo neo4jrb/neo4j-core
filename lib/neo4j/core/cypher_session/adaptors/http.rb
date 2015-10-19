@@ -36,9 +36,6 @@ module Neo4j
 
             if url = full_transaction_url
               faraday_response = self.class.instrument_request(url, request_data) do
-                puts "url: #{url.inspect}"
-                puts 'request_data'
-                puts request_data
                 @connection.post(url, request_data)
               end
 
@@ -80,6 +77,30 @@ module Neo4j
           def version
             @version ||= @connection.get(db_data_url).body[:neo4j_version]
           end
+
+          # Schema inspection methods
+          def indexes_for_label(label)
+            url = db_data_url + "schema/index/#{label}"
+            response = @connection.get(url)
+
+            if response.body && response.body[0]
+              response.body[0][:property_keys].map(&:to_sym)
+            else
+              []
+            end
+          end
+
+          def uniqueness_constraints_for_label(label)
+            url = db_data_url + "schema/constraint/#{label}/uniqueness"
+            response = @connection.get(url)
+
+            if response.body && response.body[0]
+              response.body[0][:property_keys].map(&:to_sym)
+            else
+              []
+            end
+          end
+
 
           instrument(:request, 'neo4j.core.http.request', %w(url body)) do |_, start, finish, _id, payload|
             ms = (finish - start) * 1000

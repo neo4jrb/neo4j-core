@@ -14,11 +14,16 @@ module Neo4j
       %w(
         query
         queries
+
         start_transaction
         end_transaction
-        version
         transaction
         transaction_started?
+
+        version
+
+        indexes_for_label
+        uniqueness_constraints_for_label
       ).each do |method, &block|
         define_method(method) do |*args, &block|
           @adaptor.send(method, *args, &block)

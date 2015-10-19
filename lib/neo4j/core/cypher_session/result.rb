@@ -11,7 +11,6 @@ module Neo4j
         def initialize(columns, rows)
           @columns = columns.map(&:to_sym)
           @rows = rows
-          puts '@columns', @columns.inspect
           @struct_class = Struct.new(:index, *@columns)
         end
 

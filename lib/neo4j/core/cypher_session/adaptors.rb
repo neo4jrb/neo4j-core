@@ -43,9 +43,7 @@ module Neo4j
           end
 
           def query(*args)
-            queries do
-              append(*args)
-            end[0]
+            queries { append(*args) }[0]
           end
 
           def queries(&block)
@@ -75,6 +73,16 @@ module Neo4j
           def version(*_args)
             fail '#version not implemented!'
           end
+
+          # Schema inspection methods
+          def indexes_for_label(*_args)
+            fail '#indexes_for_label not implemented!'
+          end
+
+          def uniqueness_constraints_for_label(*_args)
+            fail '#uniqueness_constraints_for_label not implemented!'
+          end
+
 
           # Uses #start_transaction and #end_transaction to allow
           # execution of queries within a block to be part of a
