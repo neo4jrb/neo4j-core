@@ -31,3 +31,6 @@ coverage
 .DS_Store
 .ruby-version
 .ruby-gemset
+
+# dotenv
+.env

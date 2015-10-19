@@ -12,6 +12,9 @@ if ENV['COVERAGE']
   SimpleCov.start
 end
 
+require 'dotenv'
+Dotenv.load
+
 require 'rubygems'
 require 'bundler/setup'
 require 'rspec'

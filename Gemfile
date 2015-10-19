@@ -15,4 +15,5 @@ group 'test' do
   gem 'simplecov-html', require: false
   gem 'rspec', '~> 3.0'
   gem 'rspec-its'
+  gem 'dotenv'
 end
