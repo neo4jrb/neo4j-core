@@ -233,10 +233,10 @@ module Neo4j
         pretty_cypher = to_cypher(pretty: true) if self.class.pretty_cypher
 
         @response = if @session.is_a?(::Neo4j::Core::CypherSession)
-          @session.query(self)
-        else
-          @session._query(cypher, merge_params, context: @options[:context], pretty_cypher: pretty_cypher)
-        end
+                      @session.query(self)
+                    else
+                      @session._query(cypher, merge_params, context: @options[:context], pretty_cypher: pretty_cypher)
+                    end
 
         (!@response.respond_to?(:error?) || !response.error?) ? @response : @response.raise_cypher_error
       end

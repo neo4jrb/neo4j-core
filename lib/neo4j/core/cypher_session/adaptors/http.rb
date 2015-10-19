@@ -34,15 +34,15 @@ module Neo4j
             # context option not implemented
             self.class.instrument_queries(queries)
 
-            if url = full_transaction_url
-              faraday_response = self.class.instrument_request(url, request_data) do
-                @connection.post(url, request_data)
-              end
+            return unless url = full_transaction_url
 
-              store_transaction_id!(faraday_response)
-
-              Responses::HTTP.new(faraday_response, request_data).results
+            faraday_response = self.class.instrument_request(url, request_data) do
+              @connection.post(url, request_data)
             end
+
+            store_transaction_id!(faraday_response)
+
+            Responses::HTTP.new(faraday_response, request_data).results
           end
 
           def start_transaction
@@ -119,13 +119,10 @@ module Neo4j
           end
 
           def full_transaction_url
-            path = case @transaction_state
-                   when nil then '/commit'
-                   when :open_requested then ''
-                   when :open then "/#{@transaction_id}"
-                   when :close_requested
-                     @transaction_id ? "/#{@transaction_id}/commit" : nil
-                   end
+            path = ''
+            path << "/#{@transaction_id}" if [:open, :close_requested].include?(@transaction_state)
+            path << '/commit' if [nil, :close_requested].include?(@transaction_state)
+            path = nil if @transaction_state == :close_requested && !@transaction_id
 
             db_data_url + 'transaction' + path if path
           end

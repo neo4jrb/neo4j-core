@@ -5,6 +5,8 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
 
   # TODO: Test cypher errors
 
+  after { adaptor.end_transaction if adaptor.transaction_started? }
+
   describe '#query' do
     it 'Can make a query' do
       adaptor.query('MERGE path=n-[rel:r]->(o) RETURN n, rel, o, path LIMIT 1')
@@ -45,23 +47,23 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
   end
 
   describe 'transactions' do
-   it 'lets you execute a query in a transaction' do
-     expect_queries(1) do
-       adaptor.start_transaction
-       adaptor.query('MATCH n RETURN n LIMIT 1')
-       adaptor.end_transaction
-     end
+    it 'lets you execute a query in a transaction' do
+      expect_queries(1) do
+        adaptor.start_transaction
+        adaptor.query('MATCH n RETURN n LIMIT 1')
+        adaptor.end_transaction
+      end
 
-     expect_queries(1) do
-       adaptor.transaction do
-         adaptor.query('MATCH n RETURN n LIMIT 1')
-       end
-     end
-   end
+      expect_queries(1) do
+        adaptor.transaction do
+          adaptor.query('MATCH n RETURN n LIMIT 1')
+        end
+      end
+    end
 
-   it 'does not allow transactions in the wrong order' do
-     expect { adaptor.end_transaction }.to raise_error(RuntimeError, /Cannot close transaction without starting one/)
-   end
+    it 'does not allow transactions in the wrong order' do
+      expect { adaptor.end_transaction }.to raise_error(RuntimeError, /Cannot close transaction without starting one/)
+    end
   end
 
   describe 'results' do
@@ -167,7 +169,5 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
         end
       end
     end
-
-
   end
 end

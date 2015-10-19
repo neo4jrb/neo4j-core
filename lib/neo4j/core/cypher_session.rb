@@ -24,7 +24,7 @@ module Neo4j
 
         indexes_for_label
         uniqueness_constraints_for_label
-      ).each do |method, &block|
+      ).each do |method, &_block|
         define_method(method) do |*args, &block|
           @adaptor.send(method, *args, &block)
         end
