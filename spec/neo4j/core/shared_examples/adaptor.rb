@@ -131,43 +131,43 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
     end
   end
 
-  # describe 'schema inspection methods' do
-  #   describe 'indexes_for_label' do
-  #     let(:label) { "Foo#{SecureRandom.hex[0,10]}" }
-  #     subject { adaptor.indexes_for_label(label) }
+  describe 'schema inspection methods' do
+    describe 'indexes_for_label' do
+      let(:label) { "Foo#{SecureRandom.hex[0,10]}" }
+      subject { adaptor.indexes_for_label(label) }
 
-  #     it { should eq([]) }
+      it { should eq([]) }
 
-  #     context 'index has been created' do
-  #       before { adaptor.query("CREATE INDEX ON :#{label}(bar)") }
+      context 'index has been created' do
+        before { adaptor.query("CREATE INDEX ON :#{label}(bar)") }
 
-  #       it { should eq([:bar]) }
+        it { should eq([:bar]) }
 
-  #       context 'index has been dropped' do
-  #         before { adaptor.query("DROP INDEX ON :#{label}(bar)") }
+        context 'index has been dropped' do
+          before { adaptor.query("DROP INDEX ON :#{label}(bar)") }
 
-  #         it { should eq([]) }
-  #       end
-  #     end
-  #   end
+          it { should eq([]) }
+        end
+      end
+    end
 
-  #   describe 'uniqueness_constraints_for_label' do
-  #     let(:label) { "Foo#{SecureRandom.hex[0,10]}" }
-  #     subject { adaptor.uniqueness_constraints_for_label(label) }
+    describe 'uniqueness_constraints_for_label' do
+      let(:label) { "Foo#{SecureRandom.hex[0,10]}" }
+      subject { adaptor.uniqueness_constraints_for_label(label) }
 
-  #     it { should eq([]) }
+      it { should eq([]) }
 
-  #     context 'constraint has been created' do
-  #       before { adaptor.query("CREATE CONSTRAINT ON (n:#{label}) ASSERT n.bar IS UNIQUE") }
+      context 'constraint has been created' do
+        before { adaptor.query("CREATE CONSTRAINT ON (n:#{label}) ASSERT n.bar IS UNIQUE") }
 
-  #       it { should eq([:bar]) }
+        it { should eq([:bar]) }
 
-  #       context 'constraint has been dropped' do
-  #         before { adaptor.query("DROP CONSTRAINT ON (n:#{label}) ASSERT n.bar IS UNIQUE") }
+        context 'constraint has been dropped' do
+          before { adaptor.query("DROP CONSTRAINT ON (n:#{label}) ASSERT n.bar IS UNIQUE") }
 
-  #         it { should eq([]) }
-  #       end
-  #     end
-  #   end
-  # end
+          it { should eq([]) }
+        end
+      end
+    end
+  end
 end
