@@ -49,6 +49,8 @@ end
 
 require 'neo4j/core/cypher_session'
 
+require 'neo4j/core/cypher_session/adaptors/http'
+require 'neo4j/core/cypher_session/adaptors/embedded'
 module Neo4jSpecHelpers
   def log_queries!
     Neo4j::Server::CypherSession.log_with do |message|

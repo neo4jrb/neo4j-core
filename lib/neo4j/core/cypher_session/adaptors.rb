@@ -1,3 +1,4 @@
+require 'neo4j/core/cypher_session'
 require 'neo4j/core/instrumentable'
 
 module Neo4j

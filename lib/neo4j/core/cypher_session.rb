@@ -1,4 +1,3 @@
-require 'neo4j/core/cypher_session/adaptors/http'
 
 module Neo4j
   module Core
