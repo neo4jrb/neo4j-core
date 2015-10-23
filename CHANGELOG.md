@@ -5,6 +5,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
 
+## [5.1.9] - 2015-10-23
+
+### Fixed
+
+- Improved logic around auto-closing transactions in 2.3.0
+
+## [5.1.8] - 2015-10-23 (Yanked)
+
+### Fixed
+
+- Support for Neo4j 2.3.0, particularly a bug related to closing transactions
 
 ## [5.1.7] - 2015-10-14
 
