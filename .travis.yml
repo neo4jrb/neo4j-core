@@ -19,9 +19,9 @@ matrix:
 
     # Sanity check against Neo4j 2.3.x with MRI and JRuby
     - rvm: 2.2.3
-      env: RSPEC_TAGS=~new_cypher_session NEO4J_VERSION=community-2.3.0-M03
+      env: RSPEC_TAGS=~new_cypher_session NEO4J_VERSION=community-2.3.0
     - rvm: jruby-9.0.0.0
-      env: RSPEC_TAGS=~new_cypher_session NEO4J_VERSION=community-2.3.0-M03
+      env: RSPEC_TAGS=~new_cypher_session NEO4J_VERSION=community-2.3.0
 
     # Testing new CypherSession
     - rvm: 2.2.3
