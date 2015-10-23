@@ -22,7 +22,11 @@ module Neo4j
       alias_method :failure?, :failed?
 
       def autoclosed!
-        @autoclosed = true
+        @autoclosed = true if transient_failures_autoclose?
+      end
+
+      def transient_failures_autoclose?
+        Neo4j::Session.current.version >= '2.3.0'
       end
 
       def autoclosed?
