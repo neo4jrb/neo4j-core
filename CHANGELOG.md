@@ -3,6 +3,18 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [6.0.0.alpha.4] - 2015-10-23
+
+### Fixed
+
+- Corrected logic for auto-closing transactions.
+
+## [6.0.0.alpha.3] - 2015-10-23 (yanked)
+
+### Fixed
+
+- Support for Neo4j 2.3.0, particularly issues RE: auto-closing transactions
+
 ## [6.0.0.alpha.2] - 2015-10-17
 
 ### Changed

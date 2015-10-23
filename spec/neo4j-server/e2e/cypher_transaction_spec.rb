@@ -1,5 +1,6 @@
 require 'spec_helper'
 
+# rubocop:disable Metrics/ModuleLength
 module Neo4j
   module Server
     describe CypherTransaction, api: :server do
@@ -81,6 +82,17 @@ module Neo4j
         it 'can use Transaction block style' do
           node = Neo4j::Transaction.run { Neo4j::Node.create(name: 'andreas') }
           expect(node[:name]).to eq('andreas')
+        end
+      end
+
+      describe 'autoclosing and #post_close!' do
+        # 10/23/2015: Having trouble making specs behave with transactions, leaving this as is to get things stable.
+        # TODO: Test this more thoroughly.
+        it 'only proceeds with delete/commit if not autoclosed' do
+          expect_any_instance_of(Neo4j::Server::CypherTransaction).to receive(:autoclosed?).and_return(false)
+          expect_any_instance_of(Neo4j::Server::CypherTransaction).to receive(:failed?).and_call_original
+          tx = Neo4j::Transaction.new
+          tx.close
         end
       end
 
@@ -200,3 +212,4 @@ module Neo4j
     end
   end
 end
+# rubocop:enable Metrics/ModuleLength
