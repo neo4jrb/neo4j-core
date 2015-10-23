@@ -73,6 +73,12 @@ module Neo4j
         return if @pushed_nested >= 0
         fail "Can't commit transaction, already committed" if @pushed_nested < -1
         Neo4j::Transaction.unregister(self)
+        post_close!
+      end
+
+      private
+
+      def post_close!
         return if autoclosed?
         if failed?
           delete

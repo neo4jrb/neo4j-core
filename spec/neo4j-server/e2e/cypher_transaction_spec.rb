@@ -84,6 +84,17 @@ module Neo4j
         end
       end
 
+      describe 'autoclosing and #post_close!' do
+        # 10/23/2015: Having trouble making specs behave with transactions, leaving this as is to get things stable.
+        # TODO: Test this more thoroughly.
+        it 'only proceeds with delete/commit if not autoclosed' do
+          expect_any_instance_of(Neo4j::Server::CypherTransaction).to receive(:autoclosed?).and_return(false)
+          expect_any_instance_of(Neo4j::Server::CypherTransaction).to receive(:failed?).and_call_original
+          tx = Neo4j::Transaction.new
+          tx.close
+        end
+      end
+
       describe Neo4j::Label do
         describe '.find_nodes' do
           it 'find and can load them' do
