@@ -21,6 +21,14 @@ module Neo4j
       end
       alias_method :failure?, :failed?
 
+      def autoclosed!
+        @autoclosed = true
+      end
+
+      def autoclosed?
+        !!@autoclosed
+      end
+
       def mark_expired
         @expired = true
       end
@@ -61,15 +69,12 @@ module Neo4j
         return if @pushed_nested >= 0
         fail "Can't commit transaction, already committed" if @pushed_nested < -1
         Neo4j::Transaction.unregister(self)
+        return if autoclosed?
         if failed?
-          delete unless failed_transactions_close_themselves?
+          delete
         else
           commit
         end
-      end
-
-      def failed_transactions_close_themselves?
-        Neo4j::Session.current.version >= '2.3.0'
       end
     end
 
