@@ -27,7 +27,7 @@ module Neo4j
       context 'where queries are made' do
         it 'can open and close a transaction' do
           tx = session.begin_tx
-          tx._query("CREATE (n:Student { name: 'John' } RETURN n")
+          tx._query("CREATE (n:Student { name: 'John' }) RETURN n")
           response = tx.close
           expect(response.status).to eq 200
           expect(response).to be_a(Faraday::Response)
