@@ -18,6 +18,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - New session, adaptors, and rewritten Node, Relationship, and Path classes. They are not yet in use but are part of ongoing refactoring and rebuilding.
 
+## [5.1.8] - 2015-10-23
+
+### Fixed
+- Issue with transactions in 2.3.0 (see https://github.com/neo4jrb/neo4j/issues/1004)
 
 ## [5.1.7] - 2015-10-14
 
