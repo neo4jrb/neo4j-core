@@ -213,6 +213,7 @@ module Neo4j
       CONSTRAINT_ERROR = 'Neo.ClientError.Schema.ConstraintViolation'
       def raise_error
         fail 'Tried to raise error without an error' unless @error
+        puts "BOOM error #{@error} and message #{@error_msg} and status #{@error_status} and code #{@error_code}"
         error_class = constraint_error? ? ConstraintViolationError : ResponseError
         fail error_class.new(@error_msg, @error_status, @error_code)
       end
