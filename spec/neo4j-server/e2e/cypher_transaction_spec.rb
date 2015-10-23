@@ -1,5 +1,6 @@
 require 'spec_helper'
 
+# rubocop:disable Metrics/ModuleLength
 module Neo4j
   module Server
     describe CypherTransaction, api: :server do
@@ -211,3 +212,4 @@ module Neo4j
     end
   end
 end
+# rubocop:enable Metrics/ModuleLength
