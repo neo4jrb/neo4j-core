@@ -3,6 +3,18 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [6.0.0.alpha.4] - 2015-10-23
+
+### Fixed
+
+- Merges changes from 5.1.9
+
+## [6.0.0.alpha.3] - 2015-10-23 (Yanked)
+
+### Fixed
+
+- Merges changes from 5.1.8
+
 ## [6.0.0.alpha.2] - 2015-10-17
 
 ### Changed
@@ -18,7 +30,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - New session, adaptors, and rewritten Node, Relationship, and Path classes. They are not yet in use but are part of ongoing refactoring and rebuilding.
 
-## [5.1.8] - 2015-10-23
+## [5.1.9] - 2015-10-23
+
+### Fixed
+
+- Improved logic around auto-closing transactions in 2.3.0
+
+## [5.1.8] - 2015-10-23 (Yanked)
 
 ### Fixed
 - Issue with transactions in 2.3.0 (see https://github.com/neo4jrb/neo4j/issues/1004)
