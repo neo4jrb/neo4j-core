@@ -73,10 +73,15 @@ module Neo4j
             cypher_response.set_data(first_result)
           else
             first_error = response.body[:errors].first
-            mark_expired if first_error[:message].match(/Unrecognized transaction id/)
+            tx_cleanup!(first_error)
             cypher_response.set_error(first_error)
           end
         end
+      end
+
+      def tx_cleanup!(first_error)
+        autoclosed!
+        mark_expired if first_error[:message].match(/Unrecognized transaction id/)
       end
 
       def empty_response
