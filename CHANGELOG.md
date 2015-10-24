@@ -3,7 +3,13 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [6.0.0.alpha.4] - 2015-10-23
+## [6.0.0.alpha.5] - 2015-10-23
+
+### Fixed
+
+- Fixes bug in transaction handling introduced by Neo4j 2.2.6.
+
+## [6.0.0.alpha.4] - 2015-10-23 (Yanked)
 
 ### Fixed
 
