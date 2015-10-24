@@ -5,6 +5,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
 
+## [5.1.10] - 2015-10-23
+
+### Fixed
+
+- Auto-closing transactions appear to have been introduced in 2.2.6.
+
 ## [5.1.9] - 2015-10-23
 
 ### Fixed

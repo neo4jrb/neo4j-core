@@ -26,7 +26,7 @@ module Neo4j
       end
 
       def transient_failures_autoclose?
-        Neo4j::Session.current.version >= '2.3.0'
+        Neo4j::Session.current.version >= '2.2.6'
       end
 
       def autoclosed?
