@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [6.0.0.alpha.6] - 2015-10-27
+
+### Fixed
+
+- Embedded params hash bug, merged from 5.1.x branch and released in 5.1.11.
+
 ## [6.0.0.alpha.5] - 2015-10-23
 
 ### Fixed

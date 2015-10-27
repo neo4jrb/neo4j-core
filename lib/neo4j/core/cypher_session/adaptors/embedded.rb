@@ -32,7 +32,7 @@ module Neo4j
                 self.class.instrument_queries(queries)
 
                 execution_results = queries.map do |query|
-                  engine.execute(query.cypher, HashWithIndifferentAccess.new(query.parameters))
+                  engine.execute(query.cypher, indifferent_params(query))
                 end
 
                 Responses::Embedded.new(execution_results).results
@@ -74,6 +74,12 @@ module Neo4j
           end
 
           private
+
+          def indifferent_params(query)
+            params = query.parameters
+            params.each { |k, v| params[k] = HashWithIndifferentAccess.new(params[k]) if v.is_a?(Hash) && !v.respond_to?(:nested_under_indifferent_access) }
+            HashWithIndifferentAccess.new(params)
+          end
 
           def engine
             @engine ||= Java::OrgNeo4jCypherJavacompat::ExecutionEngine.new(@graph_db)
