@@ -147,10 +147,16 @@ module Neo4j
         ActiveSupport::Notifications.instrument('neo4j.cypher_query', params: params, context: options[:context],
                                                                       cypher: query, pretty_cypher: options[:pretty_cypher], params: params) do
           @engine ||= Java::OrgNeo4jCypherJavacompat::ExecutionEngine.new(@graph_db)
-          @engine.execute(query, HashWithIndifferentAccess.new(params))
+          @engine.execute(query, indifferent_params(params))
         end
       rescue StandardError => e
         raise Neo4j::Session::CypherError.new(e.message, e.class, 'cypher error')
+      end
+
+      def indifferent_params(params)
+        return {} unless params
+        params.each { |k, v| params[k] = HashWithIndifferentAccess.new(params[k]) if v.is_a?(Hash) && !v.respond_to?(:nested_under_indifferent_access) }
+        HashWithIndifferentAccess.new(params)
       end
 
       def query_default_return(as)

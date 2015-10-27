@@ -251,6 +251,15 @@ RSpec.shared_examples 'Neo4j::Session' do
           r = session.query.match(:n).where('ID(n) = {my_var}').return('ID(n) AS id').params(my_var: @jimmy.neo_id)
           expect(r.first[:id]).to eq(@jimmy.neo_id)
         end
+
+        context 'with nested hash' do
+          it do
+            expect do
+              node = session.query.create('(n:FooLabel {foo_params})').params(foo_params: {age: 31}).pluck(:n).first
+              expect(node.props[:age]).to eq 31
+            end.not_to raise_error
+          end
+        end
       end
 
 

@@ -36,6 +36,18 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - New session, adaptors, and rewritten Node, Relationship, and Path classes. They are not yet in use but are part of ongoing refactoring and rebuilding.
 
+## [5.1.11] - 2015-10-27
+
+### Fixed
+
+- A bug prevented users of Embedded from executing Cypher queries with hashes contained in params.
+
+## [5.1.10] - 2015-10-23
+
+### Fixed
+
+- Auto-closing transactions appear to have been introduced in 2.2.6.
+
 ## [5.1.9] - 2015-10-23
 
 ### Fixed
