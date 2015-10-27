@@ -5,6 +5,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
 
+## [5.1.11] - 2015-10-27
+
+### Fixed
+
+- A bug prevented users of Embedded from executing Cypher queries with hashes contained in params.
+
 ## [5.1.10] - 2015-10-23
 
 ### Fixed
