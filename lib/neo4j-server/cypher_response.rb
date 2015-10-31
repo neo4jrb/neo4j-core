@@ -101,10 +101,9 @@ module Neo4j
       def identify_entity(data)
         self_string = data[:self]
         if self_string
-          type = self_string.split('/')[-2]
-          if type == 'node'
+          if self_string.include?('node')
             :node
-          elsif type == 'relationship'
+          elsif self_string.include?('relationship')
             :relationship
           end
         elsif [:nodes, :relationships, :start, :end, :length].all? { |k| data.key?(k) }
