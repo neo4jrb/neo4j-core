@@ -12,6 +12,10 @@ Lint/ShadowingOuterLocalVariable:
 # Style configuration
 #---------------------------
 
+AllCops:
+  DisplayCopNames: true
+  DisplayStyleGuide: true
+
 Style/HashSyntax:
   Enabled: true
   EnforcedStyle: ruby19
