@@ -3,6 +3,26 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [6.0.0.rc.1] - 2015-11-13
+
+This release contains no changes since the last alpha. Below are all modifications introduced in alpha releases.
+
+## Changed
+
+- Depends on `neo4j-rake_tasks` ~> 0.3.0.
+- Removed `Neo4j::Session#on_session_available`, replaced with `Neo4j::Session#on_next_session_available`. The new method will empty its queue as it is played.
+- Refactored `Neo4j::Label#create_index` and `Neo4j::Label#create_constraint` to have compatible signatures. As part of the refactoring of `Neo4j::Label#creator_index`, the method no longer accepts multiple properties. The method will need to be called once for each, when needed.
+
+## Added
+
+- New session, adaptors, and rewritten Node, Relationship, and Path classes. They are not yet in use but are part of ongoing refactoring and rebuilding.
+
+## Fixed
+
+- Embedded params hash bug, merged from 5.1.x branch and released in 5.1.11.
+- Fixes bug in transaction handling introduced by Neo4j 2.2.6.
+- Merges changes from 5.1.9
+
 ## [6.0.0.alpha.6] - 2015-10-27
 
 ### Fixed

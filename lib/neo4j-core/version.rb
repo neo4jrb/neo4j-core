@@ -1,5 +1,5 @@
 module Neo4j
   module Core
-    VERSION = '6.0.0.alpha.6'
+    VERSION = '6.0.0.rc.1'
   end
 end
