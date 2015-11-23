@@ -5,6 +5,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
 
+## [5.1.12] - 2015-11-23
+
+### Fixed
+
+- Fixed case where `config[:properties_map]` was not a `Hash`
+
 ## [5.1.11] - 2015-10-27
 
 ### Fixed
