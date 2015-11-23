@@ -62,6 +62,12 @@ This release contains no changes since the last alpha. Below are all modificatio
 ### Added
 - New session, adaptors, and rewritten Node, Relationship, and Path classes. They are not yet in use but are part of ongoing refactoring and rebuilding.
 
+## [5.1.12] - 2015-11-23
+
+### Fixed
+
+- Fixed case where `config[:properties_map]` was not a `Hash`
+
 ## [5.1.11] - 2015-10-27
 
 ### Fixed
