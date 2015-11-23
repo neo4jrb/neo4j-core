@@ -26,9 +26,13 @@ module Neo4j
       def properties_map
         return @properties_map if @properties_map
 
-        props = @config[:properties_map].each_with_object({}) do |(k, v), m|
-          m[k.to_s.to_java] = v.to_s.to_java
-        end
+        props = if @config[:properties_map].is_a?(Hash)
+                  @config[:properties_map].each_with_object({}) do |(k, v), m|
+                    m[k.to_s.to_java] = v.to_s.to_java
+                  end
+                else
+                  {}
+                end
         @properties_map = java.util.HashMap.new(props)
       end
 
