@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [6.0.0] - 2015-11-24
+
+- No changes from rc.1
+
 ## [6.0.0.rc.1] - 2015-11-13
 
 This release contains no changes since the last alpha. Below are all modifications introduced in alpha releases.
