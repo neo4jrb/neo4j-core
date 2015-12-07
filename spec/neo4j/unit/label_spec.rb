@@ -19,7 +19,7 @@ describe Neo4j::Label do
       end
 
       it 'raise an exception if invalid constraint' do
-        expect { label.create_constraint(:name, type: :unknown) }.to raise_error
+        expect { label.create_constraint(:name, type: :unknown) }.to raise_error(RuntimeError)
       end
     end
 
@@ -30,7 +30,7 @@ describe Neo4j::Label do
       end
 
       it 'raise an exception if invalid constraint' do
-        expect { label.drop_constraint(:name, type: :unknown) }.to raise_error
+        expect { label.drop_constraint(:name, type: :unknown) }.to raise_error(RuntimeError)
       end
     end
   end
