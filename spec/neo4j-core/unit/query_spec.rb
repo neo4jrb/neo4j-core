@@ -936,6 +936,10 @@ describe Neo4j::Core::Query do
       it_generates 'WITH a ORDER BY a.name DESC LIMIT {limit_2} WHERE (a.name = {a_name})', a_name: 'Foo', limit_2: 2
     end
 
+    describe ".with('1 AS a').where(a: 1).limit(2)" do
+      it_generates 'WITH 1 AS a WHERE (a = {a}) LIMIT {limit_2}', a: 1, limit_2: 2
+    end
+
     # params
     describe ".match(q: Person).where('q.age = {age}').params(age: 15)" do
       it_generates 'MATCH (q:`Person`) WHERE (q.age = {age})', age: 15
