@@ -5,7 +5,7 @@ language: ruby
 rvm:
   - 2.2.3
   - 2.1.5
-  - jruby-1.7.20
+  - jruby-1.7.23
   - jruby-9.0.0.0
 env:
   - RSPEC_TAGS=~new_cypher_session NEO4J_VERSION=community-2.3.0
