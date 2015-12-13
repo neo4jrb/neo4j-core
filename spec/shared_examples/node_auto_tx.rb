@@ -370,8 +370,7 @@ RSpec.shared_examples 'Neo4j::Node auto tx' do
         it 'raise an exception if there are more then one matching relationship' do
           node_a.create_rel(:knows, node_b)
           node_a.create_rel(:knows, node_b)
-
-          expect { node_a.rel(:knows) }.to raise_error
+          expect { node_a.rel(:knows) }.to raise_error(NoMethodError)
         end
       end
 
@@ -390,7 +389,7 @@ RSpec.shared_examples 'Neo4j::Node auto tx' do
           it 'raise an exception if there are more then one relationship' do
             node_a.create_rel(:work, node_b)
             node_a.create_rel(:work, node_b)
-            expect { expect(node_a.node).to eq(node_b) }.to raise_error
+            expect { expect(node_a.node).to eq(node_b) }.to raise_error(ArgumentError)
           end
         end
 
@@ -482,12 +481,12 @@ RSpec.shared_examples 'Neo4j::Node auto tx' do
             expect { node_a.rels(dir: :incoming) }.not_to raise_error
             expect { node_a.rels(dir: :outgoing) }.not_to raise_error
             expect { node_a.rels(dir: :both) }.not_to raise_error
-            expect { node_a.rels(dir: :invalid) }.to raise_error
+            expect { node_a.rels(dir: :invalid) }.to raise_error(RuntimeError)
           end
 
           it 'validates expected keys' do
             expect { node_a.rels }.not_to raise_error
-            expect { node_a.rels(invalid: true) }.to raise_error
+            expect { node_a.rels(invalid: true) }.to raise_error(RuntimeError)
           end
         end
 

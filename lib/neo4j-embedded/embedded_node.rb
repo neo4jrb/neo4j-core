@@ -168,7 +168,7 @@ module Neo4j
               return nil if not iter.has_next
 
               first = iter.next
-              fail "Expected to only find one relationship from node #{neo_id} matching #{match.inspect}" if iter.has_next
+              fail ArgumentError, "Expected to only find one relationship from node #{neo_id} matching" if iter.has_next
               first
             end
 
