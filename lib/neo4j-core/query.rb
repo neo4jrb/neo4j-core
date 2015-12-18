@@ -232,7 +232,7 @@ module Neo4j
         cypher = to_cypher
         pretty_cypher = to_cypher(pretty: true) if self.class.pretty_cypher
 
-        @response = if @session.is_a?(::Neo4j::Core::CypherSession)
+        @response = if defined?(::Neo4j::Core::CypherSession) && @session.is_a?(::Neo4j::Core::CypherSession)
                       @session.query(self)
                     else
                       @session._query(cypher, merge_params, context: @options[:context], pretty_cypher: pretty_cypher)
