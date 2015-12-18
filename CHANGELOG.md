@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [6.0.2] - 2015-12-18
+
+### Fixed
+
+- Make sessions thread-safe
+
 ## [6.0.1] - 2015-12-10
 
 ## Fixed
