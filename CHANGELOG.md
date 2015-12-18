@@ -5,6 +5,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
 
+## [5.1.13] - 2015-12-18
+
+### Fixed
+
+- Make sessions thread-safe
+
 ## [5.1.12] - 2015-11-23
 
 ### Fixed
