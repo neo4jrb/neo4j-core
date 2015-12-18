@@ -66,8 +66,7 @@ module Neo4j
       end
 
       def initialize(options = {})
-        @session = options[:session]
-        @session = Neo4j::Session.current if !options.key?(:session)
+        @session = options.key?(:session) ? options[:session] : Neo4j::Session.current
 
         @options = options
         @clauses = []
@@ -226,13 +225,17 @@ module Neo4j
         !!@_unwrapped_obj
       end
 
+      def session_is_new_api?
+        defined?(::Neo4j::Core::CypherSession) && @session.is_a?(::Neo4j::Core::CypherSession)
+      end
+
       def response
         return @response if @response
 
         cypher = to_cypher
         pretty_cypher = to_cypher(pretty: true) if self.class.pretty_cypher
 
-        @response = if defined?(::Neo4j::Core::CypherSession) && @session.is_a?(::Neo4j::Core::CypherSession)
+        @response = if session_is_new_api?
                       @session.query(self)
                     else
                       @session._query(cypher, merge_params, context: @options[:context], pretty_cypher: pretty_cypher)
