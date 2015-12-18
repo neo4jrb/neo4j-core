@@ -465,6 +465,7 @@ module Neo4j
         def clause_is_order_or_limit_directly_following_with_or_order?(clause)
           self.class.clause_is_order_or_limit?(clause) &&
             @partitioning[-2] &&
+            @partitioning[-1].empty? &&
             (@partitioning[-2].last.is_a?(::Neo4j::Core::QueryClauses::WithClause) ||
               @partitioning[-2].last.is_a?(::Neo4j::Core::QueryClauses::OrderClause))
         end
