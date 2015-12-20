@@ -205,9 +205,6 @@ describe Neo4j::Core::Query do
   # MATCH
 
   describe '#match' do
-    it 'is a test!' do
-      expect(1).to eq(1)
-    end
     describe ".match('n')" do
       it_generates 'MATCH n'
     end
