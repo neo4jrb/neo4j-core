@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [6.0.4] - 2015-12-22
+
+### Fixed
+
+- Reverted thread fix from 6.0.2 because I didn't quite know what I was doing.  Will tackle it again later...
+
 ## [6.0.3] - 2015-12-21
 
 ### Fixed
