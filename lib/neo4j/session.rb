@@ -1,5 +1,6 @@
 module Neo4j
   class Session
+    @@current_session = nil
     @@all_sessions = {}
     @@factories = {}
 
@@ -121,7 +122,7 @@ module Neo4j
 
       # @return [Neo4j::Session] the current session
       def current
-        Thread.current[:neo4j_curr_session]
+        @@current_session
       end
 
       # Returns the current session or raise an exception if no session is available
@@ -143,7 +144,7 @@ module Neo4j
       # Sets the session to be used as default
       # @param [Neo4j::Session] session the session to use
       def set_current(session)
-        Thread.current[:neo4j_curr_session] = session
+        @@current_session = session
       end
 
       # Registers a callback which will be called immediately if session is already available,
@@ -192,7 +193,7 @@ module Neo4j
         if default == true
           set_current(session)
         elsif default.nil?
-          set_current(session) unless current
+          set_current(session) unless @@current_session
         end
         @@all_sessions[name] = session if name
         session
@@ -200,7 +201,7 @@ module Neo4j
 
       # @private
       def unregister(session)
-        set_current(nil) if current == session
+        @@current_session = nil if @@current_session == session
       end
 
       def inspect
