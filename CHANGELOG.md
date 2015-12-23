@@ -5,6 +5,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
 
+## [5.1.14] - 2015-12-23
+
+Reverts the change in 5.1.13.
+
 ## [5.1.13] - 2015-12-18
 
 ### Fixed
