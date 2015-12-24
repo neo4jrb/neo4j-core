@@ -1,6 +1,6 @@
 script:
   - "bundle exec rubocop"
-  - "export JRUBY_OPTS='-X+O -J-Djruby.launch.inproc=false -J-Xmx1024m -J-XX:MaxPermSize=2048m' && bundle exec travis_retry rake neo4j:install[$NEO4J_VERSION] neo4j:disable_auth neo4j:start --trace && rspec --tag $RSPEC_TAGS"
+  - "export JRUBY_OPTS='-X+O -J-Djruby.launch.inproc=false -J-Xmx1024m -J-XX:MaxPermSize=2048m' && travis_retry bundle exec rake neo4j:install[$NEO4J_VERSION] neo4j:disable_auth neo4j:start --trace && rspec --tag $RSPEC_TAGS"
 language: ruby
 rvm:
   - 2.2.3
