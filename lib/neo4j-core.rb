@@ -23,4 +23,3 @@ require 'neo4j/transaction'
 
 require 'rake'
 require 'neo4j/rake_tasks'
-
