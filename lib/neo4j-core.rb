@@ -21,8 +21,8 @@ require 'neo4j/ansi'
 require 'neo4j/relationship'
 require 'neo4j/transaction'
 
-require 'rake'
-require 'neo4j/rake_tasks'
+
+require 'neo4j-server'
 
 if RUBY_PLATFORM != 'java'
   # just for the tests
@@ -31,3 +31,7 @@ if RUBY_PLATFORM != 'java'
     end
   end
 end
+
+
+require 'rake'
+require 'neo4j/rake_tasks'

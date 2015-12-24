@@ -98,10 +98,7 @@ module Neo4j
       # @param [String] endpoint_url The path to the server, either a URL or path to embedded DB
       # @param [Hash] params Additional configuration options
       def open(db_type = :server_db, endpoint_url = nil, params = {})
-        case db_type
-        when :server_db then require 'neo4j-server'
-        when :embedded_db then require 'neo4j-embedded'
-        end
+        require 'neo4j-embedded' if db_type == :embedded_db
 
         validate_session_num!(db_type)
         name = params[:name]
