@@ -23,6 +23,8 @@ require 'tmpdir'
 require 'logger'
 require 'rspec/its'
 require 'neo4j-core'
+require 'neo4j-server'
+require 'neo4j-embedded' if RUBY_PLATFORM == 'java'
 require 'ostruct'
 
 if RUBY_PLATFORM == 'java'
@@ -35,6 +37,7 @@ if RUBY_PLATFORM == 'java'
       send(key)
     end
   end
+
 end
 
 Dir["#{File.dirname(__FILE__)}/shared_examples/**/*.rb"].each { |f| require f }

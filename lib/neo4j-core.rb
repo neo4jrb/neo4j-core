@@ -21,17 +21,6 @@ require 'neo4j/ansi'
 require 'neo4j/relationship'
 require 'neo4j/transaction'
 
-
-require 'neo4j-server'
-
-if RUBY_PLATFORM != 'java'
-  # just for the tests
-  module Neo4j
-    module Embedded
-    end
-  end
-end
-
-
 require 'rake'
 require 'neo4j/rake_tasks'
+
