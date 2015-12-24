@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased] - 2015-12-24
+
+### Fixed
+
+- There is no longer a need to know about / use the `WITHOUT_NEO4J_EMBEDDED` environment variable if you want to use server mode in jRuby.
+
 ## [6.0.4] - 2015-12-22
 
 ### Fixed
