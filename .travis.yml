@@ -3,7 +3,8 @@ script:
   - "export JRUBY_OPTS='-X+O -J-Djruby.launch.inproc=false -J-Xmx1024m -J-XX:MaxPermSize=2048m' && travis_retry bundle exec rake neo4j:install[$NEO4J_VERSION] neo4j:disable_auth neo4j:start --trace && rspec --tag $RSPEC_TAGS"
 language: ruby
 rvm:
-  - 2.2.3
+  - 2.3.0
+  - 2.2.4
   - 2.1.5
   - jruby-1.7.23
   - jruby-9.0.0.0
@@ -14,19 +15,19 @@ sudo: false
 matrix:
   include:
     # Pre-2.1.5 is special, metadata isn't sent back with HTTP REST endpoint
-    - rvm: 2.2.3
+    - rvm: 2.3.0
       env: RSPEC_TAGS=~new_cypher_session NEO4J_VERSION=community-2.1.4
 
     # Sanity check against Neo4j 2.3.x with MRI and JRuby
-    - rvm: 2.2.3
+    - rvm: 2.3.0
       env: RSPEC_TAGS=~new_cypher_session NEO4J_VERSION=community-2.3.0
     - rvm: jruby-9.0.0.0
       env: RSPEC_TAGS=~new_cypher_session NEO4J_VERSION=community-2.3.0
 
     # Testing new CypherSession
-    - rvm: 2.2.3
+    - rvm: 2.3.0
       env: RSPEC_TAGS=new_cypher_session NEO4J_VERSION=community-2.2.5
-    - rvm: 2.2.3
+    - rvm: 2.3.0
       env: RSPEC_TAGS=new_cypher_session NEO4J_VERSION=community-2.1.4
     - rvm: jruby-9.0.0.0
       env: RSPEC_TAGS=new_cypher_session NEO4J_VERSION=community-2.2.5
