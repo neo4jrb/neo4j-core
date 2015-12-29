@@ -76,7 +76,6 @@ module Neo4j
       private
 
       def request(action, endpoint_url, expected_code = 200, body = nil, headers = {})
-        puts "request(#{action.inspect}, #{endpoint_url.inspect}, #{expected_code})"
         connection.send(action, endpoint_url, body, headers).tap do |response|
           expect_response_code!(response, expected_code)
         end
