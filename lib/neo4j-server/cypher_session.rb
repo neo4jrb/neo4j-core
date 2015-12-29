@@ -95,9 +95,8 @@ module Neo4j
         Neo4j::Transaction.unregister_current
       end
 
-      def begin_tx
-        Neo4j::Transaction.current ? Neo4j::Transaction.current.push_nested! : wrap_resource(@connection)
-        Neo4j::Transaction.current
+      def self.transaction_class
+        Neo4j::Server::CypherTransaction
       end
 
       def create_node(props = nil, labels = [])

@@ -6,7 +6,7 @@ module Neo4j
 
       def initialize(root_tx)
         @root_tx = root_tx
-        register_instance
+        @pushed_nested = 0
       end
 
       def acquire_read_lock(entity)

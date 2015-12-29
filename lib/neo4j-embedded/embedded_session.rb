@@ -68,16 +68,6 @@ module Neo4j
         Java::OrgNeo4jTest::ImpermanentGraphDatabase
       end
 
-      def begin_tx
-        if Neo4j::Transaction.current
-          # Handle nested transaction "placebo transaction"
-          Neo4j::Transaction.current.push_nested!
-        else
-          Neo4j::Embedded::EmbeddedTransaction.new(@graph_db.begin_tx)
-        end
-        Neo4j::Transaction.current
-      end
-
       def close
         super
         shutdown

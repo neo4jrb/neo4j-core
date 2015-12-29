@@ -5,7 +5,6 @@ module Neo4j
     module Instance
       # @private
       def register_instance
-        @pushed_nested = 0
         Neo4j::Transaction.register(self)
       end
 
@@ -89,19 +88,31 @@ module Neo4j
     end
 
     # @return [Neo4j::Transaction::Instance]
-    def new(current = Session.current!)
-      current.begin_tx
+    def new(session = Session.current!)
+      if current
+        current.push_nested!
+      else
+        new_transaction = if session.is_a?(::Neo4j::Session)
+          session.class.transaction_class.new(session)
+        else
+          Neo4j::Core::CypherSession::Transaction.new(session)
+        end
+
+        register(new_transaction)
+      end
+
+      current
     end
 
     # Runs the given block in a new transaction.
     # @param [Boolean] run_in_tx if true a new transaction will not be created, instead if will simply yield to the given block
     # @@yield [Neo4j::Transaction::Instance]
-    def run(run_in_tx = true)
+    def run(run_in_tx = true, session = Session.current!)
       fail ArgumentError, 'Expected a block to run in Transaction.run' unless block_given?
 
       return yield(nil) unless run_in_tx
 
-      tx = Neo4j::Transaction.new
+      tx = Neo4j::Transaction.new(session)
       yield tx
     rescue Exception => e # rubocop:disable Lint/RescueException
       print_exception_cause(e)

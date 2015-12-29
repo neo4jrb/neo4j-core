@@ -10,10 +10,11 @@ module Neo4j
           # @transaction_state valid states
           # nil, :open_requested, :open, :close_requested
 
-          def initialize(url, _options = {})
+          def initialize(url, options = {})
             @url = url
             @url_components = url_components!(url)
             @transaction_state = nil
+            @options = options
           end
 
           def connect
@@ -136,6 +137,9 @@ module Neo4j
           end
 
           def connection
+            require 'faraday'
+            require 'faraday_middleware/multi_json'
+
             Faraday.new(@url) do |c|
               c.request :basic_auth, user, password
               c.request :multi_json

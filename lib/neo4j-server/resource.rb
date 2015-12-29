@@ -16,14 +16,13 @@ module Neo4j
         self
       end
 
-      def wrap_resource(connection = Neo4j::Session.current)
-        url = resource_url(:transaction)
-        CypherTransaction.new(url, connection)
+      def wrap_resource(connection)
+        CypherTransaction.new(resource_url(:transaction), connection)
       end
 
       def resource_url(key = nil)
         return @resource_url if key.nil?
-        @resource_data.fetch key
+        resource_data.fetch key
       rescue KeyError
         raise "No resource key '#{key}', available #{@resource_data.keys.inspect}"
       end

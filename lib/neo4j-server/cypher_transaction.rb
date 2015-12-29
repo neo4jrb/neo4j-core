@@ -11,12 +11,22 @@ module Neo4j
       include Neo4j::Transaction::Instance
       include Resource
 
-      attr_reader :commit_url, :query_url, :base_url, :connection
+      attr_reader :commit_url, :query_url
 
-      def initialize(url, session_connection)
-        @base_url = url
-        @connection = session_connection
-        register_instance
+      def initialize(session)
+        @session = session
+        @pushed_nested = 0
+      end
+
+      def connection
+        @session.connection
+      end
+
+      def base_url
+        require 'uri'
+        URI(@session.instance_variable_get('@resource_url')).tap do |uri|
+          uri.path = ''
+        end.to_s
       end
 
       ROW_REST = %w(row REST)
@@ -31,13 +41,15 @@ module Neo4j
       end
 
       def start(body)
-        request(:post, @base_url, 201, body).tap do |response|
+        url = @session.resource_data.fetch(:transaction) || base_url
+
+        request(:post, url, 201, body).tap do |response|
           @commit_url = response.body[:commit]
           @query_url = response.headers[:Location]
 
           fail "NO ENDPOINT URL #{connection} : HEAD: #{response.headers.inspect}" if !@query_url || @query_url.empty?
 
-          init_resource_data(response.body, @base_url)
+          init_resource_data(response.body, base_url)
         end
       end
 
@@ -45,14 +57,16 @@ module Neo4j
         request(:post, @query_url, 200, body)
       end
 
+      EMPTY_RESPONSE = OpenStruct.new(status: 200, body: '')
+
       def delete
-        return empty_response if !@commit_url || expired?
+        return EMPTY_RESPONSE if !@commit_url || expired?
 
         request(:delete, @query_url, 200, nil, resource_headers)
       end
 
       def commit
-        return empty_response if !@commit_url || expired?
+        return EMPTY_RESPONSE if !@commit_url || expired?
 
         request(:post, @commit_url, 200, nil, resource_headers)
       end
@@ -60,17 +74,16 @@ module Neo4j
       private
 
       def request(action, endpoint_url, expected_code = 200, body = nil, headers = {})
+        puts "request(#{action.inspect}, #{endpoint_url.inspect}, #{expected_code})"
         connection.send(action, endpoint_url, body, headers).tap do |response|
           expect_response_code!(response, expected_code)
         end
       end
 
       def create_cypher_response(response)
-        first_result = response.body[:results][0]
-
         CypherResponse.new(response, true).tap do |cypher_response|
           if response.body[:errors].empty?
-            cypher_response.set_data(first_result)
+            cypher_response.set_data(response.body[:results][0])
           else
             first_error = response.body[:errors].first
             tx_cleanup!(first_error)
@@ -82,10 +95,6 @@ module Neo4j
       def tx_cleanup!(first_error)
         autoclosed!
         mark_expired if first_error[:message].match(/Unrecognized transaction id/)
-      end
-
-      def empty_response
-        OpenStruct.new(status: 200, body: '')
       end
     end
   end
