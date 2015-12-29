@@ -1,3 +1,4 @@
+require 'neo4j/core/cypher_session/transaction'
 
 module Neo4j
   module Core
@@ -8,6 +9,10 @@ module Neo4j
         @adaptor = adaptor
 
         @adaptor.connect
+      end
+
+      def self.transaction_class
+        Neo4j::Core::CypherSession::Transaction
       end
 
       %w(

@@ -7,8 +7,10 @@ module Neo4j
       before { session || create_server_session }
 
       after do
-        session && session.close
-        Neo4j::Transaction.current && Neo4j::Transaction.current.close
+        if session
+          Neo4j::Transaction.close_for(session)
+          session.close
+        end
       end
 
       context 'where no queries are made' do

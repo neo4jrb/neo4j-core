@@ -7,16 +7,10 @@ module Neo4j
     # * `close` is called to end the transaction. It calls `commit` or `delete`.
     #
     # If a transaction is created and then closed without performing any queries, an OpenStruct is returned that behaves like a successfully closed query.
-    class CypherTransaction
-      include Neo4j::Transaction::Instance
+    class CypherTransaction < Neo4j::Transaction::Base
       include Resource
 
       attr_reader :commit_url, :query_url
-
-      def initialize(session)
-        @session = session
-        @pushed_nested = 0
-      end
 
       def connection
         @session.connection

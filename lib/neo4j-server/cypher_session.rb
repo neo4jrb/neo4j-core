@@ -90,11 +90,6 @@ module Neo4j
         init_resource_data(data_resource, data_url)
       end
 
-      def close
-        super
-        Neo4j::Transaction.unregister_current
-      end
-
       def self.transaction_class
         Neo4j::Server::CypherTransaction
       end
@@ -206,7 +201,7 @@ module Neo4j
       def _query(query, params = {}, options = {})
         query, params = query_and_params(query, params)
 
-        curr_tx = Neo4j::Transaction.current
+        curr_tx = current_transaction
         ActiveSupport::Notifications.instrument('neo4j.cypher_query', params: params, context: options[:context],
                                                                       cypher: query, pretty_cypher: options[:pretty_cypher]) do
           if curr_tx
@@ -224,7 +219,7 @@ module Neo4j
 
         Enumerator.new do |yielder|
           response.data.each do |data|
-            if Neo4j::Transaction.current
+            if current_transaction
               data[:row].each do |id|
                 yielder << CypherNode.new(self, id).wrapper
               end
@@ -233,6 +228,10 @@ module Neo4j
             end
           end
         end
+      end
+
+      def current_transaction
+        Neo4j::Transaction.current_for(self)
       end
 
       EMPTY = ''
