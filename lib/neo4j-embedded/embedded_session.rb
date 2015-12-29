@@ -73,6 +73,10 @@ module Neo4j
         shutdown
       end
 
+      def self.transaction_class
+        Neo4j::Embedded::EmbeddedTransaction
+      end
+
       def shutdown
         @graph_db && @graph_db.shutdown
 

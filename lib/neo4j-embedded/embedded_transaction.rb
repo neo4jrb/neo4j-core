@@ -4,8 +4,9 @@ module Neo4j
       attr_reader :root_tx
       include Neo4j::Transaction::Instance
 
-      def initialize(root_tx)
-        @root_tx = root_tx
+      def initialize(session)
+        @session = session
+        @root_tx = session.begin_tx
         @pushed_nested = 0
       end
 
