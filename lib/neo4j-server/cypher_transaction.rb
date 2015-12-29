@@ -41,9 +41,7 @@ module Neo4j
       end
 
       def start(body)
-        url = @session.resource_data.fetch(:transaction) || base_url
-
-        request(:post, url, 201, body).tap do |response|
+        request(:post, start_url, 201, body).tap do |response|
           @commit_url = response.body[:commit]
           @query_url = response.headers[:Location]
 
@@ -51,6 +49,10 @@ module Neo4j
 
           init_resource_data(response.body, base_url)
         end
+      end
+
+      def start_url
+        @session.resource_data.fetch(:transaction) || base_url
       end
 
       def query(body)

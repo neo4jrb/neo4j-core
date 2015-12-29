@@ -93,10 +93,10 @@ module Neo4j
         current.push_nested!
       else
         new_transaction = if session.is_a?(::Neo4j::Session)
-          session.class.transaction_class.new(session)
-        else
-          Neo4j::Core::CypherSession::Transaction.new(session)
-        end
+                            session.class.transaction_class.new(session)
+                          else
+                            Neo4j::Core::CypherSession::Transaction.new(session)
+                          end
 
         register(new_transaction)
       end
