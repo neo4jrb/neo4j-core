@@ -4,6 +4,8 @@ module Neo4j
       include Neo4j::Server::Resource
       include Neo4j::Core::ActiveEntity
 
+      MARSHAL_INSTANCE_VARIABLES = [:@props, :@labels, :@neo_id]
+
       def initialize(session, value)
         @session = session
 

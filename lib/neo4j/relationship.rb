@@ -24,6 +24,7 @@ module Neo4j
     include PropertyContainer
     include EntityEquality
     include Wrapper
+    include EntityMarshal
 
     # @return [Hash<Symbol,Object>] all properties of the relationship
     def props
