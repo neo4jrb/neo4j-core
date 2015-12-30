@@ -30,15 +30,7 @@ module Neo4j
                entity.is_a?(Java::ScalaCollectionConvert::Wrappers::SeqWrapper)
               entity.to_a.map { |e| wrap_entity(e) }
             else
-              type = if entity.is_a?(Java::OrgNeo4jKernelImplCore::NodeProxy)
-                       :node
-                     elsif entity.is_a?(Java::OrgNeo4jKernelImplCore::RelationshipProxy)
-                       :relationship
-                     elsif entity.respond_to?(:path_entities)
-                       :path
-                     end
-
-              _wrap_entity(type, entity)
+              _wrap_entity(entity)
             end
           end
 
@@ -46,7 +38,7 @@ module Neo4j
             case @wrap_level
             when :none then wrap_value(entity)
             when :core_entity, :proc
-              if type
+              if type = type_for_entity(entity)
                 result = send("wrap_#{type}", entity)
 
                 @wrap_level == :proc ? result.wrap : result
@@ -55,6 +47,16 @@ module Neo4j
               end
             else
               fail ArgumentError, "Inalid wrap_level: #{@wrap_level.inspect}"
+            end
+          end
+
+          def type_for_entity(entity)
+            if entity.is_a?(Java::OrgNeo4jKernelImplCore::NodeProxy)
+              :node
+            elsif entity.is_a?(Java::OrgNeo4jKernelImplCore::RelationshipProxy)
+              :relationship
+            elsif entity.respond_to?(:path_entities)
+              :path
             end
           end
 

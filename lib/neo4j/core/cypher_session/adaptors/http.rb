@@ -26,11 +26,7 @@ module Neo4j
           def query_set(queries, options = {})
             fail 'Query attempted without a connection' if @connection.nil?
 
-            statements_data = queries.map do |query|
-              {statement: query.cypher, parameters: query.parameters || {},
-               resultDataContents: ROW_REST}
-            end
-            request_data = {statements: statements_data}
+            request_data = {statements: queries.map(&self.class.method(:statement_from_query))}
 
             # context option not implemented
             self.class.instrument_queries(queries)
@@ -111,6 +107,12 @@ module Neo4j
           end
 
           private
+
+          def self.statement_from_query(query)
+            {statement: query.cypher,
+             parameters: query.parameters || {},
+             resultDataContents: ROW_REST}
+          end
 
           def store_transaction_id!(faraday_response)
             location = faraday_response.env[:response_headers][:location]

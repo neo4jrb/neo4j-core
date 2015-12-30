@@ -306,8 +306,7 @@ module Neo4j
         query = return_query(columns)
         columns = query.response.columns
 
-        case columns.size
-        when 1
+        if columns.size == 1
           column = columns[0]
           query.map { |row| row[column] }
         else
