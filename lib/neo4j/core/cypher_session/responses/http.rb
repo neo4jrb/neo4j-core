@@ -54,7 +54,7 @@ module Neo4j
                 row_datum
               end
             else
-              raise ArgumentError, "Inalid wrap_level: #{@wrap_level.inspect}"
+              fail ArgumentError, "Inalid wrap_level: #{@wrap_level.inspect}"
             end
           end
 

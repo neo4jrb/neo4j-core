@@ -31,12 +31,12 @@ module Neo4j
               entity.to_a.map { |e| wrap_entity(e) }
             else
               type = if entity.is_a?(Java::OrgNeo4jKernelImplCore::NodeProxy)
-                :node
-              elsif entity.is_a?(Java::OrgNeo4jKernelImplCore::RelationshipProxy)
-                :relationship
-              elsif entity.respond_to?(:path_entities)
-                :path
-              end
+                       :node
+                     elsif entity.is_a?(Java::OrgNeo4jKernelImplCore::RelationshipProxy)
+                       :relationship
+                     elsif entity.respond_to?(:path_entities)
+                       :path
+                     end
 
               _wrap_entity(type, entity)
             end
@@ -54,7 +54,7 @@ module Neo4j
                 wrap_value(entity)
               end
             else
-              raise ArgumentError, "Inalid wrap_level: #{@wrap_level.inspect}"
+              fail ArgumentError, "Inalid wrap_level: #{@wrap_level.inspect}"
             end
           end
 
