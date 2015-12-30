@@ -8,6 +8,7 @@ module Neo4j
 
       def initialize(session)
         @session = session
+        @parent = session_transaction_stack.last
         session_transaction_stack << self
       end
 
@@ -24,7 +25,6 @@ module Neo4j
         fail "Can't commit transaction, already committed" if session_transaction_stack.empty?
 
         session_transaction_stack.pop
-        return if session_transaction_stack.any?
 
         post_close!
       end
@@ -46,6 +46,7 @@ module Neo4j
       # when #close is called.
       # Aliased for legacy purposes.
       def mark_failed
+        @parent.mark_failed if @parent
         @failure = true
       end
       alias_method :failure, :mark_failed
@@ -58,6 +59,7 @@ module Neo4j
       alias_method :failure?, :failed?
 
       def mark_expired
+        @parent.mark_expired if @parent
         @expired = true
       end
 
@@ -80,7 +82,11 @@ module Neo4j
       end
 
       def nesting_level
-        session_transaction_stack.index(self) + 1
+        stack_index + 1
+      end
+
+      def stack_index
+        session_transaction_stack.index(self)
       end
 
       def session_transaction_stack
@@ -128,22 +134,24 @@ module Neo4j
     def session_and_run_in_tx_from_args(args)
       fail ArgumentError, 'Too many arguments' if args.size > 2
 
-      case args.size
-      when 0
+      if args.empty?
         [Session.current!, true]
-      when 1
-        if [true, false].include?(args[0])
-          [Session.current!] + args
-        else
-          args + [true]
+      else
+        result = args.dup
+        if result.size == 1
+          result << ([true, false].include?(args[0]) ? Session.current! : true)
         end
-      when 2
-        [true, false].include?(args[0]) ? args.reverse : args
+
+        [true, false].include?(result[0]) ? result.reverse : result
       end
     end
 
     def current_for(session)
       transaction_stack_for(session).last
+    end
+
+    def root_for(session)
+      transaction_stack_for(session).first
     end
 
     def transaction_stack_for(session)
@@ -156,10 +164,6 @@ module Neo4j
       session.instance_variable_set('@_transaction_stack', stack)
 
       stack
-    end
-
-    def close_for(session)
-      transaction_stack_for(session).reverse.each(&:close)
     end
 
     private

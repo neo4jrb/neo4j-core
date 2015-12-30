@@ -8,7 +8,7 @@ module Neo4j
 
       after do
         if session
-          Neo4j::Transaction.close_for(session)
+          current_transaction.close if current_transaction
           session.close
         end
       end

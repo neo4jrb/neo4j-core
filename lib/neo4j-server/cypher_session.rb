@@ -230,8 +230,10 @@ module Neo4j
         end
       end
 
+      # Using HTTP it isn't possible to tell the server that you want to nest transactions
+      # so we just always use the root transaction
       def current_transaction
-        Neo4j::Transaction.current_for(self)
+        Neo4j::Transaction.root_for(self)
       end
 
       EMPTY = ''

@@ -70,6 +70,10 @@ module Neo4jSpecHelpers
     end
   end
 
+  def current_transaction
+    Neo4j::Transaction.current_for(Neo4j::Session.current)
+  end
+
   # rubocop:disable Style/GlobalVars
   def expect_queries(count)
     start_count = $expect_queries_count

@@ -84,8 +84,8 @@ RSpec.shared_examples 'Neo4j::Node with tx' do
           begin
             tx = Neo4j::Transaction.new
             expect { Neo4j::Session.current.query.match(p: :Person).pluck('collect(p)') }.not_to raise_error
-            ensure
-              tx.close
+          ensure
+            tx.close
           end
         end
 
@@ -114,7 +114,7 @@ RSpec.shared_examples 'Neo4j::Node with tx' do
             key = response[1].key?('name') ? 'name' : :name
             expect(response[1][key]).to eq 'Foo'
           ensure
-            tx.close if Neo4j::Transaction.current
+            tx.close
           end
         end
       end
