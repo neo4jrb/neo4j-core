@@ -5,7 +5,7 @@ language: ruby
 rvm:
   - 2.3.0
   - 2.2.4
-  - 2.1.5
+  - 2.1.8
   - jruby-1.7.23
   - jruby-9.0.0.0
 env:
@@ -16,7 +16,7 @@ matrix:
   include:
     # Pre-2.1.5 is special, metadata isn't sent back with HTTP REST endpoint
     - rvm: 2.3.0
-      env: RSPEC_TAGS=~new_cypher_session NEO4J_VERSION=community-2.1.4
+      env: RSPEC_TAGS=~new_cypher_session NEO4J_VERSION=community-2.1.8
 
     # Sanity check against Neo4j 2.3.x with MRI and JRuby
     - rvm: 2.3.0
@@ -28,6 +28,6 @@ matrix:
     - rvm: 2.3.0
       env: RSPEC_TAGS=new_cypher_session NEO4J_VERSION=community-2.2.5
     - rvm: 2.3.0
-      env: RSPEC_TAGS=new_cypher_session NEO4J_VERSION=community-2.1.4
+      env: RSPEC_TAGS=new_cypher_session NEO4J_VERSION=community-2.1.8
     - rvm: jruby-9.0.0.0
       env: RSPEC_TAGS=new_cypher_session NEO4J_VERSION=community-2.2.5
