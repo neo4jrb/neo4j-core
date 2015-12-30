@@ -23,7 +23,7 @@ module Neo4j
             @graph_db = db_service.newGraphDatabase
           end
 
-          def query_set(queries)
+          def query_set(queries, options = {})
             # I think that this is the best way to do a batch in embedded...
             # Should probably do within a transaction in case of errors...
 
@@ -35,26 +35,28 @@ module Neo4j
                   engine.execute(query.cypher, indifferent_params(query))
                 end
 
-                Responses::Embedded.new(execution_results).results
+                Responses::Embedded.new(execution_results, options).results
               end
             end
           end
 
           def start_transaction
-            @transaction = @graph_db.begin_tx
+            @transactions ||= []
+            @transactions << @graph_db.begin_tx
           end
 
           def end_transaction
-            if @transaction.nil?
+            if @transactions.empty?
               fail 'Cannot close transaction without starting one'
             end
 
-            @transaction.success
-            @transaction.close
+            @transactions.last.success
+            @transactions.last.close
+            @transactions.pop
           end
 
           def transaction_started?
-            !!@transaction
+            @transactions.any?
           end
 
           def version

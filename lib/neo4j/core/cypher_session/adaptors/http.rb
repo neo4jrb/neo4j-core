@@ -23,7 +23,7 @@ module Neo4j
 
           ROW_REST = %w(row REST)
 
-          def query_set(queries)
+          def query_set(queries, options = {})
             fail 'Query attempted without a connection' if @connection.nil?
 
             statements_data = queries.map do |query|
@@ -43,7 +43,8 @@ module Neo4j
 
             store_transaction_id!(faraday_response)
 
-            Responses::HTTP.new(faraday_response, request_data).results
+            wrap_level = options[:wrap_level] || @options[:wrap_level]
+            Responses::HTTP.new(faraday_response, request_data, wrap_level: wrap_level).results
           end
 
           def start_transaction

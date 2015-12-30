@@ -7,10 +7,12 @@ module Neo4j
         class HTTP < Base
           attr_reader :results, :request_data
 
-          def initialize(faraday_response, request_data)
+          def initialize(faraday_response, request_data, options = {})
             @request_data = request_data
 
             validate_faraday_response!(faraday_response)
+
+            @wrap_level = options[:wrap_level] || Neo4j::Core::Config.wrapping_level
 
             @results = faraday_response.body[:results].map do |result_data|
               result_from_data(result_data[:columns], result_data[:data])
@@ -31,15 +33,30 @@ module Neo4j
 
               if rest_datum.is_a?(Array)
                 wrap_entity(row_datum, rest_datum)
-              elsif (ident = identify_entity(rest_datum))
-                send("wrap_#{ident}", rest_datum, row_datum)
               else
-                row_datum
+                _wrap_entity(rest_datum, row_datum)
               end
             end
           end
 
           private
+
+          def _wrap_entity(rest_datum, row_datum)
+            case @wrap_level
+            when :none
+              row_datum
+            when :core_entity, :proc
+              if (ident = identify_entity(rest_datum))
+                result = send("wrap_#{ident}", rest_datum, row_datum)
+
+                @wrap_level == :proc ? result.wrap : result
+              else
+                row_datum
+              end
+            else
+              raise ArgumentError, "Inalid wrap_level: #{@wrap_level.inspect}"
+            end
+          end
 
           def identify_entity(rest_datum)
             self_string = rest_datum[:self]
@@ -59,14 +76,14 @@ module Neo4j
             metadata_data = rest_datum[:metadata]
             ::Neo4j::Core::Node.new(id_from_rest_datum(rest_datum),
                                     metadata_data && metadata_data[:labels],
-                                    rest_datum[:data]).wrap
+                                    rest_datum[:data])
           end
 
           def wrap_relationship(rest_datum, _)
             metadata_data = rest_datum[:metadata]
             ::Neo4j::Core::Relationship.new(id_from_rest_datum(rest_datum),
                                             metadata_data && metadata_data[:type],
-                                            rest_datum[:data]).wrap
+                                            rest_datum[:data])
           end
 
           def wrap_path(rest_datum, row_datum)
@@ -77,7 +94,7 @@ module Neo4j
               Relationship.from_url(url, row_datum[(2 * i) + 1])
             end
 
-            ::Neo4j::Core::Path.new(nodes, relationships, rest_datum[:directions]).wrap
+            ::Neo4j::Core::Path.new(nodes, relationships, rest_datum[:directions])
           end
 
           def id_from_rest_datum(rest_datum)

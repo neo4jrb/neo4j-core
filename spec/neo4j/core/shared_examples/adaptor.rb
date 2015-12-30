@@ -5,8 +5,6 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
 
   # TODO: Test cypher errors
 
-  after { adaptor.end_transaction if adaptor.transaction_started? }
-
   describe '#query' do
     it 'Can make a query' do
       adaptor.query('MERGE path=n-[rel:r]->(o) RETURN n, rel, o, path LIMIT 1')
@@ -112,7 +110,7 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
       # Normally I don't think you wouldn't wrap nodes/relationships/paths
       # with the same class.  It's just expedient to do so in this spec
       it 'Returns wrapped objects from results' do
-        result = adaptor.query('CREATE path=(n {a: 1})-[r:foo {b: 2}]->(b) RETURN n,r,path')
+        result = adaptor.query('CREATE path=(n {a: 1})-[r:foo {b: 2}]->(b) RETURN n,r,path', {}, wrap_level: :proc)
 
         result_entity = result.hashes[0][:n]
         expect(result_entity).to be_a(WrapperClass)

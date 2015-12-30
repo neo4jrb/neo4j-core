@@ -266,11 +266,13 @@ module Neo4j
 
       def each
         response = self.response
-        if response.is_a?(Neo4j::Server::CypherResponse)
+        if defined?(Neo4j::Server::CypherResponse) && response.is_a?(Neo4j::Server::CypherResponse)
           response.unwrapped! if unwrapped?
           response.to_node_enumeration
-        else
+        elsif defined?(Neo4j::Embedded::ResultWrapper) && response.is_a?(Neo4j::Embedded::ResultWrapper)
           Neo4j::Embedded::ResultWrapper.new(response, to_cypher, unwrapped?)
+        else
+          response.to_a
         end.each { |object| yield object }
       end
 

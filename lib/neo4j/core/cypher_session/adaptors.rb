@@ -44,19 +44,21 @@ module Neo4j
           end
 
           def query(*args)
-            queries { append(*args) }[0]
+            options = args.size == 3 ? args.pop : {}
+
+            queries(options) { append(*args) }[0]
           end
 
-          def queries(&block)
+          def queries(options = {}, &block)
             query_builder = QueryBuilder.new
 
             query_builder.instance_eval(&block)
 
-            query_set(query_builder.queries)
+            query_set(query_builder.queries, options)
           end
 
-          def query_set(_queries)
-            fail '#queries not implemented!'
+          def query_set(_queries, _options = {})
+            fail '#query_set not implemented!'
           end
 
           def start_transaction(*_args)
