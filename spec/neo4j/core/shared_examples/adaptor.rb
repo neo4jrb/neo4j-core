@@ -135,7 +135,7 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
         end
 
         let_context return_clause: '{c: 3}' do
-          it { should eq(c: 3)}
+          it { should eq(c: 3) }
         end
 
         # Possible to return better data structure for :none?
@@ -153,7 +153,7 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
           end
 
           let_context return_clause: '{c: 3}' do
-            it { should eq(c: 3)}
+            it { should eq(c: 3) }
           end
         end
 
@@ -176,7 +176,7 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
           end
 
           let_context return_clause: '{c: 3}' do
-            it { should eq(c: 3)}
+            it { should eq(c: 3) }
           end
         end
       end

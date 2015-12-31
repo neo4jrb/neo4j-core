@@ -269,7 +269,7 @@ module Neo4j
         if defined?(Neo4j::Server::CypherResponse) && response.is_a?(Neo4j::Server::CypherResponse)
           response.unwrapped! if unwrapped?
           response.to_node_enumeration
-        elsif defined?(Neo4j::Core::CypherSession::Responses::Base) && response.is_a?(Neo4j::Core::CypherSession::Responses::Base)
+        elsif defined?(Neo4j::Core::CypherSession::Result) && response.is_a?(Neo4j::Core::CypherSession::Result)
           response.to_a
         else
           Neo4j::Embedded::ResultWrapper.new(response, to_cypher, unwrapped?)
