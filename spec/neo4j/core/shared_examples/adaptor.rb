@@ -120,7 +120,9 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
         #          1 AS int,
         #          "foo" AS string'
 
+        # Default wrap_level should be :core_entity
         let(:wrap_level) { nil }
+
         subject { adaptor.query(query, {}, wrap_level: wrap_level).to_a[0].result }
 
         let_context return_clause: 'n' do
@@ -137,6 +139,10 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
           it { should be_a(Neo4j::Core::Path) }
         end
 
+        let_context return_clause: '{c: 3}' do
+          it { should eq(c: 3)}
+        end
+
         # Possible to return better data structure for :none?
         let_context wrap_level: :none do
           let_context return_clause: 'n' do
@@ -148,7 +154,11 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
           end
 
           let_context return_clause: 'path' do
-            it { should eq([{:a=>1}, {:b=>2}, {}]) }
+            it { should eq([{a: 1}, {b: 2}, {}]) }
+          end
+
+          let_context return_clause: '{c: 3}' do
+            it { should eq(c: 3)}
           end
         end
 
@@ -168,6 +178,10 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
           let_context return_clause: 'path' do
             it { should be_a(WrapperClass) }
             its(:wrapped_object) { should be_a(Neo4j::Core::Path) }
+          end
+
+          let_context return_clause: '{c: 3}' do
+            it { should eq(c: 3)}
           end
         end
       end
