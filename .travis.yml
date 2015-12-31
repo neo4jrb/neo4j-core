@@ -13,9 +13,9 @@ env:
 sudo: false
 matrix:
   include:
-    - script:
-        - "bundle exec rubocop"
+    - script: "bundle exec rubocop"
       rvm: 2.3.0
+      env: "RUBOCOP=true"
     # Pre-2.1.5 is special, metadata isn't sent back with HTTP REST endpoint
     - rvm: 2.3.0
       env: RSPEC_TAGS=~new_cypher_session NEO4J_VERSION=community-2.1.4
