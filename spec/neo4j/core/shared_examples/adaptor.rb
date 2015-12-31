@@ -115,11 +115,6 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
            RETURN #{return_clause} AS result"
         end
 
-        #   RETURN n,r,path,
-        #          [n,r] AS pair,
-        #          1 AS int,
-        #          "foo" AS string'
-
         # Default wrap_level should be :core_entity
         let(:wrap_level) { nil }
 
