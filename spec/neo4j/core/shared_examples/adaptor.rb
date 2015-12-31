@@ -109,22 +109,67 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
 
       # Normally I don't think you wouldn't wrap nodes/relationships/paths
       # with the same class.  It's just expedient to do so in this spec
-      it 'Returns wrapped objects from results' do
-        result = adaptor.query('CREATE path=(n {a: 1})-[r:foo {b: 2}]->(b) RETURN n,r,path', {}, wrap_level: :proc)
+      describe 'wrapping' do
+        let(:query) do
+          "MERGE path=(n:Foo {a: 1})-[r:foo {b: 2}]->(b:Foo)
+           RETURN #{return_clause} AS result"
+        end
 
-        result_entity = result.hashes[0][:n]
-        expect(result_entity).to be_a(WrapperClass)
-        expect(result_entity.wrapped_object).to be_a(Neo4j::Core::Node)
-        expect(result_entity.wrapped_object.properties).to eq(a: 1)
+        #   RETURN n,r,path,
+        #          [n,r] AS pair,
+        #          1 AS int,
+        #          "foo" AS string'
 
-        result_entity = result.hashes[0][:r]
-        expect(result_entity).to be_a(WrapperClass)
-        expect(result_entity.wrapped_object).to be_a(Neo4j::Core::Relationship)
-        expect(result_entity.wrapped_object.properties).to eq(b: 2)
+        let(:wrap_level) { nil }
+        subject { adaptor.query(query, {}, wrap_level: wrap_level).to_a[0].result }
 
-        result_entity = result.hashes[0][:path]
-        expect(result_entity).to be_a(WrapperClass)
-        expect(result_entity.wrapped_object).to be_a(Neo4j::Core::Path)
+        let_context return_clause: 'n' do
+          it { should be_a(Neo4j::Core::Node) }
+          its(:properties) { should eq(a: 1) }
+        end
+
+        let_context return_clause: 'r' do
+          it { should be_a(Neo4j::Core::Relationship) }
+          its(:properties) { should eq(b: 2) }
+        end
+
+        let_context return_clause: 'path' do
+          it { should be_a(Neo4j::Core::Path) }
+        end
+
+        # Possible to return better data structure for :none?
+        let_context wrap_level: :none do
+          let_context return_clause: 'n' do
+            it { should eq(a: 1) }
+          end
+
+          let_context return_clause: 'r' do
+            it { should eq(b: 2) }
+          end
+
+          let_context return_clause: 'path' do
+            it { should eq([{:a=>1}, {:b=>2}, {}]) }
+          end
+        end
+
+        let_context wrap_level: :proc do
+          let_context return_clause: 'n' do
+            it { should be_a(WrapperClass) }
+            its(:wrapped_object) { should be_a(Neo4j::Core::Node) }
+            its(:'wrapped_object.properties') { should eq(a: 1) }
+          end
+
+          let_context return_clause: 'r' do
+            it { should be_a(WrapperClass) }
+            its(:wrapped_object) { should be_a(Neo4j::Core::Relationship) }
+            its(:'wrapped_object.properties') { should eq(b: 2) }
+          end
+
+          let_context return_clause: 'path' do
+            it { should be_a(WrapperClass) }
+            its(:wrapped_object) { should be_a(Neo4j::Core::Path) }
+          end
+        end
       end
     end
   end
