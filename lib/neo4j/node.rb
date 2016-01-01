@@ -17,6 +17,7 @@ module Neo4j
     include EntityEquality
     include Wrapper
     include PropertyContainer
+    include EntityMarshal
 
     # @return [Hash<Symbol, Object>] all properties of the node
     def props
