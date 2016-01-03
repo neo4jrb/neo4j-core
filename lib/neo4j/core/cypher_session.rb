@@ -1,5 +1,3 @@
-require 'neo4j/core/cypher_session/transaction'
-
 module Neo4j
   module Core
     class CypherSession
@@ -19,13 +17,9 @@ module Neo4j
         query
         queries
 
-        start_transaction
-        end_transaction
         transaction
-        transaction_started?
 
         version
-
         indexes_for_label
         uniqueness_constraints_for_label
       ).each do |method, &_block|

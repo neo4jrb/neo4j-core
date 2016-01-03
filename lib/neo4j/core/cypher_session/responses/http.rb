@@ -7,7 +7,8 @@ module Neo4j
         class HTTP < Base
           attr_reader :results, :request_data
 
-          def initialize(faraday_response, request_data, options = {})
+          def initialize(faraday_response, options = {})
+            @faraday_response = faraday_response
             @request_data = request_data
 
             validate_faraday_response!(faraday_response)
@@ -59,6 +60,7 @@ module Neo4j
           end
 
           def identify_entity(rest_datum)
+            return if !rest_datum.is_a?(Hash)
             self_string = rest_datum[:self]
             if self_string
               type = self_string.split('/')[-2]
@@ -110,8 +112,10 @@ module Neo4j
               error = <<-ERROR
   Request to: #{ANSI::BOLD}#{faraday_response.env.url}#{ANSI::CLEAR}
   #{ANSI::CYAN}#{error[:code]}#{ANSI::CLEAR}: #{error[:message]}
+  #{error[:stackTrace]}
 ERROR
-              fail CypherError, error
+
+              fail CypherError, error.strip
             end
 
             return if (200..299).include?(status = faraday_response.status)

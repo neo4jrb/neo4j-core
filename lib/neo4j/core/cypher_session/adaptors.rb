@@ -54,48 +54,39 @@ module Neo4j
 
             query_builder.instance_eval(&block)
 
-            query_set(query_builder.queries, options)
+            tx = options.delete(:transaction) || self.class.transaction_class.new(self)
+
+            query_set(tx, query_builder.queries, {commit: true}.merge(options))
           end
 
-          def query_set(_queries, _options = {})
-            fail '#query_set not implemented!'
+          [:query_set,
+           :version,
+           :indexes_for_label,
+           :uniqueness_constraints_for_label].each do |method|
+            define_method(method) do |*_args|
+              fail "##{method} method not implemented on adaptor!"
+            end
           end
 
-          def start_transaction(*_args)
-            fail '#start_transaction not implemented!'
-          end
-
-          def end_transaction(*_args)
-            fail '#end_transaction not implemented!'
-          end
-
-          def transaction_started?(*_args)
-            fail '#transaction_started? not implemented!'
-          end
-
-          def version(*_args)
-            fail '#version not implemented!'
-          end
-
-          # Schema inspection methods
-          def indexes_for_label(*_args)
-            fail '#indexes_for_label not implemented!'
-          end
-
-          def uniqueness_constraints_for_label(*_args)
-            fail '#uniqueness_constraints_for_label not implemented!'
-          end
-
-
-          # Uses #start_transaction and #end_transaction to allow
-          # execution of queries within a block to be part of a
-          # full transaction
+          # If called without a block, returns a Transaction object
+          # which can be used to call query/queries/mark_failed/commit
+          # If called with a block, the Transaction object is yielded
+          # to the block and `commit` is ensured.  Any uncaught exceptions
+          # will mark the transaction as failed first
           def transaction
-            start_transaction
+            return self.class.transaction_class.new(self) if !block_given?
 
-            yield
-          ensure
-            end_transaction if transaction_started?
+            begin
+              tx = transaction
+
+              yield tx
+            rescue Exception => e
+              tx.mark_failed
+
+              raise e
+            ensure
+              tx.close
+            end
           end
 
           EMPTY = ''
@@ -114,6 +105,10 @@ module Neo4j
               queries.each do |query|
                 instrument_query(query) {}
               end
+            end
+
+            def transaction_class
+              fail '.transaction_class method not implemented on adaptor!'
             end
           end
         end

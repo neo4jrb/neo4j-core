@@ -45,22 +45,58 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
   end
 
   describe 'transactions' do
-    it 'lets you execute a query in a transaction' do
-      expect_queries(1) do
-        adaptor.start_transaction
-        adaptor.query('MATCH n RETURN n LIMIT 1')
-        adaptor.end_transaction
-      end
-
-      expect_queries(1) do
-        adaptor.transaction do
-          adaptor.query('MATCH n RETURN n LIMIT 1')
-        end
-      end
+    def create_object_by_id(id, query_object)
+      query_object.query('CREATE (t:Temporary {id: {id}})', id: id)
     end
 
-    it 'does not allow transactions in the wrong order' do
-      expect { adaptor.end_transaction }.to raise_error(RuntimeError, /Cannot close transaction without starting one/)
+    def get_object_by_id(id, query_object)
+      first = query_object.query('MATCH (t:Temporary {id: {id}}) RETURN t', id: id).first
+      first && first.t
+    end
+
+    it 'logs one query per query_set in transaction' do
+      expect_queries(1) do
+        tx = adaptor.transaction
+        create_object_by_id(1, tx)
+        tx.close
+      end
+      expect(get_object_by_id(1, adaptor)).to be_a(Neo4j::Core::Node)
+
+      expect_queries(1) do
+        adaptor.transaction do |tx|
+          create_object_by_id(2, tx)
+        end
+      end
+      expect(get_object_by_id(2, adaptor)).to be_a(Neo4j::Core::Node)
+    end
+
+    it 'allows for rollback' do
+      expect_queries(1) do
+        tx = adaptor.transaction
+        create_object_by_id(3, tx)
+        tx.mark_failed
+        tx.close
+      end
+      expect(get_object_by_id(3, adaptor)).to be_nil
+
+      expect_queries(1) do
+        adaptor.transaction do |tx|
+          create_object_by_id(4, tx)
+          tx.mark_failed
+        end
+      end
+      expect(get_object_by_id(4, adaptor)).to be_nil
+
+      expect_queries(1) do
+        expect do
+          adaptor.transaction do |tx|
+            create_object_by_id(5, tx)
+            fail 'Failing transaction with error'
+          end
+        end.to raise_error 'Failing transaction with error'
+      end
+      expect(get_object_by_id(5, adaptor)).to be_nil
+
     end
   end
 

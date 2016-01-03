@@ -42,6 +42,10 @@ module Helpers
     "#{Time.now.year}#{Time.now.to_i}#{Time.now.usec.to_s[0..2]}".to_i
   end
 
+  def delete_db
+    session.query('MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n, r')
+  end
+
   #
   # def clean_server_db
   #   resource_headers = {'Content-Type' => 'application/json', 'Accept' => 'application/json'}

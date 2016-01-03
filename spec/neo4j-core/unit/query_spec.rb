@@ -101,7 +101,7 @@ describe Neo4j::Core::Query do
       create_server_session
     end
     before(:each) do
-      Neo4j::Core::Query.new.match(foo: :Foo, bar: :Bar).delete(:foo, :bar).exec
+      delete_db
 
       5.times do
         Neo4j::Node.create({uuid: SecureRandom.uuid}, :Foo)

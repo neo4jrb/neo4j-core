@@ -22,7 +22,7 @@ module Neo4j
 
       # Commits or marks this transaction for rollback, depending on whether #mark_failed has been previously invoked.
       def close
-        fail "Can't commit transaction, already committed" if session_transaction_stack.empty?
+        fail 'Cannot commit transaction, already committed' if session_transaction_stack.empty?
 
         session_transaction_stack.pop
 
@@ -30,11 +30,11 @@ module Neo4j
       end
 
       def delete
-        'not implemented'
+        fail 'not implemented'
       end
 
       def commit
-        'not implemented'
+        fail 'not implemented'
       end
 
       def autoclosed!

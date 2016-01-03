@@ -6,8 +6,11 @@ module Neo4j
     class CypherSession
       module Adaptors
         class Embedded < Base
+          attr_reader :graph_db
+
           def initialize(path, options = {})
             fail 'JRuby is required for embedded mode' if RUBY_PLATFORM != 'java'
+            # TODO: Will this cause an error if a new path is specified?
             fail ArgumentError, "Invalid path: #{path}" if !File.directory?(path)
 
             @path = path
@@ -23,21 +26,21 @@ module Neo4j
             @graph_db = db_service.newGraphDatabase
           end
 
-          def query_set(queries, options = {})
-            # I think that this is the best way to do a batch in embedded...
-            # Should probably do within a transaction in case of errors...
+          def query_set(transaction, queries, options = {})
+            fail 'Query attempted without a connection' if @graph_db.nil?
+            fail "Invalid transaction object: #{transaction}" if !transaction.is_a?(self.class.transaction_class)
 
-            transaction do
-              self.class.instrument_transaction do
-                self.class.instrument_queries(queries)
+            self.class.instrument_transaction do
+              self.class.instrument_queries(queries)
 
-                execution_results = queries.map do |query|
-                  engine.execute(query.cypher, indifferent_params(query))
-                end
-
-                Responses::Embedded.new(execution_results, options).results
+              execution_results = queries.map do |query|
+                engine.execute(query.cypher, indifferent_params(query))
               end
+
+              Responses::Embedded.new(execution_results, options).results
             end
+          ensure
+            transaction.close if options.delete(:commit)
           end
 
           def start_transaction
@@ -67,6 +70,11 @@ module Neo4j
             else
               fail 'Could not determine embedded version!'
             end
+          end
+
+          def self.transaction_class
+            require 'neo4j/core/cypher_session/transactions/embedded'
+            Neo4j::Core::CypherSession::Transactions::Embedded
           end
 
           instrument(:transaction, 'neo4j.core.embedded.transaction', []) do |_, start, finish, _id, _payload|
