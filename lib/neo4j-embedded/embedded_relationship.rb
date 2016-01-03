@@ -1,6 +1,8 @@
 module Neo4j
   module Embedded
     class EmbeddedRelationship
+      MARSHAL_INSTANCE_VARIABLES = []
+
       class << self
         if !Neo4j::Core::Config.using_new_session?
           Java::OrgNeo4jKernelImplCore::RelationshipProxy.class_eval do

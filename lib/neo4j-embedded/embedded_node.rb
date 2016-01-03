@@ -4,6 +4,8 @@ module Neo4j
       include Enumerable
       extend Neo4j::Core::TxMethods
 
+      MARSHAL_INSTANCE_VARIABLES = [:@node, :@match]
+
       def initialize(node, match)
         @node = node
         ::Neo4j::Node.validate_match!(match)
