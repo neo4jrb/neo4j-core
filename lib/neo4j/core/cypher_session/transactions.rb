@@ -9,8 +9,8 @@ module Neo4j
             adaptor.query(query, parameters, {transaction: self, commit: false}.merge(options))
           end
 
-          def queries(query, parameters = {}, options = {}, &block)
-            adaptor.queries(query, parameters, {transaction: self, commit: false}.merge(options))
+          def queries(options = {}, &block)
+            adaptor.queries({transaction: self, commit: false}.merge(options), &block)
           end
 
           private

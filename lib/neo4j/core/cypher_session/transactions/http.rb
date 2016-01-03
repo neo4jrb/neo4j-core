@@ -27,8 +27,8 @@ module Neo4j
           end
 
           # Takes the transaction URL from Neo4j and parses out the ID
-          def set_id_from_url!(url)
-            @id = url.match(/\/(\d+)\/?$/)[1].to_i if url
+          def apply_id_from_url!(url)
+            @id = url.match(%r{/(\d+)/?$})[1].to_i if url
           end
 
           def started?

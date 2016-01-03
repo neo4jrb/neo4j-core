@@ -80,7 +80,7 @@ module Neo4j
               tx = transaction
 
               yield tx
-            rescue Exception => e
+            rescue Exception => e # rubocop:disable Lint/RescueException
               tx.mark_failed
 
               raise e

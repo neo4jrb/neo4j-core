@@ -83,7 +83,7 @@ module Neo4j
               entity.each_with_object({}) { |(k, v), r| r[k.to_sym] = v }
             elsif entity.is_a?(Java::OrgNeo4jKernelImplCore::NodeProxy) ||
                   entity.is_a?(Java::OrgNeo4jKernelImplCore::RelationshipProxy)
-              entity.property_keys.each_with_object({}) {|key, hash| hash[key.to_sym] = entity.get_property(key) }
+              entity.property_keys.each_with_object({}) { |key, hash| hash[key.to_sym] = entity.get_property(key) }
             elsif entity.respond_to?(:path_entities)
               entity.to_a.map(&method(:wrap_value))
             else

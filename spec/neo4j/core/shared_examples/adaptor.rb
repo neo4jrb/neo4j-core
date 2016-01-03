@@ -96,7 +96,6 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
         end.to raise_error 'Failing transaction with error'
       end
       expect(get_object_by_id(5, adaptor)).to be_nil
-
     end
   end
 

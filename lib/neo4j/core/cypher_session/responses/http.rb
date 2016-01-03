@@ -115,7 +115,7 @@ module Neo4j
   #{error[:stackTrace]}
 ERROR
 
-              fail CypherError, error.strip
+              fail CypherError, error
             end
 
             return if (200..299).include?(status = faraday_response.status)

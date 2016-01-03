@@ -32,7 +32,7 @@ module Neo4j
 
             faraday_response = @requestor.post(path, queries)
 
-            transaction.set_id_from_url!(faraday_response.env[:response_headers][:location])
+            transaction.apply_id_from_url!(faraday_response.env[:response_headers][:location])
 
             wrap_level = options[:wrap_level] || @options[:wrap_level]
             Responses::HTTP.new(faraday_response, wrap_level: wrap_level).results
@@ -74,28 +74,26 @@ module Neo4j
             " #{ANSI::BLUE}HTTP REQUEST:#{ANSI::CLEAR} #{ANSI::YELLOW}#{ms.round}ms#{ANSI::CLEAR} #{payload[:method].upcase} #{payload[:url]} (#{payload[:body].size} bytes)"
           end
 
-          private
-
           # Basic wrapper around HTTP requests to standard Neo4j HTTP endpoints
           #  - Takes care of JSONifying objects passed as body (Hash/Array/Query)
           #  - Sets headers, including user agent string
           class Requestor
-            def initialize(url = nil, instrument_proc)
+            def initialize(url, instrument_proc)
               @url = url
               @url_components = url_components!(url)
               @faraday = faraday_connection
               @instrument_proc = instrument_proc
             end
 
-            REQUEST_HEADERS = {:Accept => 'application/json; charset=UTF-8',
-                               :'Content-Type' => 'application/json'}
+            REQUEST_HEADERS = {Accept: 'application/json; charset=UTF-8',
+                               'Content-Type': 'application/json'}
 
             # @method HTTP method (:get/:post/:delete/:put)
             # @path Path part of URL
             # @body Body for the request.  If a Query or Array of Queries,
             #       it is automatically converted
             def request(method, path, body = '', _options = {})
-              request_body = body_json(body)
+              request_body = request_body(body)
               url = url_from_path(path)
               @instrument_proc.call(method, url, request_body) do
                 @faraday.run_request(method, url, request_body, REQUEST_HEADERS)
@@ -130,17 +128,17 @@ module Neo4j
               end
             end
 
-            def body_json(body)
+            def request_body(body)
               return body if body.is_a?(String)
 
-              body_is_query_array = body.is_a?(Array) && body.all? {|o| o.respond_to?(:cypher) }
+              body_is_query_array = body.is_a?(Array) && body.all? { |o| o.respond_to?(:cypher) }
               if body.is_a?(Hash) || (body.is_a?(Array) && !body_is_query_array)
                 body
               elsif body.respond_to?(:cypher)
                 {statements: [self.class.statement_from_query(body)]}
               elsif body_is_query_array
                 {statements: body.map(&self.class.method(:statement_from_query))}
-              end.to_json
+              end
             end
 
             def self.statement_from_query(query)
