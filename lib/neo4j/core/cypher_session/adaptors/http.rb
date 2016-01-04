@@ -88,8 +88,8 @@ module Neo4j
               @instrument_proc = instrument_proc
             end
 
-            REQUEST_HEADERS = {'Accept': 'application/json; charset=UTF-8',
-                               'Content-Type': 'application/json'}
+            REQUEST_HEADERS = {'Accept'.to_sym => 'application/json; charset=UTF-8',
+                               'Content-Type'.to_sym => 'application/json'}
 
             # @method HTTP method (:get/:post/:delete/:put)
             # @path Path part of URL
