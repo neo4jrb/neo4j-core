@@ -62,7 +62,8 @@ module Neo4j
           [:query_set,
            :version,
            :indexes_for_label,
-           :uniqueness_constraints_for_label].each do |method|
+           :uniqueness_constraints_for_label,
+           :connected?].each do |method|
             define_method(method) do |*_args|
               fail "##{method} method not implemented on adaptor!"
             end
@@ -110,6 +111,13 @@ module Neo4j
             def transaction_class
               fail '.transaction_class method not implemented on adaptor!'
             end
+          end
+
+          private
+
+          def validate_query_set!(transaction, _queries, _options = {})
+            fail 'Query attempted without a connection' if !connected?
+            fail "Invalid transaction object: #{transaction}" if !transaction.is_a?(self.class.transaction_class)
           end
         end
       end

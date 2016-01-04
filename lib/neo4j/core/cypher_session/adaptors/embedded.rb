@@ -27,8 +27,7 @@ module Neo4j
           end
 
           def query_set(transaction, queries, options = {})
-            fail 'Query attempted without a connection' if @graph_db.nil?
-            validate_transaction!(transaction)
+            validate_query_set!(transaction, queries, options)
 
             self.class.instrument_transaction do
               self.class.instrument_queries(queries)
@@ -93,10 +92,6 @@ module Neo4j
 
           def engine
             @engine ||= Java::OrgNeo4jCypherJavacompat::ExecutionEngine.new(@graph_db)
-          end
-
-          def validate_transaction!(transaction)
-            fail "Invalid transaction object: #{transaction}" if !transaction.is_a?(self.class.transaction_class)
           end
         end
       end

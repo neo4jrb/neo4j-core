@@ -22,8 +22,7 @@ module Neo4j
           ROW_REST = %w(row REST)
 
           def query_set(transaction, queries, options = {})
-            fail 'Query attempted without a connection' if @requestor.nil?
-            fail "Invalid transaction object: #{transaction}" if !transaction.is_a?(self.class.transaction_class)
+            validate_query_set!(transaction, queries, options)
 
             # context option not implemented
             self.class.instrument_queries(queries)
@@ -36,6 +35,10 @@ module Neo4j
 
             wrap_level = options[:wrap_level] || @options[:wrap_level]
             Responses::HTTP.new(faraday_response, wrap_level: wrap_level).results
+          end
+
+          def connected?
+            !@requestor.nil?
           end
 
           def version
@@ -85,8 +88,8 @@ module Neo4j
               @instrument_proc = instrument_proc
             end
 
-            REQUEST_HEADERS = {:'Accept' => 'application/json; charset=UTF-8',
-                               :'Content-Type' => 'application/json'}
+            REQUEST_HEADERS = {'Accept': 'application/json; charset=UTF-8',
+                               'Content-Type': 'application/json'}
 
             # @method HTTP method (:get/:post/:delete/:put)
             # @path Path part of URL
@@ -132,12 +135,15 @@ module Neo4j
               return body if body.is_a?(String)
 
               body_is_query_array = body.is_a?(Array) && body.all? { |o| o.respond_to?(:cypher) }
-              if body.is_a?(Hash) || (body.is_a?(Array) && !body_is_query_array)
+              case body
+              when Hash, Array
+                if body_is_query_array
+                  return {statements: body.map(&self.class.method(:statement_from_query))}
+                end
+
                 body
-              elsif body.respond_to?(:cypher)
-                {statements: [self.class.statement_from_query(body)]}
-              elsif body_is_query_array
-                {statements: body.map(&self.class.method(:statement_from_query))}
+              else
+                {statements: [self.class.statement_from_query(body)]} if body.respond_to?(:cypher)
               end
             end
 
