@@ -105,7 +105,7 @@ module Neo4j
 
     # @return [Neo4j::Transaction::Instance]
     def new(session = Session.current!)
-      session.class.transaction_class.new(session)
+      session.transaction
     end
 
     # Runs the given block in a new transaction.

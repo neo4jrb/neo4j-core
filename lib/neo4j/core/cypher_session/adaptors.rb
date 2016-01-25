@@ -14,6 +14,8 @@ module Neo4j
             fail '#connect not implemented!'
           end
 
+          attr_accessor :wrap_level
+
           Query = Struct.new(:cypher, :parameters, :pretty_cypher, :context)
 
           class QueryBuilder

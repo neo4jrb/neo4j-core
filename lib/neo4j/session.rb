@@ -72,6 +72,10 @@ module Neo4j
       fail 'not implemented'
     end
 
+    def transaction_class
+      self.class.transaction_class
+    end
+
     class << self
       # Creates a new session to Neo4j.
       # This will be the default session to be used unless there is already a session created (see #current and #set_current)

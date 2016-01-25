@@ -9,8 +9,8 @@ module Neo4j
         @adaptor.connect
       end
 
-      def self.transaction_class
-        Neo4j::Core::CypherSession::Transaction
+      def transaction_class
+        Neo4j::Core::CypherSession::Transactions::Base
       end
 
       %w(
