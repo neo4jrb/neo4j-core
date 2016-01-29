@@ -55,11 +55,8 @@ module Neo4j
 
       def to_node_enumeration(cypher = EMPTY_STRING, session = Neo4j::Session.current)
         Enumerator.new do |yielder|
-          @result_index = 0
           to_struct_enumeration(cypher).each do |row|
-            @row_index = 0
             yielder << row_pair_in_struct(row, session)
-            @result_index += 1
           end
         end
       end
@@ -68,7 +65,6 @@ module Neo4j
         @struct.new.tap do |result|
           row.each_pair do |column, value|
             result[column] = map_row_value(value, session)
-            @row_index += 1
           end
         end
       end
@@ -84,17 +80,10 @@ module Neo4j
       end
 
       def hash_value_as_object(value, session)
-        if transaction_response?
-          add_transaction_entity_id
-          data = mapped_rest_data
-        elsif [:node, :relationship].include?(identify_entity(value))
-          add_entity_id(value)
-          data = value
-        else
-          return value
-        end
+        return value unless [:node, :relationship].include?(identify_entity(value))
+        add_entity_id(value)
 
-        basic_obj = (node?(value) ? CypherNode : CypherRelationship).new(session, data)
+        basic_obj = (node?(value) ? CypherNode : CypherRelationship).new(session, value)
         unwrapped? ? basic_obj : basic_obj.wrapper
       end
 
@@ -112,11 +101,7 @@ module Neo4j
       end
 
       def looks_like_an_object?(value)
-        if transaction_response?
-          mapped_rest_data[:outgoing_relationships] || (mapped_rest_data[:start] && mapped_rest_data[:properties])
-        else
-          value[:labels] || value[:type]
-        end
+        value[:labels] || value[:type]
       end
 
       def unwrapped!
@@ -128,7 +113,7 @@ module Neo4j
       end
 
       def node?(value)
-        transaction_response? ? !mapped_rest_data[:start] : value[:labels]
+        value[:labels]
       end
 
       attr_reader :struct
@@ -151,7 +136,6 @@ module Neo4j
       def first_data
         if @uncommited
           @data.first[:row].first
-          # data.is_a?(Hash) ? {'data' => data, 'id' => id} : data
         else
           data = @data[0][0]
           data.is_a?(Hash) ? add_entity_id(data) : data
@@ -165,11 +149,6 @@ module Neo4j
                       data[:self].split('/')[-1].to_i
                     end
         data
-      end
-
-      def add_transaction_entity_id
-        mapped_rest_data[:id] = mapped_rest_data[:self].split('/').last.to_i
-        mapped_rest_data
       end
 
       def error?
@@ -191,8 +170,17 @@ module Neo4j
       end
 
       def each_data_row
-        data.each { |r| yield (@uncommited ? r[:row] : r) }
+        data.each do |r|
+          yieldable = if @uncommitted
+                        r[:row]
+                      else
+                        transaction_row?(r) ? r[:rest] : r
+                      end
+          yield yieldable
+        end
       end
+
+
 
       def set_data(response)
         @data = response[:data]
@@ -244,27 +232,10 @@ module Neo4j
         end
       end
 
-      def transaction_response?
-        response.respond_to?(:body) && !response.body[:commit].nil?
-      end
-
-      def rest_data
-        @result_index = @row_index = 0
-        mapped_rest_data
-      end
-
-      def rest_data_with_id
-        rest_data[:id] = mapped_rest_data[:self].split('/').last.to_i
-        rest_data
-      end
-
       private
 
-      attr_reader :row_index, :result_index
-
-      def mapped_rest_data
-        data = response.body[:results][0][:data][result_index][:rest][row_index]
-        data.is_a?(Array) ? data.first : data
+      def transaction_row?(row)
+        row.is_a?(Hash) && row[:rest] && row[:row]
       end
     end
   end
