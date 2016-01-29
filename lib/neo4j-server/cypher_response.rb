@@ -180,7 +180,9 @@ module Neo4j
         end
       end
 
-
+      def transaction_response?
+        response.respond_to?(:body) && !response.body[:commit].nil?
+      end
 
       def set_data(response)
         @data = response[:data]
