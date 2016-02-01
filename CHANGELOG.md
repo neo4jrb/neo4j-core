@@ -9,6 +9,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Returning paths within transactions in Server mode could result in incorrectly wrapped nodes.
 
+### Changed
+
+- The process of parsing responses from the transactional endpoint was simplified and improved. A few methods tied directly to the old implementation and with no reusability were removed. See https://github.com/neo4jrb/neo4j-core/pull/249 for changes.
+
 ## [6.1.0] - 2016-01-01
 
 ### Fixed
