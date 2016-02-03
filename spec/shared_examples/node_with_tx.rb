@@ -118,6 +118,23 @@ RSpec.shared_examples 'Neo4j::Node with tx' do
           end
         end
       end
+
+      describe 'returning a path from cypher' do
+        before do
+          Neo4j::Session.current
+            .query("CREATE (:Person {name: 'son'})<-[:PARENT_OF]-(:Person {name: 'father'})<-[:PARENT_OF]-(:Person {name: 'grandfather'})")
+        end
+        let(:names) do
+          Neo4j::Session.current
+            .query
+            .match("p=(:Person {name: 'son'})<-[PARENT_OF*]-(:Person {name: 'grandfather'})")
+            .pluck('nodes(p)')[0].map { |n| n.props[:name] }
+        end
+
+        it 'correctly wraps nodes' do
+          expect(Neo4j::Transaction.run { names }).to eq %w(son father grandfather)
+        end
+      end
     end
   end
 

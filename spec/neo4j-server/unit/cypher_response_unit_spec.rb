@@ -1,5 +1,5 @@
 require 'spec_helper'
-
+# rubocop:disable Metrics/ModuleLength
 module Neo4j
   module Server
     describe CypherResponse do
@@ -219,6 +219,24 @@ module Neo4j
           expect(CypherResponse::ConstraintViolationError.new(nil, nil, nil)).to be_a(CypherResponse::ResponseError)
         end
       end
+
+      describe '#transaction_response?' do
+        let(:response) { Neo4j::Server::CypherResponse.new(http_double) }
+        let(:http_double) { double('An HTTP result', body: body_hash) }
+        subject { response.transaction_response? }
+
+        context 'with transaction keys' do
+          let(:body_hash) { {commit: 'foo'} }
+          it { is_expected.to eq true }
+        end
+
+        context 'without transaction keys' do
+          let(:body_hash) { {} }
+
+          it { is_expected.to eq false }
+        end
+      end
     end
   end
 end
+# rubocop:enable Metrics/ModuleLength
