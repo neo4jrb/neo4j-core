@@ -224,7 +224,7 @@ module Neo4j
             if value.to_s.match(/^{.+}$/)
               "#{key}: #{value}"
             else
-              param_key = "#{prefix}#{key}".gsub('::', '_')
+              param_key = "#{prefix}#{key}".gsub(/:+/, '_')
               param_key = add_param(param_key, value)
               "#{key}: {#{param_key}}"
             end
