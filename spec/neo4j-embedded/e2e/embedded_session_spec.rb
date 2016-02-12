@@ -41,7 +41,7 @@ module Neo4j
         it 'raise an error if session already was started' do
           session.start
           expect(session.running?).to be true
-          expect { session.start }.to raise_error
+          expect { session.start }.to raise_error(Neo4j::Embedded::EmbeddedSession::Error)
         end
 
         it 'is allowed to start the session after it has been shutdown' do
