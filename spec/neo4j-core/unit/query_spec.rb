@@ -641,10 +641,18 @@ describe Neo4j::Core::Query do
     end
 
     describe ".create(q: {:'Child:Person' => {age: 41, height: 70}})" do
-      it_generates 'CREATE (q:`Child`:`Person` {age: {q_Child_Person_age}, height: {q_Child_Person_height}})', q_Child_Person_age: 41, q_Child_Person_height: 70
+      it_generates 'CREATE (q:`Child:Person` {age: {q_Child_Person_age}, height: {q_Child_Person_height}})', q_Child_Person_age: 41, q_Child_Person_height: 70
     end
 
     describe ".create(:'Child:Person' => {age: 41, height: 70})" do
+      it_generates 'CREATE (:`Child:Person` {age: {Child_Person_age}, height: {Child_Person_height}})', Child_Person_age: 41, Child_Person_height: 70
+    end
+
+    describe '.create(q: {[:Child, :Person] => {age: 41, height: 70}})' do
+      it_generates 'CREATE (q:`Child`:`Person` {age: {q_Child_Person_age}, height: {q_Child_Person_height}})', q_Child_Person_age: 41, q_Child_Person_height: 70
+    end
+
+    describe '.create([:Child, :Person] => {age: 41, height: 70})' do
       it_generates 'CREATE (:`Child`:`Person` {age: {Child_Person_age}, height: {Child_Person_height}})', Child_Person_age: 41, Child_Person_height: 70
     end
   end
