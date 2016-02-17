@@ -34,7 +34,7 @@ module Neo4j
 
         it 'adds host and port to the connection object' do
           connection = Neo4j::Session.current.connection
-          expect(connection.port).to eq 7474
+          expect(connection.port).to eq ENV['NEO4J_URL'] ? ENV['NEO4J_URL'].split(':').last.to_i : 7474
           expect(connection.host).to eq 'localhost'
         end
       end
