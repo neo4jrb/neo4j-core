@@ -46,7 +46,7 @@ module Neo4j
 
         it 'stores a named session' do
           name = :test
-          test = Neo4j::Session.open(:server_db, nil, name: name)
+          test = Neo4j::Session.open(:server_db, server_url, name: name)
           expect(Neo4j::Session.named(name)).to eq(test)
         end
 
@@ -54,7 +54,7 @@ module Neo4j
           default = open_session
           expect(Neo4j::Session.current).to eq(default)
           name = :test
-          Neo4j::Session.open(:server_db, nil, name: name)
+          Neo4j::Session.open(:server_db, server_url, name: name)
           expect(Neo4j::Session.current).to eq(default)
         end
 
@@ -62,7 +62,7 @@ module Neo4j
           default = open_session
           expect(Neo4j::Session.current).to eq(default)
           name = :test
-          test = Neo4j::Session.open(:server_db, nil, name: name, default: true)
+          test = Neo4j::Session.open(:server_db, server_url, name: name, default: true)
           expect(Neo4j::Session.current).to eq(test)
         end
       end
