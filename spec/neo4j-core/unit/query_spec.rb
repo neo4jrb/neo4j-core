@@ -120,7 +120,7 @@ describe Neo4j::Core::Query do
           4 => 2,
           5 => 1,
           6 => 1
-      }.each do |batch_size, expected_yields|
+        }.each do |batch_size, expected_yields|
           context "batch_size of #{batch_size}" do
             it "yields #{expected_yields} times" do
               expect do |block|

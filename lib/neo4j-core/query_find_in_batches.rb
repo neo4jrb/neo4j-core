@@ -19,7 +19,7 @@ module Neo4j
           break if records_size < batch_size
 
           records = query.where("#{Neo4j::Core::QueryClauses::Clause.from_key_and_single_value(node_var, prop_var)} > {primary_key_offset}")
-                        .params(primary_key_offset: primary_key_offset).to_a
+                    .params(primary_key_offset: primary_key_offset).to_a
         end
       end
 
