@@ -536,19 +536,40 @@ describe Neo4j::Core::Query do
       it_generates 'ORDER BY q.age'
     end
 
+    describe '.order(q: :neo_id)' do
+      it_generates 'ORDER BY ID(q)'
+    end
+
     describe '.order(q: [:age, {name: :desc}])' do
       it_generates 'ORDER BY q.age, q.name DESC'
+    end
+
+    describe '.order(q: [:age, {neo_id: :desc}])' do
+      it_generates 'ORDER BY q.age, ID(q) DESC'
     end
 
     describe '.order(q: [:age, {name: :desc, grade: :asc}])' do
       it_generates 'ORDER BY q.age, q.name DESC, q.grade ASC'
     end
+
+    describe '.order(q: [:age, {name: :desc, neo_id: :asc}])' do
+      it_generates 'ORDER BY q.age, q.name DESC, ID(q) ASC'
+    end
+
     describe '.order(q: {age: :asc, name: :desc})' do
       it_generates 'ORDER BY q.age ASC, q.name DESC'
     end
 
+    describe '.order(q: {age: :asc, neo_id: :desc})' do
+      it_generates 'ORDER BY q.age ASC, ID(q) DESC'
+    end
+
     describe ".order(q: [:age, 'name desc'])" do
       it_generates 'ORDER BY q.age, q.name desc'
+    end
+
+    describe ".order(q: [:neo_id, 'name desc'])" do
+      it_generates 'ORDER BY ID(q), q.name desc'
     end
   end
 

@@ -54,6 +54,14 @@ module Neo4j
           value
         end
 
+        def from_key_and_single_value(key, value)
+          if value.to_sym == :neo_id
+            "ID(#{key})"
+          else
+            "#{key}.#{value}"
+          end
+        end
+
         def node_from_key_and_value(key, value, options = {})
           prefer = options[:prefer] || :var
           var = var_from_key_and_value(key, value, prefer)
@@ -489,13 +497,13 @@ module Neo4j
         def from_key_and_value(key, value)
           case value
           when String, Symbol
-            "#{key}.#{value}"
+            from_key_and_single_value(key, value)
           when Array
             value.map do |v|
-              v.is_a?(Hash) ? from_key_and_value(key, v) : "#{key}.#{v}"
+              v.is_a?(Hash) ? from_key_and_value(key, v) : from_key_and_single_value(key, v)
             end
           when Hash
-            value.map { |k, v| "#{key}.#{k} #{v.upcase}" }
+            value.map { |k, v| "#{from_key_and_single_value(key, k)} #{v.upcase}" }
           end
         end
 
@@ -686,11 +694,7 @@ module Neo4j
               from_key_and_value(key, v)
             end.join(Clause::COMMA_SPACE)
           when String, Symbol
-            if value.to_sym == :neo_id
-              "ID(#{key})"
-            else
-              "#{key}.#{value}"
-            end
+            from_key_and_single_value(key, value)
           else
             fail ArgError, value
           end
