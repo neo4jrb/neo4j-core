@@ -111,39 +111,41 @@ describe Neo4j::Core::Query do
       end
     end
 
-    describe 'find_in_batches' do
-      {
-        1 => 5,
-        2 => 3,
-        3 => 2,
-        4 => 2,
-        5 => 1,
-        6 => 1
-      }.each do |batch_size, expected_yields|
-        context "batch_size of #{batch_size}" do
-          it "yields #{expected_yields} times" do
-            expect do |block|
-              Neo4j::Core::Query.new.match(f: :Foo).return(:f).find_in_batches(:f, :uuid, batch_size: batch_size, &block)
-            end.to yield_control.exactly(expected_yields).times
+    [:uuid, :neo_id].each do |primary_key|
+      describe "find_in_batches with #{primary_key}" do
+        {
+          1 => 5,
+          2 => 3,
+          3 => 2,
+          4 => 2,
+          5 => 1,
+          6 => 1
+        }.each do |batch_size, expected_yields|
+          context "batch_size of #{batch_size}" do
+            it "yields #{expected_yields} times" do
+              expect do |block|
+                Neo4j::Core::Query.new.match(f: :Foo).return(:f).find_in_batches(:f, primary_key, batch_size: batch_size, &block)
+              end.to yield_control.exactly(expected_yields).times
+            end
           end
         end
       end
-    end
 
-    describe 'find_each' do
-      {
-        1 => 5,
-        2 => 5,
-        3 => 5,
-        4 => 5,
-        5 => 5,
-        6 => 5
-      }.each do |batch_size, expected_yields|
-        context "batch_size of #{batch_size}" do
-          it "yields #{expected_yields} times" do
-            expect do |block|
-              Neo4j::Core::Query.new.match(f: :Foo).return(:f).find_each(:f, :uuid, batch_size: 2, &block)
-            end.to yield_control.exactly(5).times
+      describe "find_each with #{primary_key}" do
+        {
+          1 => 5,
+          2 => 5,
+          3 => 5,
+          4 => 5,
+          5 => 5,
+          6 => 5
+        }.each do |batch_size, expected_yields|
+          context "batch_size of #{batch_size}" do
+            it "yields #{expected_yields} times" do
+              expect do |block|
+                Neo4j::Core::Query.new.match(f: :Foo).return(:f).find_each(:f, primary_key, batch_size: 2, &block)
+              end.to yield_control.exactly(5).times
+            end
           end
         end
       end
