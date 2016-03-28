@@ -82,13 +82,6 @@ Style/GuardClause:
   Exclude:
     - 'lib/neo4j-core/query_clauses.rb'
 
-# Offense count: 6
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles, IndentationWidth.
-# SupportedStyles: aligned, indented
-Style/MultilineMethodCallIndentation:
-  Enabled: false
-
 # Offense count: 56
 # Cop supports --auto-correct.
 Style/MutableConstant:

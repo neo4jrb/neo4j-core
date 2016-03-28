@@ -108,7 +108,7 @@ RSpec.shared_examples 'Neo4j::Node with tx' do
             tx = Neo4j::Transaction.new
             Neo4j::Session.current.query.match(person: 'Person').pluck('person limit 1')
             response = Neo4j::Session.current.query.match(person: 'Person').where(person: {name: 'Foo'})
-                       .pluck('person, { name: person.name, labels: LABELS(person)[0]} as ph').first
+                                     .pluck('person, { name: person.name, labels: LABELS(person)[0]} as ph').first
             expect(response[1]).to be_a(Hash)
             # Behavior differs slightly in JRuby/Embedded.
             key = response[1].key?('name') ? 'name' : :name
@@ -122,13 +122,13 @@ RSpec.shared_examples 'Neo4j::Node with tx' do
       describe 'returning a path from cypher' do
         before do
           Neo4j::Session.current
-            .query("CREATE (:Person {name: 'son'})<-[:PARENT_OF]-(:Person {name: 'father'})<-[:PARENT_OF]-(:Person {name: 'grandfather'})")
+                        .query("CREATE (:Person {name: 'son'})<-[:PARENT_OF]-(:Person {name: 'father'})<-[:PARENT_OF]-(:Person {name: 'grandfather'})")
         end
         let(:names) do
           Neo4j::Session.current
-            .query
-            .match("p=(:Person {name: 'son'})<-[PARENT_OF*]-(:Person {name: 'grandfather'})")
-            .pluck('nodes(p)')[0].map { |n| n.props[:name] }
+                        .query
+                        .match("p=(:Person {name: 'son'})<-[PARENT_OF*]-(:Person {name: 'grandfather'})")
+                        .pluck('nodes(p)')[0].map { |n| n.props[:name] }
         end
 
         it 'correctly wraps nodes' do
