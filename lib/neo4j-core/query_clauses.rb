@@ -219,7 +219,7 @@ module Neo4j
           label_arg = label_arg.to_s
           label_arg.strip!
           if !label_arg.empty? && label_arg[0] != ':'
-            label_arg = "`#{label_arg}`" unless label_arg =~ ' '
+            label_arg = "`#{label_arg}`" unless label_arg[' ']
             label_arg = ":#{label_arg}"
           end
           label_arg
