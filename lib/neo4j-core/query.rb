@@ -479,8 +479,6 @@ module Neo4j
         end
 
         class << self
-          private
-
           def clause_is_order_or_limit?(clause)
             clause.is_a?(::Neo4j::Core::QueryClauses::OrderClause) ||
               clause.is_a?(::Neo4j::Core::QueryClauses::LimitClause)
