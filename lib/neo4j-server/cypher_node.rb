@@ -193,10 +193,11 @@ module Neo4j
 
       private
 
+      DEFAULT_RELATIONSHIP_ARROW_DIRECTION = :both
       def relationship_arrow(match)
         rel_spec = match[:type] ? "[r:`#{match[:type]}`]" : '[r]'
 
-        case match[:dir] || :both
+        case match[:dir] || DEFAULT_RELATIONSHIP_ARROW_DIRECTION
         when :outgoing then "-#{rel_spec}->"
         when :incoming then "<-#{rel_spec}-"
         when :both then "-#{rel_spec}-"

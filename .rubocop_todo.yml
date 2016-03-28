@@ -19,11 +19,6 @@ Lint/HandleExceptions:
     - 'spec/neo4j-server/e2e/cypher_node_spec.rb'
     - 'spec/shared_examples/label.rb'
 
-# Offense count: 1
-Lint/LiteralInCondition:
-  Exclude:
-    - 'lib/neo4j-server/cypher_node.rb'
-
 # Offense count: 32
 # Cop supports --auto-correct.
 # Configuration parameters: AllowUnusedKeywordArguments, IgnoreEmptyMethods.
