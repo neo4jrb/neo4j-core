@@ -56,13 +56,6 @@ Metrics/MethodLength:
 Metrics/ModuleLength:
   Max: 113
 
-# Offense count: 3
-# Cop supports --auto-correct.
-Performance/RedundantBlockCall:
-  Exclude:
-    - 'lib/neo4j-embedded/embedded_node.rb'
-    - 'lib/neo4j/core/instrumentable.rb'
-
 # Offense count: 4
 # Cop supports --auto-correct.
 Performance/RedundantMatch:

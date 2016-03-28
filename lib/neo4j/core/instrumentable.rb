@@ -12,13 +12,13 @@ module Neo4j
       end
 
       module ClassMethods
-        def instrument(name, label, arguments, &block)
+        def instrument(name, label, arguments)
           # defining class methods
           klass = class << self; self; end
           klass.instance_eval do
             define_method("subscribe_to_#{name}") do |&b|
               ActiveSupport::Notifications.subscribe(label) do |a, start, finish, id, payload|
-                b.call block.call(a, start, finish, id, payload)
+                b.call yield(a, start, finish, id, payload)
               end
             end
 

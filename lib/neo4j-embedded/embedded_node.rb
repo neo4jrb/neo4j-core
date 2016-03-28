@@ -16,8 +16,8 @@ module Neo4j
         'Enumerable<Neo4j::Relationship>'
       end
 
-      def each(&block)
-        @node._rels(@match).each { |r| block.call(r.wrapper) }
+      def each
+        @node._rels(@match).each { |r| yield(r.wrapper) }
       end
       tx_methods :each
 
@@ -39,8 +39,8 @@ module Neo4j
         'Enumerable<Neo4j::Node>'
       end
 
-      def each(&block)
-        @node._rels(@match).each { |r| block.call(r.other_node(@node)) }
+      def each
+        @node._rels(@match).each { |r| yield(r.other_node(@node)) }
       end
       tx_methods :each
 
