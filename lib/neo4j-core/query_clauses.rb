@@ -98,8 +98,8 @@ module Neo4j
           when Hash
             if value.values.map(&:class) == [Hash]
               value.first.first
-            else
-              key if !_use_key_for_var?(value, prefer)
+            elsif !_use_key_for_var?(value, prefer)
+              key
             end
           else
             fail ArgError, value
