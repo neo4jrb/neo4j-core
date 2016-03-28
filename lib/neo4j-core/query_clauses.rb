@@ -152,7 +152,7 @@ module Neo4j
                               keyword
                             end
 
-            "#{final_keyword} #{string}" if string.size > 0
+            "#{final_keyword} #{string}" if !string.empty?
           end
 
           def clause_string(clauses, pretty)
