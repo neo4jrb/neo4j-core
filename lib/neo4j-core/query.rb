@@ -478,9 +478,13 @@ module Neo4j
             @partitioning[-2] && @partitioning[-2].any? { |c| self.class.clause_is_order_or_limit?(c) }
         end
 
-        def self.clause_is_order_or_limit?(clause)
-          clause.is_a?(::Neo4j::Core::QueryClauses::OrderClause) ||
-            clause.is_a?(::Neo4j::Core::QueryClauses::LimitClause)
+        class << self
+          private
+
+          def clause_is_order_or_limit?(clause)
+            clause.is_a?(::Neo4j::Core::QueryClauses::OrderClause) ||
+              clause.is_a?(::Neo4j::Core::QueryClauses::LimitClause)
+          end
         end
       end
 

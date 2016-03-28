@@ -20,11 +20,6 @@ Lint/HandleExceptions:
     - 'spec/shared_examples/label.rb'
 
 # Offense count: 1
-Lint/IneffectiveAccessModifier:
-  Exclude:
-    - 'lib/neo4j-core/query.rb'
-
-# Offense count: 1
 Lint/LiteralInCondition:
   Exclude:
     - 'lib/neo4j-server/cypher_node.rb'
