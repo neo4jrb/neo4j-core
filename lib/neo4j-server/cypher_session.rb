@@ -118,7 +118,7 @@ module Neo4j
       def load_relationship(neo_id)
         query.unwrapped.optional_match('(n)-[r]-()').where(r: {neo_id: neo_id}).pluck(:r).first
       rescue Neo4j::Session::CypherError => cypher_error
-        return nil if cypher_error.message.match(/not found$/)
+        return nil if cypher_error.message =~ /not found$/
 
         raise cypher_error
       end

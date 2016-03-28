@@ -81,7 +81,7 @@ module Neo4j
 
       def tx_cleanup!(first_error)
         autoclosed!
-        mark_expired if first_error[:message].match(/Unrecognized transaction id/)
+        mark_expired if first_error[:message] =~ /Unrecognized transaction id/
       end
 
       def empty_response

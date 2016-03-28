@@ -219,7 +219,7 @@ module Neo4j
           label_arg = label_arg.to_s
           label_arg.strip!
           if !label_arg.empty? && label_arg[0] != ':'
-            label_arg = "`#{label_arg}`" unless label_arg.match(' ')
+            label_arg = "`#{label_arg}`" unless label_arg =~ ' '
             label_arg = ":#{label_arg}"
           end
           label_arg
@@ -229,7 +229,7 @@ module Neo4j
           return '' if not attributes
 
           attributes_string = attributes.map do |key, value|
-            if value.to_s.match(/^{.+}$/)
+            if value.to_s =~ /^{.+}$/
               "#{key}: #{value}"
             else
               param_key = "#{prefix}#{key}".gsub(/:+/, '_')

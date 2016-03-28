@@ -56,14 +56,6 @@ Metrics/MethodLength:
 Metrics/ModuleLength:
   Max: 113
 
-# Offense count: 4
-# Cop supports --auto-correct.
-Performance/RedundantMatch:
-  Exclude:
-    - 'lib/neo4j-core/query_clauses.rb'
-    - 'lib/neo4j-server/cypher_session.rb'
-    - 'lib/neo4j-server/cypher_transaction.rb'
-
 # Offense count: 8
 Style/AccessorMethodName:
   Exclude:
