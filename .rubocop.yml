@@ -27,6 +27,13 @@ Style/SpaceInsideHashLiteralBraces:
 Style/SpaceAroundOperators:
   AllowForAlignment: true
 
+# Offense count: 7
+# Cop supports --auto-correct.
+# Configuration parameters: EnforcedStyle, SupportedStyles, ConsistentQuotesInMultiline.
+# SupportedStyles: single_quotes, double_quotes
+Style/StringLiterals:
+  Enabled: true
+
 
 
 # I think this one is broken...

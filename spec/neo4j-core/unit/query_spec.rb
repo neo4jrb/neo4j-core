@@ -242,7 +242,7 @@ describe Neo4j::Core::Query do
     end
 
     describe ".match(n: 'Person {name: \"Brian\"}')" do
-      it_generates "MATCH (n:Person {name: \"Brian\"})"
+      it_generates 'MATCH (n:Person {name: "Brian"})'
     end
 
     describe ".match(n: {name: 'Brian', age: 33})" do
@@ -751,7 +751,7 @@ describe Neo4j::Core::Query do
 
   describe '#set_props' do
     describe ".set_props('n = {name: \"Brian\"}')" do
-      it_generates "SET n = {name: \"Brian\"}"
+      it_generates 'SET n = {name: "Brian"}'
     end
 
     describe ".set_props(n: {name: 'Brian', age: 30})" do
@@ -761,7 +761,7 @@ describe Neo4j::Core::Query do
 
   describe '#set' do
     describe ".set('n = {name: \"Brian\"}')" do
-      it_generates "SET n = {name: \"Brian\"}"
+      it_generates 'SET n = {name: "Brian"}'
     end
 
     describe ".set(n: {name: 'Brian', age: 30})" do
@@ -792,7 +792,7 @@ describe Neo4j::Core::Query do
   # ON CREATE and ON MATCH should behave just like set_props
   describe '#on_create_set' do
     describe ".on_create_set('n = {name: \"Brian\"}')" do
-      it_generates "ON CREATE SET n = {name: \"Brian\"}"
+      it_generates 'ON CREATE SET n = {name: "Brian"}'
     end
 
     describe '.on_create_set(n: {})' do
@@ -814,7 +814,7 @@ describe Neo4j::Core::Query do
 
   describe '#on_match_set' do
     describe ".on_match_set('n = {name: \"Brian\"}')" do
-      it_generates "ON MATCH SET n = {name: \"Brian\"}"
+      it_generates 'ON MATCH SET n = {name: "Brian"}'
     end
 
     describe '.on_match_set(n: {})' do
@@ -892,11 +892,11 @@ describe Neo4j::Core::Query do
 
   describe '#start' do
     describe ".start('r=node:nodes(name = \"Brian\")')" do
-      it_generates "START r=node:nodes(name = \"Brian\")"
+      it_generates 'START r=node:nodes(name = "Brian")'
     end
 
     describe ".start(r: 'node:nodes(name = \"Brian\")')" do
-      it_generates "START r = node:nodes(name = \"Brian\")"
+      it_generates 'START r = node:nodes(name = "Brian")'
     end
   end
 
