@@ -67,20 +67,6 @@ Style/AccessorMethodName:
     - 'lib/neo4j/session.rb'
     - 'spec/shared_examples/node_auto_tx.rb'
 
-# Offense count: 14
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: prefer_alias, prefer_alias_method
-Style/Alias:
-  Exclude:
-    - 'lib/neo4j-core/query.rb'
-    - 'lib/neo4j-server/cypher_node.rb'
-    - 'lib/neo4j-server/cypher_relationship.rb'
-    - 'lib/neo4j-server/cypher_session.rb'
-    - 'lib/neo4j/core/node.rb'
-    - 'lib/neo4j/entity_equality.rb'
-    - 'lib/neo4j/transaction.rb'
-
 # Offense count: 7
 Style/ClassVars:
   Exclude:

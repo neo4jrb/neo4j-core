@@ -13,13 +13,13 @@ module Neo4j
       def mark_failed
         @failure = true
       end
-      alias_method :failure, :mark_failed
+      alias failure mark_failed
 
       # If it has been marked as failed. Aliased for legacy purposes.
       def failed?
         !!@failure
       end
-      alias_method :failure?, :failed?
+      alias failure? failed?
 
       def autoclosed!
         @autoclosed = true if transient_failures_autoclose?

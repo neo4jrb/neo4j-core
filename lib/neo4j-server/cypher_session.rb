@@ -9,7 +9,7 @@ module Neo4j
     class CypherSession < Neo4j::Session
       include Resource
 
-      alias_method :super_query, :query
+      alias super_query query
       attr_reader :connection
 
       def initialize(data_url, connection)

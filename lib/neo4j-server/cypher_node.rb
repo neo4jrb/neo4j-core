@@ -138,8 +138,8 @@ module Neo4j
         @session._query_or_fail(query, false)
       end
 
-      alias_method :delete, :del
-      alias_method :destroy, :del
+      alias delete del
+      alias destroy del
 
       # (see Neo4j::Node#exist?)
       def exist?

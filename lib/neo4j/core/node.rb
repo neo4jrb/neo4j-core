@@ -4,12 +4,12 @@ module Neo4j
   module Core
     class Node
       attr_reader :id, :labels, :properties
-      alias_method :props, :properties
+      alias props properties
 
       include Wrappable
 
       # Perhaps we should deprecate this?
-      alias_method :neo_id, :id
+      alias neo_id id
 
       def initialize(id, labels, properties = {})
         @id = id
