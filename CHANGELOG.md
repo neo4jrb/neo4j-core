@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased] - Unreleased
+
+### Added
+
+- Ability to specify `:neo_id`/`'neo_id'` in order clauses to order by `ID()` (thanks klobuczek / see: #253)
+
+## [6.1.2] - 2016-02-02
+
+### Fixed
+
+- Returning paths within transactions in Server mode could result in incorrectly wrapped nodes.
+
+### Changed
+
+- The process of parsing responses from the transactional endpoint was simplified and improved. A few methods tied directly to the old implementation and with no reusability were removed. See https://github.com/neo4jrb/neo4j-core/pull/249 for changes.
+
 ## [6.1.0] - 2016-01-01
 
 ### Fixed

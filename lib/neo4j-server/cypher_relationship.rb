@@ -19,7 +19,7 @@ module Neo4j
       def ==(other)
         other.class == self.class && other.neo_id == neo_id
       end
-      alias_method :eql?, :==
+      alias eql? ==
 
       attr_reader :id
 
@@ -115,8 +115,8 @@ module Neo4j
       def del
         @session._query("#{match_start} DELETE n", neo_id: neo_id)
       end
-      alias_method :delete, :del
-      alias_method :destroy, :del
+      alias delete del
+      alias destroy del
 
       def exist?
         response = @session._query("#{match_start} RETURN n", neo_id: neo_id)

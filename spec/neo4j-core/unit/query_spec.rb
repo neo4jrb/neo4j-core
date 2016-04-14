@@ -111,39 +111,41 @@ describe Neo4j::Core::Query do
       end
     end
 
-    describe 'find_in_batches' do
-      {
-        1 => 5,
-        2 => 3,
-        3 => 2,
-        4 => 2,
-        5 => 1,
-        6 => 1
-      }.each do |batch_size, expected_yields|
-        context "batch_size of #{batch_size}" do
-          it "yields #{expected_yields} times" do
-            expect do |block|
-              Neo4j::Core::Query.new.match(f: :Foo).return(:f).find_in_batches(:f, :uuid, batch_size: batch_size, &block)
-            end.to yield_control.exactly(expected_yields).times
+    [:uuid, :neo_id].each do |primary_key|
+      describe "find_in_batches with #{primary_key}" do
+        {
+          1 => 5,
+          2 => 3,
+          3 => 2,
+          4 => 2,
+          5 => 1,
+          6 => 1
+        }.each do |batch_size, expected_yields|
+          context "batch_size of #{batch_size}" do
+            it "yields #{expected_yields} times" do
+              expect do |block|
+                Neo4j::Core::Query.new.match(f: :Foo).return(:f).find_in_batches(:f, primary_key, batch_size: batch_size, &block)
+              end.to yield_control.exactly(expected_yields).times
+            end
           end
         end
       end
-    end
 
-    describe 'find_each' do
-      {
-        1 => 5,
-        2 => 5,
-        3 => 5,
-        4 => 5,
-        5 => 5,
-        6 => 5
-      }.each do |batch_size, expected_yields|
-        context "batch_size of #{batch_size}" do
-          it "yields #{expected_yields} times" do
-            expect do |block|
-              Neo4j::Core::Query.new.match(f: :Foo).return(:f).find_each(:f, :uuid, batch_size: 2, &block)
-            end.to yield_control.exactly(5).times
+      describe "find_each with #{primary_key}" do
+        {
+          1 => 5,
+          2 => 5,
+          3 => 5,
+          4 => 5,
+          5 => 5,
+          6 => 5
+        }.each do |batch_size, expected_yields|
+          context "batch_size of #{batch_size}" do
+            it "yields #{expected_yields} times" do
+              expect do |block|
+                Neo4j::Core::Query.new.match(f: :Foo).return(:f).find_each(:f, primary_key, batch_size: 2, &block)
+              end.to yield_control.exactly(5).times
+            end
           end
         end
       end
@@ -242,7 +244,7 @@ describe Neo4j::Core::Query do
     end
 
     describe ".match(n: 'Person {name: \"Brian\"}')" do
-      it_generates "MATCH (n:Person {name: \"Brian\"})"
+      it_generates 'MATCH (n:Person {name: "Brian"})'
     end
 
     describe ".match(n: {name: 'Brian', age: 33})" do
@@ -536,19 +538,40 @@ describe Neo4j::Core::Query do
       it_generates 'ORDER BY q.age'
     end
 
+    describe '.order(q: :neo_id)' do
+      it_generates 'ORDER BY ID(q)'
+    end
+
     describe '.order(q: [:age, {name: :desc}])' do
       it_generates 'ORDER BY q.age, q.name DESC'
+    end
+
+    describe '.order(q: [:age, {neo_id: :desc}])' do
+      it_generates 'ORDER BY q.age, ID(q) DESC'
     end
 
     describe '.order(q: [:age, {name: :desc, grade: :asc}])' do
       it_generates 'ORDER BY q.age, q.name DESC, q.grade ASC'
     end
+
+    describe '.order(q: [:age, {name: :desc, neo_id: :asc}])' do
+      it_generates 'ORDER BY q.age, q.name DESC, ID(q) ASC'
+    end
+
     describe '.order(q: {age: :asc, name: :desc})' do
       it_generates 'ORDER BY q.age ASC, q.name DESC'
     end
 
+    describe '.order(q: {age: :asc, neo_id: :desc})' do
+      it_generates 'ORDER BY q.age ASC, ID(q) DESC'
+    end
+
     describe ".order(q: [:age, 'name desc'])" do
       it_generates 'ORDER BY q.age, q.name desc'
+    end
+
+    describe ".order(q: [:neo_id, 'name desc'])" do
+      it_generates 'ORDER BY ID(q), q.name desc'
     end
   end
 
@@ -639,6 +662,22 @@ describe Neo4j::Core::Query do
     describe '.create(q: {Person: {age: nil, height: 70}})' do
       it_generates 'CREATE (q:`Person` {age: {q_Person_age}, height: {q_Person_height}})', q_Person_age: nil, q_Person_height: 70
     end
+
+    describe ".create(q: {:'Child:Person' => {age: 41, height: 70}})" do
+      it_generates 'CREATE (q:`Child:Person` {age: {q_Child_Person_age}, height: {q_Child_Person_height}})', q_Child_Person_age: 41, q_Child_Person_height: 70
+    end
+
+    describe ".create(:'Child:Person' => {age: 41, height: 70})" do
+      it_generates 'CREATE (:`Child:Person` {age: {Child_Person_age}, height: {Child_Person_height}})', Child_Person_age: 41, Child_Person_height: 70
+    end
+
+    describe '.create(q: {[:Child, :Person] => {age: 41, height: 70}})' do
+      it_generates 'CREATE (q:`Child`:`Person` {age: {q_Child_Person_age}, height: {q_Child_Person_height}})', q_Child_Person_age: 41, q_Child_Person_height: 70
+    end
+
+    describe '.create([:Child, :Person] => {age: 41, height: 70})' do
+      it_generates 'CREATE (:`Child`:`Person` {age: {Child_Person_age}, height: {Child_Person_height}})', Child_Person_age: 41, Child_Person_height: 70
+    end
   end
 
   describe '#create_unique' do
@@ -714,7 +753,7 @@ describe Neo4j::Core::Query do
 
   describe '#set_props' do
     describe ".set_props('n = {name: \"Brian\"}')" do
-      it_generates "SET n = {name: \"Brian\"}"
+      it_generates 'SET n = {name: "Brian"}'
     end
 
     describe ".set_props(n: {name: 'Brian', age: 30})" do
@@ -724,7 +763,7 @@ describe Neo4j::Core::Query do
 
   describe '#set' do
     describe ".set('n = {name: \"Brian\"}')" do
-      it_generates "SET n = {name: \"Brian\"}"
+      it_generates 'SET n = {name: "Brian"}'
     end
 
     describe ".set(n: {name: 'Brian', age: 30})" do
@@ -755,7 +794,7 @@ describe Neo4j::Core::Query do
   # ON CREATE and ON MATCH should behave just like set_props
   describe '#on_create_set' do
     describe ".on_create_set('n = {name: \"Brian\"}')" do
-      it_generates "ON CREATE SET n = {name: \"Brian\"}"
+      it_generates 'ON CREATE SET n = {name: "Brian"}'
     end
 
     describe '.on_create_set(n: {})' do
@@ -777,7 +816,7 @@ describe Neo4j::Core::Query do
 
   describe '#on_match_set' do
     describe ".on_match_set('n = {name: \"Brian\"}')" do
-      it_generates "ON MATCH SET n = {name: \"Brian\"}"
+      it_generates 'ON MATCH SET n = {name: "Brian"}'
     end
 
     describe '.on_match_set(n: {})' do
@@ -855,11 +894,11 @@ describe Neo4j::Core::Query do
 
   describe '#start' do
     describe ".start('r=node:nodes(name = \"Brian\")')" do
-      it_generates "START r=node:nodes(name = \"Brian\")"
+      it_generates 'START r=node:nodes(name = "Brian")'
     end
 
     describe ".start(r: 'node:nodes(name = \"Brian\")')" do
-      it_generates "START r = node:nodes(name = \"Brian\")"
+      it_generates 'START r = node:nodes(name = "Brian")'
     end
   end
 

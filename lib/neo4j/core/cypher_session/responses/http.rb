@@ -114,7 +114,7 @@ ERROR
               fail CypherError, error
             end
 
-            return if (200..299).include?(status = faraday_response.status)
+            return if (200..299).cover?(status = faraday_response.status)
 
             fail CypherError, "Expected 200-series response for #{faraday_response.env.url} (got #{status})"
           end

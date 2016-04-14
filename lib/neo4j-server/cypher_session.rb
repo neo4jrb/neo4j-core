@@ -9,7 +9,7 @@ module Neo4j
     class CypherSession < Neo4j::Session
       include Resource
 
-      alias_method :super_query, :query
+      alias super_query query
       attr_reader :connection
 
       def initialize(data_url, connection)
@@ -129,7 +129,7 @@ module Neo4j
       def load_relationship(neo_id)
         query.unwrapped.optional_match('(n)-[r]-()').where(r: {neo_id: neo_id}).pluck(:r).first
       rescue Neo4j::Session::CypherError => cypher_error
-        return nil if cypher_error.message.match(/not found$/)
+        return nil if cypher_error.message =~ /not found$/
 
         raise cypher_error
       end
@@ -258,7 +258,7 @@ module Neo4j
       def self.log_with
         ActiveSupport::Notifications.subscribe('neo4j.cypher_query') do |_, start, finish, _id, payload|
           ms = (finish - start) * 1000
-          params_string = (payload[:params] && payload[:params].size > 0 ? "| #{payload[:params].inspect}" : EMPTY)
+          params_string = (payload[:params] && !payload[:params].empty? ? "| #{payload[:params].inspect}" : EMPTY)
           cypher = payload[:pretty_cypher] ? NEWLINE_W_SPACES + payload[:pretty_cypher].gsub(/\n/, NEWLINE_W_SPACES) : payload[:cypher]
 
           yield(" #{ANSI::CYAN}#{payload[:context] || 'CYPHER'}#{ANSI::CLEAR} #{ANSI::YELLOW}#{ms.round}ms#{ANSI::CLEAR} #{cypher} #{params_string}")

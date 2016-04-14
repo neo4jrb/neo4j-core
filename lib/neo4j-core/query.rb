@@ -172,8 +172,8 @@ module Neo4j
         end
       end
 
-      alias_method :offset, :skip
-      alias_method :order_by, :order
+      alias offset skip
+      alias order_by order
 
       # Clears out previous order clauses and allows only for those specified by args
       def reorder(*args)
@@ -344,7 +344,7 @@ module Neo4j
         cypher_string = "CYPHER #{@options[:parser]} #{cypher_string}" if @options[:parser]
         cypher_string.tap(&:strip!)
       end
-      alias_method :cypher, :to_cypher
+      alias cypher to_cypher
 
       def pretty_cypher
         to_cypher(pretty: true)
@@ -479,9 +479,11 @@ module Neo4j
             @partitioning[-2] && @partitioning[-2].any? { |c| self.class.clause_is_order_or_limit?(c) }
         end
 
-        def self.clause_is_order_or_limit?(clause)
-          clause.is_a?(::Neo4j::Core::QueryClauses::OrderClause) ||
-            clause.is_a?(::Neo4j::Core::QueryClauses::LimitClause)
+        class << self
+          def clause_is_order_or_limit?(clause)
+            clause.is_a?(::Neo4j::Core::QueryClauses::OrderClause) ||
+              clause.is_a?(::Neo4j::Core::QueryClauses::LimitClause)
+          end
         end
       end
 

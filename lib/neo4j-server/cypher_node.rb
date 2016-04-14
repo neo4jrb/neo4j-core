@@ -32,7 +32,7 @@ module Neo4j
       # (see Neo4j::Node#create_rel)
       def create_rel(type, other_node, props = nil)
         q = @session.query.match(:a, :b).where(a: {neo_id: neo_id}, b: {neo_id: other_node.neo_id})
-            .create("(a)-[r:`#{type}`]->(b)").break.set(r: props).return(r: :neo_id)
+                    .create("(a)-[r:`#{type}`]->(b)").break.set(r: props).return(r: :neo_id)
 
         id = @session._query_or_fail(q, true)
 
@@ -138,8 +138,8 @@ module Neo4j
         @session._query_or_fail(query, false)
       end
 
-      alias_method :delete, :del
-      alias_method :destroy, :del
+      alias delete del
+      alias destroy del
 
       # (see Neo4j::Node#exist?)
       def exist?
@@ -193,10 +193,11 @@ module Neo4j
 
       private
 
+      DEFAULT_RELATIONSHIP_ARROW_DIRECTION = :both
       def relationship_arrow(match)
         rel_spec = match[:type] ? "[r:`#{match[:type]}`]" : '[r]'
 
-        case match[:dir] || :both
+        case match[:dir] || DEFAULT_RELATIONSHIP_ARROW_DIRECTION
         when :outgoing then "-#{rel_spec}->"
         when :incoming then "<-#{rel_spec}-"
         when :both then "-#{rel_spec}-"

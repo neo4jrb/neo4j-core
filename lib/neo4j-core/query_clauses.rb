@@ -90,8 +90,8 @@ module Neo4j
           when Hash
             if value.values.map(&:class) == [Hash]
               value.first.first
-            else
-              key if !_use_key_for_var?(value, prefer)
+            elsif !_use_key_for_var?(value, prefer)
+              key
             end
           else
             fail ArgError, value
@@ -144,7 +144,7 @@ module Neo4j
                               keyword
                             end
 
-            "#{final_keyword} #{string}" if string.size > 0
+            "#{final_keyword} #{string}" if !string.empty?
           end
 
           def clause_string(clauses, pretty)
@@ -161,6 +161,14 @@ module Neo4j
 
           def clause_color
             ANSI::CYAN
+          end
+
+          def from_key_and_single_value(key, value)
+            if value.to_sym == :neo_id
+              "ID(#{key})"
+            else
+              "#{key}.#{value}"
+            end
           end
         end
 
@@ -211,7 +219,7 @@ module Neo4j
           label_arg = label_arg.to_s
           label_arg.strip!
           if !label_arg.empty? && label_arg[0] != ':'
-            label_arg = "`#{label_arg}`" unless label_arg.match(' ')
+            label_arg = "`#{label_arg}`" unless label_arg[' ']
             label_arg = ":#{label_arg}"
           end
           label_arg
@@ -221,10 +229,10 @@ module Neo4j
           return '' if not attributes
 
           attributes_string = attributes.map do |key, value|
-            if value.to_s.match(/^{.+}$/)
+            if value.to_s =~ /^{.+}$/
               "#{key}: #{value}"
             else
-              param_key = "#{prefix}#{key}".gsub('::', '_')
+              param_key = "#{prefix}#{key}".gsub(/:+/, '_')
               param_key = add_param(param_key, value)
               "#{key}: {#{param_key}}"
             end
@@ -489,13 +497,13 @@ module Neo4j
         def from_key_and_value(key, value)
           case value
           when String, Symbol
-            "#{key}.#{value}"
+            self.class.from_key_and_single_value(key, value)
           when Array
             value.map do |v|
-              v.is_a?(Hash) ? from_key_and_value(key, v) : "#{key}.#{v}"
+              v.is_a?(Hash) ? from_key_and_value(key, v) : self.class.from_key_and_single_value(key, v)
             end
           when Hash
-            value.map { |k, v| "#{key}.#{k} #{v.upcase}" }
+            value.map { |k, v| "#{self.class.from_key_and_single_value(key, k)} #{v.upcase}" }
           end
         end
 
@@ -686,11 +694,7 @@ module Neo4j
               from_key_and_value(key, v)
             end.join(Clause::COMMA_SPACE)
           when String, Symbol
-            if value.to_sym == :neo_id
-              "ID(#{key})"
-            else
-              "#{key}.#{value}"
-            end
+            self.class.from_key_and_single_value(key, value)
           else
             fail ArgError, value
           end

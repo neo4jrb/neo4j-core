@@ -20,6 +20,8 @@ module Neo4j
         "<#{self.class} [#{status_string}]"
       end
 
+      alias failure mark_failed
+
       # Commits or marks this transaction for rollback, depending on whether #mark_failed has been previously invoked.
       def close
         fail 'Cannot commit transaction, already committed' if session_transaction_stack.empty?
@@ -36,6 +38,8 @@ module Neo4j
       def commit
         fail 'not implemented'
       end
+
+      alias failure? failed?
 
       def autoclosed!
         @autoclosed = true if transient_failures_autoclose?

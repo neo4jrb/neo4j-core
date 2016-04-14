@@ -92,7 +92,7 @@ RSpec.shared_examples 'Neo4j::Node auto tx' do
           if Neo4j::Session.current.db_type == :server_db
             expect { n.del }.not_to raise_error
           else
-            expect { n.del }.to raise_error
+            expect { n.del }.to raise_error(Java::OrgNeo4jGraphdb::NotFoundException)
           end
         end
 

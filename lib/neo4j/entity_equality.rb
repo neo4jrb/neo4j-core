@@ -3,6 +3,6 @@ module Neo4j
     def ==(other)
       other.class == self.class && other.neo_id == neo_id
     end
-    alias_method :eql?, :==
+    alias eql? ==
   end
 end
