@@ -56,9 +56,9 @@ module Neo4j
 
             query_builder.instance_eval(&block)
 
-            tx = options.delete(:transaction) || self.class.transaction_class.new(self)
+            tx = options[:transaction] || self.class.transaction_class.new(self)
 
-            query_set(tx, query_builder.queries, {commit: true}.merge(options))
+            query_set(tx, query_builder.queries, {commit: !options[:transaction]}.merge(options))
           end
 
           [:query_set,
