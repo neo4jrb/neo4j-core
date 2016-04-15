@@ -45,18 +45,18 @@ module Neo4j
             end
           end
 
-          def query(*args)
-            options = args.size == 3 ? args.pop : {}
+          def query(session, *args)
+            options = (args.size == 3 || (args[0].is_a?(::Neo4j::Core::Query) && args.size == 2)) ? args.pop : {}
 
-            queries(options) { append(*args) }[0]
+            queries(session, options) { append(*args) }[0]
           end
 
-          def queries(options = {}, &block)
+          def queries(session, options = {}, &block)
             query_builder = QueryBuilder.new
 
             query_builder.instance_eval(&block)
 
-            tx = options[:transaction] || self.class.transaction_class.new(self)
+            tx = options[:transaction] || self.class.transaction_class.new(session)
 
             query_set(tx, query_builder.queries, {commit: !options[:transaction]}.merge(options))
           end
@@ -76,8 +76,8 @@ module Neo4j
           # If called with a block, the Transaction object is yielded
           # to the block and `commit` is ensured.  Any uncaught exceptions
           # will mark the transaction as failed first
-          def transaction
-            return self.class.transaction_class.new(self) if !block_given?
+          def transaction(session)
+            return self.class.transaction_class.new(session) if !block_given?
 
             begin
               tx = transaction
@@ -88,6 +88,7 @@ module Neo4j
 
               raise e
             ensure
+              puts 'caller', caller
               tx.close
             end
           end

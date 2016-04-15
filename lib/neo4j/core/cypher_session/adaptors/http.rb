@@ -98,6 +98,7 @@ module Neo4j
             def request(method, path, body = '', _options = {})
               request_body = request_body(body)
               url = url_from_path(path)
+              puts method.to_s.upcase + ' ' + url, request_body
               @instrument_proc.call(method, url, request_body) do
                 @faraday.run_request(method, url, request_body, REQUEST_HEADERS)
               end

@@ -3,14 +3,20 @@ module Neo4j
     class CypherSession
       module Transactions
         class Base < Neo4j::Transaction::Base
-          # Will perhaps be a bit odd as we will pass in the adaptor
-          # as the @session for these new transactions
-          def query(query, parameters = {}, options = {})
-            adaptor.query(query, parameters, {transaction: self, commit: false}.merge(options))
+          def query(*args)
+            options = if args[0].is_a?(::Neo4j::Core::Query)
+              args[1] ||= {}
+            else
+              args[1] ||= {}
+              args[2] ||= {}
+            end
+            options[:transaction] ||= self
+
+            adaptor.query(@session, *args)
           end
 
           def queries(options = {}, &block)
-            adaptor.queries({transaction: self, commit: false}.merge(options), &block)
+            adaptor.queries(@session, {transaction: self}.merge(options), &block)
           end
 
           private
@@ -18,7 +24,7 @@ module Neo4j
           # Because we're inheriting from the old Transaction class
           # but the new adaptors work much like the old sessions
           def adaptor
-            @session
+            @session.adaptor
           end
         end
       end

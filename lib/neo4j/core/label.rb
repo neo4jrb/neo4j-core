@@ -99,7 +99,9 @@ module Neo4j
       def schema_query(cypher)
         Thread.new do
           begin
+            puts '@session', @session.inspect
             @session.transaction do |tx|
+              puts 'tx', tx.inspect
               tx.query(cypher)
             end
           rescue Exception => e

@@ -1,6 +1,8 @@
 module Neo4j
   module Core
     class CypherSession
+      attr_reader :adaptor
+
       def initialize(adaptor)
         fail ArgumentError, "Invalid adaptor: #{adaptor.inspect}" if !adaptor.is_a?(Adaptors::Base)
 
@@ -24,7 +26,11 @@ module Neo4j
         uniqueness_constraints_for_label
       ).each do |method, &_block|
         define_method(method) do |*args, &block|
-          @adaptor.send(method, *args, &block)
+          if %w(query queries transaction).include?(method)
+            @adaptor.send(method, self, *args, &block)
+          else
+            @adaptor.send(method, *args, &block)
+          end
         end
       end
     end

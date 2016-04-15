@@ -236,7 +236,7 @@ module Neo4j
         pretty_cypher = to_cypher(pretty: true) if self.class.pretty_cypher
 
         @response = if session_is_new_api?
-                      @session.query(self)
+                      @session.query(self, transaction: Transaction.current_for(@session))
                     else
                       @session._query(cypher, merge_params, context: @options[:context], pretty_cypher: pretty_cypher)
                     end

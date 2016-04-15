@@ -81,7 +81,9 @@ module Neo4j
             metadata_data = rest_datum[:metadata]
             ::Neo4j::Core::Relationship.new(id_from_rest_datum(rest_datum),
                                             metadata_data && metadata_data[:type],
-                                            rest_datum[:data])
+                                            rest_datum[:data],
+                                            id_from_url(rest_datum[:start]),
+                                            id_from_url(rest_datum[:end]))
           end
 
           def wrap_path(rest_datum, row_datum)
@@ -99,8 +101,12 @@ module Neo4j
             if rest_datum[:metadata]
               rest_datum[:metadata][:id]
             else
-              rest_datum[:self].split('/').last.to_i
+              id_from_url(rest_datum[:self])
             end
+          end
+
+          def id_from_url(url)
+            url.split('/').last.to_i
           end
 
           def validate_faraday_response!(faraday_response)

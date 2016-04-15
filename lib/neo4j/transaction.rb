@@ -8,25 +8,25 @@ module Neo4j
 
       def initialize(session)
         @session = session
-        @parent = session_transaction_stack.last
-        session_transaction_stack << self
+        session.instance_variable_set('@current_transaction', self)
+        # @parent = session_transaction_stack.last
+        # session_transaction_stack << self
       end
 
       def inspect
-        status_string = [:nesting_level, :failed?, :active?].map do |method|
+        status_string = [:failed?, :active?].map do |method|
           "#{method}: #{send(method)}"
         end.join(', ')
 
         "<#{self.class} [#{status_string}]"
       end
 
-      alias failure mark_failed
-
       # Commits or marks this transaction for rollback, depending on whether #mark_failed has been previously invoked.
       def close
-        fail 'Cannot commit transaction, already committed' if session_transaction_stack.empty?
+        fail 'Cannot commit transaction, already committed' if closed?
+        @closed = true
 
-        session_transaction_stack.pop
+        session.instance_variable_set('@current_transaction', nil)
 
         post_close!
       end
@@ -39,10 +39,12 @@ module Neo4j
         fail 'not implemented'
       end
 
-      alias failure? failed?
-
       def autoclosed!
         @autoclosed = true if transient_failures_autoclose?
+      end
+
+      def closed?
+        !!@closed
       end
 
       # Marks this transaction as failed,
@@ -50,7 +52,7 @@ module Neo4j
       # when #close is called.
       # Aliased for legacy purposes.
       def mark_failed
-        @parent.mark_failed if @parent
+        # @parent.mark_failed if @parent
         @failure = true
       end
       alias_method :failure, :mark_failed
@@ -82,19 +84,7 @@ module Neo4j
       end
 
       def active?
-        session_transaction_stack.last == self
-      end
-
-      def nesting_level
-        stack_index + 1
-      end
-
-      def stack_index
-        session_transaction_stack.index(self)
-      end
-
-      def session_transaction_stack
-        Transaction.transaction_stack_for(@session)
+        !closed?
       end
 
       def post_close!
@@ -123,7 +113,7 @@ module Neo4j
       return yield(nil) unless run_in_tx
 
       tx = Neo4j::Transaction.new(session)
-      yield tx
+      yield current_for(session) || tx
     rescue Exception => e # rubocop:disable Lint/RescueException
       print_exception_cause(e)
 
@@ -151,23 +141,7 @@ module Neo4j
     end
 
     def current_for(session)
-      transaction_stack_for(session).last
-    end
-
-    def root_for(session)
-      transaction_stack_for(session).first
-    end
-
-    def transaction_stack_for(session)
-      fail ArgumentError, 'No session specified' if session.nil?
-
-      stack = session.instance_variable_get('@_transaction_stack')
-
-      stack ||= []
-
-      session.instance_variable_set('@_transaction_stack', stack)
-
-      stack
+      session.instance_variable_get('@current_transaction')
     end
 
     private
