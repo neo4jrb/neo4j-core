@@ -23,10 +23,11 @@ module Neo4j
 
       # Commits or marks this transaction for rollback, depending on whether #mark_failed has been previously invoked.
       def close
-        fail 'Cannot commit transaction, already committed' if closed?
-        @closed = true
-
         session.instance_variable_set('@current_transaction', nil)
+
+        return if closed?
+
+        @closed = true
 
         post_close!
       end
@@ -112,8 +113,8 @@ module Neo4j
 
       return yield(nil) unless run_in_tx
 
-      tx = Neo4j::Transaction.new(session)
-      yield current_for(session) || tx
+      tx = current_for(session) || Neo4j::Transaction.new(session)
+      yield tx
     rescue Exception => e # rubocop:disable Lint/RescueException
       print_exception_cause(e)
 

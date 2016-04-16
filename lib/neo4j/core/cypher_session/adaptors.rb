@@ -56,9 +56,13 @@ module Neo4j
 
             query_builder.instance_eval(&block)
 
+            Neo4j::Core::Label.wait_for_schema_changes(session)
+
             tx = options[:transaction] || self.class.transaction_class.new(session)
 
             query_set(tx, query_builder.queries, {commit: !options[:transaction]}.merge(options))
+          ensure
+            tx.close if !options[:transaction]
           end
 
           [:query_set,
@@ -80,7 +84,7 @@ module Neo4j
             return self.class.transaction_class.new(session) if !block_given?
 
             begin
-              tx = transaction
+              tx = transaction(session)
 
               yield tx
             rescue Exception => e # rubocop:disable Lint/RescueException
@@ -88,7 +92,6 @@ module Neo4j
 
               raise e
             ensure
-              puts 'caller', caller
               tx.close
             end
           end
