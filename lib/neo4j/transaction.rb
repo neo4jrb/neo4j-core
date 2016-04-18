@@ -1,3 +1,5 @@
+require 'active_support/core_ext/module/delegation'
+require 'active_support/per_thread_registry'
 
 module Neo4j
   module Transaction
