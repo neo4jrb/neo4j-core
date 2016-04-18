@@ -489,7 +489,8 @@ module Neo4j
 
       # SHOULD BE DEPRECATED
       def merge_params
-        @clauses.compact.inject(@params.to_hash.dup) { |params, clause| params.merge!(clause.params) }
+        @merge_params_base ||= @clauses.compact.inject({}) { |params, clause| params.merge!(clause.params) }
+        @params.to_hash.merge(@merge_params_base)
       end
     end
   end
