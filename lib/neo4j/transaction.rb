@@ -3,12 +3,21 @@ module Neo4j
   module Transaction
     extend self
 
+    # Provides a simple API to manage transactions for each session in a thread-safe manner
+    class TransactionsRegistry
+      extend ActiveSupport::PerThreadRegistry
+
+      attr_accessor :transactions_by_session_id
+    end
+
     class Base
       attr_reader :session
 
       def initialize(session)
         @session = session
-        session.instance_variable_set('@current_transaction', self)
+        TransactionsRegistry.transactions_by_session_id ||= {}
+        TransactionsRegistry.transactions_by_session_id[session.object_id] = self
+
         # @parent = session_transaction_stack.last
         # session_transaction_stack << self
       end
@@ -23,7 +32,7 @@ module Neo4j
 
       # Commits or marks this transaction for rollback, depending on whether #mark_failed has been previously invoked.
       def close
-        session.instance_variable_set('@current_transaction', nil)
+        TransactionsRegistry.transactions_by_session_id.delete(session.object_id)
 
         return if closed?
 
@@ -142,7 +151,7 @@ module Neo4j
     end
 
     def current_for(session)
-      session.instance_variable_get('@current_transaction')
+      (TransactionsRegistry.transactions_by_session_id || {})[session.object_id]
     end
 
     private

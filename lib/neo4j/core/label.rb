@@ -94,17 +94,27 @@ module Neo4j
         session.instance_variable_set('@_schema_threads', array)
       end
 
+      # Schema queries can run separately from other queries, but they should
+      # be mutually exclusive to each other or we get locking errors
+      SCHEMA_QUERY_SEMAPHORE = Mutex.new
+
       # If there is a transaction going on, this could block
       # So we run in a thread and it will go through at the next opportunity
       def schema_query(cypher)
         Thread.new do
-          begin
-            @session.transaction do |tx|
-              tx.query(cypher)
+          SCHEMA_QUERY_SEMAPHORE.synchronize do
+            begin
+              tx = @session.adaptor.class.transaction_class.new(@session)
+
+              tx.query(cypher, {}, do_not_wait_for_schema_changes: true)
+            rescue Exception => e
+              puts 'ERROR during schema query:'
+              puts e.message
+              puts e.backtrace
+              tx.mark_failed
+            ensure
+              tx.close
             end
-          rescue Exception => e
-            puts e.message
-            puts e.backtrace
           end
         end.tap do |thread|
           schema_threads << thread

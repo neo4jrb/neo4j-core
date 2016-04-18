@@ -56,7 +56,7 @@ module Neo4j
 
             query_builder.instance_eval(&block)
 
-            Neo4j::Core::Label.wait_for_schema_changes(session)
+            Neo4j::Core::Label.wait_for_schema_changes(session) unless options[:do_not_wait_for_schema_changes]
 
             tx = options[:transaction] || self.class.transaction_class.new(session)
 
