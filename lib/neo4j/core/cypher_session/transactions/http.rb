@@ -17,8 +17,8 @@ module Neo4j
           end
 
           def query_path(commit = false)
-            if @id
-              "/db/data/transaction/#{@id}"
+            if id
+              "/db/data/transaction/#{id}"
             else
               '/db/data/transaction'
             end.tap do |path|
@@ -28,11 +28,16 @@ module Neo4j
 
           # Takes the transaction URL from Neo4j and parses out the ID
           def apply_id_from_url!(url)
-            @id = url.match(%r{/(\d+)/?$})[1].to_i if url
+            root.instance_variable_set('@id', url.match(%r{/(\d+)/?$})[1].to_i.tap {|id| Core.logger.debug "Setting ID #{id} for #{self.object_id}" }) if url
+            # @id = url.match(%r{/(\d+)/?$})[1].to_i.tap {|id| Core.logger.debug "Setting ID #{id} for #{self.object_id}" } if url
           end
 
           def started?
-            !!@id
+            !!id
+          end
+
+          def id
+            root.instance_variable_get('@id')
           end
 
           private

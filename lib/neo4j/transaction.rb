@@ -13,19 +13,23 @@ module Neo4j
     end
 
     class Base
-      attr_reader :session
+      attr_reader :session, :root
 
       def initialize(session)
         @session = session
-        TransactionsRegistry.transactions_by_session_id ||= {}
-        TransactionsRegistry.transactions_by_session_id[session.object_id] = self
+        Core.logger.debug "Creating tx ##{object_id}"
+
+        Transaction.stack_for(session) << self
+        Core.logger.debug "Size for #{session.object_id} is now #{Transaction.stack_for(session).size}"
+
+        @root = Transaction.stack_for(session).first
 
         # @parent = session_transaction_stack.last
         # session_transaction_stack << self
       end
 
       def inspect
-        status_string = [:failed?, :active?].map do |method|
+        status_string = [:id, :failed?, :active?].map do |method|
           "#{method}: #{send(method)}"
         end.join(', ')
 
@@ -34,13 +38,17 @@ module Neo4j
 
       # Commits or marks this transaction for rollback, depending on whether #mark_failed has been previously invoked.
       def close
-        TransactionsRegistry.transactions_by_session_id.delete(session.object_id)
+        Core.logger.debug "Closing tx ##{object_id}"
 
-        return if closed?
+        tx_stack = Transaction.stack_for(@session)
+        require 'pry'
+        binding.pry if tx_stack.empty?
+        fail 'Tried closing when transaction stack is empty (maybe you closed too many?)' if tx_stack.empty?
+        fail "Closed transaction which wasn't the most recent on the stack (maybe you forgot to close one?)" if tx_stack.pop != self
 
         @closed = true
 
-        post_close!
+        post_close! if tx_stack.empty?
       end
 
       def delete
@@ -124,7 +132,7 @@ module Neo4j
 
       return yield(nil) unless run_in_tx
 
-      tx = current_for(session) || Neo4j::Transaction.new(session)
+      tx = Neo4j::Transaction.new(session)
       yield tx
     rescue Exception => e # rubocop:disable Lint/RescueException
       print_exception_cause(e)
@@ -153,7 +161,12 @@ module Neo4j
     end
 
     def current_for(session)
-      (TransactionsRegistry.transactions_by_session_id || {})[session.object_id]
+      stack_for(session).last
+    end
+
+    def stack_for(session)
+      TransactionsRegistry.transactions_by_session_id ||= {}
+      TransactionsRegistry.transactions_by_session_id[session.object_id] ||= []
     end
 
     private
@@ -161,7 +174,7 @@ module Neo4j
     def print_exception_cause(exception)
       return if !exception.respond_to?(:cause) || !exception.cause.respond_to?(:print_stack_trace)
 
-      puts "Java Exception in a transaction, cause: #{exception.cause}"
+      Core.logger.debug "Java Exception in a transaction, cause: #{exception.cause}"
       exception.cause.print_stack_trace
     end
   end
