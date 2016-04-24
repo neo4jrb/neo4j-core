@@ -46,21 +46,53 @@ module Neo4j
           end
 
           # Schema inspection methods
-          def indexes_for_label(label)
-            response = @requestor.get("schema/index/#{label}")
+          def indexes_for_label(session, label)
+            Neo4j::Core::Label.wait_for_schema_changes(session)
+
+            response = @requestor.get("db/data/schema/index/#{label}")
 
             if response.body && response.body[0]
-              response.body[0][:property_keys].map(&:to_sym)
+              response.body.map {|item| item[:property_keys].map(&:to_sym) }
             else
               []
             end
           end
 
-          def uniqueness_constraints_for_label(label)
-            response = @requestor.get("schema/constraint/#{label}/uniqueness")
+          def all_indexes(session)
+            Neo4j::Core::Label.wait_for_schema_changes(session)
+
+            response = @requestor.get("db/data/schema/index")
 
             if response.body && response.body[0]
-              response.body[0][:property_keys].map(&:to_sym)
+              response.body.each_with_object({}) do |item, result|
+                (result[item[:label]] ||= []) << item[:property_keys].map(&:to_sym)
+              end
+            else
+              {}
+            end
+          end
+
+          def uniqueness_constraints_for_label(session, label)
+            Neo4j::Core::Label.wait_for_schema_changes(session)
+
+            response = @requestor.get("db/data/schema/constraint/#{label}/uniqueness")
+
+            if response.body && response.body[0]
+              response.body.map {|item| item[:property_keys].map(&:to_sym) }
+            else
+              []
+            end
+          end
+
+          def all_uniqueness_constraints(session)
+            Neo4j::Core::Label.wait_for_schema_changes(session)
+
+            response = @requestor.get("db/data/schema/constraint")
+
+            if response.body && response.body[0]
+              response.body.select {|i| i[:type] == 'UNIQUENESS' }.each_with_object({}) do |item, result|
+                (result[item[:label]] ||= []) << item[:property_keys].map(&:to_sym)
+              end
             else
               []
             end
@@ -98,13 +130,21 @@ module Neo4j
             def request(method, path, body = '', _options = {})
               request_body = request_body(body)
               url = url_from_path(path)
-              puts method.to_s.upcase + ' ' + url, request_body if ENV['DEBUG_QUERIES']
+              if ENV['DEBUG_QUERIES']
+                Core.logger.debug method.to_s.upcase + ' ' + url
+                Core.logger.debug request_body.to_json
+              end
               @instrument_proc.call(method, url, request_body) do
                 @faraday.run_request(method, url, request_body, REQUEST_HEADERS) do |req|
                   # Temporary
                   req.options.timeout = 5
                   req.options.open_timeout = 5
                 end
+              end.tap do |r|
+                Core.logger.debug r.status.inspect
+                Core.logger.debug r.body.inspect
+                # require 'pry'
+                # binding.pry if request_body.to_json.match('DELETE n, r')
               end
             end
 

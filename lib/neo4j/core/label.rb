@@ -57,12 +57,54 @@ module Neo4j
         @session.indexes_for_label(@name)
       end
 
+      def self.indexes_for(session)
+        session.all_indexes
+      end
+
+      def drop_indexes
+        indexes.each do |index|
+          begin
+            @session.query("DROP INDEX ON :`#{name}`(#{index})")
+          rescue Neo4j::Server::CypherResponse::ResponseError
+            # This will error on each constraint. Ignore and continue.
+            next
+          end
+        end
+      end
+
+      def self.drop_indexes_for(session)
+        indexes_for(session).each do |label, indexes|
+          begin
+            indexes.each do |index|
+              session.query("DROP INDEX ON :`#{label}`(#{index[0]})")
+            end
+          rescue Neo4j::Server::CypherResponse::ResponseError
+            # This will error on each constraint. Ignore and continue.
+            next
+          end
+        end
+      end
+
       def index?(property)
-        indexes.include?(property)
+        indexes.include?([property])
       end
 
       def uniqueness_constraints
         @session.uniqueness_constraints_for_label(@name)
+      end
+
+      def drop_uniqueness_constraints
+        uniqueness_constraints.each do |constraint|
+          @session.query("DROP CONSTRAINT ON (n:`#{name}`) ASSERT n.`#{constraint}` IS UNIQUE")
+        end
+      end
+
+      def self.drop_uniqueness_constraints_for(session)
+        session.all_uniqueness_constraints.each do |label, constraints|
+          constraints.each do |constraint|
+            session.query("DROP CONSTRAINT ON (n:`#{label}`) ASSERT n.`#{constraint[0]}` IS UNIQUE")
+          end
+        end
       end
 
       def uniqueness_constraint?(property)

@@ -16,23 +16,30 @@ module Neo4j
       end
 
       %w(
+        version
+      ).each do |method, &_block|
+        define_method(method) do |*args, &block|
+          @adaptor.send(method, *args, &block)
+        end
+      end
+
+      %w(
         query
         queries
 
         transaction
 
-        version
         indexes_for_label
+        all_indexes
+
         uniqueness_constraints_for_label
+        all_uniqueness_constraints
       ).each do |method, &_block|
         define_method(method) do |*args, &block|
-          if %w(query queries transaction).include?(method)
-            @adaptor.send(method, self, *args, &block)
-          else
-            @adaptor.send(method, *args, &block)
-          end
+          @adaptor.send(method, self, *args, &block)
         end
       end
+
     end
   end
 end
