@@ -36,6 +36,10 @@ module Neo4j
         schema_query(cypher)
       end
 
+      def create_uniqueness_constraint(property, options = {})
+        create_constraint(property, options.merge(type: :unique))
+      end
+
       # Drops a neo4j constraint on a property
       # See http://docs.neo4j.org/chunked/stable/query-constraints.html
       # @example
@@ -51,6 +55,10 @@ module Neo4j
                    fail "Not supported constrain #{constraint.inspect}"
                  end
         schema_query(cypher)
+      end
+
+      def drop_uniqueness_constraint(property, options = {})
+        drop_constraint(property, options.merge(type: :unique))
       end
 
       def indexes
