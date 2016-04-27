@@ -116,7 +116,7 @@ module Neo4j
       end
 
       def uniqueness_constraint?(property)
-        uniqueness_constraints.include?(property)
+        uniqueness_constraints.include?([property])
       end
 
       def self.wait_for_schema_changes(session)
