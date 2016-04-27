@@ -6,7 +6,7 @@ gemspec
 # gem 'neo4j-enterprise', '>= 1.8.1', '< 2.0', :require => false
 
 group 'development' do
-  gem 'guard-rspec', require: false
+  gem 'guard-rspec', require: false if RUBY_PLATFORM != 'java'
   gem 'overcommit'
 end
 
