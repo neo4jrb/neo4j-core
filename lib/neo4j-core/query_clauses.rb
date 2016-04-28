@@ -349,7 +349,7 @@ module Neo4j
         KEYWORD = 'MATCH'
 
         def from_symbol(value)
-          from_string(value.to_s)
+          '(' + from_string(value.to_s) + ')'
         end
 
         def from_key_and_value(key, value)
