@@ -134,7 +134,7 @@ module Neo4j
 
       # (see Neo4j::Node#del)
       def del
-        query = match_start_query.optional_match('n-[r]-()').delete(:n, :r)
+        query = match_start_query.optional_match('(n)-[r]-()').delete(:n, :r)
         @session._query_or_fail(query, false)
       end
 

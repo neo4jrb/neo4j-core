@@ -9,6 +9,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Ability to specify `:neo_id`/`'neo_id'` in order clauses to order by `ID()` (thanks klobuczek / see: #253)
 
+### Changed
+
+- Removed httparty dependency which is no longer used (thanks isaacsanders / see #257)
+
+## [6.1.3] - 04-28-2016
+
+### Fixed
+
+- Added parens to queries to support new required syntax in Neo4j 3.0
+
 ## [6.1.2] - 2016-02-02
 
 ### Fixed
