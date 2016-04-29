@@ -11,7 +11,8 @@ module Neo4j
           def initialize(path, options = {})
             fail 'JRuby is required for embedded mode' if RUBY_PLATFORM != 'java'
             # TODO: Will this cause an error if a new path is specified?
-            fail ArgumentError, "Invalid path: #{path}" if !File.directory?(path)
+            fail ArgumentError, "Invalid path: #{path}" if File.file?(path)
+            FileUtils.mkdir_p(path)
 
             @path = path
             @options = options
@@ -42,25 +43,6 @@ module Neo4j
             transaction.close if options.delete(:commit)
           end
 
-          def start_transaction
-            @transactions ||= []
-            @transactions << @graph_db.begin_tx
-          end
-
-          def end_transaction
-            if @transactions.empty?
-              fail 'Cannot close transaction without starting one'
-            end
-
-            @transactions.last.success
-            @transactions.last.close
-            @transactions.pop
-          end
-
-          def transaction_started?
-            @transactions.any?
-          end
-
           def version
             if defined?(::Neo4j::Community)
               ::Neo4j::Community::NEO_VERSION
@@ -69,6 +51,10 @@ module Neo4j
             else
               fail 'Could not determine embedded version!'
             end
+          end
+
+          def constraints(_session, _label = nil, _options = {})
+            require 'pry'
           end
 
           def self.transaction_class

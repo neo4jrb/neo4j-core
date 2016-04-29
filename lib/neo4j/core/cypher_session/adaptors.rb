@@ -68,7 +68,7 @@ module Neo4j
           [:query_set,
            :version,
            :indexes,
-           :uniqueness_constraints_for_label,
+           :constraints,
            :connected?].each do |method|
             define_method(method) do |*_args|
               fail "##{method} method not implemented on adaptor!"

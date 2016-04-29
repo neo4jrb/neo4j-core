@@ -10,12 +10,12 @@ module Neo4j
             @java_tx = adaptor.graph_db.begin_tx
           end
 
-          def close
+          def commit
             @java_tx.success if !@failure
             @java_tx.close
           end
 
-          def mark_failed
+          def delete
             @failure = true
             @java_tx.failure
           end

@@ -4,9 +4,9 @@ module Neo4j
   module Core
     class Relationship
       attr_reader :id, :type, :properties, :start_node_id, :end_node_id
-      alias_method :props, :properties
-      alias_method :neo_id, :id
-      alias_method :rel_type, :type
+      alias props properties
+      alias neo_id id
+      alias rel_type type
 
       include Wrappable
 

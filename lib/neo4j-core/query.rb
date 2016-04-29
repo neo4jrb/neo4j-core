@@ -232,16 +232,12 @@ module Neo4j
       def response
         return @response if @response
 
-        cypher = to_cypher
-        pretty_cypher = to_cypher(pretty: true) if self.class.pretty_cypher
-
         @response = if session_is_new_api?
-                      @session.query(self, transaction: Transaction.current_for(@session), wrap_level: unwrapped? ? :core_entity : nil)
+                      @session.query(self, transaction: Transaction.current_for(@session), wrap_level: (:core_entity if unwrapped?))
                     else
-                      @session._query(cypher, merge_params, context: @options[:context], pretty_cypher: pretty_cypher)
+                      @session._query(to_cypher, merge_params,
+                                      context: @options[:context], pretty_cypher: (pretty_cypher if self.class.pretty_cypher)).tap(&:raise_if_cypher_error!)
                     end
-
-        (!@response.respond_to?(:error?) || !response.error?) ? @response : @response.raise_cypher_error
       end
 
       def match_nodes(hash, optional_match = false)

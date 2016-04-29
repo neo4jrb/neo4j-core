@@ -51,39 +51,22 @@ module Neo4j
 
             response = @requestor.get("db/data/schema/index/#{label}")
 
-            if response.body && response.body[0]
-              if label
-                response.body.map {|item| item[:property_keys].map(&:to_sym) }
-              else
-                response.body.each_with_object({}) do |item, result|
-                  (result[item[:label]] ||= []) << item[:property_keys].map(&:to_sym)
-                end
-              end
-            else
-              []
-            end
+            list = response.body || []
+            index_constraint_result(list, !!label)
           end
 
           def constraints(session, label = nil, options = {})
             Neo4j::Core::Label.wait_for_schema_changes(session)
 
+            type = options[:type]
+
             url = "db/data/schema/constraint/#{label}"
-            url += '/uniqueness' if label && options[:type] == :uniqueness
+            url += '/uniqueness' if label && type == :uniqueness
             response = @requestor.get(url)
 
-            if response.body && response.body[0]
-              if label
-                response.body.map {|item| item[:property_keys].map(&:to_sym) }
-              else
-                response.body.select do |i|
-                  !options.key?(:type) || i[:type] == options[:type].to_s.upcase
-                end.each_with_object({}) do |item, result|
-                  (result[item[:label]] ||= []) << item[:property_keys].map(&:to_sym)
-                end
-              end
-            else
-              []
-            end
+            list = response.body || []
+            list = list.select { |i| i[:type] == type.to_s.upcase } if type
+            index_constraint_result(list, !!label)
           end
 
           def self.transaction_class
@@ -118,21 +101,12 @@ module Neo4j
             def request(method, path, body = '', _options = {})
               request_body = request_body(body)
               url = url_from_path(path)
-              if ENV['DEBUG_QUERIES']
-                Core.logger.debug method.to_s.upcase + ' ' + url
-                Core.logger.debug request_body.to_json
-              end
               @instrument_proc.call(method, url, request_body) do
                 @faraday.run_request(method, url, request_body, REQUEST_HEADERS) do |req|
                   # Temporary
                   req.options.timeout = 5
                   req.options.open_timeout = 5
                 end
-              end.tap do |r|
-                Core.logger.debug r.status.inspect
-                Core.logger.debug r.body.inspect
-                # require 'pry'
-                # binding.pry if request_body.to_json.match('DELETE n, r')
               end
             end
 
@@ -180,10 +154,14 @@ module Neo4j
               end
             end
 
-            def self.statement_from_query(query)
-              {statement: query.cypher,
-               parameters: query.parameters || {},
-               resultDataContents: ROW_REST}
+            class << self
+              private
+
+              def statement_from_query(query)
+                {statement: query.cypher,
+                 parameters: query.parameters || {},
+                 resultDataContents: ROW_REST}
+              end
             end
 
             def url_from_path(path)
@@ -229,6 +207,21 @@ module Neo4j
 
 
               "#{gem}-gem/#{version} (https://github.com/neo4jrb/#{gem})"
+            end
+          end
+
+          private
+
+          # Helper method to process results of calls to index / constraint endpoints
+          # because the structure is the same
+          def index_constraint_result(list, label)
+            if label
+              list.map { |item| item[:property_keys].map(&:to_sym) }
+            else
+              specified_constraints = type ? list.select { |i| i[:type] == type.to_s.upcase } : list
+              specified_constraints.each_with_object({}) do |item, result|
+                (result[item[:label]] ||= []) << item[:property_keys].map(&:to_sym)
+              end
             end
           end
         end

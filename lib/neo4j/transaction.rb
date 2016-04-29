@@ -73,14 +73,14 @@ module Neo4j
         # @parent.mark_failed if @parent
         @failure = true
       end
-      alias_method :failure, :mark_failed
+      alias failure mark_failed
 
       # If it has been marked as failed.
       # Aliased for legacy purposes.
       def failed?
         !!@failure
       end
-      alias_method :failure?, :failed?
+      alias failure? failed?
 
       def mark_expired
         @parent.mark_expired if @parent

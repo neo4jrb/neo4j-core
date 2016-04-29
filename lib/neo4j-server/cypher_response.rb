@@ -155,6 +155,10 @@ module Neo4j
         !!@error
       end
 
+      def raise_if_cypher_error!
+        raise_cypher_error if error?
+      end
+
       RETRYABLE_ERROR_STATUSES = %w(DeadlockDetectedException AcquireLockTimeoutException ExternalResourceFailureException UnknownFailureException)
       def retryable_error?
         return unless error?

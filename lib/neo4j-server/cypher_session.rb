@@ -210,19 +210,16 @@ module Neo4j
       end
 
       def _query_entity_data(query, id = nil, params = {})
-        _query(query, params).tap do |response|
-          response.raise_error if response.error?
-        end.entity_data(id)
+        _query(query, params).tap(&:raise_if_cypher_error!).entity_data(id)
       end
 
       def _query(query, params = {}, options = {})
         query, params = query_and_params(query, params)
 
-        curr_tx = current_transaction
         ActiveSupport::Notifications.instrument('neo4j.cypher_query', params: params, context: options[:context],
                                                                       cypher: query, pretty_cypher: options[:pretty_cypher]) do
-          if curr_tx
-            curr_tx._query(query, params)
+          if current_transaction
+            current_transaction._query(query, params)
           else
             query = params.nil? ? {'query' => query} : {'query' => query, 'params' => params}
             response = @connection.post(resource_url(:cypher), query)

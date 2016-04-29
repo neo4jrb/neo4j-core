@@ -5,11 +5,11 @@ module Neo4j
         class Base < Neo4j::Transaction::Base
           def query(*args)
             options = if args[0].is_a?(::Neo4j::Core::Query)
-              args[1] ||= {}
-            else
-              args[1] ||= {}
-              args[2] ||= {}
-            end
+                        args[1] ||= {}
+                      else
+                        args[1] ||= {}
+                        args[2] ||= {}
+                      end
             options[:transaction] ||= self
 
             adaptor.query(@session, *args)

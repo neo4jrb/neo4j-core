@@ -99,7 +99,7 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
 
       # Nested transaction, error from inside inner transaction handled outside of inner transaction
       expect_queries(1) do
-        adaptor.transaction do |tx|
+        adaptor.transaction do |_tx|
           expect do
             adaptor.transaction do |tx|
               create_object_by_id(6, tx)
@@ -128,7 +128,7 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
       # Nested transaction, error from inside inner transaction handled outside of outer transaction
       expect_queries(1) do
         expect do
-          adaptor.transaction do |tx|
+          adaptor.transaction do |_tx|
             adaptor.transaction do |tx|
               create_object_by_id(9, tx)
               fail 'Failing transaction with error'
@@ -137,7 +137,6 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
         end.to raise_error 'Failing transaction with error'
       end
       expect(get_object_by_id(9, adaptor)).to be_nil
-
     end
   end
 

@@ -6,7 +6,6 @@ module Neo4j
       def initialize(name, session)
         @name = name
         @session = session
-        schema_threads = []
       end
 
       def create_index(property, options = {})
@@ -140,12 +139,16 @@ module Neo4j
         self.class.set_schema_threads(@session, array)
       end
 
-      def self.schema_threads(session)
-        session.instance_variable_get('@_schema_threads') || []
-      end
+      class << self
+        private
 
-      def self.set_schema_threads(session, array)
-        session.instance_variable_set('@_schema_threads', array)
+        def schema_threads(session)
+          session.instance_variable_get('@_schema_threads') || []
+        end
+
+        def set_schema_threads(session, array)
+          session.instance_variable_set('@_schema_threads', array)
+        end
       end
 
       # Schema queries can run separately from other queries, but they should
@@ -161,18 +164,14 @@ module Neo4j
               tx = @session.adaptor.class.transaction_class.new(@session)
 
               tx.query(cypher, {}, do_not_wait_for_schema_changes: true)
-            rescue Exception => e
-              puts 'ERROR during schema query:'
-              puts e.message
-              puts e.backtrace
+            rescue Exception => e # rubocop:disable Lint/RescueException
+              puts 'ERROR during schema query:', e.message, e.backtrace
               tx.mark_failed
             ensure
               tx.close
             end
           end
-        end.tap do |thread|
-          schema_threads << thread
-        end
+        end.tap { |thread| schema_threads << thread }
       end
 
       def validate_index_options!(options)

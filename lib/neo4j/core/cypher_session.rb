@@ -36,7 +36,6 @@ module Neo4j
           @adaptor.send(method, self, *args, &block)
         end
       end
-
     end
   end
 end
