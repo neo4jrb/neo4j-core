@@ -17,6 +17,10 @@ module Neo4j
         @properties = properties
       end
 
+      def ==(other)
+        other.is_a?(Node) && neo_id == other.neo_id
+      end
+
       class << self
         def from_url(url, properties = {})
           id = url.split('/')[-1].to_i

@@ -7,7 +7,7 @@ module Neo4j
     class CypherSession
       module Adaptors
         class HTTP < Base
-          attr_reader :requestor
+          attr_reader :requestor, :url
 
           def initialize(url, options = {})
             @url = url

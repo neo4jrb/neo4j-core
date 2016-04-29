@@ -6,7 +6,7 @@ module Neo4j
     class CypherSession
       module Adaptors
         class Embedded < Base
-          attr_reader :graph_db
+          attr_reader :graph_db, :path
 
           def initialize(path, options = {})
             fail 'JRuby is required for embedded mode' if RUBY_PLATFORM != 'java'
