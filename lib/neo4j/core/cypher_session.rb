@@ -29,11 +29,8 @@ module Neo4j
 
         transaction
 
-        indexes_for_label
-        all_indexes
-
-        uniqueness_constraints_for_label
-        all_uniqueness_constraints
+        indexes
+        constraints
       ).each do |method, &_block|
         define_method(method) do |*args, &block|
           @adaptor.send(method, self, *args, &block)

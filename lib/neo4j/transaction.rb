@@ -29,9 +29,9 @@ module Neo4j
       end
 
       def inspect
-        status_string = [:id, :failed?, :active?].map do |method|
-          "#{method}: #{send(method)}"
-        end.join(', ')
+        status_string = [:id, :failed?, :active?, :commit_url].map do |method|
+          "#{method}: #{send(method)}" if respond_to?(method)
+        end.compact.join(', ')
 
         "<#{self.class} [#{status_string}]"
       end
@@ -41,8 +41,6 @@ module Neo4j
         Core.logger.debug "Closing tx ##{object_id}"
 
         tx_stack = Transaction.stack_for(@session)
-        require 'pry'
-        binding.pry if tx_stack.empty?
         fail 'Tried closing when transaction stack is empty (maybe you closed too many?)' if tx_stack.empty?
         fail "Closed transaction which wasn't the most recent on the stack (maybe you forgot to close one?)" if tx_stack.pop != self
 

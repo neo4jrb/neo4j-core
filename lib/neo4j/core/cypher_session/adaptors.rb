@@ -67,7 +67,7 @@ module Neo4j
 
           [:query_set,
            :version,
-           :indexes_for_label,
+           :indexes,
            :uniqueness_constraints_for_label,
            :connected?].each do |method|
             define_method(method) do |*_args|

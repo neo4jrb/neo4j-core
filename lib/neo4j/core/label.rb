@@ -62,11 +62,11 @@ module Neo4j
       end
 
       def indexes
-        @session.indexes_for_label(@name)
+        @session.indexes(@name)
       end
 
       def self.indexes_for(session)
-        session.all_indexes
+        session.indexes
       end
 
       def drop_indexes
@@ -97,8 +97,12 @@ module Neo4j
         indexes.include?([property])
       end
 
-      def uniqueness_constraints
-        @session.uniqueness_constraints_for_label(@name)
+      def constraints(options = {})
+        @sessions.constraints(nil, options)
+      end
+
+      def uniqueness_constraints(options = {})
+        @session.constraints(@name, options)
       end
 
       def drop_uniqueness_constraints
@@ -108,7 +112,7 @@ module Neo4j
       end
 
       def self.drop_uniqueness_constraints_for(session)
-        session.all_uniqueness_constraints.each do |label, constraints|
+        session.constraints.each do |label, constraints|
           constraints.each do |constraint|
             session.query("DROP CONSTRAINT ON (n:`#{label}`) ASSERT n.`#{constraint[0]}` IS UNIQUE")
           end

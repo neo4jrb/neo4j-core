@@ -261,9 +261,9 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
   end
 
   # describe 'schema inspection methods' do
-  #   describe 'indexes_for_label' do
+  #   describe 'indexes' do
   #     let(:label) { "Foo#{SecureRandom.hex[0,10]}" }
-  #     subject { adaptor.indexes_for_label(label) }
+  #     subject { adaptor.indexes(session??, label) }
 
   #     it { should eq([]) }
 

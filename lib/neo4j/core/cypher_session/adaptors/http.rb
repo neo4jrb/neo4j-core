@@ -46,52 +46,40 @@ module Neo4j
           end
 
           # Schema inspection methods
-          def indexes_for_label(session, label)
+          def indexes(session, label = nil)
             Neo4j::Core::Label.wait_for_schema_changes(session)
 
             response = @requestor.get("db/data/schema/index/#{label}")
 
             if response.body && response.body[0]
-              response.body.map {|item| item[:property_keys].map(&:to_sym) }
-            else
-              []
-            end
-          end
-
-          def all_indexes(session)
-            Neo4j::Core::Label.wait_for_schema_changes(session)
-
-            response = @requestor.get("db/data/schema/index")
-
-            if response.body && response.body[0]
-              response.body.each_with_object({}) do |item, result|
-                (result[item[:label]] ||= []) << item[:property_keys].map(&:to_sym)
+              if label
+                response.body.map {|item| item[:property_keys].map(&:to_sym) }
+              else
+                response.body.each_with_object({}) do |item, result|
+                  (result[item[:label]] ||= []) << item[:property_keys].map(&:to_sym)
+                end
               end
             else
-              {}
-            end
-          end
-
-          def uniqueness_constraints_for_label(session, label)
-            Neo4j::Core::Label.wait_for_schema_changes(session)
-
-            response = @requestor.get("db/data/schema/constraint/#{label}/uniqueness")
-
-            if response.body && response.body[0]
-              response.body.map {|item| item[:property_keys].map(&:to_sym) }
-            else
               []
             end
           end
 
-          def all_uniqueness_constraints(session)
+          def constraints(session, label = nil, options = {})
             Neo4j::Core::Label.wait_for_schema_changes(session)
 
-            response = @requestor.get("db/data/schema/constraint")
+            url = "db/data/schema/constraint/#{label}"
+            url += '/uniqueness' if label && options[:type] == :uniqueness
+            response = @requestor.get(url)
 
             if response.body && response.body[0]
-              response.body.select {|i| i[:type] == 'UNIQUENESS' }.each_with_object({}) do |item, result|
-                (result[item[:label]] ||= []) << item[:property_keys].map(&:to_sym)
+              if label
+                response.body.map {|item| item[:property_keys].map(&:to_sym) }
+              else
+                response.body.select do |i|
+                  !options.key?(:type) || i[:type] == options[:type].to_s.upcase
+                end.each_with_object({}) do |item, result|
+                  (result[item[:label]] ||= []) << item[:property_keys].map(&:to_sym)
+                end
               end
             else
               []
