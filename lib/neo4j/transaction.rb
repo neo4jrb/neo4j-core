@@ -17,10 +17,8 @@ module Neo4j
 
       def initialize(session)
         @session = session
-        Core.logger.debug "Creating tx ##{object_id}"
 
         Transaction.stack_for(session) << self
-        Core.logger.debug "Size for #{session.object_id} is now #{Transaction.stack_for(session).size}"
 
         @root = Transaction.stack_for(session).first
 
@@ -38,8 +36,6 @@ module Neo4j
 
       # Commits or marks this transaction for rollback, depending on whether #mark_failed has been previously invoked.
       def close
-        Core.logger.debug "Closing tx ##{object_id}"
-
         tx_stack = Transaction.stack_for(@session)
         fail 'Tried closing when transaction stack is empty (maybe you closed too many?)' if tx_stack.empty?
         fail "Closed transaction which wasn't the most recent on the stack (maybe you forgot to close one?)" if tx_stack.pop != self
@@ -172,7 +168,7 @@ module Neo4j
     def print_exception_cause(exception)
       return if !exception.respond_to?(:cause) || !exception.cause.respond_to?(:print_stack_trace)
 
-      Core.logger.debug "Java Exception in a transaction, cause: #{exception.cause}"
+      Core.logger.info "Java Exception in a transaction, cause: #{exception.cause}"
       exception.cause.print_stack_trace
     end
   end

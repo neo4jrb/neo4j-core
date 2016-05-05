@@ -28,8 +28,8 @@ module Neo4j
 
           # Takes the transaction URL from Neo4j and parses out the ID
           def apply_id_from_url!(url)
-            root.instance_variable_set('@id', url.match(%r{/(\d+)/?$})[1].to_i.tap { |id| Core.logger.debug "Setting ID #{id} for #{object_id}" }) if url
-            # @id = url.match(%r{/(\d+)/?$})[1].to_i.tap {|id| Core.logger.debug "Setting ID #{id} for #{self.object_id}" } if url
+            root.instance_variable_set('@id', url.match(%r{/(\d+)/?$})[1].to_i) if url
+            # @id = url.match(%r{/(\d+)/?$})[1].to_i if url
           end
 
           def started?
