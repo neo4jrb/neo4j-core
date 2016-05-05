@@ -24,7 +24,7 @@ module Neo4j
           type = nil # unknown
           properties = properties
 
-          new(id, type, properties)
+          new(id, type, properties, nil, nil)
         end
       end
     end

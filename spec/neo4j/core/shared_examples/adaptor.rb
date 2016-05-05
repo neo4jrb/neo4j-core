@@ -3,6 +3,7 @@
 RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
   before(:all) { setup_query_subscription }
 
+  let(:session_double) { double('session', adaptor: adaptor) }
   # TODO: Test cypher errors
 
   describe '#query' do
@@ -50,20 +51,22 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
     end
 
     def get_object_by_id(id, query_object)
-      first = query_object.query('MATCH (t:Temporary {id: {id}}) RETURN t', id: id).first
+      args = ['MATCH (t:Temporary {id: {id}}) RETURN t', id: id]
+      args.unshift(session_double) if query_object.is_a?(Neo4j::Core::CypherSession::Adaptors::Base)
+      first = query_object.query(*args).first
       first && first.t
     end
 
     it 'logs one query per query_set in transaction' do
       expect_queries(1) do
-        tx = adaptor.transaction
+        tx = adaptor.transaction(session_double)
         create_object_by_id(1, tx)
         tx.close
       end
       expect(get_object_by_id(1, adaptor)).to be_a(Neo4j::Core::Node)
 
       expect_queries(1) do
-        adaptor.transaction do |tx|
+        adaptor.transaction(session_double) do |tx|
           create_object_by_id(2, tx)
         end
       end
@@ -72,7 +75,7 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
 
     it 'allows for rollback' do
       expect_queries(1) do
-        tx = adaptor.transaction
+        tx = adaptor.transaction(session_double)
         create_object_by_id(3, tx)
         tx.mark_failed
         tx.close
@@ -80,7 +83,7 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
       expect(get_object_by_id(3, adaptor)).to be_nil
 
       expect_queries(1) do
-        adaptor.transaction do |tx|
+        adaptor.transaction(session_double) do |tx|
           create_object_by_id(4, tx)
           tx.mark_failed
         end
@@ -89,7 +92,7 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
 
       expect_queries(1) do
         expect do
-          adaptor.transaction do |tx|
+          adaptor.transaction(session_double) do |tx|
             create_object_by_id(5, tx)
             fail 'Failing transaction with error'
           end
@@ -99,9 +102,9 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
 
       # Nested transaction, error from inside inner transaction handled outside of inner transaction
       expect_queries(1) do
-        adaptor.transaction do |_tx|
+        adaptor.transaction(session_double) do |_tx|
           expect do
-            adaptor.transaction do |tx|
+            adaptor.transaction(session_double) do |tx|
               create_object_by_id(6, tx)
               fail 'Failing transaction with error'
             end
@@ -112,10 +115,10 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
 
       # Nested transaction, error from inside inner transaction handled outside of inner transaction
       expect_queries(2) do
-        adaptor.transaction do |tx|
+        adaptor.transaction(session_double) do |tx|
           create_object_by_id(7, tx)
           expect do
-            adaptor.transaction do |tx|
+            adaptor.transaction(session_double) do |tx|
               create_object_by_id(8, tx)
               fail 'Failing transaction with error'
             end
@@ -128,8 +131,8 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
       # Nested transaction, error from inside inner transaction handled outside of outer transaction
       expect_queries(1) do
         expect do
-          adaptor.transaction do |_tx|
-            adaptor.transaction do |tx|
+          adaptor.transaction(session_double) do |_tx|
+            adaptor.transaction(session_double) do |tx|
               create_object_by_id(9, tx)
               fail 'Failing transaction with error'
             end
@@ -142,7 +145,7 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
 
   describe 'results' do
     it 'handles array results' do
-      result = adaptor.query("CREATE (a {b: 'c'}) RETURN [a]")
+      result = adaptor.query(session_double, "CREATE (a {b: 'c'}) RETURN [a]")
 
       expect(result.hashes).to be_a(Array)
       expect(result.hashes.size).to be(1)
@@ -152,7 +155,7 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
     end
 
     it 'symbolizes keys for Neo4j objects' do
-      result = adaptor.query('RETURN {a: 1} AS obj')
+      result = adaptor.query(session_double, 'RETURN {a: 1} AS obj')
 
       expect(result.hashes).to eq([{obj: {a: 1}}])
 
@@ -194,7 +197,7 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
         # Default wrap_level should be :core_entity
         let(:wrap_level) { nil }
 
-        subject { adaptor.query(query, {}, wrap_level: wrap_level).to_a[0].result }
+        subject { adaptor.query(session_double, query, {}, wrap_level: wrap_level).to_a[0].result }
 
         let_context return_clause: 'n' do
           it { should be_a(Neo4j::Core::Node) }
@@ -267,12 +270,12 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
   #     it { should eq([]) }
 
   #     context 'index has been created' do
-  #       before { adaptor.query("CREATE INDEX ON :#{label}(bar)") }
+  #       before { adaptor.query(session_double, "CREATE INDEX ON :#{label}(bar)") }
 
   #       it { should eq([:bar]) }
 
   #       context 'index has been dropped' do
-  #         before { adaptor.query("DROP INDEX ON :#{label}(bar)") }
+  #         before { adaptor.query(session_double, "DROP INDEX ON :#{label}(bar)") }
 
   #         it { should eq([]) }
   #       end
@@ -286,12 +289,12 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
   #     it { should eq([]) }
 
   #     context 'constraint has been created' do
-  #       before { adaptor.query("CREATE CONSTRAINT ON (n:#{label}) ASSERT n.bar IS UNIQUE") }
+  #       before { adaptor.query(session_double, "CREATE CONSTRAINT ON (n:#{label}) ASSERT n.bar IS UNIQUE") }
 
   #       it { should eq([:bar]) }
 
   #       context 'constraint has been dropped' do
-  #         before { adaptor.query("DROP CONSTRAINT ON (n:#{label}) ASSERT n.bar IS UNIQUE") }
+  #         before { adaptor.query(session_double, "DROP CONSTRAINT ON (n:#{label}) ASSERT n.bar IS UNIQUE") }
 
   #         it { should eq([]) }
   #       end

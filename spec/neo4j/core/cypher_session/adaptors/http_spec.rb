@@ -21,9 +21,11 @@ describe Neo4j::Core::CypherSession::Adaptors::HTTP, new_cypher_session: true do
   let(:url) { ENV['NEO4J_URL'] }
   let(:adaptor) { adaptor_class.new(url) }
 
+  let(:session_double) { double('session') }
+
   before do
     adaptor.connect
-    adaptor.query('MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n, r')
+    adaptor.query(session_double, 'MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n, r')
   end
 
   describe 'transactions' do

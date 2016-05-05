@@ -104,8 +104,8 @@ module Neo4j
               @instrument_proc.call(method, url, request_body) do
                 @faraday.run_request(method, url, request_body, REQUEST_HEADERS) do |req|
                   # Temporary
-                  req.options.timeout = 5
-                  req.options.open_timeout = 5
+                  # req.options.timeout = 5
+                  # req.options.open_timeout = 5
                 end
               end
             end
