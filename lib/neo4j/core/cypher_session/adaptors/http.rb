@@ -218,8 +218,7 @@ module Neo4j
             if label
               list.map { |item| item[:property_keys].map(&:to_sym) }
             else
-              specified_constraints = type ? list.select { |i| i[:type] == type.to_s.upcase } : list
-              specified_constraints.each_with_object({}) do |item, result|
+              list.each_with_object({}) do |item, result|
                 (result[item[:label]] ||= []) << item[:property_keys].map(&:to_sym)
               end
             end
