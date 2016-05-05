@@ -25,9 +25,11 @@ require 'neo4j/transaction'
 require 'rake'
 require 'neo4j/rake_tasks'
 
+require 'logger'
+
 module Neo4j
   module Core
-    ORIGINAL_FORMATTER = Logger::Formatter.new
+    ORIGINAL_FORMATTER = ::Logger::Formatter.new
 
     def self.logger(stream = STDOUT)
       @logger ||= Logger.new(stream).tap do |logger|
