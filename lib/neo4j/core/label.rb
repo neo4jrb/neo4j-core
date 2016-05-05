@@ -140,8 +140,6 @@ module Neo4j
       end
 
       class << self
-        private
-
         def schema_threads(session)
           session.instance_variable_get('@_schema_threads') || []
         end
