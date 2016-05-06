@@ -43,6 +43,10 @@ module Neo4j
             transaction.close if options.delete(:commit)
           end
 
+          def connected?
+            true # ?
+          end
+
           def version
             if defined?(::Neo4j::Community)
               ::Neo4j::Community::NEO_VERSION
@@ -53,8 +57,36 @@ module Neo4j
             end
           end
 
-          def constraints(_session, _label = nil, _options = {})
-            require 'pry'
+          def indexes(session, label = nil)
+            # Move these calls out to adaptors.rb?
+            Neo4j::Core::Label.wait_for_schema_changes(session)
+
+            Transaction.run(session) do
+              graph_db = session.adaptor.graph_db
+
+              args = []
+              args << Java::OrgNeo4jGraphdb.DynamicLabel.label(label) if label
+
+              graph_db.schema.get_indexes(*args).map { |definition| definition.property_keys.to_a }
+            end
+          end
+
+          def constraints(session, label = nil, options = {})
+            # Move these calls out to adaptors.rb?
+            Neo4j::Core::Label.wait_for_schema_changes(session)
+
+            type = options[:type]
+
+            Transaction.run(session) do
+              graph_db = session.adaptor.graph_db
+
+              args = []
+              args << Java::OrgNeo4jGraphdb.DynamicLabel.label(label) if label
+
+              constraint_definitions = graph_db.schema.get_constraints(*args)
+              constraint_definitions.select! { |d| d.constraint_type.to_s == type.to_s.upcase } if type
+              constraint_definitions.map { |definition| definition.property_keys.to_a }
+            end
           end
 
           def self.transaction_class

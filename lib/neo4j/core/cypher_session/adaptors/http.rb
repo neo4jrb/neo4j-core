@@ -47,6 +47,7 @@ module Neo4j
 
           # Schema inspection methods
           def indexes(session, label = nil)
+            # Move these calls out to adaptors.rb?
             Neo4j::Core::Label.wait_for_schema_changes(session)
 
             response = @requestor.get("db/data/schema/index/#{label}")
@@ -56,6 +57,7 @@ module Neo4j
           end
 
           def constraints(session, label = nil, options = {})
+            # Move these calls out to adaptors.rb?
             Neo4j::Core::Label.wait_for_schema_changes(session)
 
             type = options[:type]

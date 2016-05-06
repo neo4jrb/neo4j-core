@@ -19,14 +19,6 @@ module Neo4j
             @failure = true
             @java_tx.failure
           end
-
-          private
-
-          # Because we're inheriting from the old Transaction class
-          # but the new adaptors work much like the old sessions
-          def adaptor
-            @session
-          end
         end
       end
     end
