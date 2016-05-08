@@ -37,10 +37,9 @@ module Neo4j
                 engine.execute(query.cypher, indifferent_params(query))
               end
 
-              Responses::Embedded.new(execution_results, options).results
+              wrap_level = options[:wrap_level] || @options[:wrap_level]
+              Responses::Embedded.new(execution_results, wrap_level: wrap_level).results
             end
-          ensure
-            transaction.close if options.delete(:commit)
           end
 
           def connected?
