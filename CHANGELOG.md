@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [6.1.4] - 05-12-2016
+
+### Added
+
+- `detach_delete` method for `Query` API for `DETACH DELETE` clause introduced in Neo4j 2.3
+
 ## [6.1.3] - 04-28-2016
 
 ### Fixed

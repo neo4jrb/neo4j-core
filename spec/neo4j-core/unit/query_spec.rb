@@ -710,6 +710,26 @@ describe Neo4j::Core::Query do
     end
   end
 
+  # DETACH DELETE
+
+  describe '#delete' do
+    describe ".detach_delete('n')" do
+      it_generates 'DETACH DELETE n'
+    end
+
+    describe '.detach_delete(:n)' do
+      it_generates 'DETACH DELETE n'
+    end
+
+    describe ".detach_delete('n', :o)" do
+      it_generates 'DETACH DELETE n, o'
+    end
+
+    describe ".detach_delete(['n', :o])" do
+      it_generates 'DETACH DELETE n, o'
+    end
+  end
+
   # SET
 
   describe '#set_props' do
