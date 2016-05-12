@@ -487,6 +487,10 @@ module Neo4j
         end
       end
 
+      class DetachDeleteClause < DeleteClause
+        KEYWORD = 'DETACH DELETE'
+      end
+
       class OrderClause < Clause
         KEYWORD = 'ORDER BY'
 

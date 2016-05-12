@@ -154,7 +154,11 @@ module Neo4j
       # DELETE clause
       # @return [Query]
 
-      METHODS = %w(start match optional_match using where create create_unique merge set on_create_set on_match_set remove unwind delete with return order skip limit)
+      # @method detach_delete *args
+      # DETACH DELETE clause
+      # @return [Query]
+
+      METHODS = %w(start match optional_match using where create create_unique merge set on_create_set on_match_set remove unwind delete detach_delete with return order skip limit)
       BREAK_METHODS = %(with)
 
       CLAUSIFY_CLAUSE = proc { |method| const_get(method.to_s.split('_').map(&:capitalize).join + 'Clause') }
