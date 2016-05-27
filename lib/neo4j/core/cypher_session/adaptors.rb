@@ -5,6 +5,8 @@ require 'neo4j/core/label'
 module Neo4j
   module Core
     class CypherSession
+      class CypherError < StandardError; end
+
       module Adaptors
         MAP = {}
 
@@ -56,8 +58,6 @@ module Neo4j
             query_builder = QueryBuilder.new
 
             query_builder.instance_eval(&block)
-
-            Neo4j::Core::Label.wait_for_schema_changes(session) unless options[:do_not_wait_for_schema_changes]
 
             tx = options[:transaction] || self.class.transaction_class.new(session)
 

@@ -8,6 +8,8 @@ module Neo4j
           attr_reader :results, :request_data
 
           def initialize(execution_results, options = {})
+            # validate_response!(execution_results)
+
             @wrap_level = options[:wrap_level] || Neo4j::Core::Config.wrapping_level
 
             @results = execution_results.map do |execution_result|
@@ -96,6 +98,11 @@ module Neo4j
             entity.get_property_keys.each_with_object({}) do |key, result|
               result[key.to_sym] = entity.get_property(key)
             end
+          end
+
+          def validate_response!(execution_results)
+            require 'pry'
+            binding.pry
           end
         end
       end

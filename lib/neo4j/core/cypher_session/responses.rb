@@ -7,8 +7,6 @@ module Neo4j
         MAP = {}
 
         class Base
-          class CypherError < StandardError; end
-
           include Enumerable
 
           def each

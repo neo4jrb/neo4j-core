@@ -159,9 +159,9 @@ module Neo4j
         Thread.new do
           SCHEMA_QUERY_SEMAPHORE.synchronize do
             begin
-              tx = @session.adaptor.class.transaction_class.new(@session)
+              tx = @session.adaptor.class.transaction_class.new(@session, do_not_wait_for_schema_changes: true)
 
-              tx.query(cypher, {}, do_not_wait_for_schema_changes: true)
+              tx.query(cypher, {})
             rescue Exception => e # rubocop:disable Lint/RescueException
               puts 'ERROR during schema query:', e.message, e.backtrace
               tx.mark_failed

@@ -11,13 +11,19 @@ module Neo4j
           end
 
           def commit
-            @java_tx.success if !@failure
+            return if !@java_tx
+
+            @java_tx.success
             @java_tx.close
+          rescue org.neo4j.graphdb.TransactionFailureException => e
+            fail CypherError, e.message
           end
 
           def delete
-            @failure = true
+            return if !@java_tx
+
             @java_tx.failure
+            @java_tx.close
           end
         end
       end

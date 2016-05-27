@@ -15,9 +15,10 @@ module Neo4j
     class Base
       attr_reader :session, :root
 
-      def initialize(session)
+      def initialize(session, options = {})
         @session = session
 
+        Neo4j::Core::Label.wait_for_schema_changes(session) unless options[:do_not_wait_for_schema_changes]
         Transaction.stack_for(session) << self
 
         @root = Transaction.stack_for(session).first
