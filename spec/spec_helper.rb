@@ -46,10 +46,6 @@ EMBEDDED_DB_PATH = File.join(Dir.tmpdir, 'neo4j-core-java')
 
 require "#{File.dirname(__FILE__)}/helpers"
 
-RSpec.configure do |c|
-  c.include Helpers
-end
-
 require 'neo4j/core/cypher_session'
 
 require 'neo4j/core/cypher_session/adaptors/http'
@@ -101,17 +97,61 @@ module Neo4jSpecHelpers
   # rubocop:enable Style/GlobalVars
 end
 
+# Introduces `let_context` helper method
+# This allows us to simplify the case where we want to
+# have a context which contains one or more `let` statements
+module FixingRSpecHelpers
+  # Supports giving either a Hash or a String and a Hash as arguments
+  # In both cases the Hash will be used to define `let` statements
+  # When a String is specified that becomes the context description
+  # If String isn't specified, Hash#inspect becomes the context description
+  def let_context(*args, &block)
+    context_string, hash =
+      case args.map(&:class)
+      when [String, Hash] then ["#{args[0]} #{args[1]}", args[1]]
+      when [Hash] then [args[0].inspect, args[0]]
+      end
+
+    context(context_string) do
+      hash.each { |var, value| let(var) { value } }
+
+      instance_eval(&block)
+    end
+  end
+
+  def subject_should_raise(*args)
+    error, message = args
+    it_string = "subject should raise #{error}"
+    it_string += " (#{message.inspect})" if message
+
+    it it_string do
+      expect { subject }.to raise_error error, message
+    end
+  end
+
+  def subject_should_not_raise(*args)
+    error, message = args
+    it_string = "subject should not raise #{error}"
+    it_string += " (#{message.inspect})" if message
+
+    it it_string do
+      expect { subject }.not_to raise_error error, message
+    end
+  end
+end
+
 FileUtils.rm_rf(EMBEDDED_DB_PATH)
 
-RSpec.configure do |c|
-  c.include Neo4jSpecHelpers
+RSpec.configure do |config|
+  config.include Neo4jSpecHelpers
+  config.extend FixingRSpecHelpers
 
-  c.before(:all, api: :server) do
+  config.before(:all, api: :server) do
     Neo4j::Session.current.close if Neo4j::Session.current
     create_server_session
   end
 
-  c.before(:all, api: :embedded) do
+  config.before(:all, api: :embedded) do
     Neo4j::Session.current.close if Neo4j::Session.current
     create_embedded_session
     Neo4j::Session.current.start unless Neo4j::Session.current.running?
@@ -122,29 +162,29 @@ RSpec.configure do |c|
   #   db_default = 'neo4j'
   #   suite_default = 'neo4jrb rules, ok?'
 
-  #   c.before(:suite, api: :server) do
+  #   config.before(:suite, api: :server) do
   #     Net::HTTP.post_form(uri, { 'password' => db_default, 'new_password' => suite_default })
   #   end
 
-  #   c.after(:suite, api: :server) do
+  #   config.after(:suite, api: :server) do
   #     Net::HTTP.post_form(uri, { 'password' => suite_default, 'new_password' => db_default })
   #   end
   # end
 
-  c.before(:each, api: :embedded) do
+  config.before(:each, api: :embedded) do
     curr_session = Neo4j::Session.current
     curr_session.close if curr_session && !curr_session.is_a?(Neo4j::Embedded::EmbeddedSession)
     Neo4j::Session.current || create_embedded_session
     Neo4j::Session.current.start unless Neo4j::Session.current.running?
   end
 
-  c.before(:each, api: :server) do
+  config.before(:each, api: :server) do
     curr_session = Neo4j::Session.current
     curr_session.close if curr_session && !curr_session.is_a?(Neo4j::Server::CypherSession)
     Neo4j::Session.current || create_server_session
   end
 
-  c.exclusion_filter = {
+  config.exclusion_filter = {
     api: lambda do |ed|
       RUBY_PLATFORM != 'java' && ed == :embedded
     end,
