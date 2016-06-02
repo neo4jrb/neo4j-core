@@ -1,4 +1,5 @@
 require 'neo4j/core/cypher_session/adaptors'
+require 'neo4j/core/cypher_session/adaptors/has_uri'
 require 'neo4j/core/cypher_session/responses/http'
 
 # TODO: Work with `Query` objects
@@ -9,10 +10,13 @@ module Neo4j
         class HTTP < Base
           # @transaction_state valid states
           # nil, :open_requested, :open, :close_requested
+          include Adaptors::HasUri
+          default_url('http://neo4:neo4j@localhost:7474')
+          validate_uri { |uri| uri.is_a?(URI::HTTP) }
+
 
           def initialize(url, _options = {})
-            @url = url
-            @url_components = url_components!(url)
+            self.url = url
             @transaction_state = nil
           end
 
@@ -145,28 +149,6 @@ module Neo4j
 
               c.headers['Content-Type'] = 'application/json'
               c.headers['User-Agent'] = user_agent_string
-            end
-          end
-
-          def url_components!(url)
-            @uri = URI(url || 'http://localhost:7474')
-
-            if !@uri.is_a?(URI::HTTP)
-              fail ArgumentError, "Invalid URL: #{url.inspect}"
-            end
-
-            true
-          end
-
-          URI_DEFAULTS = {
-            scheme: 'http',
-            user: 'neo4j', password: 'neo4j',
-            host: 'localhost', port: 7474
-          }
-
-          URI_DEFAULTS.each do |method, value|
-            define_method(method) do
-              @uri.send(method) || value
             end
           end
 

@@ -84,6 +84,17 @@ module Neo4j
             fail '#uniqueness_constraints_for_label not implemented!'
           end
 
+          def logger
+            return @logger if @logger
+
+            if @options[:logger]
+              @logger = @options[:logger]
+            else
+              @logger = Logger.new(logger_location).tap do |logger|
+                logger.level = logger_level
+              end
+            end
+          end
 
           # Uses #start_transaction and #end_transaction to allow
           # execution of queries within a block to be part of a
@@ -114,6 +125,17 @@ module Neo4j
               end
             end
           end
+
+          private
+
+          def logger_location
+            @options[:logger_location] || STDOUT
+          end
+
+          def logger_level
+            @options[:logger_level] || Logger::WARN
+          end
+
         end
       end
     end

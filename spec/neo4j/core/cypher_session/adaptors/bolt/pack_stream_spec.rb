@@ -1,4 +1,4 @@
-require './lib/neo4j/core/pack_stream'
+require './lib/neo4j/core/cypher_session/adaptors/bolt/pack_stream'
 
 module Neo4j
   module Core
