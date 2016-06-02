@@ -148,19 +148,8 @@ module Neo4j
               c.use Faraday::Adapter::NetHttpPersistent
 
               c.headers['Content-Type'] = 'application/json'
-              c.headers['User-Agent'] = user_agent_string
+              c.headers['User-Agent'] = USER_AGENT_STRING
             end
-          end
-
-          def user_agent_string
-            gem, version = if defined?(::Neo4j::ActiveNode)
-                             ['neo4j', ::Neo4j::VERSION]
-                           else
-                             ['neo4j-core', ::Neo4j::Core::VERSION]
-                           end
-
-
-            "#{gem}-gem/#{version} (https://github.com/neo4jrb/#{gem})"
           end
         end
       end

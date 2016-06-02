@@ -10,6 +10,15 @@ module Neo4j
         class Base
           include Neo4j::Core::Instrumentable
 
+          gem, version = if defined?(::Neo4j::ActiveNode)
+                           ['neo4j', ::Neo4j::VERSION]
+                         else
+                           ['neo4j-core', ::Neo4j::Core::VERSION]
+                         end
+
+
+          USER_AGENT_STRING = "#{gem}-gem/#{version} (https://github.com/neo4jrb/#{gem})"
+
           def connect(*_args)
             fail '#connect not implemented!'
           end
