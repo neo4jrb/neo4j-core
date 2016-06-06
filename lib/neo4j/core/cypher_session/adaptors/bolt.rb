@@ -35,15 +35,7 @@ module Neo4j
           def query_set(queries)
             fail 'Query attempted without a connection' if @socket.nil?
 
-            job = new_job
-            queries.each do |query|
-              job.add_message(:run, query.cypher, query.parameters || {})
-              job.add_message(:pull_all)
-            end
-            send_job(job)
-            job_result = flush_messages
-
-            job_result.each do |message|
+            send_query_jobs(queries).each do |message|
               if message.type != :success
                 data = message.args[0]
                 fail "Job did not complete successfully\n\n#{data['code']}\n#{data['message']}"
@@ -51,7 +43,7 @@ module Neo4j
             end
 
             queries.flat_map do |_query|
-              Responses::Bolt.new(flush_messages, flush_messages, flush_messages).results
+              Responses::Bolt.new(-> { flush_messages }).results
             end
           end
 
@@ -82,6 +74,17 @@ module Neo4j
           end
 
           private
+
+          def send_query_jobs(queries)
+            job = new_job
+            queries.each do |query|
+              job.add_message(:run, query.cypher, query.parameters || {})
+              job.add_message(:pull_all)
+            end
+            send_job(job)
+
+            flush_messages
+          end
 
           def new_job
             Job.new(self)

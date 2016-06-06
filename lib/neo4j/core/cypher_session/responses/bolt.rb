@@ -7,17 +7,19 @@ module Neo4j
         class Bolt < Base
           attr_reader :results, :result_info
 
-          def initialize(fields_messages, result_messages, footer_messages)
+          def initialize(flush_messages_proc)
+            fields_messages = flush_messages_proc.call
             validate_message_type!(fields_messages[0], :success)
+            result_messages = flush_messages_proc.call
+            footer_messages = flush_messages_proc.call
             validate_message_type!(footer_messages[0], :success)
 
-            columns = fields_messages[0].args[0]['fields']
             @result_info = footer_messages[0].args[0]
 
             @results = result_messages.map do |result_message|
               validate_message_type!(result_message, :record)
 
-              result_from_data(columns, result_message.args[0])
+              result_from_data(fields_messages[0].args[0]['fields'], result_message.args[0])
             end
           end
 
@@ -34,24 +36,24 @@ module Neo4j
             when Array
               entity_data.map(&method(:wrap_entity))
             when PackStream::Structure
-              case entity_data.signature
-              when 0x4E # Node
-                wrap_node(*entity_data.list)
-              when 0x52 # Relationship
-                wrap_relationship(*entity_data.list)
-              when 0x72
-                wrap_unbound_relationship(*entity_data.list)
-              when 0x50 # Path
-                wrap_path(*entity_data.list)
-              else
-                fail CypherError, "Unsupported structure signature: #{entity_data.signature}"
-              end
+              wrap_structure(entity_data)
             else
               entity_data
             end
           end
 
           private
+
+          def wrap_structure(structure)
+            case structure.signature
+            when 0x4E then wrap_node(*structure.list)
+            when 0x52 then wrap_relationship(*structure.list)
+            when 0x72 then wrap_unbound_relationship(*structure.list)
+            when 0x50 then wrap_path(*structure.list)
+            else
+              fail CypherError, "Unsupported structure signature: #{structure.signature}"
+            end
+          end
 
           def wrap_node(id, labels, properties)
             ::Neo4j::Core::Node.new(id, labels, properties).wrap
@@ -76,9 +78,15 @@ module Neo4j
           end
 
           def validate_message_type!(message, type)
-            return if message.type == type
-
-            fail CypherError, "Message was not of type #{type}"
+            case message.type
+            when type
+              return
+            when :failure
+              data = message.args[0]
+              fail CypherError, "Job did not complete successfully\n\n#{data['code']}\n#{data['message']}"
+            else
+              fail "Unexpected message type: #{type}"
+            end
           end
         end
       end

@@ -81,22 +81,21 @@ module Neo4j
         #                     +32 768 |             +2 147 483 647 | INT_32         | CA   |
         #              +2 147 483 648 | +9 223 372 036 854 775 807 | INT_64         | CB   |
 
-        # rubocop:disable Metrics/MethodLength
+        INT_HEADERS = MARKER_HEADERS[:int]
         def integer_stream
           case @object
           when -0x10...0x80 # TINY_INT
             pack_integer_object_as_string
           when -0x80...-0x10 # INT_8
-            MARKER_HEADERS[:int][8] + pack_integer_object_as_string
+            INT_HEADERS[8] + pack_integer_object_as_string
           when -0x8000...0x8000 # INT_16
-            MARKER_HEADERS[:int][16] + pack_integer_object_as_string(2)
+            INT_HEADERS[16] + pack_integer_object_as_string(2)
           when -0x80000000...0x80000000 # INT_32
-            MARKER_HEADERS[:int][32] + pack_integer_object_as_string(4)
+            INT_HEADERS[32] + pack_integer_object_as_string(4)
           when -0x8000000000000000...0x8000000000000000 # INT_64
-            MARKER_HEADERS[:int][64] + pack_integer_object_as_string(8)
+            INT_HEADERS[64] + pack_integer_object_as_string(8)
           end
         end
-        # rubocop:enable Metrics/MethodLength
 
         alias fixnum_stream integer_stream
         alias bignum_stream integer_stream
@@ -162,7 +161,10 @@ module Neo4j
 
         def pack_integer_object_as_string(size = 1)
           bytes = []
-          (0...size).to_a.reverse.inject(@object) { |current, i| bytes << (current / (256**i)); current % (256**i) }
+          (0...size).to_a.reverse.inject(@object) do |current, i|
+            bytes << (current / (256**i))
+            current % (256**i)
+          end
 
           pack_array_as_string(bytes)
         end
@@ -191,10 +193,7 @@ module Neo4j
 
             if [:text, :list, :map, :struct].include?(type)
               offset = marker - HEADER_BASE_BYTES[type]
-              s = shift_stream!(2**offset)
-              size = s.reverse.unpack(HEADER_PACK_STRINGS[offset])[0]
-            elsif type == :int
-              size /= 8
+              size = shift_stream!(2 << (offset - 1)).reverse.unpack(HEADER_PACK_STRINGS[offset])[0]
             end
 
             shift_value_for_type!(type, size)
@@ -207,26 +206,34 @@ module Neo4j
 
         private
 
+        METHOD_MAP = {
+          int: :value_for_int!,
+          float: :value_for_float!,
+          tiny_list: :value_for_list!,
+          list: :value_for_list!,
+          tiny_map: :value_for_map!,
+          map: :value_for_map!,
+          tiny_struct: :value_for_struct!,
+          struct: :value_for_struct!
+        }
+
         def shift_value_for_type!(type, size)
-          case type
-          when :int                      then value_for_int!(size)
-          when :float                    then value_for_float!
-          when :tiny_text, :text, :bytes then shift_stream!(size).force_encoding('UTF-8')
-          when :tiny_list, :list     then value_for_list!(size)
-          when :tiny_map, :map       then value_for_map!(size)
-          when :tiny_struct, :struct then value_for_struct!(size)
+          if [:tiny_text, :text, :bytes].include?(type)
+            shift_stream!(size).force_encoding('UTF-8')
+          else
+            send(METHOD_MAP[type], size)
           end
         end
 
         def value_for_int!(size)
-          r = shift_bytes!(size).reverse.each_with_index.inject(0) do |sum, (byte, i)|
+          r = shift_bytes!(size >> 3).reverse.each_with_index.inject(0) do |sum, (byte, i)|
             sum + (byte * (256**i))
           end
 
           (r >> (size - 1)) == 1 ? (r - (2**size)) : r
         end
 
-        def value_for_float!
+        def value_for_float!(_size)
           shift_stream!(8).unpack('G')[0]
         end
 

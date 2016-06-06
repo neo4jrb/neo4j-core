@@ -52,13 +52,13 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
     it 'lets you execute a query in a transaction' do
       expect_queries(1) do
         subject.start_transaction
-        subject.query('MATCH n RETURN n LIMIT 1')
+        subject.query('MATCH (n) RETURN n LIMIT 1')
         subject.end_transaction
       end
 
       expect_queries(1) do
         subject.transaction do
-          subject.query('MATCH n RETURN n LIMIT 1')
+          subject.query('MATCH (n) RETURN n LIMIT 1')
         end
       end
     end

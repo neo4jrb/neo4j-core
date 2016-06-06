@@ -350,7 +350,7 @@ module Neo4j
             end
             let_context(list: (1..65_535).to_a) { its([0, 10]) { should be_a_byte_stream(0xDD, 0xFF, 0xFF, 0x01, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06) } }
 
-            let_context(list: (1..65_536).to_a) { subject_should_raise /too big/ }
+            let_context(list: (1..65_536).to_a) { subject_should_raise(/too big/) }
           end
 
           describe 'maps' do
