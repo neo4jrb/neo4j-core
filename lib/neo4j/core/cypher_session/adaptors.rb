@@ -96,13 +96,13 @@ module Neo4j
           def logger
             return @logger if @logger
 
-            if @options[:logger]
-              @logger = @options[:logger]
-            else
-              @logger = Logger.new(logger_location).tap do |logger|
-                logger.level = logger_level
-              end
-            end
+            @logger = if @options[:logger]
+                        @options[:logger]
+                      else
+                        Logger.new(logger_location).tap do |logger|
+                          logger.level = logger_level
+                        end
+                      end
           end
 
           # Uses #start_transaction and #end_transaction to allow
@@ -144,7 +144,6 @@ module Neo4j
           def logger_level
             @options[:logger_level] || Logger::WARN
           end
-
         end
       end
     end

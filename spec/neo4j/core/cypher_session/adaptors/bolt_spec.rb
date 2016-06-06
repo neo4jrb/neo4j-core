@@ -65,4 +65,3 @@ describe Neo4j::Core::CypherSession::Adaptors::Bolt, new_cypher_session: true do
 
   it_behaves_like 'Neo4j::Core::CypherSession::Adaptor'
 end
-

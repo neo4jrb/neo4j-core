@@ -2,7 +2,7 @@ require 'neo4j/core/cypher_session/adaptors'
 require 'neo4j/core/cypher_session/adaptors/has_uri'
 require 'neo4j/core/cypher_session/adaptors/bolt/pack_stream'
 require 'neo4j/core/cypher_session/adaptors/bolt/chunk_writer_io'
-require 'neo4j/core/cypher_session/responses/http'
+require 'neo4j/core/cypher_session/responses/bolt'
 
 # TODO: Work with `Query` objects
 module Neo4j
@@ -35,6 +35,24 @@ module Neo4j
           def query_set(queries)
             fail 'Query attempted without a connection' if @socket.nil?
 
+            job = new_job
+            queries.each do |query|
+              job.add_message(:run, query.cypher, query.parameters || {})
+              job.add_message(:pull_all)
+            end
+            send_job(job)
+            job_result = flush_messages
+
+            job_result.each do |message|
+              if message.type != :success
+                data = message.args[0]
+                fail "Job did not complete successfully\n\n#{data['code']}\n#{data['message']}"
+              end
+            end
+
+            queries.flat_map do |_query|
+              Responses::Bolt.new(flush_messages, flush_messages, flush_messages).results
+            end
           end
 
           def start_transaction
@@ -57,10 +75,10 @@ module Neo4j
           end
 
 
-          instrument(:request, 'neo4j.core.http.request', %w(url body)) do |_, start, finish, _id, payload|
+          instrument(:request, 'neo4j.core.bolt.request', %w(url body)) do |_, start, finish, _id, payload|
             ms = (finish - start) * 1000
 
-            " #{ANSI::BLUE}HTTP REQUEST:#{ANSI::CLEAR} #{ANSI::YELLOW}#{ms.round}ms#{ANSI::CLEAR} #{payload[:url]}"
+            " #{ANSI::BLUE}BOLT REQUEST:#{ANSI::CLEAR} #{ANSI::YELLOW}#{ms.round}ms#{ANSI::CLEAR} #{payload[:url]}"
           end
 
           private
@@ -75,7 +93,7 @@ module Neo4j
 
           GOGOBOLT = "\x60\x60\xB0\x17"
           def handshake
-            logger.debug('HANDSHAKE:')
+            log_message :C, :handshake, nil
 
             sendmsg(GOGOBOLT + SUPPORTED_VERSIONS.pack('l>*'))
 
@@ -85,51 +103,58 @@ module Neo4j
               @socket.shutdown(Socket::SHUT_RDWR)
               @socket.close
 
-              raise "Couldn't agree on a version (Sent versions #{SUPPORTED_VERSIONS.inspect})"
+              fail "Couldn't agree on a version (Sent versions #{SUPPORTED_VERSIONS.inspect})"
             end
 
-            logger.info "Agreed to version: #{agreed_version}"
+            logger.debug "Agreed to version: #{agreed_version}"
           end
 
           def init
             job = new_job
             job.add_message(:init, USER_AGENT_STRING, principal: user, credentials: password, scheme: 'basic')
 
-            send_job(job).tap do |response|
-              raise "INIT didn't succeed.  Response: #{response.inspect}" if response[0].type != :success
-            end
+            send_job(job)
           end
 
           # Takes a Job object.
           # Sends it's messages to the server and returns an array of Message objects
           def send_job(job)
-            logger.debug "C: JOB: #{job}"
+            log_message :C, :job, job
             sendmsg(job.chunked_packed_stream)
-
-            flush_messages
           end
 
-          STREAM_INSPECTOR = ->(stream) do
+          STREAM_INSPECTOR = lambda do |stream|
             stream.bytes.map { |byte| byte.to_s(16).rjust(2, '0') }.join(':')
           end
 
           def sendmsg(message)
-            logger.debug "C: #{STREAM_INSPECTOR.call(message)}"
+            log_message :C, message
 
             @socket.sendmsg(message)
           end
 
           def recvmsg(size)
             @socket.recv(size).tap do |result|
-              logger.debug "S: #{STREAM_INSPECTOR.call(result)}"
+              log_message :S, result
             end
           end
 
           def flush_messages
-            flush_response.map do |args|
-              Message.new(args[0][0], *args[1..-1]).tap do |message|
-                logger.debug "S: MESSAGE: #{message.type.to_s.upcase} #{message.args.join(' ')}"
+            flush_response.flat_map do |structures|
+              structures.map do |structure|
+                Message.new(structure.signature, *structure.list).tap do |message|
+                  log_message :S, message.type, message.args.join(' ')
+                end
               end
+            end
+          end
+
+          def log_message(side, *args)
+            if args.size == 1
+              logger.debug "#{side}: #{STREAM_INSPECTOR.call(args[0])}"
+            else
+              type, message = args
+              logger.debug "#{side}: #{ANSI::CYAN}#{type.to_s.upcase}#{ANSI::CLEAR} #{message}"
             end
           end
 
@@ -137,11 +162,9 @@ module Neo4j
             result = []
 
             while !(header = recvmsg(2)).empty? && (chunk_size = header.unpack('s>*')[0]) > 0
-              logger.debug "S: #{header.inspect}"
-              logger.debug "S: Chunk size: #{chunk_size}"
+              log_message :S, :chunk_size, chunk_size
 
               chunk = recvmsg(chunk_size)
-              logger.debug "S: #{chunk.inspect}"
 
               unpacker = PackStream::Unpacker.new(StringIO.new(chunk))
 
@@ -176,18 +199,18 @@ module Neo4j
 
             def initialize(type_or_code, *args)
               @type_code = Message.type_code_for(type_or_code)
-              raise "Invalid message type: #{@type_code.inspect}" if !@type_code
+              fail "Invalid message type: #{@type_code.inspect}" if !@type_code
               @type = CODE_TYPES[@type_code]
 
               @args = args
             end
 
             def struct
-              [@type_code, *@args].freeze
+              PackStream::Structure.new(@type_code, @args)
             end
 
             def to_s
-              "#{@type.to_s.upcase} #{@args.inspect}"
+              "#{ANSI::GREEN}#{@type.to_s.upcase}#{ANSI::CLEAR} #{@args.inspect if !@args.empty?}"
             end
 
             def packed_stream
@@ -242,7 +265,6 @@ module Neo4j
               io = ChunkWriterIO.new
 
               @messages.each do |message|
-                puts "WRITING: #{message.packed_stream.inspect}"
                 io.write(message.packed_stream)
                 io.flush(true)
               end
@@ -252,7 +274,7 @@ module Neo4j
             end
 
             def to_s
-              @messages.join(' ')
+              @messages.join(' | ')
             end
           end
         end
@@ -260,4 +282,3 @@ module Neo4j
     end
   end
 end
-

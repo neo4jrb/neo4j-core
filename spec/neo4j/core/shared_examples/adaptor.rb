@@ -11,7 +11,7 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
 
   describe '#query' do
     it 'Can make a query' do
-      subject.query('MERGE path=n-[rel:r]->(o) RETURN n, rel, o, path LIMIT 1')
+      subject.query('MERGE path=(n)-[rel:r]->(o) RETURN n, rel, o, path LIMIT 1')
     end
   end
 

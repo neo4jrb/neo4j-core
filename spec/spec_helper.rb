@@ -61,6 +61,9 @@ module Neo4jSpecHelpers
     Neo4j::Core::CypherSession::Adaptors::HTTP.subscribe_to_request do |message|
       puts message
     end
+    Neo4j::Core::CypherSession::Adaptors::Bolt.subscribe_to_request do |message|
+      puts message
+    end
     Neo4j::Core::CypherSession::Adaptors::Embedded.subscribe_to_transaction do |message|
       puts message
     end

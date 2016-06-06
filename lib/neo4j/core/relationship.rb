@@ -5,10 +5,12 @@ module Neo4j
 
       include Wrappable
 
-      def initialize(id, type, properties)
+      def initialize(id, type, properties, from_node_id = nil, to_node_id = nil)
         @id = id
         @type = type.to_sym unless type.nil?
         @properties = properties
+        @from_node_id = from_node_id
+        @to_node_id = to_node_id
       end
 
       class << self

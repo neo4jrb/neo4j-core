@@ -72,4 +72,3 @@ class ChunkWriterIO < StringIO
     @output_size = 0
   end
 end
-

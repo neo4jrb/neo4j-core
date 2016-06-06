@@ -20,36 +20,36 @@ module Neo4j
           end
 
           describe 'integers' do
-            let_context(input: "\xCB\x80\x00\x00\x00\x00\x00\x00\x00") { it { should eq -9_223_372_036_854_775_808 } }
+            let_context(input: "\xCB\x80\x00\x00\x00\x00\x00\x00\x00") { it { should eq(-9_223_372_036_854_775_808) } }
 
-            let_context(input: "\xCB\xFF\xFF\xFF\xFF\x7F\xFF\xFF\xFF") { it { should eq -2_147_483_649 } }
-            let_context(input: "\xCA\x80\x00\x00\x00") { it { should eq -2_147_483_648 } }
-            let_context(input: "\xCA\x80\x00\x00\x01") { it { should eq -2_147_483_647 } }
+            let_context(input: "\xCB\xFF\xFF\xFF\xFF\x7F\xFF\xFF\xFF") { it { should eq(-2_147_483_649) } }
+            let_context(input: "\xCA\x80\x00\x00\x00") { it { should eq(-2_147_483_648) } }
+            let_context(input: "\xCA\x80\x00\x00\x01") { it { should eq(-2_147_483_647) } }
 
-            let_context(input: "\xCA\xBF\xFF\xFF\xFF") { it { should eq -1_073_741_825 } }
-            let_context(input: "\xCA\xDF\xFF\xFF\xFF") { it { should eq -536_870_913 } }
+            let_context(input: "\xCA\xBF\xFF\xFF\xFF") { it { should eq(-1_073_741_825) } }
+            let_context(input: "\xCA\xDF\xFF\xFF\xFF") { it { should eq(-536_870_913) } }
 
-            let_context(input: "\xCA\xFF\xFD\xFF\xFE") { it { should eq -131_074 } }
-            let_context(input: "\xCA\xFF\xFD\xFF\xFF") { it { should eq -131_073 } }
-            let_context(input: "\xCA\xFF\xFE\x00\x00") { it { should eq -131_072 } }
+            let_context(input: "\xCA\xFF\xFD\xFF\xFE") { it { should eq(-131_074) } }
+            let_context(input: "\xCA\xFF\xFD\xFF\xFF") { it { should eq(-131_073) } }
+            let_context(input: "\xCA\xFF\xFE\x00\x00") { it { should eq(-131_072) } }
 
-            let_context(input: "\xCA\xFF\xFE\xFF\xFF") { it { should eq -65_537 } }
-            let_context(input: "\xCA\xFF\xFF\x7F\xFF") { it { should eq -32_769 } }
+            let_context(input: "\xCA\xFF\xFE\xFF\xFF") { it { should eq(-65_537) } }
+            let_context(input: "\xCA\xFF\xFF\x7F\xFF") { it { should eq(-32_769) } }
 
-            let_context(input: "\xC9\x80\x00") { it { should eq -32_768 } }
-            let_context(input: "\xC9\x80\x01") { it { should eq -32_767 } }
-            let_context(input: "\xC9\xFF\x7E") { it { should eq -130 } }
-            let_context(input: "\xC9\xFF\x7F") { it { should eq -129 } }
+            let_context(input: "\xC9\x80\x00") { it { should eq(-32_768) } }
+            let_context(input: "\xC9\x80\x01") { it { should eq(-32_767) } }
+            let_context(input: "\xC9\xFF\x7E") { it { should eq(-130) } }
+            let_context(input: "\xC9\xFF\x7F") { it { should eq(-129) } }
 
-            let_context(input: "\xC8\x80") { it { should eq -128 } }
-            let_context(input: "\xC8\x81") { it { should eq -127 } }
-            let_context(input: "\xC8\xEE") { it { should eq -18 } }
-            let_context(input: "\xC8\xEF") { it { should eq -17 } }
+            let_context(input: "\xC8\x80") { it { should eq(-128) } }
+            let_context(input: "\xC8\x81") { it { should eq(-127) } }
+            let_context(input: "\xC8\xEE") { it { should eq(-18) } }
+            let_context(input: "\xC8\xEF") { it { should eq(-17) } }
 
-            let_context(input: "\xF0") { it { should eq -16 } }
-            let_context(input: "\xF1") { it { should eq -15 } }
-            let_context(input: "\xFE") { it { should eq -2 } }
-            let_context(input: "\xFF") { it { should eq -1 } }
+            let_context(input: "\xF0") { it { should eq(-16) } }
+            let_context(input: "\xF1") { it { should eq(-15) } }
+            let_context(input: "\xFE") { it { should eq(-2) } }
+            let_context(input: "\xFF") { it { should eq(-1) } }
 
             let_context(input: "\x00") { it { should eq 0 } }
             let_context(input: "\x01") { it { should eq 1 } }
@@ -84,12 +84,12 @@ module Neo4j
           end
 
           describe 'float' do
-            let_context(input: "\xC1\xBF\xF8\x00\x00\x00\x00\x00\x00") { it { should eq -1.5 } }
-            let_context(input: "\xC1\xC0\x04\x00\x00\x00\x00\x00\x00") { it { should eq -2.5 } }
-            let_context(input: "\xC1\xC3\x40\x00\x00\x00\x00\x00\x00") { it { should eq -9.007199254740992e+15 } }
-            let_context(input: "\xC1\xC6\x20\x00\x00\x00\x00\x00\x00") { it { should eq -6.338253001141147e+29 } }
+            let_context(input: "\xC1\xBF\xF8\x00\x00\x00\x00\x00\x00") { it { should eq(-1.5) } }
+            let_context(input: "\xC1\xC0\x04\x00\x00\x00\x00\x00\x00") { it { should eq(-2.5) } }
+            let_context(input: "\xC1\xC3\x40\x00\x00\x00\x00\x00\x00") { it { should eq(-9.007199254740992e+15) } }
+            let_context(input: "\xC1\xC6\x20\x00\x00\x00\x00\x00\x00") { it { should eq(-6.338253001141147e+29) } }
 
-            let_context(input: "\xC1\xBF\xF1\x99\x99\x99\x99\x99\x9A") { it { should eq -1.1 } }
+            let_context(input: "\xC1\xBF\xF1\x99\x99\x99\x99\x99\x9A") { it { should eq(-1.1) } }
             let_context(input: "\xC1\x00\x00\x00\x00\x00\x00\x00\x00") { it { should eq 0.0 } }
             let_context(input: "\xC1\x3F\xF1\x99\x99\x99\x99\x99\x9A") { it { should eq 1.1 } }
 
@@ -143,10 +143,36 @@ module Neo4j
 
           describe 'structs' do
             # Tiny Struct
-            let_context(input: "\xB2\xC3\xC2") { it { should eq [true, false] } }
+            let_context(input: "\xB2\x2A\xC3\xC2") { it { should eq PackStream::Structure.new(42, [true, false]) } }
+            let_context(input: "\xB2\x00\xC3\xA1\x2A\xC2") { it { should eq PackStream::Structure.new(0, [true, {42 => false}]) } }
 
             # Struct
-            let_context(input: "\xDC\x02\xC0\xCA\x00\x00\x00\x2A") { it { should eq [nil, 42] } }
+            let_context(input: "\xDC\x02\x80\xC0\xCA\x00\x00\x00\x2A") { it { should eq PackStream::Structure.new(128, [nil, 42]) } }
+            let_context(input: "\xDC\x02\x01\xC0\xA1\x2A\xC2") { it { should eq PackStream::Structure.new(1, [nil, {42 => false}]) } }
+          end
+
+
+          describe 'misc' do
+            let_context(input: "\xB1\x71\x94\xB3\x4E\xC9\x0C\x69\x90\xA0\xB5\x52\xC9\x0C\x59\xC9\x0C\x69\xC9\x0C\x6A\x81\x72\xA0\xB3\x4E\xC9\x0C\x6A\x90\xA0\xB3\x50\x93\xB3\x4E\xC9\x0C\x69\x90\xA0\xB3\x4E\xC9\x0C\x6A\x90\xA0\xB3\x4E\xC9\x0C\x6B\x90\xA0\x92\xB3\x72\xC9\x0C\x59\x81\x72\xA0\xB3\x72\xC9\x0C\x5A\x81\x62\xA0\x94\x01\x01\xFE\x02") do
+              it do
+                should eq PackStream::Structure.new(0x71, [[
+                                                      PackStream::Structure.new(0x4e, [3177, [], {}]),
+                                                      PackStream::Structure.new(0x52, [3161, 3177, 3178, 'r', {}]),
+                                                      PackStream::Structure.new(0x4e, [3178, [], {}]),
+                                                      PackStream::Structure.new(0x50, [
+                                                                                  [
+                                                                                    PackStream::Structure.new(0x4e, [3177, [], {}]),
+                                                                                    PackStream::Structure.new(0x4e, [3178, [], {}]),
+                                                                                    PackStream::Structure.new(0x4e, [3179, [], {}])
+                                                                                  ], [
+                                                                                    PackStream::Structure.new(0x72, [3161, 'r', {}]),
+                                                                                    PackStream::Structure.new(0x72, [3162, 'b', {}])
+                                                                                  ],
+                                                                                  [1, 1, -2, 2]
+                                                                                ])
+                                                    ]])
+              end
+            end
           end
         end
       end
@@ -297,24 +323,34 @@ module Neo4j
 
 
           describe 'structs' do
-            let(:argument) { input.freeze }
+            let(:signature) { 1 }
+            let(:input) { PackStream::Structure.new(signature, list) }
 
-            let_context(input: []) { it { should be_a_byte_stream(0xB0) } }
+            let_context(list: []) { it { should be_a_byte_stream(0xB0, 0x01) } }
 
-            let_context(input: [true, false]) { it { should be_a_byte_stream(0xB2, 0xC3, 0xC2) } }
-            let_context(input: [1, 2, 3]) { it { should be_a_byte_stream(0xB3, 0x01, 0x02, 0x03) } }
+            let_context(list: [true, false]) { it { should be_a_byte_stream(0xB2, 0x01, 0xC3, 0xC2) } }
+            let_context(list: [1, 2, 3]) { it { should be_a_byte_stream(0xB3, 0x01, 0x01, 0x02, 0x03) } }
+            let_context(signature: 4) do
+              let_context(list: [1, 2, 3]) { it { should be_a_byte_stream(0xB3, 0x04, 0x01, 0x02, 0x03) } }
+            end
 
-            let_context(input: [nil, 42]) { it { should be_a_byte_stream(0xB2, 0xC0, 0x2A) } }
+            let_context(list: [nil, 42]) { it { should be_a_byte_stream(0xB2, 0x01, 0xC0, 0x2A) } }
 
-            let_context(input: (1..15).to_a) { it { should be_a_byte_stream(0xBF, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F) } }
+            let_context(list: (1..15).to_a) { it { should be_a_byte_stream(0xBF, 0x01, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F) } }
 
-            let_context(input: (1..16).to_a) { it { should be_a_byte_stream(0xDC, 0x10, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10) } }
-            let_context(input: (1..255).to_a) { its([0, 10]) { should be_a_byte_stream(0xDC, 0xFF, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08) } }
+            let_context(list: (1..16).to_a) { it { should be_a_byte_stream(0xDC, 0x10, 0x01, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10) } }
+            let_context(signature: 64) do
+              let_context(list: (1..16).to_a) { it { should be_a_byte_stream(0xDC, 0x10, 0x40, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10) } }
+            end
+            let_context(list: (1..255).to_a) { its([0, 10]) { should be_a_byte_stream(0xDC, 0xFF, 0x01, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07) } }
 
-            let_context(input: (1..256).to_a) { its([0, 10]) { should be_a_byte_stream(0xDD, 0x01, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07) } }
-            let_context(input: (1..65_535).to_a) { its([0, 10]) { should be_a_byte_stream(0xDD, 0xFF, 0xFF, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07) } }
+            let_context(list: (1..256).to_a) { its([0, 10]) { should be_a_byte_stream(0xDD, 0x01, 0x00, 0x01, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06) } }
+            let_context(signature: 128) do
+              let_context(list: (1..256).to_a) { its([0, 10]) { should be_a_byte_stream(0xDD, 0x01, 0x00, 0x80, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06) } }
+            end
+            let_context(list: (1..65_535).to_a) { its([0, 10]) { should be_a_byte_stream(0xDD, 0xFF, 0xFF, 0x01, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06) } }
 
-            let_context(input: (1..65_536).to_a) { subject_should_raise /too big/ }
+            let_context(list: (1..65_536).to_a) { subject_should_raise /too big/ }
           end
 
           describe 'maps' do

@@ -50,6 +50,8 @@ module Neo4j
 
       HEADER_PACK_STRINGS = %w(C S L).freeze
 
+      Structure = Struct.new(:signature, :list)
+
       # Object which holds a Ruby object and can
       # pack it into a PackStream stream
       class Packer
@@ -62,8 +64,8 @@ module Neo4j
             pack_array_as_string([byte])
           else
             case @object
-            when Integer, Float, String, Symbol, Array, Hash
-              send(@object.class.name.downcase + '_stream')
+            when Integer, Float, String, Symbol, Array, Structure, Hash
+              send(@object.class.name.split('::').last.downcase + '_stream')
             end
           end
         end
@@ -119,14 +121,14 @@ module Neo4j
         alias symbol_stream string_stream
 
         def array_stream
-          header_args = if @object.frozen?
-                          raise 'Struct too big' if @object.size > 65_535
-                          [0xB0, 0xDC, @object.size]
-                        else
-                          [0x90, 0xD4, @object.size]
-                        end
+          marker_string(0x90, 0xD4, @object.size) + @object.map do |e|
+            Packer.new(e).packed_stream
+          end.join
+        end
 
-          marker_string(*header_args) + @object.map do |e|
+        def structure_stream
+          fail 'Structure too big' if @object.list.size > 65_535
+          marker_string(0xB0, 0xDC, @object.list.size) + [@object.signature].pack('C') + @object.list.map do |e|
             Packer.new(e).packed_stream
           end.join
         end
@@ -191,8 +193,8 @@ module Neo4j
               offset = marker - HEADER_BASE_BYTES[type]
               s = shift_stream!(2**offset)
               size = s.reverse.unpack(HEADER_PACK_STRINGS[offset])[0]
-              # require 'pry'
-              # binding.pry if size < 0
+            elsif type == :int
+              size /= 8
             end
 
             shift_value_for_type!(type, size)
@@ -210,9 +212,9 @@ module Neo4j
           when :int                      then value_for_int!(size)
           when :float                    then value_for_float!
           when :tiny_text, :text, :bytes then shift_stream!(size).force_encoding('UTF-8')
-          when :tiny_list, :list     then Array.new(size) { unpack_value! }
+          when :tiny_list, :list     then value_for_list!(size)
           when :tiny_map, :map       then value_for_map!(size)
-          when :tiny_struct, :struct then Array.new(size) { unpack_value! }.freeze
+          when :tiny_struct, :struct then value_for_struct!(size)
           end
         end
 
@@ -234,6 +236,15 @@ module Neo4j
             r[key] = unpack_value!
           end
         end
+
+        def value_for_list!(size)
+          Array.new(size) { unpack_value! }
+        end
+
+        def value_for_struct!(size)
+          Structure.new(shift_byte!, value_for_list!(size))
+        end
+
 
         def shift_byte!
           shift_bytes!(1).first unless depleted?
