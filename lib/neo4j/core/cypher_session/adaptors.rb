@@ -105,6 +105,13 @@ module Neo4j
                       end
           end
 
+          def setup_queries!(queries)
+            fail 'Query attempted without a connection' if !connected?
+
+            # context option not yet implemented
+            self.class.instrument_queries(queries)
+          end
+
           # Uses #start_transaction and #end_transaction to allow
           # execution of queries within a block to be part of a
           # full transaction

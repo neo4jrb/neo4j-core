@@ -1,3 +1,5 @@
+require 'active_support/core_ext/hash/keys'
+
 module Neo4j
   module Core
     class Relationship
@@ -8,7 +10,7 @@ module Neo4j
       def initialize(id, type, properties, from_node_id = nil, to_node_id = nil)
         @id = id
         @type = type.to_sym unless type.nil?
-        @properties = properties
+        @properties = properties.symbolize_keys
         @from_node_id = from_node_id
         @to_node_id = to_node_id
       end

@@ -1,4 +1,5 @@
 require 'neo4j/core/cypher_session/responses'
+require 'active_support/core_ext/hash/keys'
 
 module Neo4j
   module Core
@@ -28,7 +29,7 @@ module Neo4j
               wrap_entity(entity_data)
             end
 
-            Result.new(columns, rows)
+            Result.new(columns, [rows])
           end
 
           def wrap_entity(entity_data)
@@ -37,6 +38,8 @@ module Neo4j
               entity_data.map(&method(:wrap_entity))
             when PackStream::Structure
               wrap_structure(entity_data)
+            when Hash
+              entity_data.symbolize_keys
             else
               entity_data
             end
@@ -85,7 +88,7 @@ module Neo4j
               data = message.args[0]
               fail CypherError, "Job did not complete successfully\n\n#{data['code']}\n#{data['message']}"
             else
-              fail "Unexpected message type: #{type}"
+              fail "Unexpected message type: #{message.type}"
             end
           end
         end

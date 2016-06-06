@@ -33,7 +33,7 @@ module Neo4j
           end
 
           def query_set(queries)
-            fail 'Query attempted without a connection' if @socket.nil?
+            setup_queries!(queries)
 
             send_query_jobs(queries).each do |message|
               if message.type != :success
@@ -57,6 +57,10 @@ module Neo4j
           end
 
           def version
+          end
+
+          def connected?
+            !!@socket
           end
 
           # Schema inspection methods

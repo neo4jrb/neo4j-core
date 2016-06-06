@@ -41,7 +41,7 @@ describe Neo4j::Core::CypherSession::Adaptors::HTTP, new_cypher_session: true do
       it 'lets you execute a query in a transaction' do
         expect_http_requests(2) do
           subject.start_transaction
-          subject.query('MATCH n RETURN n LIMIT 1')
+          subject.query('MATCH (n) RETURN n LIMIT 1')
           subject.end_transaction
         end
 
@@ -52,7 +52,7 @@ describe Neo4j::Core::CypherSession::Adaptors::HTTP, new_cypher_session: true do
 
         expect_http_requests(2) do
           subject.transaction do
-            subject.query('MATCH n RETURN n LIMIT 1')
+            subject.query('MATCH (n) RETURN n LIMIT 1')
           end
         end
       end

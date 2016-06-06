@@ -26,6 +26,7 @@ module Neo4j
           def query_set(queries)
             # I think that this is the best way to do a batch in embedded...
             # Should probably do within a transaction in case of errors...
+            setup_queries!(queries)
 
             transaction do
               self.class.instrument_transaction do
@@ -65,6 +66,10 @@ module Neo4j
             else
               fail 'Could not determine embedded version!'
             end
+          end
+
+          def connected?
+            !!@graph_db
           end
 
           instrument(:transaction, 'neo4j.core.embedded.transaction', []) do |_, start, finish, _id, _payload|

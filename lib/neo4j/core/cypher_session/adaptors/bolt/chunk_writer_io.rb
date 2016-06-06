@@ -18,15 +18,13 @@ class ChunkWriterIO < StringIO
       future_size = @output_size + string.size
       if future_size >= MAX_CHUNK_SIZE
         last = MAX_CHUNK_SIZE - @output_size
-        @output_buffer << string[0, last]
-        @output_size = MAX_CHUNK_SIZE
+        write_buffer!(string[0, last], MAX_CHUNK_SIZE)
         string = string[last..-1]
 
         write_without_chunking(buffer_result)
         clear_buffer!
       else
-        @output_buffer << string
-        @output_size = future_size
+        write_buffer!(string, future_size)
 
         string = ''
       end
@@ -50,6 +48,10 @@ class ChunkWriterIO < StringIO
   end
 
   # private
+  def write_buffer!(string, size)
+    @output_buffer << string
+    @output_size = size
+  end
 
   def buffer_result(zero_chunk = false)
     result = ''

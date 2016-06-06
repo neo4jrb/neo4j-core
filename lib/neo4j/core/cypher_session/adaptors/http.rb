@@ -27,16 +27,13 @@ module Neo4j
           ROW_REST = %w(row REST)
 
           def query_set(queries)
-            fail 'Query attempted without a connection' if @connection.nil?
+            setup_queries!(queries)
 
             statements_data = queries.map do |query|
               {statement: query.cypher, parameters: query.parameters || {},
                resultDataContents: ROW_REST}
             end
             request_data = {statements: statements_data}
-
-            # context option not implemented
-            self.class.instrument_queries(queries)
 
             return unless url = full_transaction_url
 
@@ -80,6 +77,10 @@ module Neo4j
 
           def version
             @version ||= @connection.get(db_data_url).body[:neo4j_version]
+          end
+
+          def connected?
+            !!@connection
           end
 
           # Schema inspection methods
