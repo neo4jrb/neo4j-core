@@ -46,10 +46,6 @@ module Neo4j
             end
           end
 
-          def connected?
-            true # ?
-          end
-
           def version
             if defined?(::Neo4j::Community)
               ::Neo4j::Community::NEO_VERSION
@@ -95,9 +91,6 @@ module Neo4j
           def self.transaction_class
             require 'neo4j/core/cypher_session/transactions/embedded'
             Neo4j::Core::CypherSession::Transactions::Embedded
-
-          def connected?
-            !!@graph_db
           end
 
           def connected?

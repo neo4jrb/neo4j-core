@@ -7,7 +7,8 @@ describe Neo4j::Core::CypherSession::Adaptors::HTTP, new_cypher_session: true do
   let(:adaptor_class) { Neo4j::Core::CypherSession::Adaptors::HTTP }
 
   let(:url) { ENV['NEO4J_URL'] }
-  subject { adaptor_class.new(url) }
+  let(:adaptor) { adaptor_class.new(url) }
+  subject { adaptor }
 
   describe '#initialize' do
     it 'validates URLs' do
@@ -18,13 +19,12 @@ describe Neo4j::Core::CypherSession::Adaptors::HTTP, new_cypher_session: true do
       expect { adaptor_class.new('https://localhost:7474').connect }.not_to raise_error
       expect { adaptor_class.new('https://localhost:7474/').connect }.not_to raise_error
       expect { adaptor_class.new('https://foo:bar@localhost:7474').connect }.not_to raise_error
+      expect { adaptor_class.new('bolt://localhost:7474').connect }.to raise_error ArgumentError, /Invalid URL/
+      expect { adaptor_class.new('foo://localhost:7474').connect }.to raise_error ArgumentError, /Invalid URL/
     end
   end
 
-    let_context(url: 'bolt://localhost:7474') { subject_should_raise ArgumentError, /Invalid URL/ }
-    let_context(url: 'foo://localhost:7474') { subject_should_raise ArgumentError, /Invalid URL/ }
-
-  let(:session_double) { double('session') }
+  let(:session_double) { double('session', adaptor: subject) }
 
   before do
     adaptor.connect
@@ -34,13 +34,11 @@ describe Neo4j::Core::CypherSession::Adaptors::HTTP, new_cypher_session: true do
   describe 'transactions' do
     it 'lets you execute a query in a transaction' do
       expect_http_requests(2) do
-        tx = adaptor.transaction
+        tx = subject.transaction(session_double)
         tx.query('MATCH (n) RETURN n LIMIT 1')
         tx.close
       end
-
-    let_context(url: 'http://localhost:7474/') { subject_should_not_raise }
-    let_context(url: 'https://localhost:7474/') { subject_should_not_raise }
+    end
   end
 
   context 'when connected' do
@@ -49,27 +47,28 @@ describe Neo4j::Core::CypherSession::Adaptors::HTTP, new_cypher_session: true do
     describe 'transactions' do
       it 'lets you execute a query in a transaction' do
         expect_http_requests(2) do
-          subject.start_transaction
-          subject.query('MATCH (n) RETURN n LIMIT 1')
-          subject.end_transaction
+          tx = subject.transaction(session_double)
+          tx.query('MATCH (n) RETURN n LIMIT 1')
+          tx.close
         end
 
-      expect_http_requests(2) do
-        adaptor.transaction do |tx|
-          tx.query('MATCH (n) RETURN n LIMIT 1')
+        expect_http_requests(2) do
+          subject.transaction(session_double) do |tx|
+            tx.query('MATCH (n) RETURN n LIMIT 1')
+          end
         end
       end
     end
 
     describe 'unwrapping' do
       it 'is not fooled by returned Maps with key expected for nodes/rels/paths' do
-        result = subject.query('RETURN {labels: 1} AS r')
+        result = subject.query(session_double, 'RETURN {labels: 1} AS r')
         expect(result.to_a[0].r).to eq(labels: 1)
 
-        result = subject.query('RETURN {type: 1} AS r')
+        result = subject.query(session_double, 'RETURN {type: 1} AS r')
         expect(result.to_a[0].r).to eq(type: 1)
 
-        result = subject.query('RETURN {start: 1} AS r')
+        result = subject.query(session_double, 'RETURN {start: 1} AS r')
         expect(result.to_a[0].r).to eq(start: 1)
       end
     end

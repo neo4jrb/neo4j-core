@@ -67,7 +67,7 @@ module Neo4j
       # when #close is called.
       # Aliased for legacy purposes.
       def mark_failed
-        # @parent.mark_failed if @parent
+        root.mark_failed if root && root != self
         @failure = true
       end
       alias failure mark_failed

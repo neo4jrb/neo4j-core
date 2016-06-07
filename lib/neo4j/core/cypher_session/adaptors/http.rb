@@ -10,10 +10,6 @@ module Neo4j
         class HTTP < Base
           attr_reader :requestor, :url
 
-          include Adaptors::HasUri
-          default_url('http://neo4:neo4j@localhost:7474')
-          validate_uri { |uri| uri.is_a?(URI::HTTP) }
-
           def initialize(url, options = {})
             @url = url
             @transaction_state = nil
@@ -21,7 +17,7 @@ module Neo4j
           end
 
           def connect
-            @requestor = Requestor.new(@url, self.class.method(:instrument_request))
+            @requestor = Requestor.new(@url, USER_AGENT_STRING, self.class.method(:instrument_request))
           end
 
           ROW_REST = %w(row REST)
@@ -37,10 +33,6 @@ module Neo4j
 
             wrap_level = options[:wrap_level] || @options[:wrap_level]
             Responses::HTTP.new(faraday_response, wrap_level: wrap_level).results
-          end
-
-          def connected?
-            !@requestor.nil?
           end
 
           def version
@@ -90,16 +82,22 @@ module Neo4j
           end
 
           def connected?
-            !!@connection
+            !!@requestor
           end
 
           # Basic wrapper around HTTP requests to standard Neo4j HTTP endpoints
           #  - Takes care of JSONifying objects passed as body (Hash/Array/Query)
           #  - Sets headers, including user agent string
           class Requestor
-            def initialize(url, instrument_proc)
-              @url = url
-              @url_components = url_components!(url)
+            include Adaptors::HasUri
+            default_url('http://neo4:neo4j@localhost:7474')
+            validate_uri { |uri| uri.is_a?(URI::HTTP) }
+
+            def initialize(url, user_agent_string, instrument_proc)
+              self.url = url
+              @user = user
+              @password = password
+              @user_agent_string = user_agent_string
               @faraday = faraday_connection
               @instrument_proc = instrument_proc
             end
@@ -147,7 +145,7 @@ module Neo4j
                 c.use Faraday::Adapter::NetHttpPersistent
 
                 c.headers['Content-Type'] = 'application/json'
-                c.headers['User-Agent'] = USER_AGENT_STRING
+                c.headers['User-Agent'] = @user_agent_string
               end
             end
 
@@ -175,6 +173,10 @@ module Neo4j
                  parameters: query.parameters || {},
                  resultDataContents: ROW_REST}
               end
+            end
+
+            def url_base
+              "#{scheme}://#{host}:#{port}"
             end
 
             def url_from_path(path)

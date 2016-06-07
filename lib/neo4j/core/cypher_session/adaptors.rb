@@ -97,7 +97,7 @@ module Neo4j
               tx = transaction(session)
 
               yield tx
-            rescue Exception => e # rubocop:disable Lint/RescueException
+            rescue => e
               tx.mark_failed
 
               raise e
@@ -154,8 +154,6 @@ module Neo4j
             fail 'Query attempted without a connection' if !connected?
             fail "Invalid transaction object: #{transaction}" if !transaction.is_a?(self.class.transaction_class)
           end
-
-          private
 
           def logger_location
             @options[:logger_location] || STDOUT

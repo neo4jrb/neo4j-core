@@ -49,24 +49,15 @@ require "#{File.dirname(__FILE__)}/helpers"
 require 'neo4j/core/cypher_session'
 
 require 'neo4j/core/cypher_session/adaptors/http'
+require 'neo4j/core/cypher_session/adaptors/bolt'
 require 'neo4j/core/cypher_session/adaptors/embedded'
 module Neo4jSpecHelpers
   def log_queries!
-    Neo4j::Server::CypherSession.log_with do |message|
-      puts message
-    end
-    Neo4j::Core::CypherSession::Adaptors::Base.subscribe_to_query do |message|
-      puts message
-    end
-    Neo4j::Core::CypherSession::Adaptors::HTTP.subscribe_to_request do |message|
-      puts message
-    end
-    Neo4j::Core::CypherSession::Adaptors::Bolt.subscribe_to_request do |message|
-      puts message
-    end
-    Neo4j::Core::CypherSession::Adaptors::Embedded.subscribe_to_transaction do |message|
-      puts message
-    end
+    Neo4j::Server::CypherSession.log_with(&method(:puts))
+    Neo4j::Core::CypherSession::Adaptors::Base.subscribe_to_query(&method(:puts))
+    Neo4j::Core::CypherSession::Adaptors::HTTP.subscribe_to_request(&method(:puts))
+    Neo4j::Core::CypherSession::Adaptors::Bolt.subscribe_to_request(&method(:puts))
+    Neo4j::Core::CypherSession::Adaptors::Embedded.subscribe_to_transaction(&method(:puts))
   end
 
   def current_transaction

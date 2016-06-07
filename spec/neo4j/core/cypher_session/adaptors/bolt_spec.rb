@@ -6,7 +6,9 @@ describe Neo4j::Core::CypherSession::Adaptors::Bolt, new_cypher_session: true do
   let(:adaptor_class) { Neo4j::Core::CypherSession::Adaptors::Bolt }
   let(:url) { ENV['NEO4J_BOLT_URL'] }
 
-  subject { adaptor_class.new(url, logger_level: Logger::DEBUG) }
+  let(:adaptor) { adaptor_class.new(url, logger_level: Logger::DEBUG) }
+
+  subject { adaptor }
 
   describe '#initialize' do
     let_context(url: 'url') { subject_should_raise ArgumentError, /Invalid URL/ }

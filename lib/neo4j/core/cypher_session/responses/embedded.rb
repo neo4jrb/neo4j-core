@@ -100,9 +100,8 @@ module Neo4j
             end
           end
 
-          def validate_response!(execution_results)
+          def validate_response!(_execution_results)
             require 'pry'
-            binding.pry
           end
         end
       end
