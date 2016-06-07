@@ -1,4 +1,5 @@
 require 'neo4j/core/cypher_session/adaptors'
+require 'neo4j/core/cypher_session/adaptors/has_uri'
 require 'neo4j/core/cypher_session/responses/http'
 
 # TODO: Work with `Query` objects
@@ -8,6 +9,10 @@ module Neo4j
       module Adaptors
         class HTTP < Base
           attr_reader :requestor, :url
+
+          include Adaptors::HasUri
+          default_url('http://neo4:neo4j@localhost:7474')
+          validate_uri { |uri| uri.is_a?(URI::HTTP) }
 
           def initialize(url, options = {})
             @url = url
@@ -22,10 +27,7 @@ module Neo4j
           ROW_REST = %w(row REST)
 
           def query_set(transaction, queries, options = {})
-            validate_query_set!(transaction, queries, options)
-
-            # context option not implemented
-            self.class.instrument_queries(queries)
+            setup_queries!(queries)
 
             return unless path = transaction.query_path(options.delete(:commit))
 
@@ -76,10 +78,19 @@ module Neo4j
             Neo4j::Core::CypherSession::Transactions::HTTP
           end
 
+          # Schema inspection methods
+          def indexes_for_label(label)
+            url = db_data_url + "schema/index/#{label}"
+            response = @connection.get(url)
+          end
+
           instrument(:request, 'neo4j.core.http.request', %w(method url body)) do |_, start, finish, _id, payload|
             ms = (finish - start) * 1000
-
             " #{ANSI::BLUE}HTTP REQUEST:#{ANSI::CLEAR} #{ANSI::YELLOW}#{ms.round}ms#{ANSI::CLEAR} #{payload[:method].upcase} #{payload[:url]} (#{payload[:body].size} bytes)"
+          end
+
+          def connected?
+            !!@connection
           end
 
           # Basic wrapper around HTTP requests to standard Neo4j HTTP endpoints
@@ -136,7 +147,7 @@ module Neo4j
                 c.use Faraday::Adapter::NetHttpPersistent
 
                 c.headers['Content-Type'] = 'application/json'
-                c.headers['User-Agent'] = user_agent_string
+                c.headers['User-Agent'] = USER_AGENT_STRING
               end
             end
 
@@ -168,47 +179,6 @@ module Neo4j
 
             def url_from_path(path)
               url_base + (path[0] != '/' ? '/' + path : path)
-            end
-
-            def db_data_url
-              url_base + 'db/data/'
-            end
-
-            def url_base
-              "#{scheme}://#{host}:#{port}"
-            end
-
-            def url_components!(url)
-              @uri = URI(url || 'http://localhost:7474')
-
-              if !@uri.is_a?(URI::HTTP)
-                fail ArgumentError, "Invalid URL: #{url.inspect}"
-              end
-
-              true
-            end
-
-            URI_DEFAULTS = {
-              scheme: 'http',
-              user: 'neo4j', password: 'neo4j',
-              host: 'localhost', port: 7474
-            }
-
-            URI_DEFAULTS.each do |method, value|
-              define_method(method) do
-                @uri.send(method) || value
-              end
-            end
-
-            def user_agent_string
-              gem, version = if defined?(::Neo4j::ActiveNode)
-                               ['neo4j', ::Neo4j::VERSION]
-                             else
-                               ['neo4j-core', ::Neo4j::Core::VERSION]
-                             end
-
-
-              "#{gem}-gem/#{version} (https://github.com/neo4jrb/#{gem})"
             end
           end
 

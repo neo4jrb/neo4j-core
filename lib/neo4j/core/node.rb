@@ -1,4 +1,5 @@
 require 'neo4j/core/wrappable'
+require 'active_support/core_ext/hash/keys'
 
 module Neo4j
   module Core
@@ -14,7 +15,7 @@ module Neo4j
       def initialize(id, labels, properties = {})
         @id = id
         @labels = labels.map(&:to_sym) unless labels.nil?
-        @properties = properties
+        @properties = properties.symbolize_keys
       end
 
       def ==(other)

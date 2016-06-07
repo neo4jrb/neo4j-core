@@ -1,4 +1,4 @@
-# Requires that an initialized `adaptor` variable be available
+# Requires that an initialized subject is created as the `subject`
 # Requires that `setup_query_subscription` is called
 RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
   before(:all) { setup_query_subscription }
@@ -6,23 +6,27 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
   let(:session_double) { double('session', adaptor: adaptor) }
   # TODO: Test cypher errors
 
+  before { subject.connect }
+
+  after { subject.end_transaction if subject.transaction_started? }
+
   describe '#query' do
     it 'Can make a query' do
-      adaptor.query('MERGE path=n-[rel:r]->(o) RETURN n, rel, o, path LIMIT 1')
+      subject.query('MERGE path=(n)-[rel:r]->(o) RETURN n, rel, o, path LIMIT 1')
     end
   end
 
   describe '#queries' do
     it 'allows for multiple queries' do
-      result = adaptor.queries do
+      result = subject.queries do
         append 'CREATE (n:Label1) RETURN n'
         append 'CREATE (n:Label2) RETURN n'
       end
 
       expect(result[0].to_a[0].n).to be_a(Neo4j::Core::Node)
       expect(result[1].to_a[0].n).to be_a(Neo4j::Core::Node)
-      # Maybe should have method like adaptor.returns_node_and_relationship_metadata?
-      if adaptor.is_a?(::Neo4j::Core::CypherSession::Adaptors::HTTP) && adaptor.version < '2.1.5'
+      # Maybe should have method like subject.returns_node_and_relationship_metadata?
+      if subject.is_a?(::Neo4j::Core::CypherSession::Adaptors::HTTP) && subject.version < '2.1.5'
         expect(result[0].to_a[0].n.labels).to eq(nil)
         expect(result[1].to_a[0].n.labels).to eq(nil)
       else
@@ -32,12 +36,12 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
     end
 
     it 'allows for building with Query API' do
-      result = adaptor.queries do
+      result = subject.queries do
         append query.create(n: {Label1: {}}).return(:n)
       end
 
       expect(result[0].to_a[0].n).to be_a(Neo4j::Core::Node)
-      if adaptor.is_a?(::Neo4j::Core::CypherSession::Adaptors::HTTP) && adaptor.version < '2.1.5'
+      if subject.is_a?(::Neo4j::Core::CypherSession::Adaptors::HTTP) && subject.version < '2.1.5'
         expect(result[0].to_a[0].n.labels).to eq(nil)
       else
         expect(result[0].to_a[0].n.labels).to eq([:Label1])
@@ -141,6 +145,8 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
       end
       expect(get_object_by_id(9, adaptor)).to be_nil
     end
+    # it 'does not allow transactions in the wrong order' do
+    #   expect { subject.end_transaction }.to raise_error(RuntimeError, /Cannot close transaction without starting one/)
   end
 
   describe 'results' do
@@ -188,6 +194,7 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
 
       # Normally I don't think you wouldn't wrap nodes/relationships/paths
       # with the same class.  It's just expedient to do so in this spec
+
       describe 'wrapping' do
         let(:query) do
           "MERGE path=(n:Foo {a: 1})-[r:foo {b: 2}]->(b:Foo)
@@ -284,7 +291,7 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
 
   #   describe 'uniqueness_constraints_for_label' do
   #     let(:label) { "Foo#{SecureRandom.hex[0,10]}" }
-  #     subject { adaptor.uniqueness_constraints_for_label(label) }
+  #     subject { subject.uniqueness_constraints_for_label(label) }
 
   #     it { should eq([]) }
 

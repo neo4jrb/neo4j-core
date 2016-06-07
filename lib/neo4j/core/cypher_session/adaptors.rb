@@ -13,6 +13,15 @@ module Neo4j
         class Base
           include Neo4j::Core::Instrumentable
 
+          gem, version = if defined?(::Neo4j::ActiveNode)
+                           ['neo4j', ::Neo4j::VERSION]
+                         else
+                           ['neo4j-core', ::Neo4j::Core::VERSION]
+                         end
+
+
+          USER_AGENT_STRING = "#{gem}-gem/#{version} (https://github.com/neo4jrb/#{gem})"
+
           def connect(*_args)
             fail '#connect not implemented!'
           end
@@ -97,6 +106,25 @@ module Neo4j
             end
           end
 
+          def logger
+            return @logger if @logger
+
+            @logger = if @options[:logger]
+                        @options[:logger]
+                      else
+                        Logger.new(logger_location).tap do |logger|
+                          logger.level = logger_level
+                        end
+                      end
+          end
+
+          def setup_queries!(queries)
+            fail 'Query attempted without a connection' if !connected?
+
+            # context option not yet implemented
+            self.class.instrument_queries(queries)
+          end
+
           EMPTY = ''
           NEWLINE_W_SPACES = "\n  "
 
@@ -125,6 +153,16 @@ module Neo4j
           def validate_query_set!(transaction, _queries, _options = {})
             fail 'Query attempted without a connection' if !connected?
             fail "Invalid transaction object: #{transaction}" if !transaction.is_a?(self.class.transaction_class)
+          end
+
+          private
+
+          def logger_location
+            @options[:logger_location] || STDOUT
+          end
+
+          def logger_level
+            @options[:logger_level] || Logger::WARN
           end
         end
       end

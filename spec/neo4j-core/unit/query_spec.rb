@@ -24,15 +24,15 @@ class DocGenerator
     parts = context_class.name.split('::')
     headers = (3..parts.size - 1).map { |i| Kernel.const_get(parts[0, i].join('::')).description }
 
-    first_different_index = headers.each_with_index.detect do |header, index|
+    @first_different_index = headers.each_with_index.detect do |header, index|
       @last_headers[index] != header
     end
 
     @last_headers = headers
 
-    return if !first_different_index
+    return if !@first_different_index
 
-    headers[first_different_index[1]..-1]
+    headers[@first_different_index[1]..-1]
   end
 
   def add_headers(context_class)
@@ -42,7 +42,7 @@ class DocGenerator
 
     headers.each_with_index do |header, index|
       @file.puts header
-      @file.puts RST_HEADER_ORDER[index] * header.size
+      @file.puts RST_HEADER_ORDER[index + @first_different_index[1]] * header.size
       @file.puts
     end
   end
@@ -746,6 +746,26 @@ describe Neo4j::Core::Query do
 
     describe ".delete(['n', :o])" do
       it_generates 'DELETE n, o'
+    end
+  end
+
+  # DETACH DELETE
+
+  describe '#delete' do
+    describe ".detach_delete('n')" do
+      it_generates 'DETACH DELETE n'
+    end
+
+    describe '.detach_delete(:n)' do
+      it_generates 'DETACH DELETE n'
+    end
+
+    describe ".detach_delete('n', :o)" do
+      it_generates 'DETACH DELETE n, o'
+    end
+
+    describe ".detach_delete(['n', :o])" do
+      it_generates 'DETACH DELETE n, o'
     end
   end
 

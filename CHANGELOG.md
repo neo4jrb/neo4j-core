@@ -14,6 +14,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Removed httparty dependency which is no longer used (thanks isaacsanders / see #257)
 - If using a threaded server, a new session must be created for each thread (see [upgrade guide](TODO!!!!))
 
+## [6.1.4] - 05-12-2016
+
+### Added
+
+- `detach_delete` method for `Query` API for `DETACH DELETE` clause introduced in Neo4j 2.3
+
 ## [6.1.3] - 04-28-2016
 
 ### Fixed

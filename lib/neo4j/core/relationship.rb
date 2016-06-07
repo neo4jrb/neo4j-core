@@ -1,4 +1,5 @@
 require 'neo4j/core/wrappable'
+require 'active_support/core_ext/hash/keys'
 
 module Neo4j
   module Core
@@ -13,7 +14,7 @@ module Neo4j
       def initialize(id, type, properties, start_node_id, end_node_id)
         @id = id
         @type = type.to_sym unless type.nil?
-        @properties = properties
+        @properties = properties.symbolize_keys
         @start_node_id = start_node_id
         @end_node_id = end_node_id
       end
