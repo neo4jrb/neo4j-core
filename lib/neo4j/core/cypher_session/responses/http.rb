@@ -51,6 +51,12 @@ module Neo4j
                 result = send("wrap_#{ident}", rest_datum, row_datum)
 
                 @wrap_level == :proc ? result.wrap : result
+              elsif rest_datum.is_a?(Array)
+                rest_datum.zip(row_datum).map {|rest, row| _wrap_entity(rest, row) }
+              elsif rest_datum.is_a?(Hash)
+                rest_datum.each_with_object({}) do |(key, value), result|
+                  result[key] = _wrap_entity(value, row_datum[key])
+                end
               else
                 row_datum
               end

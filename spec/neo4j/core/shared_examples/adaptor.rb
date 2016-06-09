@@ -147,13 +147,34 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
 
   describe 'results' do
     it 'handles array results' do
-      result = adaptor.query(session_double, "CREATE (a {b: 'c'}) RETURN [a]")
+      result = adaptor.query(session_double, "CREATE (a {b: 'c'}) RETURN [a] AS arr")
 
       expect(result.hashes).to be_a(Array)
       expect(result.hashes.size).to be(1)
-      expect(result.hashes[0][:'[a]']).to be_a(Array)
-      expect(result.hashes[0][:'[a]'][0]).to be_a(Neo4j::Core::Node)
-      expect(result.hashes[0][:'[a]'][0].properties).to eq(b: 'c')
+      expect(result.hashes[0][:arr]).to be_a(Array)
+      expect(result.hashes[0][:arr][0]).to be_a(Neo4j::Core::Node)
+      expect(result.hashes[0][:arr][0].properties).to eq(b: 'c')
+    end
+
+    it 'handles map results' do
+      result = adaptor.query(session_double, "CREATE (a {b: 'c'}) RETURN {foo: a} AS map")
+
+      expect(result.hashes).to be_a(Array)
+      expect(result.hashes.size).to be(1)
+      expect(result.hashes[0][:map]).to be_a(Hash)
+      expect(result.hashes[0][:map][:foo]).to be_a(Neo4j::Core::Node)
+      expect(result.hashes[0][:map][:foo].properties).to eq(b: 'c')
+    end
+
+    it 'handles map results with arrays' do
+      result = adaptor.query(session_double, "CREATE (a {b: 'c'}) RETURN {foo: [a]} AS map")
+
+      expect(result.hashes).to be_a(Array)
+      expect(result.hashes.size).to be(1)
+      expect(result.hashes[0][:map]).to be_a(Hash)
+      expect(result.hashes[0][:map][:foo]).to be_a(Array)
+      expect(result.hashes[0][:map][:foo][0]).to be_a(Neo4j::Core::Node)
+      expect(result.hashes[0][:map][:foo][0].properties).to eq(b: 'c')
     end
 
     it 'symbolizes keys for Neo4j objects' do
@@ -177,14 +198,12 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
           end
         end)
 
-        puts 'setting up'
         Neo4j::Core::Node.wrapper_callback(->(obj) { WrapperClass.new(obj) })
         Neo4j::Core::Relationship.wrapper_callback(->(obj) { WrapperClass.new(obj) })
         Neo4j::Core::Path.wrapper_callback(->(obj) { WrapperClass.new(obj) })
       end
 
       after do
-        puts 'tearing down'
         Neo4j::Core::Node.clear_wrapper_callback
         Neo4j::Core::Path.clear_wrapper_callback
         Neo4j::Core::Relationship.clear_wrapper_callback
