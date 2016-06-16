@@ -16,6 +16,7 @@ module Neo4j
       include Neo4j::Core::QueryFindInBatches
       DEFINED_CLAUSES = {}
 
+
       attr_accessor :clauses
 
       class Parameters
@@ -217,7 +218,7 @@ module Neo4j
       #   Query.new.match('(q: Person {id: {id}})').params(id: 12)
       #
       def params(args)
-        copy.tap { |new_query| new_query.instance_variable_get('@params').add_params(args) }
+        copy.tap { |new_query| new_query.instance_variable_get('@params'.freeze).add_params(args) }
       end
 
       def unwrapped
@@ -396,9 +397,9 @@ module Neo4j
       def copy
         dup.tap do |query|
           to_cypher
-          query.instance_variable_set('@params', @params.copy)
-          query.instance_variable_set('@partitioned_clauses', nil)
-          query.instance_variable_set('@response', nil)
+          query.instance_variable_set('@params'.freeze, @params.copy)
+          query.instance_variable_set('@partitioned_clauses'.freeze, nil)
+          query.instance_variable_set('@response'.freeze, nil)
         end
       end
 
@@ -424,7 +425,7 @@ module Neo4j
       def build_deeper_query(clause_class, args = {}, options = {})
         copy.tap do |new_query|
           new_query.add_clauses [nil] if [nil, WithClause].include?(clause_class)
-          new_query.add_clauses clause_class.from_args(args, new_query.instance_variable_get('@params'), options) if clause_class
+          new_query.add_clauses clause_class.from_args(args, new_query.instance_variable_get('@params'.freeze), options) if clause_class
         end
       end
 
