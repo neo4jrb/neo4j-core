@@ -11,7 +11,7 @@ module Neo4j
 
       include Wrappable
 
-      def initialize(id, type, properties, start_node_id, end_node_id)
+      def initialize(id, type, properties, start_node_id = nil, end_node_id = nil)
         @id = id
         @type = type.to_sym unless type.nil?
         @properties = properties.symbolize_keys

@@ -3,6 +3,7 @@ require 'neo4j/core/cypher_session/adaptors/has_uri'
 require 'neo4j/core/cypher_session/adaptors/bolt/pack_stream'
 require 'neo4j/core/cypher_session/adaptors/bolt/chunk_writer_io'
 require 'neo4j/core/cypher_session/responses/bolt'
+require 'io/wait'
 
 # TODO: Work with `Query` objects
 module Neo4j
@@ -22,41 +23,71 @@ module Neo4j
           def initialize(url, options = {})
             self.url = url
             @options = options
+
+            open_socket
           end
 
           def connect
-            open_socket
-
             handshake
 
             init
+
+            message = flush_messages[0]
+            if message.type != :success
+              data = message.args[0]
+              fail "Init did not complete successfully\n\n#{data['code']}\n#{data['message']}"
+            end
           end
 
-          def query_set(queries)
+          def query_set(transaction, queries, options = {})
             setup_queries!(queries)
 
-            send_query_jobs(queries).each do |message|
-              if message.type != :success
-                data = message.args[0]
-                fail "Job did not complete successfully\n\n#{data['code']}\n#{data['message']}"
-              end
+            return unless path = transaction.query_path(options.delete(:commit))
+
+            faraday_response = @requestor.post(path, queries)
+
+            transaction.apply_id_from_url!(faraday_response.env[:response_headers][:location])
+
+            wrap_level = options[:wrap_level] || @options[:wrap_level]
+            Responses::HTTP.new(faraday_response, wrap_level: wrap_level).results
+          end
+
+
+          def query_set(_transaction, queries, options = {})
+            setup_queries!(queries)
+
+            if @socket.ready?
+              debug_remaining_buffer
+              fail 'Making query, but expected there to be no buffer remaining!'
             end
 
+            send_query_jobs(queries) # .each do |message|
+            #  if message.type != :success
+            #    data = message.args[0]
+            #    fail "Job did not complete successfully\n\n#{data['code']}\n#{data['message']}"
+            #  end
+            # end
+
+            wrap_level = options[:wrap_level] || @options[:wrap_level]
             queries.flat_map do |_query|
-              Responses::Bolt.new(-> { flush_messages }).results
+              Responses::Bolt.new(method(:flush_messages), wrap_level: wrap_level, foo: options[:foo]).results
             end
           end
 
-          def start_transaction
-          end
+          # @private
+          def debug_remaining_buffer
+            logger.debug 'Remaining buffer:'
 
-          def end_transaction
-          end
-
-          def transaction_started?
+            i = 0
+            while @socket.ready?
+              i += 1
+              logger.debug "Message set #{i}:"
+              flush_messages
+            end
           end
 
           def version
+            fail 'should be implemented!'
           end
 
           def connected?
@@ -70,6 +101,10 @@ module Neo4j
           def uniqueness_constraints_for_label(label)
           end
 
+          def self.transaction_class
+            require 'neo4j/core/cypher_session/transactions/bolt'
+            Neo4j::Core::CypherSession::Transactions::Bolt
+          end
 
           instrument(:request, 'neo4j.core.bolt.request', %w(url body)) do |_, start, finish, _id, payload|
             ms = (finish - start) * 1000
@@ -87,7 +122,12 @@ module Neo4j
             end
             send_job(job)
 
-            flush_messages
+            # [].tap do|r|
+            #  while (messages = flush_messages)
+            #    puts 'messages', messages.inspect
+            #    r.concat(messages)
+            #  end
+            # end
           end
 
           def new_job
@@ -144,15 +184,23 @@ module Neo4j
             @socket.recv(size).tap do |result|
               log_message :S, result
             end
+          rescue
+            require 'pry'
           end
 
+          # def flush_messages
+          #   [].tap do |messages|
+          #     flush_messages.tap(&messages.concat) while structures = flush_response
+          #   end || []
+          # end
+
           def flush_messages
-            flush_response.flat_map do |structures|
+            if structures = flush_response
               structures.map do |structure|
                 Message.new(structure.signature, *structure.list).tap do |message|
                   log_message :S, message.type, message.args.join(' ')
                 end
-              end
+              end.tap { flush_response }
             end
           end
 
@@ -165,25 +213,18 @@ module Neo4j
             end
           end
 
+          # Replace with Enumerator?
           def flush_response
-            result = []
-
-            while !(header = recvmsg(2)).empty? && (chunk_size = header.unpack('s>*')[0]) > 0
+            if !(header = recvmsg(2)).empty? && (chunk_size = header.unpack('s>*')[0]) > 0
               log_message :S, :chunk_size, chunk_size
 
               chunk = recvmsg(chunk_size)
 
               unpacker = PackStream::Unpacker.new(StringIO.new(chunk))
 
-              result << []
-              while arg = unpacker.unpack_value!
-                result[-1] << arg
-              end
+              [].tap { |r| while arg = unpacker.unpack_value!; r << arg; end }
             end
-
-            result
           end
-
 
           # Represents messages sent to or received from the server
           class Message

@@ -12,7 +12,6 @@ module Neo4j
 
           def initialize(url, options = {})
             @url = url
-            @transaction_state = nil
             @options = options
           end
 

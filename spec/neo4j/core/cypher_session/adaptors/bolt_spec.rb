@@ -11,6 +11,10 @@ describe Neo4j::Core::CypherSession::Adaptors::Bolt, new_cypher_session: true do
   subject { adaptor }
 
   describe '#initialize' do
+    before do
+      allow_any_instance_of(adaptor_class).to receive(:open_socket)
+    end
+
     let_context(url: 'url') { subject_should_raise ArgumentError, /Invalid URL/ }
     let_context(url: :symbol) { subject_should_raise ArgumentError, /Invalid URL/ }
     let_context(url: 123) { subject_should_raise ArgumentError, /Invalid URL/ }
@@ -27,8 +31,8 @@ describe Neo4j::Core::CypherSession::Adaptors::Bolt, new_cypher_session: true do
     let_context(url: 'bolt://foo:bar@localhost:7687') { subject_should_not_raise }
   end
 
-  describe 'connecting' do
-    # before { adaptor.connect }
+  context 'connected adaptor' do
+    before { adaptor.connect }
 
     # describe 'transactions' do
     #   it 'lets you execute a query in a transaction' do
@@ -63,7 +67,7 @@ describe Neo4j::Core::CypherSession::Adaptors::Bolt, new_cypher_session: true do
     #     expect(result.to_a[0].r).to eq(start: 1)
     #   end
     # end
-  end
 
-  it_behaves_like 'Neo4j::Core::CypherSession::Adaptor'
+    it_behaves_like 'Neo4j::Core::CypherSession::Adaptor'
+  end
 end

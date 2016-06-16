@@ -8,19 +8,30 @@ module Neo4j
         class Bolt < Base
           attr_reader :results, :result_info
 
-          def initialize(flush_messages_proc)
+          def initialize(flush_messages_proc, options = {})
             fields_messages = flush_messages_proc.call
+            puts 'fields_messages', fields_messages.inspect
             validate_message_type!(fields_messages[0], :success)
-            result_messages = flush_messages_proc.call
-            footer_messages = flush_messages_proc.call
-            validate_message_type!(footer_messages[0], :success)
+            fields = fields_messages[0].args[0]['fields']
+
+            messages = flush_messages_proc.call
+
+            result_messages, footer_messages = if messages && messages[0].type == :success
+              [[], messages]
+            else
+              [messages || [], flush_messages_proc.call]
+            end
+            puts 'result_messages', result_messages.inspect
+            puts 'footer_messages', footer_messages.inspect
 
             @result_info = footer_messages[0].args[0]
+
+            @wrap_level = options[:wrap_level] || Neo4j::Core::Config.wrapping_level
 
             @results = result_messages.map do |result_message|
               validate_message_type!(result_message, :record)
 
-              result_from_data(fields_messages[0].args[0]['fields'], result_message.args[0])
+              result_from_data(fields, result_message.args[0])
             end
           end
 
@@ -88,7 +99,7 @@ module Neo4j
               data = message.args[0]
               fail CypherError, "Job did not complete successfully\n\n#{data['code']}\n#{data['message']}"
             else
-              fail "Unexpected message type: #{message.type}"
+              fail "Unexpected message type: #{message.type} (#{message.inspect})"
             end
           end
         end

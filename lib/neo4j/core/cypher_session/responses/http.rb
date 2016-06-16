@@ -52,7 +52,7 @@ module Neo4j
 
                 @wrap_level == :proc ? result.wrap : result
               elsif rest_datum.is_a?(Array)
-                rest_datum.zip(row_datum).map {|rest, row| _wrap_entity(rest, row) }
+                rest_datum.zip(row_datum).map { |rest, row| _wrap_entity(rest, row) }
               elsif rest_datum.is_a?(Hash)
                 rest_datum.each_with_object({}) do |(key, value), result|
                   result[key] = _wrap_entity(value, row_datum[key])
