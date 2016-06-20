@@ -63,11 +63,15 @@ module Neo4jSpecHelpers
     Neo4j::Transaction.current_for(Neo4j::Session.current)
   end
 
+  class << self
+    attr_accessor :expect_queries_count
+  end
+
   # rubocop:disable Style/GlobalVars
   def expect_queries(count)
-    start_count = $expect_queries_count
+    start_count = Neo4jSpecHelpers.expect_queries_count
     yield
-    expect($expect_queries_count - start_count).to eq(count)
+    expect(Neo4jSpecHelpers.expect_queries_count - start_count).to eq(count)
   end
 
   def expect_http_requests(count)
@@ -149,10 +153,10 @@ RSpec.configure do |config|
 
   config.before(:suite) do
     # for expect_queries method
-    $expect_queries_count = 0
+    Neo4jSpecHelpers.expect_queries_count = 0
 
     Neo4j::Core::CypherSession::Adaptors::Base.subscribe_to_query do |_message|
-      $expect_queries_count += 1
+      Neo4jSpecHelpers.expect_queries_count += 1
     end
   end
 
