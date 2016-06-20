@@ -118,11 +118,11 @@ module Neo4j
                       end
           end
 
-          def setup_queries!(queries)
+          def setup_queries!(queries, options = {})
             fail 'Query attempted without a connection' if !connected?
 
             # context option not yet implemented
-            self.class.instrument_queries(queries)
+            self.class.instrument_queries(queries) unless options[:skip_instrumentation]
           end
 
           EMPTY = ''

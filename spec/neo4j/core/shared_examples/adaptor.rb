@@ -6,6 +6,8 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
   let(:session_double) { double('session', adaptor: adaptor) }
   # TODO: Test cypher errors
 
+  before { adaptor.query(session_double, 'MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n, r') }
+
   subject { adaptor }
 
   describe '#query' do

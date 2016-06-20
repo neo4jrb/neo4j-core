@@ -8,30 +8,30 @@ module Neo4j
         class Bolt < Base
           attr_reader :results, :result_info
 
-          def initialize(flush_messages_proc, options = {})
-            fields_messages = flush_messages_proc.call
-            puts 'fields_messages', fields_messages.inspect
-            validate_message_type!(fields_messages[0], :success)
-            fields = fields_messages[0].args[0]['fields']
-
-            messages = flush_messages_proc.call
-
-            result_messages, footer_messages = if messages && messages[0].type == :success
-              [[], messages]
-            else
-              [messages || [], flush_messages_proc.call]
-            end
-            puts 'result_messages', result_messages.inspect
-            puts 'footer_messages', footer_messages.inspect
-
-            @result_info = footer_messages[0].args[0]
-
+          def initialize(queries, flush_messages_proc, options = {})
             @wrap_level = options[:wrap_level] || Neo4j::Core::Config.wrapping_level
 
-            @results = result_messages.map do |result_message|
-              validate_message_type!(result_message, :record)
+            @results = queries.map do
+              fields_messages = flush_messages_proc.call
 
-              result_from_data(fields, result_message.args[0])
+              validate_message_type!(fields_messages[0], :success)
+              fields = fields_messages[0].args[0]['fields']
+
+              result_messages = []
+              while (messages = flush_messages_proc.call)[0].type != :success
+                result_messages.concat(messages)
+              end
+              footer_messages = messages
+
+              # @result_info = footer_messages[0].args[0]
+
+              data = result_messages.flat_map do |result_message|
+                validate_message_type!(result_message, :record)
+
+                result_message.args[0]
+              end
+
+              result_from_data(fields, data)
             end
           end
 
@@ -50,7 +50,9 @@ module Neo4j
             when PackStream::Structure
               wrap_structure(entity_data)
             when Hash
-              entity_data.symbolize_keys
+              entity_data.each_with_object({}) do |(k, v), result|
+                result[k.to_sym] = wrap_entity(v)
+              end
             else
               entity_data
             end
@@ -69,22 +71,42 @@ module Neo4j
             end
           end
 
+          def wrap_by_level(none_value, &core_entity_wrapper)
+            case @wrap_level
+            when :none
+              if none_value.is_a?(Array)
+                none_value.map(&:symbolize_keys)
+              else
+                none_value.symbolize_keys
+              end
+            when :core_entity
+              core_entity_wrapper.call
+            when :proc
+              core_entity_wrapper.call.wrap
+            else
+              fail ArgumentError, "Inalid wrap_level: #{@wrap_level.inspect}"
+            end
+          end
+
           def wrap_node(id, labels, properties)
-            ::Neo4j::Core::Node.new(id, labels, properties).wrap
+            wrap_by_level(properties) { ::Neo4j::Core::Node.new(id, labels, properties) }
           end
 
           def wrap_relationship(id, from_node_id, to_node_id, type, properties)
-            ::Neo4j::Core::Relationship.new(id, type, properties, from_node_id, to_node_id).wrap
+            wrap_by_level(properties) { ::Neo4j::Core::Relationship.new(id, type, properties, from_node_id, to_node_id) }
           end
 
           def wrap_unbound_relationship(id, type, properties)
-            ::Neo4j::Core::Relationship.new(id, type, properties).wrap
+            wrap_by_level(properties) { ::Neo4j::Core::Relationship.new(id, type, properties) }
           end
 
           def wrap_path(nodes, relationships, directions)
-            ::Neo4j::Core::Path.new(nodes.map(&method(:wrap_entity)),
-                                    relationships.map(&method(:wrap_entity)),
-                                    directions.map(&method(:wrap_direction)))
+            none_value = nodes.zip(relationships).flatten.compact.map {|obj| obj.list.last }
+            wrap_by_level(none_value) do
+              ::Neo4j::Core::Path.new(nodes.map(&method(:wrap_entity)),
+                                      relationships.map(&method(:wrap_entity)),
+                                      directions.map(&method(:wrap_direction)))
+            end
           end
 
           def wrap_direction(_direction_int)

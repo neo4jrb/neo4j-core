@@ -6,7 +6,6 @@ Coveralls.wear!
 
 # To run it manually via Rake
 if ENV['COVERAGE']
-  puts 'RUN SIMPLECOV'
   require 'simplecov'
   SimpleCov.formatter = SimpleCov::Formatter::HTMLFormatter
   SimpleCov.start

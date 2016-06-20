@@ -88,6 +88,10 @@ module Neo4j
         !!@expired
       end
 
+      def is_root?
+        @root == self
+      end
+
       private
 
       def transient_failures_autoclose?

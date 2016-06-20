@@ -8,11 +8,11 @@ module Neo4j
           def initialize(*args)
             super
 
-            tx_query('BEGIN')
+            tx_query('BEGIN') if is_root?
           end
 
           def commit
-            tx_query('COMMIT')
+            tx_query('COMMIT') if is_root?
           end
 
           def delete
@@ -27,15 +27,7 @@ module Neo4j
 
           def tx_query(cypher)
             query = Adaptors::Base::Query.new(cypher, {}, cypher)
-            adaptor.send(:query_set, self, [query], foo: true)
-
-            # puts 2
-            # adaptor.send(:flush_messages)
-            # puts 3
-            # adaptor.send(:flush_messages)
-            # puts 4
-            # adaptor.send(:flush_messages)
-            puts 'end'
+            adaptor.send(:query_set, self, [query], skip_instrumentation: true)
           end
         end
       end

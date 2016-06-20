@@ -39,39 +39,18 @@ module Neo4j
             end
           end
 
-          def query_set(transaction, queries, options = {})
-            setup_queries!(queries)
-
-            return unless path = transaction.query_path(options.delete(:commit))
-
-            faraday_response = @requestor.post(path, queries)
-
-            transaction.apply_id_from_url!(faraday_response.env[:response_headers][:location])
-
-            wrap_level = options[:wrap_level] || @options[:wrap_level]
-            Responses::HTTP.new(faraday_response, wrap_level: wrap_level).results
-          end
-
-
           def query_set(_transaction, queries, options = {})
-            setup_queries!(queries)
+            setup_queries!(queries, skip_instrumentation: options[:skip_instrumentation])
 
             if @socket.ready?
               debug_remaining_buffer
               fail 'Making query, but expected there to be no buffer remaining!'
             end
 
-            send_query_jobs(queries) # .each do |message|
-            #  if message.type != :success
-            #    data = message.args[0]
-            #    fail "Job did not complete successfully\n\n#{data['code']}\n#{data['message']}"
-            #  end
-            # end
+            send_query_jobs(queries)
 
             wrap_level = options[:wrap_level] || @options[:wrap_level]
-            queries.flat_map do |_query|
-              Responses::Bolt.new(method(:flush_messages), wrap_level: wrap_level, foo: options[:foo]).results
-            end
+            Responses::Bolt.new(queries, method(:flush_messages), wrap_level: wrap_level).results
           end
 
           # @private
@@ -121,13 +100,6 @@ module Neo4j
               job.add_message(:pull_all)
             end
             send_job(job)
-
-            # [].tap do|r|
-            #  while (messages = flush_messages)
-            #    puts 'messages', messages.inspect
-            #    r.concat(messages)
-            #  end
-            # end
           end
 
           def new_job
