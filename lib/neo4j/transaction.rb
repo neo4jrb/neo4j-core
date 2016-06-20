@@ -88,7 +88,7 @@ module Neo4j
         !!@expired
       end
 
-      def is_root?
+      def root?
         @root == self
       end
 

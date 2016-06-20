@@ -8,11 +8,11 @@ module Neo4j
           def initialize(*args)
             super
 
-            tx_query('BEGIN') if is_root?
+            tx_query('BEGIN') if root?
           end
 
           def commit
-            tx_query('COMMIT') if is_root?
+            tx_query('COMMIT') if root?
           end
 
           def delete

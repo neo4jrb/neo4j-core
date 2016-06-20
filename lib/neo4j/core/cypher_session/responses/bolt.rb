@@ -71,7 +71,7 @@ module Neo4j
             end
           end
 
-          def wrap_by_level(none_value, &core_entity_wrapper)
+          def wrap_by_level(none_value)
             case @wrap_level
             when :none
               if none_value.is_a?(Array)
@@ -80,9 +80,9 @@ module Neo4j
                 none_value.symbolize_keys
               end
             when :core_entity
-              core_entity_wrapper.call
+              yield
             when :proc
-              core_entity_wrapper.call.wrap
+              yield.wrap
             else
               fail ArgumentError, "Inalid wrap_level: #{@wrap_level.inspect}"
             end
@@ -101,7 +101,7 @@ module Neo4j
           end
 
           def wrap_path(nodes, relationships, directions)
-            none_value = nodes.zip(relationships).flatten.compact.map {|obj| obj.list.last }
+            none_value = nodes.zip(relationships).flatten.compact.map { |obj| obj.list.last }
             wrap_by_level(none_value) do
               ::Neo4j::Core::Path.new(nodes.map(&method(:wrap_entity)),
                                       relationships.map(&method(:wrap_entity)),
