@@ -33,10 +33,10 @@ module Neo4j
             init
 
             message = flush_messages[0]
-            if message.type != :success
-              data = message.args[0]
-              fail "Init did not complete successfully\n\n#{data['code']}\n#{data['message']}"
-            end
+            return if message.type == :success
+
+            data = message.args[0]
+            fail "Init did not complete successfully\n\n#{data['code']}\n#{data['message']}"
           end
 
           def query_set(_transaction, queries, options = {})

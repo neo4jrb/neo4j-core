@@ -72,7 +72,7 @@ module Neo4j
           # Schema inspection methods
           def indexes_for_label(label)
             url = db_data_url + "schema/index/#{label}"
-            response = @connection.get(url)
+            @connection.get(url)
           end
 
           instrument(:request, 'neo4j.core.http.request', %w(method url body)) do |_, start, finish, _id, payload|
