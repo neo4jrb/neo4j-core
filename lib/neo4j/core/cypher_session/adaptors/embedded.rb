@@ -74,17 +74,11 @@ module Neo4j
             # Move these calls out to adaptors.rb?
             Neo4j::Core::Label.wait_for_schema_changes(session)
 
-            type = options[:type]
-
             Transaction.run(session) do
-              graph_db = session.adaptor.graph_db
-
               args = []
               args << Java::OrgNeo4jGraphdb.DynamicLabel.label(label) if label
 
-              constraint_definitions = graph_db.schema.get_constraints(*args)
-              constraint_definitions.select! { |d| d.constraint_type.to_s == type.to_s.upcase } if type
-              constraint_definitions.map { |definition| definition.property_keys.to_a }
+              constraint_definitions_for(session.adaptor.graph_db, options[:type])
             end
           end
 
@@ -113,6 +107,12 @@ module Neo4j
 
           def engine
             @engine ||= Java::OrgNeo4jCypherJavacompat::ExecutionEngine.new(@graph_db)
+          end
+
+          def constraint_definitions_for(graph_db, type = nil)
+            constraint_definitions = graph_db.schema.get_constraints(*args)
+            constraint_definitions.select! { |d| d.constraint_type.to_s == type.to_s.upcase } if type
+            constraint_definitions.map { |definition| definition.property_keys.to_a }
           end
         end
       end

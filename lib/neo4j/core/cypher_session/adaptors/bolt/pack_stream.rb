@@ -191,12 +191,7 @@ module Neo4j
           if type_and_size = PackStream.marker_type_and_size(marker)
             type, size = type_and_size
 
-            if [:text, :list, :map, :struct].include?(type)
-              offset = marker - HEADER_BASE_BYTES[type]
-              size = shift_stream!(2 << (offset - 1)).reverse.unpack(HEADER_PACK_STRINGS[offset])[0]
-            end
-
-            shift_value_for_type!(type, size)
+            shift_value_for_type!(type, size, marker)
           elsif MARKER_TYPES.key?(marker)
             MARKER_TYPES[marker]
           else
@@ -217,7 +212,12 @@ module Neo4j
           struct: :value_for_struct!
         }
 
-        def shift_value_for_type!(type, size)
+        def shift_value_for_type!(type, size, marker)
+          if [:text, :list, :map, :struct].include?(type)
+            offset = marker - HEADER_BASE_BYTES[type]
+            size = shift_stream!(2 << (offset - 1)).reverse.unpack(HEADER_PACK_STRINGS[offset])[0]
+          end
+
           if [:tiny_text, :text, :bytes].include?(type)
             shift_stream!(size).force_encoding('UTF-8')
           else

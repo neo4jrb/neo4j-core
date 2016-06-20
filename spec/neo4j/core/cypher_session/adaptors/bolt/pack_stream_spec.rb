@@ -1,6 +1,7 @@
 require './lib/neo4j/core/cypher_session/adaptors/bolt/pack_stream'
 
 module Neo4j
+  # rubocop:disable Metrics/ModuleLength
   module Core
     # rubocop:disable Metrics/LineLength
     describe PackStream do
@@ -368,4 +369,5 @@ module Neo4j
     end
     # rubocop:enable Metrics/LineLength
   end
+  # rubocop:enable Metrics/ModuleLength
 end
