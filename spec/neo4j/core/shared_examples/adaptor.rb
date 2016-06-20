@@ -1,8 +1,5 @@
 # Requires that an `adaptor` let variable exist with the connected adaptor
-# Requires that `setup_query_subscription` is called
 RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
-  before(:all) { setup_query_subscription }
-
   let(:session_double) { double('session', adaptor: adaptor) }
   # TODO: Test cypher errors
 

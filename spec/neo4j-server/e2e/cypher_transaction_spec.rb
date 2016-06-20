@@ -40,7 +40,7 @@ module Neo4j
           id = session.query.create('(n)').return('ID(n) AS id').first[:id]
           tx = Transaction.new(session)
           q = tx._query("MATCH (n) WHERE ID(n) = #{id} RETURN ID(n)")
-          expect(q.response.body[:results]).to eq([{columns: ['ID(n)'], data: [{row: [id], rest: [id]}]}])
+          expect(q.response.body[:results]).to match [{columns: ['ID(n)'], data: [a_hash_including(row: [id], rest: [id])]}]
         end
 
         it 'sets the response error fields if not a valid query' do

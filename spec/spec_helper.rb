@@ -70,14 +70,6 @@ module Neo4jSpecHelpers
     expect($expect_queries_count - start_count).to eq(count)
   end
 
-  def setup_query_subscription
-    $expect_queries_count = 0
-
-    Neo4j::Core::CypherSession::Adaptors::Base.subscribe_to_query do |_message|
-      $expect_queries_count += 1
-    end
-  end
-
   def expect_http_requests(count)
     start_count = $expect_http_request_count
     yield
@@ -153,6 +145,15 @@ RSpec.configure do |config|
     Neo4j::Session.current.close if Neo4j::Session.current
     create_embedded_session
     Neo4j::Session.current.start unless Neo4j::Session.current.running?
+  end
+
+  config.before(:suite) do
+    # for expect_queries method
+    $expect_queries_count = 0
+
+    Neo4j::Core::CypherSession::Adaptors::Base.subscribe_to_query do |_message|
+      $expect_queries_count += 1
+    end
   end
 
   # if ENV['TEST_AUTHENTICATION'] == 'true'
