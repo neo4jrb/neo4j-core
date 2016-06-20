@@ -15,6 +15,23 @@ module Neo4j
             end
           end
 
+          def wrap_by_level(none_value)
+            case @wrap_level
+            when :none
+              if none_value.is_a?(Array)
+                none_value.map(&:symbolize_keys)
+              else
+                none_value.symbolize_keys
+              end
+            when :core_entity
+              yield
+            when :proc
+              yield.wrap
+            else
+              fail ArgumentError, "Inalid wrap_level: #{@wrap_level.inspect}"
+            end
+          end
+
           def results
             fail '#results not implemented!'
           end

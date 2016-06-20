@@ -28,42 +28,22 @@ module Neo4j
             Result.new(columns, rows)
           end
 
-          def wrap_entity(row_data, rest_data)
-            row_data.each_with_index.map do |row_datum, i|
-              rest_datum = rest_data[i]
-
-              if rest_datum.is_a?(Array)
-                wrap_entity(row_datum, rest_datum)
-              else
-                _wrap_entity(rest_datum, row_datum)
+          def wrap_entity(row_datum, rest_datum)
+            case
+            when rest_datum.is_a?(Array)
+              row_datum.zip(rest_datum).map { |row, rest| wrap_entity(row, rest) }
+            when ident = identify_entity(rest_datum)
+              send("wrap_#{ident}", rest_datum, row_datum)
+            when rest_datum.is_a?(Hash)
+              rest_datum.each_with_object({}) do |(k, v), result|
+                result[k.to_sym] = wrap_entity(row_datum[k], v)
               end
+            else
+              row_datum
             end
           end
 
           private
-
-          def _wrap_entity(rest_datum, row_datum)
-            case @wrap_level
-            when :none
-              row_datum
-            when :core_entity, :proc
-              if (ident = identify_entity(rest_datum))
-                result = send("wrap_#{ident}", rest_datum, row_datum)
-
-                @wrap_level == :proc ? result.wrap : result
-              elsif rest_datum.is_a?(Array)
-                rest_datum.zip(row_datum).map { |rest, row| _wrap_entity(rest, row) }
-              elsif rest_datum.is_a?(Hash)
-                rest_datum.each_with_object({}) do |(key, value), result|
-                  result[key] = _wrap_entity(value, row_datum[key])
-                end
-              else
-                row_datum
-              end
-            else
-              fail ArgumentError, "Inalid wrap_level: #{@wrap_level.inspect}"
-            end
-          end
 
           def identify_entity(rest_datum)
             return if !rest_datum.is_a?(Hash)
@@ -76,31 +56,37 @@ module Neo4j
             end
           end
 
-          def wrap_node(rest_datum, _)
-            metadata_data = rest_datum[:metadata]
-            ::Neo4j::Core::Node.new(id_from_rest_datum(rest_datum),
-                                    metadata_data && metadata_data[:labels],
-                                    rest_datum[:data])
+          def wrap_node(rest_datum, row_datum)
+            wrap_by_level(row_datum) do
+              metadata_data = rest_datum[:metadata]
+              ::Neo4j::Core::Node.new(id_from_rest_datum(rest_datum),
+                                      metadata_data && metadata_data[:labels],
+                                      rest_datum[:data])
+            end
           end
 
-          def wrap_relationship(rest_datum, _)
-            metadata_data = rest_datum[:metadata]
-            ::Neo4j::Core::Relationship.new(id_from_rest_datum(rest_datum),
-                                            metadata_data && metadata_data[:type],
-                                            rest_datum[:data],
-                                            id_from_url(rest_datum[:start]),
-                                            id_from_url(rest_datum[:end]))
+          def wrap_relationship(rest_datum, row_datum)
+            wrap_by_level(row_datum) do
+              metadata_data = rest_datum[:metadata]
+              ::Neo4j::Core::Relationship.new(id_from_rest_datum(rest_datum),
+                                              metadata_data && metadata_data[:type],
+                                              rest_datum[:data],
+                                              id_from_url(rest_datum[:start]),
+                                              id_from_url(rest_datum[:end]))
+            end
           end
 
           def wrap_path(rest_datum, row_datum)
-            nodes = rest_datum[:nodes].each_with_index.map do |url, i|
-              Node.from_url(url, row_datum[2 * i])
-            end
-            relationships = rest_datum[:relationships].each_with_index.map do |url, i|
-              Relationship.from_url(url, row_datum[(2 * i) + 1])
-            end
+            wrap_by_level(row_datum) do
+              nodes = rest_datum[:nodes].each_with_index.map do |url, i|
+                Node.from_url(url, row_datum[2 * i])
+              end
+              relationships = rest_datum[:relationships].each_with_index.map do |url, i|
+                Relationship.from_url(url, row_datum[(2 * i) + 1])
+              end
 
-            ::Neo4j::Core::Path.new(nodes, relationships, rest_datum[:directions])
+              ::Neo4j::Core::Path.new(nodes, relationships, rest_datum[:directions])
+            end
           end
 
           def id_from_rest_datum(rest_datum)
