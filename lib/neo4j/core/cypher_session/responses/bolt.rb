@@ -12,17 +12,7 @@ module Neo4j
             @wrap_level = options[:wrap_level] || Neo4j::Core::Config.wrapping_level
 
             @results = queries.map do
-              fields_messages = flush_messages_proc.call
-
-              validate_message_type!(fields_messages[0], :success)
-              fields = fields_messages[0].args[0]['fields']
-
-              result_messages = []
-              while (messages = flush_messages_proc.call)[0].type != :success
-                result_messages.concat(messages)
-              end
-              footer_messages = messages
-
+              fields, result_messages, _footer_messages = extract_message_groups(flush_messages_proc)
               # @result_info = footer_messages[0].args[0]
 
               data = result_messages.flat_map do |result_message|
@@ -59,6 +49,20 @@ module Neo4j
           end
 
           private
+
+          def extract_message_groups(flush_messages_proc)
+            fields_messages = flush_messages_proc.call
+            validate_message_type!(fields_messages[0], :success)
+
+            result_messages = []
+            while (messages = flush_messages_proc.call)[0].type != :success
+              result_messages.concat(messages)
+            end
+
+            [fields_messages[0].args[0]['fields'],
+             result_messages,
+             messages]
+          end
 
           def wrap_structure(structure)
             case structure.signature
