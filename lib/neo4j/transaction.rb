@@ -160,7 +160,7 @@ module Neo4j
     end
 
     def current_for(session)
-      stack_for(session).last
+      stack_for(session).first
     end
 
     def stack_for(session)

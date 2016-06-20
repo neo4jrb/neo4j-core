@@ -27,7 +27,7 @@ module Neo4j
         conn = Faraday.new(url, init_params) do |b|
           b.request :basic_auth, params[:basic_auth][:username], params[:basic_auth][:password] if params[:basic_auth]
           b.request :multi_json
-          # b.response :logger
+          # b.response :logger, ::Logger.new(STDOUT), bodies: true
 
           b.response :multi_json, symbolize_keys: true, content_type: 'application/json'
           # b.use Faraday::Response::RaiseError
@@ -215,6 +215,7 @@ module Neo4j
 
         ActiveSupport::Notifications.instrument('neo4j.cypher_query', params: params, context: options[:context],
                                                                       cypher: query, pretty_cypher: options[:pretty_cypher]) do
+
           if current_transaction
             current_transaction._query(query, params)
           else
