@@ -142,6 +142,7 @@ FileUtils.rm_rf(EMBEDDED_DB_PATH)
 RSpec.configure do |config|
   config.include Neo4jSpecHelpers
   config.extend FixingRSpecHelpers
+  config.include Helpers
 
   config.before(:all, api: :server) do
     Neo4j::Session.current.close if Neo4j::Session.current
