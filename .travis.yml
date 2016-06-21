@@ -1,6 +1,6 @@
 before_script:
   - "bundle exec rake neo4j:install[$NEO4J_VERSION] --trace"
-  - "bundle exec rake neo4j:config[development, 7474]"
+  - "bundle exec rake neo4j:config[development,7474] --trace"
   - "echo 'dbms.memory.pagecache.size=1g' >> ./db/neo4j/development/conf/neo4j.conf"
   - "echo 'dbms.memory.heap.max_size=1000' >> ./db/neo4j/development/conf/neo4j-wrapper.conf"
   - "echo 'dbms.memory.heap.initial_size=1000' >> ./db/neo4j/development/conf/neo4j-wrapper.conf"
