@@ -21,7 +21,7 @@ env:
   global:
     - JRUBY_OPTS="-X+O -J-Djruby.launch.inproc=false -J-Xmx1024m -J-XX:MaxPermSize=2048m"
     - NEO4J_URL="http://localhost:7474"
-    - NEO4J_BOLT_URL="http://localhost:7472"
+    - NEO4J_BOLT_URL="bolt://localhost:7472"
   matrix:
     - RSPEC_TAGS="~new_cypher_session" NEO4J_VERSION=community-3.0.3
     - RSPEC_TAGS="~new_cypher_session" NEO4J_VERSION=community-2.3.5
