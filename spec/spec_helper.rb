@@ -197,7 +197,8 @@ RSpec.configure do |config|
     end,
 
     bolt: lambda do
-      ENV['NEO4J_VERSION'].to_s.match(/^(community|enterprise)-2\./)
+      ENV['NEO4J_VERSION'].to_s.match(/^(community|enterprise)-2\./) ||
+        RUBY_ENGINE == 'jruby' # Because jruby doesn't implement sendmsg.  Hopefully we can figure this out
     end
   }
 end
