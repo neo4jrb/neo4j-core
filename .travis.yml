@@ -39,12 +39,6 @@ matrix:
       env: RSPEC_TAGS="~bolt" NEO4J_VERSION=community-2.1.8
 
     # Older versions of Neo4j with latest version of jRuby
-    - rvm: jruby-1.7.23
-      env: RSPEC_TAGS="~bolt" NEO4J_VERSION=community-2.3.5
-    - rvm: jruby-1.7.20
-      env: RSPEC_TAGS="~bolt" NEO4J_VERSION=community-2.2.10
-    - rvm: jruby-1.7.20
-      env: RSPEC_TAGS="~bolt" NEO4J_VERSION=community-2.1.8
     - rvm: jruby-9.0.5.0
       env: RSPEC_TAGS="~bolt" NEO4J_VERSION=community-2.3.5
     - rvm: jruby-9.0.5.0
