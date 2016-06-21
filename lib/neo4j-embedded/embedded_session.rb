@@ -77,6 +77,23 @@ module Neo4j
         Neo4j::Embedded::EmbeddedTransaction
       end
 
+      # Duplicate of CypherSession::Adaptor::Base#transaction
+      def transaction
+        return self.class.transaction_class.new(self) if !block_given?
+
+        begin
+          tx = transaction
+
+          yield tx
+        rescue Exception => e # rubocop:disable Lint/RescueException
+          tx.mark_failed
+
+          raise e
+        ensure
+          tx.close
+        end
+      end
+
       def shutdown
         @graph_db && @graph_db.shutdown
 
