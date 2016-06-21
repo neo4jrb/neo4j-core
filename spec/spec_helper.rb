@@ -194,6 +194,10 @@ RSpec.configure do |config|
 
     server_only: lambda do |bool|
       RUBY_PLATFORM == 'java' && bool
+    end,
+
+    bolt: lambda do
+      ENV['NEO4J_VERSION'].match(/^(community|enterprise)-2\./)
     end
   }
 end

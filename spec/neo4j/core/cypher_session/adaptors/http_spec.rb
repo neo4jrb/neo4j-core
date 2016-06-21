@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'neo4j/core/cypher_session/adaptors/http'
 require './spec/neo4j/core/shared_examples/adaptor'
 
-describe Neo4j::Core::CypherSession::Adaptors::HTTP, new_cypher_session: true do
+describe Neo4j::Core::CypherSession::Adaptors::HTTP do
   before(:all) { setup_http_request_subscription }
   let(:adaptor_class) { Neo4j::Core::CypherSession::Adaptors::HTTP }
 
