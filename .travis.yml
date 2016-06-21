@@ -23,12 +23,9 @@ env:
     - NEO4J_URL="http://localhost:7474"
     - NEO4J_BOLT_URL="bolt://localhost:7472"
   matrix:
-    - RSPEC_TAGS="~new_cypher_session" NEO4J_VERSION=community-3.0.3
-    - RSPEC_TAGS="~new_cypher_session" NEO4J_VERSION=community-2.3.5
-    - RSPEC_TAGS="~new_cypher_session" NEO4J_VERSION=community-2.2.10
-    - RSPEC_TAGS="new_cypher_session" NEO4J_VERSION=community-3.0.3
-    - RSPEC_TAGS="new_cypher_session ~bolt" NEO4J_VERSION=community-2.3.5
-    - RSPEC_TAGS="new_cypher_session ~bolt" NEO4J_VERSION=community-2.2.10
+    - NEO4J_VERSION=community-3.0.3
+    - RSPEC_TAGS="~bolt" NEO4J_VERSION=community-2.3.5
+    - RSPEC_TAGS="~bolt" NEO4J_VERSION=community-2.2.10
 sudo: false
 matrix:
   include:
@@ -38,7 +35,7 @@ matrix:
 
     # Pre-2.1.5 is special, metadata isn't sent back with HTTP REST endpoint
     - rvm: 2.3.0
-      env: RSPEC_TAGS=~new_cypher_session NEO4J_VERSION=community-2.1.8
+      env: RSPEC_TAGS="new_cypher_session ~bolt" NEO4J_VERSION=community-2.1.8
 
     # Testing new CypherSession
     - rvm: 2.3.0
