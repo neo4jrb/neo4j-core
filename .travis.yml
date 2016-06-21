@@ -1,5 +1,6 @@
 before_script:
   - "bundle exec rake neo4j:install[$NEO4J_VERSION] --trace"
+  - "bundle exec rake neo4j:config[development, 7474]"
   - "echo 'dbms.memory.pagecache.size=1g' >> ./db/neo4j/development/conf/neo4j.conf"
   - "echo 'dbms.memory.heap.max_size=1000' >> ./db/neo4j/development/conf/neo4j-wrapper.conf"
   - "echo 'dbms.memory.heap.initial_size=1000' >> ./db/neo4j/development/conf/neo4j-wrapper.conf"
@@ -8,6 +9,7 @@ before_script:
 script:
   - "travis_retry bundle exec rspec --tag $RSPEC_TAGS"
 language: ruby
+cache: bundler
 jdk:
   - oraclejdk8
 rvm:
@@ -16,12 +18,17 @@ rvm:
   - jruby-1.7.23
   - jruby-9.0.5.0
 env:
-  - RSPEC_TAGS="~new_cypher_session" NEO4J_VERSION=community-3.0.3
-  - RSPEC_TAGS="~new_cypher_session" NEO4J_VERSION=community-2.3.5
-  - RSPEC_TAGS="~new_cypher_session" NEO4J_VERSION=community-2.2.10
-  - RSPEC_TAGS="new_cypher_session" NEO4J_VERSION=community-3.0.3
-  - RSPEC_TAGS="new_cypher_session ~bolt" NEO4J_VERSION=community-2.3.5
-  - RSPEC_TAGS="new_cypher_session ~bolt" NEO4J_VERSION=community-2.2.10
+  global:
+    - JRUBY_OPTS="-X+O -J-Djruby.launch.inproc=false -J-Xmx1024m -J-XX:MaxPermSize=2048m"
+    - NEO4J_URL="http://localhost:7474"
+    - NEO4J_BOLT_URL="http://localhost:7472"
+  matrix:
+    - RSPEC_TAGS="~new_cypher_session" NEO4J_VERSION=community-3.0.3
+    - RSPEC_TAGS="~new_cypher_session" NEO4J_VERSION=community-2.3.5
+    - RSPEC_TAGS="~new_cypher_session" NEO4J_VERSION=community-2.2.10
+    - RSPEC_TAGS="new_cypher_session" NEO4J_VERSION=community-3.0.3
+    - RSPEC_TAGS="new_cypher_session ~bolt" NEO4J_VERSION=community-2.3.5
+    - RSPEC_TAGS="new_cypher_session ~bolt" NEO4J_VERSION=community-2.2.10
 sudo: false
 matrix:
   include:
