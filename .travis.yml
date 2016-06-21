@@ -7,7 +7,7 @@ before_script:
   - "bundle exec rake neo4j:start --trace"
   - "sleep 10"
 script:
-  - "travis_retry bundle exec rspec --tag=$RSPEC_TAGS"
+  - "travis_retry bundle exec rspec
 language: ruby
 cache: bundler
 sudo: false
@@ -23,7 +23,7 @@ env:
     - NEO4J_URL="http://localhost:7474"
     - NEO4J_BOLT_URL="bolt://localhost:7472"
   matrix:
-    - NEO4J_VERSION=community-3.0.3 RSPEC_TAGS="~none"
+    - NEO4J_VERSION=community-3.0.3
 matrix:
   include:
     - script: "bundle exec rubocop"
@@ -32,17 +32,17 @@ matrix:
 
     # Older versions of Neo4j with latest version of Ruby
     - rvm: 2.3.1
-      env: RSPEC_TAGS="~bolt" NEO4J_VERSION=community-2.3.5
+      env: NEO4J_VERSION=community-2.3.5
     - rvm: 2.3.1
-      env: RSPEC_TAGS="~bolt" NEO4J_VERSION=community-2.2.10
+      env: NEO4J_VERSION=community-2.2.10
     - rvm: 2.3.1
-      env: RSPEC_TAGS="~bolt" NEO4J_VERSION=community-2.1.8
+      env: NEO4J_VERSION=community-2.1.8
 
     # Older versions of Neo4j with latest version of jRuby
     - rvm: jruby-9.0.5.0
-      env: RSPEC_TAGS="~bolt" NEO4J_VERSION=community-2.3.5
+      env: NEO4J_VERSION=community-2.3.5
     - rvm: jruby-9.0.5.0
-      env: RSPEC_TAGS="~bolt" NEO4J_VERSION=community-2.2.10
+      env: NEO4J_VERSION=community-2.2.10
     - rvm: jruby-9.0.5.0
-      env: RSPEC_TAGS="~bolt" NEO4J_VERSION=community-2.1.8
+      env: NEO4J_VERSION=community-2.1.8
 
