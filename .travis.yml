@@ -7,7 +7,7 @@ before_script:
   - "bundle exec rake neo4j:start --trace"
   - "sleep 10"
 script:
-  - "travis_retry bundle exec rspec --tag $RSPEC_TAGS"
+  - "travis_retry bundle exec rspec --tag=$RSPEC_TAGS"
 language: ruby
 cache: bundler
 jdk:
@@ -23,7 +23,7 @@ env:
     - NEO4J_URL="http://localhost:7474"
     - NEO4J_BOLT_URL="bolt://localhost:7472"
   matrix:
-    - NEO4J_VERSION=community-3.0.3
+    - NEO4J_VERSION=community-3.0.3 RSPEC_TAGS="~none"
 sudo: false
 matrix:
   include:
