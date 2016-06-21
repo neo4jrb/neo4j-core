@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'neo4j/core/cypher_session/adaptors/bolt'
 require './spec/neo4j/core/shared_examples/adaptor'
 
-describe Neo4j::Core::CypherSession::Adaptors::Bolt, new_cypher_session: true do
+describe Neo4j::Core::CypherSession::Adaptors::Bolt, new_cypher_session: true, bolt: true do
   let(:adaptor_class) { Neo4j::Core::CypherSession::Adaptors::Bolt }
   let(:url) { ENV['NEO4J_BOLT_URL'] }
 
