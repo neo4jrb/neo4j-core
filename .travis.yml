@@ -24,8 +24,6 @@ env:
     - NEO4J_BOLT_URL="bolt://localhost:7472"
   matrix:
     - NEO4J_VERSION=community-3.0.3
-    - RSPEC_TAGS="~bolt" NEO4J_VERSION=community-2.3.5
-    - RSPEC_TAGS="~bolt" NEO4J_VERSION=community-2.2.10
 sudo: false
 matrix:
   include:
@@ -33,10 +31,25 @@ matrix:
       rvm: 2.3.0
       env: "RUBOCOP=true"
 
-    # Pre-2.1.5 is special, metadata isn't sent back with HTTP REST endpoint
-    - rvm: 2.3.0
-      env: RSPEC_TAGS="new_cypher_session ~bolt" NEO4J_VERSION=community-2.1.8
+    # Older versions of Neo4j with latest version of Ruby
+    - rvm: 2.3.1
+      env: RSPEC_TAGS="~bolt" NEO4J_VERSION=community-2.3.5
+    - rvm: 2.3.1
+      env: RSPEC_TAGS="~bolt" NEO4J_VERSION=community-2.2.10
+    - rvm: 2.3.1
+      env: RSPEC_TAGS="~bolt" NEO4J_VERSION=community-2.1.8
 
-    # Testing new CypherSession
-    - rvm: 2.3.0
-      env: RSPEC_TAGS="new_cypher_session ~bolt" NEO4J_VERSION=community-2.1.4
+    # Older versions of Neo4j with latest version of jRuby
+    - rvm: jruby-1.7.23
+      env: RSPEC_TAGS="~bolt" NEO4J_VERSION=community-2.3.5
+    - rvm: jruby-1.7.20
+      env: RSPEC_TAGS="~bolt" NEO4J_VERSION=community-2.2.10
+    - rvm: jruby-1.7.20
+      env: RSPEC_TAGS="~bolt" NEO4J_VERSION=community-2.1.8
+    - rvm: jruby-9.0.5.0
+      env: RSPEC_TAGS="~bolt" NEO4J_VERSION=community-2.3.5
+    - rvm: jruby-9.0.5.0
+      env: RSPEC_TAGS="~bolt" NEO4J_VERSION=community-2.2.10
+    - rvm: jruby-9.0.5.0
+      env: RSPEC_TAGS="~bolt" NEO4J_VERSION=community-2.1.8
+
