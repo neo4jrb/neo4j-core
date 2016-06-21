@@ -240,8 +240,12 @@ module Neo4j
                       @session.query(self, transaction: Transaction.current_for(@session), wrap_level: (:core_entity if unwrapped?))
                     else
                       @session._query(to_cypher, merge_params,
-                                      context: @options[:context], pretty_cypher: (pretty_cypher if self.class.pretty_cypher)).tap(&:raise_if_cypher_error!)
+                                      context: @options[:context], pretty_cypher: (pretty_cypher if self.class.pretty_cypher)).tap(&method(:raise_if_cypher_error!))
                     end
+      end
+
+      def raise_if_cypher_error!(response)
+        response.raise_cypher_error if response.respond_to?(:error?) && response.error?
       end
 
       def match_nodes(hash, optional_match = false)

@@ -197,7 +197,7 @@ RSpec.configure do |config|
     end,
 
     bolt: lambda do
-      ENV['NEO4J_VERSION'].match(/^(community|enterprise)-2\./)
+      ENV['NEO4J_VERSION'].to_s.match(/^(community|enterprise)-2\./)
     end
   }
 end
