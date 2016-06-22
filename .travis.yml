@@ -7,7 +7,7 @@ before_script:
   - "bundle exec rake neo4j:start --trace"
   - "sleep 10"
 script:
-  - "travis_retry bundle exec rspec"
+  - "travis_retry bundle exec rake default --trace"
 language: ruby
 cache: bundler
 sudo: false
@@ -27,7 +27,9 @@ env:
 matrix:
   include:
     - script: "bundle exec rubocop"
-      rvm: 2.3.0
+      rvm: 2.3.1
+      jdk:
+      before_script:
       env: "RUBOCOP=true"
 
     # Older versions of Neo4j with latest version of Ruby
