@@ -1,3 +1,5 @@
+# encoding: UTF-8
+
 require './lib/neo4j/core/cypher_session/adaptors/bolt/pack_stream'
 
 module Neo4j
