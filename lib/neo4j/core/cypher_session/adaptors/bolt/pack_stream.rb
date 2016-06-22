@@ -259,7 +259,7 @@ module Neo4j
 
         def shift_bytes!(length)
           result = shift_stream!(length)
-          result && result.bytes
+          result && result.bytes.to_a
         end
 
         def shift_stream!(length)

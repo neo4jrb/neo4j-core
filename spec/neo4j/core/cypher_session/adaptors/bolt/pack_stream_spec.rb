@@ -185,7 +185,7 @@ module Neo4j
 
         match do |stream|
           @encoding = stream.encoding
-          @stream_bytes = stream.bytes
+          @stream_bytes = stream.bytes.to_a
 
           @encoding == Encoding::BINARY &&
             @stream_bytes == expected_bytes
