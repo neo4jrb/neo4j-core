@@ -95,7 +95,7 @@ module Neo4j
       private
 
       def transient_failures_autoclose?
-        @session.version >= '2.2.6'
+        Gem::Version.new(@session.version) >= Gem::Version.new('2.2.6')
       end
 
       def autoclosed?
