@@ -136,12 +136,14 @@ module Neo4j
               require 'faraday'
               require 'faraday_middleware/multi_json'
 
-              Faraday.new(@url) do |c|
+              Faraday.new(url) do |c|
                 c.request :basic_auth, user, password
                 c.request :multi_json
 
                 c.response :multi_json, symbolize_keys: true, content_type: 'application/json'
                 c.use Faraday::Adapter::NetHttpPersistent
+
+                # c.response :logger, ::Logger.new(STDOUT), bodies: true
 
                 c.headers['Content-Type'] = 'application/json'
                 c.headers['User-Agent'] = @user_agent_string

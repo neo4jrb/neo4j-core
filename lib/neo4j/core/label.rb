@@ -97,11 +97,11 @@ module Neo4j
       end
 
       def constraints(options = {})
-        @sessions.constraints(nil, options)
+        @session.constraints(@name, options)
       end
 
       def uniqueness_constraints(options = {})
-        @session.constraints(@name, options)
+        @session.constraints(@name, options.merge(type: :uniqueness))
       end
 
       def drop_uniqueness_constraints
@@ -116,6 +116,14 @@ module Neo4j
             session.query("DROP CONSTRAINT ON (n:`#{label}`) ASSERT n.`#{constraint[0]}` IS UNIQUE")
           end
         end
+      end
+
+      def constraint?(property)
+        constraints.include?([property])
+      end
+
+      def uniqueness_constraint?(property)
+        uniqueness_constraints.include?([property])
       end
 
       def uniqueness_constraint?(property)

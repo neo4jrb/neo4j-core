@@ -41,6 +41,10 @@ module Neo4j
             end
           end
 
+          def url
+            @uri.to_s
+          end
+
           def url=(url)
             @uri = self.class.uri_from_url!(url)
           end
