@@ -32,7 +32,7 @@ module Neo4j
             # Should probably do within a transaction in case of errors...
             validate_query_set!(transaction, queries, options)
 
-            transaction do
+            # transaction do
               self.class.instrument_transaction do
                 self.class.instrument_queries(queries)
 
@@ -43,7 +43,7 @@ module Neo4j
                 wrap_level = options[:wrap_level] || @options[:wrap_level]
                 Responses::Embedded.new(execution_results, wrap_level: wrap_level).results
               end
-            end
+            # end
           end
 
           def version
@@ -78,7 +78,7 @@ module Neo4j
               args = []
               args << Java::OrgNeo4jGraphdb.DynamicLabel.label(label) if label
 
-              constraint_definitions_for(session.adaptor.graph_db, options[:type])
+              constraint_definitions_for(session.adaptor.graph_db, args, options[:type])
             end
           end
 
@@ -109,8 +109,8 @@ module Neo4j
             @engine ||= Java::OrgNeo4jCypherJavacompat::ExecutionEngine.new(@graph_db)
           end
 
-          def constraint_definitions_for(graph_db, type = nil)
-            constraint_definitions = graph_db.schema.get_constraints(*args)
+          def constraint_definitions_for(graph_db, args, type = nil)
+            constraint_definitions = graph_db.schema.get_constraints(*args).to_a
             constraint_definitions.select! { |d| d.constraint_type.to_s == type.to_s.upcase } if type
             constraint_definitions.map { |definition| definition.property_keys.to_a }
           end
