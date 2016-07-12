@@ -118,8 +118,9 @@ module Neo4j
                       end
           end
 
-          def setup_queries!(queries, options = {})
+          def setup_queries!(queries, transaction, options = {})
             fail 'Query attempted without a connection' if !connected?
+            fail "Invalid transaction object: #{transaction.inspect}" if !transaction.is_a?(self.class.transaction_class)
 
             # context option not yet implemented
             self.class.instrument_queries(queries) unless options[:skip_instrumentation]

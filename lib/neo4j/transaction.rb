@@ -15,13 +15,13 @@ module Neo4j
     class Base
       attr_reader :session, :root
 
-      def initialize(session, options = {})
+      def initialize(session, _options = {})
         @session = session
 
-        Neo4j::Core::Label.wait_for_schema_changes(session) unless options[:do_not_wait_for_schema_changes]
         Transaction.stack_for(session) << self
 
         @root = Transaction.stack_for(session).first
+        Neo4j::Core::Label::SCHEMA_QUERY_SEMAPHORE.lock if root?
 
         # @parent = session_transaction_stack.last
         # session_transaction_stack << self
@@ -37,6 +37,7 @@ module Neo4j
 
       # Commits or marks this transaction for rollback, depending on whether #mark_failed has been previously invoked.
       def close
+        was_root = root?
         tx_stack = Transaction.stack_for(@session)
         fail 'Tried closing when transaction stack is empty (maybe you closed too many?)' if tx_stack.empty?
         fail "Closed transaction which wasn't the most recent on the stack (maybe you forgot to close one?)" if tx_stack.pop != self
@@ -44,6 +45,8 @@ module Neo4j
         @closed = true
 
         post_close! if tx_stack.empty?
+      ensure
+        Neo4j::Core::Label::SCHEMA_QUERY_SEMAPHORE.unlock if was_root
       end
 
       def delete

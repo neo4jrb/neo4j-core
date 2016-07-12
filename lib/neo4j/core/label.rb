@@ -161,18 +161,13 @@ module Neo4j
       # So we run in a thread and it will go through at the next opportunity
       def schema_query(cypher)
         Thread.new do
-          SCHEMA_QUERY_SEMAPHORE.synchronize do
-            begin
-              tx = @session.adaptor.class.transaction_class.new(@session, do_not_wait_for_schema_changes: true)
-
-              tx.query(cypher, {})
-            rescue Exception => e # rubocop:disable Lint/RescueException
-              puts 'ERROR during schema query:', e.message, e.backtrace
-              tx.mark_failed
-            ensure
-              tx.close
-            end
+          # SCHEMA_QUERY_SEMAPHORE.synchronize do
+          begin
+            @session.transaction { |tx| tx.query(cypher, {}) }
+          rescue Exception => e # rubocop:disable Lint/RescueException
+            puts 'ERROR during schema query:', e.message, e.backtrace
           end
+          # end
         end.tap { |thread| schema_threads << thread }
       end
 

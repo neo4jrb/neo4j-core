@@ -30,19 +30,19 @@ module Neo4j
           def query_set(transaction, queries, options = {})
             # I think that this is the best way to do a batch in embedded...
             # Should probably do within a transaction in case of errors...
-            validate_query_set!(transaction, queries, options)
+            setup_queries!(queries, transaction, options)
 
             # transaction do
-              self.class.instrument_transaction do
-                self.class.instrument_queries(queries)
+            self.class.instrument_transaction do
+              self.class.instrument_queries(queries)
 
-                execution_results = queries.map do |query|
-                  engine.execute(query.cypher, indifferent_params(query))
-                end
-
-                wrap_level = options[:wrap_level] || @options[:wrap_level]
-                Responses::Embedded.new(execution_results, wrap_level: wrap_level).results
+              execution_results = queries.map do |query|
+                engine.execute(query.cypher, indifferent_params(query))
               end
+
+              wrap_level = options[:wrap_level] || @options[:wrap_level]
+              Responses::Embedded.new(execution_results, wrap_level: wrap_level).results
+            end
             # end
           end
 

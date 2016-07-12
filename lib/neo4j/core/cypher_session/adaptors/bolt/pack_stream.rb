@@ -1,4 +1,3 @@
-require 'spec_helper'
 require 'stringio'
 
 module Neo4j

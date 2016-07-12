@@ -39,8 +39,8 @@ module Neo4j
             fail "Init did not complete successfully\n\n#{data['code']}\n#{data['message']}"
           end
 
-          def query_set(_transaction, queries, options = {})
-            setup_queries!(queries, skip_instrumentation: options[:skip_instrumentation])
+          def query_set(transaction, queries, options = {})
+            setup_queries!(queries, transaction, skip_instrumentation: options[:skip_instrumentation])
 
             if @socket.ready?
               debug_remaining_buffer

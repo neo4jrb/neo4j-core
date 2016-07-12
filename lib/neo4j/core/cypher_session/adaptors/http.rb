@@ -22,7 +22,7 @@ module Neo4j
           ROW_REST = %w(row REST)
 
           def query_set(transaction, queries, options = {})
-            setup_queries!(queries)
+            setup_queries!(queries, transaction)
 
             return unless path = transaction.query_path(options.delete(:commit))
 
