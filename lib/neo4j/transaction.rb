@@ -21,7 +21,7 @@ module Neo4j
         Transaction.stack_for(session) << self
 
         @root = Transaction.stack_for(session).first
-        Neo4j::Core::Label::SCHEMA_QUERY_SEMAPHORE.lock if root?
+        # Neo4j::Core::Label::SCHEMA_QUERY_SEMAPHORE.lock if root?
 
         # @parent = session_transaction_stack.last
         # session_transaction_stack << self
@@ -46,7 +46,7 @@ module Neo4j
 
         post_close! if tx_stack.empty?
       ensure
-        Neo4j::Core::Label::SCHEMA_QUERY_SEMAPHORE.unlock if was_root
+        # Neo4j::Core::Label::SCHEMA_QUERY_SEMAPHORE.unlock if was_root
       end
 
       def delete
