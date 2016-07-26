@@ -15,7 +15,7 @@ module Neo4j
               fields, result_messages, _footer_messages = extract_message_groups(flush_messages_proc)
               # @result_info = footer_messages[0].args[0]
 
-              data = result_messages.flat_map do |result_message|
+              data = result_messages.map do |result_message|
                 validate_message_type!(result_message, :record)
 
                 result_message.args[0]
@@ -30,7 +30,7 @@ module Neo4j
               wrap_entity(entity_data)
             end
 
-            Result.new(columns, [rows])
+            Result.new(columns, rows)
           end
 
           def wrap_entity(entity_data)

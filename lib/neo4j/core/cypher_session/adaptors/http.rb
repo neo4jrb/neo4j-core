@@ -39,29 +39,29 @@ module Neo4j
           end
 
           # Schema inspection methods
-          def indexes(session, label = nil)
-            # Move these calls out to adaptors.rb?
-            Neo4j::Core::Label.wait_for_schema_changes(session)
-
-            response = @requestor.get("db/data/schema/index/#{label}")
+          def indexes(session)
+            response = @requestor.get("db/data/schema/index")
 
             list = response.body || []
-            index_constraint_result(list, !!label)
+
+            list.map do |item|
+              {label: item[:label].to_sym,
+               properties: item[:property_keys].map(&:to_sym)}
+            end
           end
 
+          CONSTRAINT_TYPES = {
+            'UNIQUENESS' => :uniqueness
+          }
           def constraints(session, label = nil, options = {})
-            # Move these calls out to adaptors.rb?
-            Neo4j::Core::Label.wait_for_schema_changes(session)
-
-            type = options[:type]
-
-            url = "db/data/schema/constraint/#{label}"
-            url += '/uniqueness' if label && type == :uniqueness
-            response = @requestor.get(url)
+            response = @requestor.get('db/data/schema/constraint')
 
             list = response.body || []
-            list = list.select { |i| i[:type] == type.to_s.upcase } if type
-            index_constraint_result(list, !!label)
+            list.map do |item|
+              {type: CONSTRAINT_TYPES[item[:type]],
+               label: item[:label].to_sym,
+               properties: item[:property_keys].map(&:to_sym)}
+            end
           end
 
           def self.transaction_class
@@ -182,20 +182,6 @@ module Neo4j
 
             def url_from_path(path)
               url_base + (path[0] != '/' ? '/' + path : path)
-            end
-          end
-
-          private
-
-          # Helper method to process results of calls to index / constraint endpoints
-          # because the structure is the same
-          def index_constraint_result(list, label)
-            if label
-              list.map { |item| item[:property_keys].map(&:to_sym) }
-            else
-              list.each_with_object({}) do |item, result|
-                (result[item[:label]] ||= []) << item[:property_keys].map(&:to_sym)
-              end
             end
           end
         end

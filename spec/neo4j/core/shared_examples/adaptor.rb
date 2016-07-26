@@ -1,5 +1,9 @@
 # Requires that an `adaptor` let variable exist with the connected adaptor
 RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
+  let(:real_session) do
+    expect(adaptor).to receive(:connect)
+    Neo4j::Core::CypherSession.new(adaptor)
+  end
   let(:session_double) { double('session', adaptor: adaptor) }
   # TODO: Test cypher errors
 
@@ -285,43 +289,45 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
     end
   end
 
-  # describe 'schema inspection methods' do
-  #   describe 'indexes' do
-  #     let(:label) { "Foo#{SecureRandom.hex[0,10]}" }
-  #     subject { adaptor.indexes(session??, label) }
+  describe 'schema inspection' do
+    # before { delete_schema(real_session) }
+    before do
+      create_constraint(real_session, :Album, :al_id, type: :unique)
+      create_constraint(real_session, :Album, :name, type: :unique)
+      create_constraint(real_session, :Song, :so_id, type: :unique)
 
-  #     it { should eq([]) }
+      create_index(real_session, :Band, :ba_id)
+      create_index(real_session, :Band, :fisk)
+      create_index(real_session, :Person, :name)
+    end
 
-  #     context 'index has been created' do
-  #       before { adaptor.query(session_double, "CREATE INDEX ON :#{label}(bar)") }
+    describe 'constraints' do
+      let(:label) { }
+      subject { adaptor.constraints(real_session) }
 
-  #       it { should eq([:bar]) }
+      it do
+        should match_array([
+          {type: :uniqueness, label: :Album, properties: [:al_id]},
+          {type: :uniqueness, label: :Album, properties: [:name]},
+          {type: :uniqueness, label: :Song, properties: [:so_id]}
+        ])
+      end
+    end
 
-  #       context 'index has been dropped' do
-  #         before { adaptor.query(session_double, "DROP INDEX ON :#{label}(bar)") }
+    describe 'indexes' do
+      let(:label) { }
+      subject { adaptor.indexes(real_session) }
 
-  #         it { should eq([]) }
-  #       end
-  #     end
-  #   end
-
-  #   describe 'uniqueness_constraints_for_label' do
-  #     let(:label) { "Foo#{SecureRandom.hex[0,10]}" }
-  #     subject { adaptor.uniqueness_constraints_for_label(label) }
-
-  #     it { should eq([]) }
-
-  #     context 'constraint has been created' do
-  #       before { adaptor.query(session_double, "CREATE CONSTRAINT ON (n:#{label}) ASSERT n.bar IS UNIQUE") }
-
-  #       it { should eq([:bar]) }
-
-  #       context 'constraint has been dropped' do
-  #         before { adaptor.query(session_double, "DROP CONSTRAINT ON (n:#{label}) ASSERT n.bar IS UNIQUE") }
-
-  #         it { should eq([]) }
-  #       end
-  #     end
-  #   end
-  # end
+      it do
+        should match_array([
+          a_hash_including(label: :Band, properties: [:ba_id]),
+          a_hash_including(label: :Band, properties: [:fisk]),
+          a_hash_including(label: :Person, properties: [:name]),
+          a_hash_including(label: :Album, properties: [:al_id]),
+          a_hash_including(label: :Album, properties: [:name]),
+          a_hash_including(label: :Song, properties: [:so_id])
+        ])
+      end
+    end
+  end
 end

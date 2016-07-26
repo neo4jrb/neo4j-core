@@ -49,11 +49,30 @@ module Helpers
     Neo4j::Session.current
   end
 
+  def current_session
+    Neo4j::Session.current
+  end
+
   def unique_random_number
     "#{Time.now.year}#{Time.now.to_i}#{Time.now.usec.to_s[0..2]}".to_i
   end
 
   def delete_db
     session.query('MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n, r')
+  end
+
+  def delete_schema(session = nil)
+    Neo4j::Core::Label.drop_uniqueness_constraints_for(session || current_session)
+    Neo4j::Core::Label.drop_indexes_for(session || current_session)
+  end
+
+  def create_constraint(session, label_name, property, options = {})
+    label_object = Neo4j::Core::Label.new(label_name, session)
+    label_object.create_constraint(property, options)
+  end
+
+  def create_index(session, label_name, property, options = {})
+    label_object = Neo4j::Core::Label.new(label_name, session)
+    label_object.create_index(property, options)
   end
 end

@@ -73,11 +73,22 @@ module Neo4j
             !!@socket
           end
 
-          # Schema inspection methods
-          def indexes_for_label(label)
+          def indexes(session)
+            result = query(session, 'CALL db.indexes()')
+
+            index_results = result.map do |row|
+              label, property = row.description.match(/INDEX ON :([^\(]+)\(([^\)]+)\)/)[1,2]
+              {type: row.type.to_sym, label: label.to_sym, properties: [property.to_sym]}
+            end
           end
 
-          def uniqueness_constraints_for_label(label)
+          def constraints(session)
+            result = query(session, 'CALL db.indexes()')
+
+            constraint_results = result.select { |row| row.type == 'node_unique_property' }.map do |row|
+              label, property = row.description.match(/INDEX ON :([^\(]+)\(([^\)]+)\)/)[1,2]
+              {type: :uniqueness, label: label.to_sym, properties: [property.to_sym]}
+            end
           end
 
           def self.transaction_class
@@ -152,19 +163,15 @@ module Neo4j
             @socket.sendmsg(message)
           end
 
-          def recvmsg(size)
-            @socket.recv(size).tap do |result|
-              log_message :S, result
+          def recvmsg(size, timeout = 10)
+            Timeout::timeout(timeout) do
+              @socket.recv(size).tap do |result|
+                log_message :S, result
+              end
             end
-          rescue
-            require 'pry'
+          rescue Timeout::Error
+            raise "Timed out waiting for #{size} bytes from Neo4j (after #{timeout} seconds)"
           end
-
-          # def flush_messages
-          #   [].tap do |messages|
-          #     flush_messages.tap(&messages.concat) while structures = flush_response
-          #   end || []
-          # end
 
           def flush_messages
             if structures = flush_response

@@ -1,5 +1,6 @@
 require 'neo4j/core/cypher_session/adaptors'
 require 'neo4j/core/cypher_session/responses/embedded'
+require 'active_support/hash_with_indifferent_access'
 
 module Neo4j
   module Core
@@ -57,28 +58,32 @@ module Neo4j
           end
 
           def indexes(session, label = nil)
-            # Move these calls out to adaptors.rb?
-            Neo4j::Core::Label.wait_for_schema_changes(session)
-
             Transaction.run(session) do
               graph_db = session.adaptor.graph_db
 
-              args = []
-              args << Java::OrgNeo4jGraphdb.DynamicLabel.label(label) if label
-
-              graph_db.schema.get_indexes(*args).map { |definition| definition.property_keys.to_a }
+              graph_db.schema.get_indexes.map do |definition|
+                {properties: definition.property_keys.map(&:to_sym),
+                 label: definition.label.to_s.to_sym}
+              end
             end
           end
 
-          def constraints(session, label = nil, options = {})
+          CONSTRAINT_TYPES = {
+            'UNIQUENESS' => :uniqueness
+          }
+          def constraints(session)
             # Move these calls out to adaptors.rb?
             Neo4j::Core::Label.wait_for_schema_changes(session)
 
             Transaction.run(session) do
-              args = []
-              args << Java::OrgNeo4jGraphdb.DynamicLabel.label(label) if label
-
-              constraint_definitions_for(session.adaptor.graph_db, args, options[:type])
+              labels = Java::OrgNeo4jTooling::GlobalGraphOperations.at(session.adaptor.graph_db).get_all_labels.to_a
+              labels.flat_map do |label|
+                graph_db.schema.get_constraints(label).map do |definition|
+                  {label: label.to_s.to_sym,
+                   properties: definition.property_keys.map(&:to_sym),
+                   type: CONSTRAINT_TYPES[definition.constraint_type.to_s]}
+                end
+              end
             end
           end
 
@@ -109,10 +114,7 @@ module Neo4j
             @engine ||= Java::OrgNeo4jCypherJavacompat::ExecutionEngine.new(@graph_db)
           end
 
-          def constraint_definitions_for(graph_db, args, type = nil)
-            constraint_definitions = graph_db.schema.get_constraints(*args).to_a
-            constraint_definitions.select! { |d| d.constraint_type.to_s == type.to_s.upcase } if type
-            constraint_definitions.map { |definition| definition.property_keys.to_a }
+          def constraint_definitions_for(graph_db, label)
           end
         end
       end

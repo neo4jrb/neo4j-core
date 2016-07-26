@@ -27,10 +27,10 @@ module Neo4j
       #
       def create_constraint(property, constraints)
         cypher = case constraints[:type]
-                 when :unique
+                 when :unique, :uniqueness
                    "CREATE CONSTRAINT ON (n:`#{name}`) ASSERT n.`#{property}` IS UNIQUE"
                  else
-                   fail "Not supported constrain #{constraints.inspect} for property #{property} (expected :type => :unique)"
+                   fail "Not supported constraint #{constraints.inspect} for property #{property} (expected :type => :unique)"
                  end
         schema_query(cypher)
       end
