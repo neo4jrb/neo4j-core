@@ -81,7 +81,7 @@ module Neo4j
                 graph_db.schema.get_constraints(label).map do |definition|
                   {label: label.to_s.to_sym,
                    properties: definition.property_keys.map(&:to_sym),
-                   type: CONSTRAINT_TYPES[definition.constraint_type.to_s]}
+                   type: CONSTRAINT_TYPES[definition.get_constraint_type.to_s]}
                 end
               end
             end
