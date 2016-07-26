@@ -48,10 +48,10 @@ module Neo4j
       #
       def drop_constraint(property, constraint)
         cypher = case constraint[:type]
-                 when :unique
+                 when :unique, :uniqueness
                    "DROP CONSTRAINT ON (n:`#{name}`) ASSERT n.`#{property}` IS UNIQUE"
                  else
-                   fail "Not supported constrain #{constraint.inspect}"
+                   fail "Not supported constraint #{constraint.inspect}"
                  end
         schema_query(cypher)
       end
@@ -93,7 +93,7 @@ module Neo4j
       end
 
       def index?(property)
-        indexes.include?([property])
+        indexes.any? { |definition| definition[:properties] == [property.to_sym] }
       end
 
       def constraints(options = {})
@@ -121,7 +121,7 @@ module Neo4j
       end
 
       def constraint?(property)
-        constraints.any? { |definition| definition.properties == [property.to_sym] }
+        constraints.any? { |definition| definition[:properties] == [property.to_sym] }
       end
 
       def uniqueness_constraint?(property)
