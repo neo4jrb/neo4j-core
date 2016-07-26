@@ -290,7 +290,7 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
   end
 
   describe 'schema inspection' do
-    # before { delete_schema(real_session) }
+    before { delete_schema(real_session) }
     before do
       create_constraint(real_session, :Album, :al_id, type: :unique)
       create_constraint(real_session, :Album, :name, type: :unique)

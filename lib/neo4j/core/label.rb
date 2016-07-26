@@ -61,7 +61,9 @@ module Neo4j
       end
 
       def indexes
-        @session.indexes(@name)
+        @session.indexes.select do |definition|
+          definition[:label] == @name.to_sym
+        end
       end
 
       def self.indexes_for(session)
@@ -69,9 +71,9 @@ module Neo4j
       end
 
       def drop_indexes
-        indexes.each do |index|
+        indexes.each do |definition|
           begin
-            @session.query("DROP INDEX ON :`#{name}`(#{index})")
+            @session.query("DROP INDEX ON :`#{definition[:label]}`(#{definition[:properties][0]})")
           rescue Neo4j::Server::CypherResponse::ResponseError
             # This will error on each constraint. Ignore and continue.
             next
@@ -80,11 +82,9 @@ module Neo4j
       end
 
       def self.drop_indexes_for(session)
-        indexes_for(session).each do |label, indexes|
+        indexes_for(session).each do |definition|
           begin
-            indexes.each do |index|
-              session.query("DROP INDEX ON :`#{label}`(#{index[0]})")
-            end
+            session.query("DROP INDEX ON :`#{definition[:label]}`(#{definition[:properties][0]})")
           rescue Neo4j::Server::CypherResponse::ResponseError
             # This will error on each constraint. Ignore and continue.
             next
@@ -97,29 +97,31 @@ module Neo4j
       end
 
       def constraints(options = {})
-        @session.constraints(@name, options)
+        @session.constraints.select do |definition|
+          definition[:label] == @name.to_sym
+        end
       end
 
       def uniqueness_constraints(options = {})
-        @session.constraints(@name, options.merge(type: :uniqueness))
+        constraints.select do |definition|
+          definition[:type] == :uniqueness
+        end
       end
 
       def drop_uniqueness_constraints
-        uniqueness_constraints.each do |constraint|
-          @session.query("DROP CONSTRAINT ON (n:`#{name}`) ASSERT n.`#{constraint}` IS UNIQUE")
+        uniqueness_constraints.each do |definition|
+          @session.query("DROP CONSTRAINT ON (n:`#{definition[:label]}`) ASSERT n.`#{definition[:properties][0]}` IS UNIQUE")
         end
       end
 
       def self.drop_uniqueness_constraints_for(session)
-        session.constraints.each do |label, constraints|
-          constraints.each do |constraint|
-            session.query("DROP CONSTRAINT ON (n:`#{label}`) ASSERT n.`#{constraint[0]}` IS UNIQUE")
-          end
+        session.constraints.each do |definition|
+          session.query("DROP CONSTRAINT ON (n:`#{definition[:label]}`) ASSERT n.`#{definition[:properties][0]}` IS UNIQUE")
         end
       end
 
       def constraint?(property)
-        constraints.include?([property])
+        constraints.any? { |definition| definition.properties == [property.to_sym] }
       end
 
       def uniqueness_constraint?(property)
