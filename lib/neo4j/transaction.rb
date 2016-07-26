@@ -37,7 +37,6 @@ module Neo4j
 
       # Commits or marks this transaction for rollback, depending on whether #mark_failed has been previously invoked.
       def close
-        was_root = root?
         tx_stack = Transaction.stack_for(@session)
         fail 'Tried closing when transaction stack is empty (maybe you closed too many?)' if tx_stack.empty?
         fail "Closed transaction which wasn't the most recent on the stack (maybe you forgot to close one?)" if tx_stack.pop != self
@@ -45,8 +44,6 @@ module Neo4j
         @closed = true
 
         post_close! if tx_stack.empty?
-      ensure
-        # Neo4j::Core::Label::SCHEMA_QUERY_SEMAPHORE.unlock if was_root
       end
 
       def delete

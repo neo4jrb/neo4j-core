@@ -39,8 +39,8 @@ module Neo4j
           end
 
           # Schema inspection methods
-          def indexes(session)
-            response = @requestor.get("db/data/schema/index")
+          def indexes(_session)
+            response = @requestor.get('db/data/schema/index')
 
             list = response.body || []
 
@@ -53,7 +53,7 @@ module Neo4j
           CONSTRAINT_TYPES = {
             'UNIQUENESS' => :uniqueness
           }
-          def constraints(session, label = nil, options = {})
+          def constraints(_session, _label = nil, _options = {})
             response = @requestor.get('db/data/schema/constraint')
 
             list = response.body || []

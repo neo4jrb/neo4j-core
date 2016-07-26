@@ -96,13 +96,13 @@ module Neo4j
         indexes.any? { |definition| definition[:properties] == [property.to_sym] }
       end
 
-      def constraints(options = {})
+      def constraints(_options = {})
         @session.constraints.select do |definition|
           definition[:label] == @name.to_sym
         end
       end
 
-      def uniqueness_constraints(options = {})
+      def uniqueness_constraints(_options = {})
         constraints.select do |definition|
           definition[:type] == :uniqueness
         end

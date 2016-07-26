@@ -57,7 +57,7 @@ module Neo4j
             end
           end
 
-          def indexes(session, label = nil)
+          def indexes(session, _label = nil)
             Transaction.run(session) do
               graph_db = session.adaptor.graph_db
 
@@ -72,12 +72,8 @@ module Neo4j
             'UNIQUENESS' => :uniqueness
           }
           def constraints(session)
-            # Move these calls out to adaptors.rb?
-            Neo4j::Core::Label.wait_for_schema_changes(session)
-
             Transaction.run(session) do
-              labels = Java::OrgNeo4jTooling::GlobalGraphOperations.at(session.adaptor.graph_db).get_all_labels.to_a
-              labels.flat_map do |label|
+              all_labels(session).flat_map do |label|
                 graph_db.schema.get_constraints(label).map do |definition|
                   {label: label.to_s.to_sym,
                    properties: definition.property_keys.map(&:to_sym),
@@ -103,6 +99,10 @@ module Neo4j
           end
 
           private
+
+          def all_labels(session)
+            Java::OrgNeo4jTooling::GlobalGraphOperations.at(session.adaptor.graph_db).get_all_labels.to_a
+          end
 
           def indifferent_params(query)
             params = query.parameters

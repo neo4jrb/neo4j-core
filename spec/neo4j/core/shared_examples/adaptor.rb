@@ -302,31 +302,31 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
     end
 
     describe 'constraints' do
-      let(:label) { }
+      let(:label) {}
       subject { adaptor.constraints(real_session) }
 
       it do
         should match_array([
-          {type: :uniqueness, label: :Album, properties: [:al_id]},
-          {type: :uniqueness, label: :Album, properties: [:name]},
-          {type: :uniqueness, label: :Song, properties: [:so_id]}
-        ])
+                             {type: :uniqueness, label: :Album, properties: [:al_id]},
+                             {type: :uniqueness, label: :Album, properties: [:name]},
+                             {type: :uniqueness, label: :Song, properties: [:so_id]}
+                           ])
       end
     end
 
     describe 'indexes' do
-      let(:label) { }
+      let(:label) {}
       subject { adaptor.indexes(real_session) }
 
       it do
         should match_array([
-          a_hash_including(label: :Band, properties: [:ba_id]),
-          a_hash_including(label: :Band, properties: [:fisk]),
-          a_hash_including(label: :Person, properties: [:name]),
-          a_hash_including(label: :Album, properties: [:al_id]),
-          a_hash_including(label: :Album, properties: [:name]),
-          a_hash_including(label: :Song, properties: [:so_id])
-        ])
+                             a_hash_including(label: :Band, properties: [:ba_id]),
+                             a_hash_including(label: :Band, properties: [:fisk]),
+                             a_hash_including(label: :Person, properties: [:name]),
+                             a_hash_including(label: :Album, properties: [:al_id]),
+                             a_hash_including(label: :Album, properties: [:name]),
+                             a_hash_including(label: :Song, properties: [:so_id])
+                           ])
       end
     end
   end
