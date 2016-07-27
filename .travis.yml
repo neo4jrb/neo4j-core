@@ -16,7 +16,7 @@ rvm:
   - 2.3.1
   - 2.2.5
   - jruby-1.7.23
-  - jruby-9.0.5.0
+  - jruby-9.0.4.0
 env:
   global:
     - JRUBY_OPTS="-X+O -J-Djruby.launch.inproc=false -J-Xmx1024m -J-XX:MaxPermSize=2048m"
@@ -41,10 +41,10 @@ matrix:
       env: NEO4J_VERSION=community-2.1.8
 
     # Older versions of Neo4j with latest version of jRuby
-    - rvm: jruby-9.0.5.0
+    - rvm: jruby-9.0.4.0
       env: NEO4J_VERSION=community-2.3.5
-    - rvm: jruby-9.0.5.0
+    - rvm: jruby-9.0.4.0
       env: NEO4J_VERSION=community-2.2.10
-    - rvm: jruby-9.0.5.0
+    - rvm: jruby-9.0.4.0
       env: NEO4J_VERSION=community-2.1.8
 
