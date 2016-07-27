@@ -16,4 +16,5 @@ group 'test' do
   gem 'rspec', '~> 3.0'
   gem 'rspec-its'
   gem 'dotenv'
+  gem 'activesupport', '~> 4.0'
 end
