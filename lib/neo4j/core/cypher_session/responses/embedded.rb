@@ -71,7 +71,9 @@ module Neo4j
           def wrap_relationship(entity)
             ::Neo4j::Core::Relationship.new(entity.get_id,
                                             entity.get_type.name,
-                                            get_entity_properties(entity))
+                                            get_entity_properties(entity),
+                                            entity.get_start_node.neo_id,
+                                            entity.get_end_node.neo_id)
           end
 
           def wrap_path(entity)
