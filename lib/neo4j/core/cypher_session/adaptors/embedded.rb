@@ -35,8 +35,6 @@ module Neo4j
 
             # transaction do
             self.class.instrument_transaction do
-              self.class.instrument_queries(queries)
-
               execution_results = queries.map do |query|
                 engine.execute(query.cypher, indifferent_params(query))
               end
