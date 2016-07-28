@@ -15,7 +15,7 @@ module Neo4j
 
             @java_tx.success
             @java_tx.close
-          rescue org.neo4j.graphdb.TransactionFailureException => e
+          rescue Java::OrgNeo4jGraphdb::TransactionFailureException => e
             raise CypherError, e.message
           end
 
