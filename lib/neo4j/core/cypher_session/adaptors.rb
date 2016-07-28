@@ -68,11 +68,9 @@ module Neo4j
 
             query_builder.instance_eval(&block)
 
-            tx = options[:transaction] || self.class.transaction_class.new(session)
-
-            query_set(tx, query_builder.queries, {commit: !options[:transaction]}.merge(options))
-          ensure
-            tx.close if !options[:transaction]
+            new_or_current_transaction(session, options[:transaction]) do |tx|
+              query_set(tx, query_builder.queries, {commit: !options[:transaction]}.merge(options))
+            end
           end
 
           [:query_set,
@@ -150,6 +148,14 @@ module Neo4j
           end
 
           private
+
+          def new_or_current_transaction(session, tx, &block)
+            if tx
+              block.call(tx)
+            else
+              transaction(session, &block)
+            end
+          end
 
           def validate_query_set!(transaction, _queries, _options = {})
             fail 'Query attempted without a connection' if !connected?
