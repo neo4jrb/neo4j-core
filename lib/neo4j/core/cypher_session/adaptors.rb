@@ -151,7 +151,7 @@ module Neo4j
 
           def new_or_current_transaction(session, tx, &block)
             if tx
-              block.call(tx)
+              yield(tx)
             else
               transaction(session, &block)
             end
