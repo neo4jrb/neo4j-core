@@ -137,7 +137,7 @@ module Neo4j
       # print_exception_cause(e)
 
       tx.mark_failed unless tx.nil?
-      raise
+      raise e
     ensure
       tx.close unless tx.nil?
     end
