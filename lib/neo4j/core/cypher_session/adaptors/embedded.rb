@@ -33,7 +33,6 @@ module Neo4j
             # Should probably do within a transaction in case of errors...
             setup_queries!(queries, transaction, options)
 
-            # transaction do
             self.class.instrument_transaction do
               execution_results = queries.map do |query|
                 engine.execute(query.cypher, indifferent_params(query))
@@ -42,7 +41,8 @@ module Neo4j
               wrap_level = options[:wrap_level] || @options[:wrap_level]
               Responses::Embedded.new(execution_results, wrap_level: wrap_level).results
             end
-            # end
+          rescue Java::OrgNeo4jCypher::SyntaxException => e
+            raise CypherSession::CypherError, "#{e.class}: #{e.message}"
           end
 
           def version
