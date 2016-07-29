@@ -134,7 +134,7 @@ module Neo4j
       tx = Neo4j::Transaction.new(session)
       yield tx
     rescue Exception => e # rubocop:disable Lint/RescueException
-      print_exception_cause(e)
+      # print_exception_cause(e)
 
       tx.mark_failed unless tx.nil?
       raise
