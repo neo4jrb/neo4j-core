@@ -103,7 +103,7 @@ module Neo4j
 
           def validate_faraday_response!(faraday_response)
             if faraday_response.body.is_a?(Hash) && error = faraday_response.body[:errors][0]
-              fail CypherError.new_from(error)
+              fail CypherError.new_from(error[:code], error[:message], error[:stack_trace])
             end
 
             return if (200..299).cover?(status = faraday_response.status)
