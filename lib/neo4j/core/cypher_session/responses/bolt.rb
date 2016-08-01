@@ -123,7 +123,7 @@ module Neo4j
               return
             when :failure
               data = message.args[0]
-              fail CypherError, "Job did not complete successfully\n\n#{data['code']}\n#{data['message']}"
+              throw :cypher_bolt_failure, data
             else
               fail "Unexpected message type: #{message.type} (#{message.inspect})"
             end

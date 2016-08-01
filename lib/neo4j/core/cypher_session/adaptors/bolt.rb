@@ -49,20 +49,7 @@ module Neo4j
 
             send_query_jobs(queries)
 
-            wrap_level = options[:wrap_level] || @options[:wrap_level]
-            Responses::Bolt.new(queries, method(:flush_messages), wrap_level: wrap_level).results
-          end
-
-          # @private
-          def debug_remaining_buffer
-            logger.debug 'Remaining buffer:'
-
-            i = 0
-            while @socket.ready?
-              i += 1
-              logger.debug "Message set #{i}:"
-              flush_messages
-            end
+            build_response(queries, options[:wrap_level] || @options[:wrap_level])
           end
 
           def version
@@ -74,7 +61,7 @@ module Neo4j
           end
 
           def indexes(session)
-            result = query(session, 'CALL db.indexes()')
+            result = query(session, 'CALL db.indexes()', {}, skip_instrumentation: true)
 
             result.map do |row|
               label, property = row.description.match(/INDEX ON :([^\(]+)\(([^\)]+)\)/)[1, 2]
@@ -83,7 +70,7 @@ module Neo4j
           end
 
           def constraints(session)
-            result = query(session, 'CALL db.indexes()')
+            result = query(session, 'CALL db.indexes()', {}, skip_instrumentation: true)
 
             result.select { |row| row.type == 'node_unique_property' }.map do |row|
               label, property = row.description.match(/INDEX ON :([^\(]+)\(([^\)]+)\)/)[1, 2]
@@ -104,13 +91,43 @@ module Neo4j
 
           private
 
-          def send_query_jobs(queries)
-            job = new_job
-            queries.each do |query|
-              job.add_message(:run, query.cypher, query.parameters || {})
-              job.add_message(:pull_all)
+          def build_response(queries, wrap_level)
+            catch(:cypher_bolt_failure) do
+              Responses::Bolt.new(queries, method(:flush_messages), wrap_level: wrap_level).results
+            end.tap do |error_data|
+              handle_failure!(error_data) if !error_data.is_a?(Array)
             end
-            send_job(job)
+          end
+
+          def handle_failure!(error_data)
+            flush_messages
+
+            send_job do |job|
+              job.add_message(:ack_failure)
+            end
+            fail 'Expected SUCCESS for ACK_FAILURE' if flush_messages[0].type != :success
+
+            fail CypherError, "Job did not complete successfully\n\n#{error_data['code']}\n#{error_data['message']}"
+          end
+
+          def debug_remaining_buffer
+            logger.debug 'Remaining buffer:'
+
+            i = 0
+            while @socket.ready?
+              i += 1
+              logger.debug "Message set #{i}:"
+              flush_messages
+            end
+          end
+
+          def send_query_jobs(queries)
+            send_job do |job|
+              queries.each do |query|
+                job.add_message(:run, query.cypher, query.parameters || {})
+                job.add_message(:pull_all)
+              end
+            end
           end
 
           def new_job
@@ -140,17 +157,19 @@ module Neo4j
           end
 
           def init
-            job = new_job
-            job.add_message(:init, USER_AGENT_STRING, principal: user, credentials: password, scheme: 'basic')
-
-            send_job(job)
+            send_job do |job|
+              job.add_message(:init, USER_AGENT_STRING, principal: user, credentials: password, scheme: 'basic')
+            end
           end
 
-          # Takes a Job object.
-          # Sends it's messages to the server and returns an array of Message objects
-          def send_job(job)
-            log_message :C, :job, job
-            sendmsg(job.chunked_packed_stream)
+          # Allows you to send messages to the server
+          # Returns an array of Message objects
+          def send_job
+            new_job.tap do |job|
+              yield job
+              log_message :C, :job, job
+              sendmsg(job.chunked_packed_stream)
+            end
           end
 
           STREAM_INSPECTOR = lambda do |stream|
@@ -210,6 +229,7 @@ module Neo4j
             TYPE_CODES = {
               # client message types
               init: 0x01,             # 0000 0001 // INIT <user_agent>
+              ack_failure: 0x0E,      # 0000 1110 // ACK_FAILURE
               reset: 0x0F,            # 0000 1111 // RESET
               run: 0x10,              # 0001 0000 // RUN <statement> <parameters>
               discard_all: 0x2F,      # 0010 1111 // DISCARD *
