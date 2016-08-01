@@ -5,7 +5,36 @@ require 'neo4j/core/label'
 module Neo4j
   module Core
     class CypherSession
-      class CypherError < StandardError; end
+      # Neo.ClientError.Schema.ConstraintValidationFailed
+      class CypherError < StandardError
+        attr_reader :code, :message, :stack_trace
+
+        def self.new_from(code, message, stack_trace = nil)
+          @code = code
+          @message = message
+          @stack_trace = stack_trace
+
+          msg = <<-ERROR
+  Cypher error:
+  #{ANSI::CYAN}#{code}#{ANSI::CLEAR}: #{message}
+  #{stack_trace}
+ERROR
+
+          error_class_from(code).new(msg)
+        end
+
+        def self.error_class_from(code)
+          case code
+          when /(ConstraintValidationFailed|ConstraintViolation)/
+            SchemaErrors::ConstraintValidationFailed
+          else
+            CypherError
+          end
+        end
+      end
+      module SchemaErrors
+        class ConstraintValidationFailed < CypherError; end
+      end
 
       module Adaptors
         MAP = {}

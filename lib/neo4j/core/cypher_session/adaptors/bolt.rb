@@ -107,7 +107,7 @@ module Neo4j
             end
             fail 'Expected SUCCESS for ACK_FAILURE' if flush_messages[0].type != :success
 
-            fail CypherError, "Job did not complete successfully\n\n#{error_data['code']}\n#{error_data['message']}"
+            fail CypherError.new_from(error_data['code'], error_data['message'])
           end
 
           def debug_remaining_buffer

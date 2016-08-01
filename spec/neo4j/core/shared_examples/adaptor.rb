@@ -289,6 +289,22 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
     end
   end
 
+  describe 'cypher errors' do
+    before { delete_schema(real_session) }
+    before do
+      create_constraint(real_session, :Album, :uuid, type: :unique)
+    end
+
+    describe 'unique constraint error' do
+      it 'raises an error?' do
+        adaptor.query(real_session, "CREATE (:Album {uuid: 'dup'})").to_a
+        expect do
+          adaptor.query(real_session, "CREATE (:Album {uuid: 'dup'})").to_a
+        end.to raise_error(::Neo4j::Core::CypherSession::SchemaErrors::ConstraintValidationFailed)
+      end
+    end
+  end
+
   describe 'schema inspection' do
     before { delete_schema(real_session) }
     before do

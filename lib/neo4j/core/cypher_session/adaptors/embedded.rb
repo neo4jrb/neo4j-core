@@ -34,15 +34,10 @@ module Neo4j
             setup_queries!(queries, transaction, options)
 
             self.class.instrument_transaction do
-              execution_results = queries.map do |query|
-                engine.execute(query.cypher, indifferent_params(query))
-              end
-
-              wrap_level = options[:wrap_level] || @options[:wrap_level]
-              Responses::Embedded.new(execution_results, wrap_level: wrap_level).results
+              Responses::Embedded.new(execution_results(queries), wrap_level: options[:wrap_level] || @options[:wrap_level]).results
             end
-          rescue Java::OrgNeo4jCypher::SyntaxException => e
-            raise CypherSession::CypherError, "#{e.class}: #{e.message}"
+          rescue Java::OrgNeo4jCypher::CypherExecutionException, Java::OrgNeo4jCypher::SyntaxException => e
+            raise CypherError.new_from(e.status.to_s, e.message) # , e.stack_track.to_a
           end
 
           def version
@@ -97,6 +92,12 @@ module Neo4j
           end
 
           private
+
+          def execution_results(queries)
+            queries.map do |query|
+              engine.execute(query.cypher, indifferent_params(query))
+            end
+          end
 
           def all_labels(session)
             Java::OrgNeo4jTooling::GlobalGraphOperations.at(session.adaptor.graph_db).get_all_labels.to_a
