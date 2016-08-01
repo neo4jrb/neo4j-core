@@ -300,7 +300,7 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
         adaptor.query(real_session, "CREATE (:Album {uuid: 'dup'})").to_a
         expect do
           adaptor.query(real_session, "CREATE (:Album {uuid: 'dup'})").to_a
-        end.to raise_error(::Neo4j::Core::CypherSession::SchemaErrors::ConstraintValidationFailed)
+        end.to raise_error(::Neo4j::Core::CypherSession::SchemaErrors::ConstraintValidationFailedError)
       end
     end
   end

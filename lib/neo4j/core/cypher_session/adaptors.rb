@@ -5,7 +5,6 @@ require 'neo4j/core/label'
 module Neo4j
   module Core
     class CypherSession
-      # Neo.ClientError.Schema.ConstraintValidationFailed
       class CypherError < StandardError
         attr_reader :code, :message, :stack_trace
 
@@ -26,14 +25,14 @@ ERROR
         def self.error_class_from(code)
           case code
           when /(ConstraintValidationFailed|ConstraintViolation)/
-            SchemaErrors::ConstraintValidationFailed
+            SchemaErrors::ConstraintValidationFailedError
           else
             CypherError
           end
         end
       end
       module SchemaErrors
-        class ConstraintValidationFailed < CypherError; end
+        class ConstraintValidationFailedError < CypherError; end
       end
 
       module Adaptors
