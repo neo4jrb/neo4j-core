@@ -63,6 +63,7 @@ module Neo4j
             pack_array_as_string([byte])
           else
             case @object
+            when Date, Time, DateTime then string_stream
             when Integer, Float, String, Symbol, Array, Structure, Hash
               send(@object.class.name.split('::').last.downcase + '_stream')
             end
