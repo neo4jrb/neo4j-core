@@ -90,7 +90,12 @@ ERROR
           end
 
           def query(session, *args)
-            options = (args.size == 3 || (args[0].is_a?(::Neo4j::Core::Query) && args.size == 2)) ? args.pop : {}
+            options = case args.size
+                      when 3
+                        args.pop
+                      when 2
+                        args.pop if args[0].is_a?(::Neo4j::Core::Query)
+                      end || {}
 
             queries(session, options) { append(*args) }[0]
           end
