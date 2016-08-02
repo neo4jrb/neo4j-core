@@ -14,10 +14,10 @@ module Neo4j
           @stack_trace = stack_trace
 
           msg = <<-ERROR
-            Cypher error:
-            #{ANSI::CYAN}#{code}#{ANSI::CLEAR}: #{original_message}
-            #{stack_trace}
-          ERROR
+  Cypher error:
+  #{ANSI::CYAN}#{code}#{ANSI::CLEAR}: #{original_message}
+  #{stack_trace}
+ERROR
           super(msg)
         end
 
