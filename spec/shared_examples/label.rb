@@ -235,9 +235,9 @@ RSpec.shared_examples 'Neo4j::Label' do
   describe 'unsatisfied constraint' do
     let(:label) { Neo4j::Label.create(:MyFoo) }
     before do
-      if Neo4j::Transaction.current
-        Neo4j::Transaction.current.failure
-        Neo4j::Transaction.current.close
+      if current_transaction
+        current_transaction.failure
+        current_transaction.close
       end
       Neo4j::Session.current.query.match('(n:MyFoo)').delete(:n).exec
       label.create_constraint(:bar, type: :unique)

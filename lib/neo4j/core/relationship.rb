@@ -1,14 +1,22 @@
+require 'neo4j/core/wrappable'
+require 'active_support/core_ext/hash/keys'
+
 module Neo4j
   module Core
     class Relationship
-      attr_reader :id, :type, :properties
+      attr_reader :id, :type, :properties, :start_node_id, :end_node_id
+      alias props properties
+      alias neo_id id
+      alias rel_type type
 
       include Wrappable
 
-      def initialize(id, type, properties)
+      def initialize(id, type, properties, start_node_id = nil, end_node_id = nil)
         @id = id
         @type = type.to_sym unless type.nil?
-        @properties = properties
+        @properties = properties.symbolize_keys
+        @start_node_id = start_node_id
+        @end_node_id = end_node_id
       end
 
       class << self
@@ -17,7 +25,7 @@ module Neo4j
           type = nil # unknown
           properties = properties
 
-          new(id, type, properties)
+          new(id, type, properties, nil, nil)
         end
       end
     end

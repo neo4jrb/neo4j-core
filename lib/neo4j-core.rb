@@ -24,3 +24,26 @@ require 'neo4j/transaction'
 
 require 'rake'
 require 'neo4j/rake_tasks'
+
+require 'logger'
+
+module Neo4j
+  module Core
+    ORIGINAL_FORMATTER = ::Logger::Formatter.new
+
+    def self.logger(stream = STDOUT)
+      @logger ||= Logger.new(stream).tap do |logger|
+        logger.formatter = method(:formatter)
+      end
+    end
+
+    def self.formatter(severity, datetime, progname, msg)
+      output = ''
+      if Thread.current != Thread.main
+        output += "#{ANSI::YELLOW}Thread: #{Thread.current.object_id}: #{ANSI::CLEAR}"
+      end
+      output += msg
+      ORIGINAL_FORMATTER.call(severity, datetime, progname, output)
+    end
+  end
+end

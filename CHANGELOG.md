@@ -3,7 +3,13 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased] - Unreleased
+## [7.0.0.alpha.2] - 2016-08-02
+
+### Fixed
+
+- Fixed CypherError handling (thanks ProGM / see #263)
+
+## [7.0.0.alpha.1] - 2016-08-02
 
 ### Added
 
@@ -12,6 +18,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 - Removed httparty dependency which is no longer used (thanks isaacsanders / see #257)
+- If using a threaded server, a new session must be created for each thread (see [upgrade guide](TODO!!!!))
 
 ## [6.1.4] - 05-12-2016
 

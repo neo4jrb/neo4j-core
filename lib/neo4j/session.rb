@@ -36,11 +36,6 @@ module Neo4j
       true # TODO
     end
 
-    # @abstract
-    def begin_tx
-      fail 'not impl.'
-    end
-
     class CypherError < StandardError
       attr_reader :error_msg, :error_status, :error_code
       def initialize(error_msg, error_code, error_status)
@@ -75,6 +70,10 @@ module Neo4j
     # @abstract
     def _query(*params)
       fail 'not implemented'
+    end
+
+    def transaction_class
+      self.class.transaction_class
     end
 
     class << self

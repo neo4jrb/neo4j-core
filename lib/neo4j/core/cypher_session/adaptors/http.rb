@@ -8,147 +8,180 @@ module Neo4j
     class CypherSession
       module Adaptors
         class HTTP < Base
-          # @transaction_state valid states
-          # nil, :open_requested, :open, :close_requested
-          include Adaptors::HasUri
-          default_url('http://neo4:neo4j@localhost:7474')
-          validate_uri { |uri| uri.is_a?(URI::HTTP) }
+          attr_reader :requestor, :url
 
-
-          def initialize(url, _options = {})
-            self.url = url
-            @transaction_state = nil
+          def initialize(url, options = {})
+            @url = url
+            @options = options
           end
 
           def connect
-            @connection ||= connection
+            @requestor = Requestor.new(@url, USER_AGENT_STRING, self.class.method(:instrument_request))
           end
 
           ROW_REST = %w(row REST)
 
-          def query_set(queries)
-            fail 'Query attempted without a connection' if @connection.nil?
+          def query_set(transaction, queries, options = {})
+            setup_queries!(queries, transaction)
 
-            statements_data = queries.map do |query|
-              {statement: query.cypher, parameters: query.parameters || {},
-               resultDataContents: ROW_REST}
-            end
-            request_data = {statements: statements_data}
+            return unless path = transaction.query_path(options.delete(:commit))
 
-            # context option not implemented
-            self.class.instrument_queries(queries)
+            faraday_response = @requestor.post(path, queries)
 
-            return unless url = full_transaction_url
+            transaction.apply_id_from_url!(faraday_response.env[:response_headers][:location])
 
-            faraday_response = self.class.instrument_request(url, request_data) do
-              @connection.post(url, request_data)
-            end
-
-            store_transaction_id!(faraday_response)
-
-            Responses::HTTP.new(faraday_response, request_data).results
-          end
-
-          def start_transaction
-            case @transaction_state
-            when :open
-              return
-            when :close_requested
-              fail 'Cannot start transaction when a close has been requested'
-            end
-
-            @transaction_state = :open_requested
-          end
-
-          def end_transaction
-            if @transaction_state.nil?
-              fail 'Cannot close transaction without starting one'
-            end
-
-            # This needs thought through more...
-            @transaction_state = :close_requested
-            query_set([])
-            @transaction_state = nil
-            @transaction_id = nil
-
-            true
-          end
-
-          def transaction_started?
-            !!@transaction_id
+            wrap_level = options[:wrap_level] || @options[:wrap_level]
+            Responses::HTTP.new(faraday_response, wrap_level: wrap_level).results
           end
 
           def version
-            @version ||= @connection.get(db_data_url).body[:neo4j_version]
+            @version ||= @requestor.get('db/data/').body[:neo4j_version]
+          end
+
+          # Schema inspection methods
+          def indexes(_session)
+            response = @requestor.get('db/data/schema/index')
+
+            list = response.body || []
+
+            list.map do |item|
+              {label: item[:label].to_sym,
+               properties: item[:property_keys].map(&:to_sym)}
+            end
+          end
+
+          CONSTRAINT_TYPES = {
+            'UNIQUENESS' => :uniqueness
+          }
+          def constraints(_session, _label = nil, _options = {})
+            response = @requestor.get('db/data/schema/constraint')
+
+            list = response.body || []
+            list.map do |item|
+              {type: CONSTRAINT_TYPES[item[:type]],
+               label: item[:label].to_sym,
+               properties: item[:property_keys].map(&:to_sym)}
+            end
+          end
+
+          def self.transaction_class
+            require 'neo4j/core/cypher_session/transactions/http'
+            Neo4j::Core::CypherSession::Transactions::HTTP
           end
 
           # Schema inspection methods
           def indexes_for_label(label)
             url = db_data_url + "schema/index/#{label}"
-            response = @connection.get(url)
-
-            if response.body && response.body[0]
-              response.body[0][:property_keys].map(&:to_sym)
-            else
-              []
-            end
+            @connection.get(url)
           end
 
-          def uniqueness_constraints_for_label(label)
-            url = db_data_url + "schema/constraint/#{label}/uniqueness"
-            response = @connection.get(url)
-
-            if response.body && response.body[0]
-              response.body[0][:property_keys].map(&:to_sym)
-            else
-              []
-            end
-          end
-
-
-          instrument(:request, 'neo4j.core.http.request', %w(url body)) do |_, start, finish, _id, payload|
+          instrument(:request, 'neo4j.core.http.request', %w(method url body)) do |_, start, finish, _id, payload|
             ms = (finish - start) * 1000
-
-            " #{ANSI::BLUE}HTTP REQUEST:#{ANSI::CLEAR} #{ANSI::YELLOW}#{ms.round}ms#{ANSI::CLEAR} #{payload[:url]}"
+            " #{ANSI::BLUE}HTTP REQUEST:#{ANSI::CLEAR} #{ANSI::YELLOW}#{ms.round}ms#{ANSI::CLEAR} #{payload[:method].upcase} #{payload[:url]} (#{payload[:body].size} bytes)"
           end
 
-          private
-
-          def store_transaction_id!(faraday_response)
-            location = faraday_response.env[:response_headers][:location]
-
-            return if !location
-
-            @transaction_id = location.split('/').last.to_i
+          def connected?
+            !!@requestor
           end
 
-          def full_transaction_url
-            path = ''
-            path << "/#{@transaction_id}" if [:open, :close_requested].include?(@transaction_state)
-            path << '/commit' if [nil, :close_requested].include?(@transaction_state)
-            path = nil if @transaction_state == :close_requested && !@transaction_id
+          # Basic wrapper around HTTP requests to standard Neo4j HTTP endpoints
+          #  - Takes care of JSONifying objects passed as body (Hash/Array/Query)
+          #  - Sets headers, including user agent string
+          class Requestor
+            include Adaptors::HasUri
+            default_url('http://neo4:neo4j@localhost:7474')
+            validate_uri { |uri| uri.is_a?(URI::HTTP) }
 
-            db_data_url + 'transaction' + path if path
-          end
+            def initialize(url, user_agent_string, instrument_proc)
+              self.url = url
+              @user = user
+              @password = password
+              @user_agent_string = user_agent_string
+              @faraday = faraday_connection
+              @instrument_proc = instrument_proc
+            end
 
-          def db_data_url
-            url_base + 'db/data/'
-          end
+            REQUEST_HEADERS = {'Accept'.to_sym => 'application/json; charset=UTF-8',
+                               'Content-Type'.to_sym => 'application/json'}
 
-          def url_base
-            "#{scheme}://#{host}:#{port}/"
-          end
+            # @method HTTP method (:get/:post/:delete/:put)
+            # @path Path part of URL
+            # @body Body for the request.  If a Query or Array of Queries,
+            #       it is automatically converted
+            def request(method, path, body = '', _options = {})
+              request_body = request_body(body)
+              url = url_from_path(path)
+              @instrument_proc.call(method, url, request_body) do
+                @faraday.run_request(method, url, request_body, REQUEST_HEADERS) do |req|
+                  # Temporary
+                  # req.options.timeout = 5
+                  # req.options.open_timeout = 5
+                end
+              end
+            end
 
-          def connection
-            Faraday.new(@url) do |c|
-              c.request :basic_auth, user, password
-              c.request :multi_json
+            # Convenience method to #request(:post, ...)
+            def post(path, body = '', options = {})
+              request(:post, path, body, options)
+            end
 
-              c.response :multi_json, symbolize_keys: true, content_type: 'application/json'
-              c.use Faraday::Adapter::NetHttpPersistent
+            # Convenience method to #request(:get, ...)
+            def get(path, body = '', options = {})
+              request(:get, path, body, options)
+            end
 
-              c.headers['Content-Type'] = 'application/json'
-              c.headers['User-Agent'] = USER_AGENT_STRING
+            private
+
+            def faraday_connection
+              require 'faraday'
+              require 'faraday_middleware/multi_json'
+
+              Faraday.new(url) do |c|
+                c.request :basic_auth, user, password
+                c.request :multi_json
+
+                c.response :multi_json, symbolize_keys: true, content_type: 'application/json'
+                c.use Faraday::Adapter::NetHttpPersistent
+
+                # c.response :logger, ::Logger.new(STDOUT), bodies: true
+
+                c.headers['Content-Type'] = 'application/json'
+                c.headers['User-Agent'] = @user_agent_string
+              end
+            end
+
+            def request_body(body)
+              return body if body.is_a?(String)
+
+              body_is_query_array = body.is_a?(Array) && body.all? { |o| o.respond_to?(:cypher) }
+              case body
+              when Hash, Array
+                if body_is_query_array
+                  return {statements: body.map(&self.class.method(:statement_from_query))}
+                end
+
+                body
+              else
+                {statements: [self.class.statement_from_query(body)]} if body.respond_to?(:cypher)
+              end
+            end
+
+            class << self
+              private
+
+              def statement_from_query(query)
+                {statement: query.cypher,
+                 parameters: query.parameters || {},
+                 resultDataContents: ROW_REST}
+              end
+            end
+
+            def url_base
+              "#{scheme}://#{host}:#{port}"
+            end
+
+            def url_from_path(path)
+              url_base + (path[0] != '/' ? '/' + path : path)
             end
           end
         end
