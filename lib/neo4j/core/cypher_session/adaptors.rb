@@ -6,20 +6,24 @@ module Neo4j
   module Core
     class CypherSession
       class CypherError < StandardError
-        attr_reader :code, :message, :stack_trace
+        attr_reader :code, :original_message, :stack_trace
 
-        def self.new_from(code, message, stack_trace = nil)
+        def initialize(code = nil, original_message = nil, stack_trace = nil)
           @code = code
-          @message = message
+          @original_message = original_message
           @stack_trace = stack_trace
 
           msg = <<-ERROR
   Cypher error:
-  #{ANSI::CYAN}#{code}#{ANSI::CLEAR}: #{message}
+  #{ANSI::CYAN}#{code}#{ANSI::CLEAR}: #{original_message}
   #{stack_trace}
 ERROR
+          super(msg)
+        end
 
-          error_class_from(code).new(msg)
+
+        def self.new_from(code, message, stack_trace = nil)
+          error_class_from(code).new(code, message, stack_trace)
         end
 
         def self.error_class_from(code)
