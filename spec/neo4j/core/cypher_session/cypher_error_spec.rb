@@ -11,19 +11,18 @@ module Neo4j
 
       its(:class) { is_expected.to eq(described_class) }
       its(:inspect) { is_expected.to include(subject.message) }
-      its(:message) { is_expected.to include(message) }
-      its(:message) { is_expected.to include(code) }
-      its(:message) { is_expected.to include(stack_trace) }
+      its(:message) { is_expected.to include(message, code, stack_trace) }
 
       its(:original_message) { is_expected.to eq(message) }
       its(:code) { is_expected.to eq(code) }
       its(:stack_trace) { is_expected.to eq(stack_trace) }
 
-      %w(ConstraintValidationFailed ConstraintViolation).each do |error_code|
-        context "when passing a #{error_code}" do
-          let(:code) { error_code }
-          it { is_expected.to be_a(CypherSession::SchemaErrors::ConstraintValidationFailedError) }
-        end
+      let_context code: 'ConstraintValidationFailed' do
+        it { is_expected.to be_a(CypherSession::SchemaErrors::ConstraintValidationFailedError) }
+      end
+
+      let_context code: 'ConstraintViolation' do
+        it { is_expected.to be_a(CypherSession::SchemaErrors::ConstraintValidationFailedError) }
       end
     end
   end
