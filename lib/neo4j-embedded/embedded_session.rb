@@ -68,19 +68,30 @@ module Neo4j
         Java::OrgNeo4jTest::ImpermanentGraphDatabase
       end
 
-      def begin_tx
-        if Neo4j::Transaction.current
-          # Handle nested transaction "placebo transaction"
-          Neo4j::Transaction.current.push_nested!
-        else
-          Neo4j::Embedded::EmbeddedTransaction.new(@graph_db.begin_tx)
-        end
-        Neo4j::Transaction.current
-      end
-
       def close
         super
         shutdown
+      end
+
+      def self.transaction_class
+        Neo4j::Embedded::EmbeddedTransaction
+      end
+
+      # Duplicate of CypherSession::Adaptor::Base#transaction
+      def transaction
+        return self.class.transaction_class.new(self) if !block_given?
+
+        begin
+          tx = transaction
+
+          yield tx
+        rescue Exception => e # rubocop:disable Lint/RescueException
+          tx.mark_failed
+
+          raise e
+        ensure
+          tx.close
+        end
       end
 
       def shutdown

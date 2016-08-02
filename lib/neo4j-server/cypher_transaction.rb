@@ -7,16 +7,20 @@ module Neo4j
     # * `close` is called to end the transaction. It calls `commit` or `delete`.
     #
     # If a transaction is created and then closed without performing any queries, an OpenStruct is returned that behaves like a successfully closed query.
-    class CypherTransaction
-      include Neo4j::Transaction::Instance
+    class CypherTransaction < Neo4j::Transaction::Base
       include Resource
 
-      attr_reader :commit_url, :query_url, :base_url, :connection
+      attr_reader :commit_url, :query_url
 
-      def initialize(url, session_connection)
-        @base_url = url
-        @connection = session_connection
-        register_instance
+      def connection
+        @session.connection
+      end
+
+      def base_url
+        require 'uri'
+        URI(@session.instance_variable_get('@resource_url')).tap do |uri|
+          uri.path = ''
+        end.to_s
       end
 
       ROW_REST = %w(row REST)
@@ -31,28 +35,34 @@ module Neo4j
       end
 
       def start(body)
-        request(:post, @base_url, 201, body).tap do |response|
+        request(:post, start_url, 201, body).tap do |response|
           @commit_url = response.body[:commit]
           @query_url = response.headers[:Location]
 
           fail "NO ENDPOINT URL #{connection} : HEAD: #{response.headers.inspect}" if !@query_url || @query_url.empty?
 
-          init_resource_data(response.body, @base_url)
+          init_resource_data(response.body, base_url)
         end
+      end
+
+      def start_url
+        @session.resource_data.fetch(:transaction) || base_url
       end
 
       def query(body)
         request(:post, @query_url, 200, body)
       end
 
+      EMPTY_RESPONSE = OpenStruct.new(status: 200, body: '')
+
       def delete
-        return empty_response if !@commit_url || expired?
+        return EMPTY_RESPONSE if !@commit_url || expired?
 
         request(:delete, @query_url, 200, nil, resource_headers)
       end
 
       def commit
-        return empty_response if !@commit_url || expired?
+        return EMPTY_RESPONSE if !@commit_url || expired?
 
         request(:post, @commit_url, 200, nil, resource_headers)
       end
@@ -66,11 +76,9 @@ module Neo4j
       end
 
       def create_cypher_response(response)
-        first_result = response.body[:results][0]
-
         CypherResponse.new(response, true).tap do |cypher_response|
           if response.body[:errors].empty?
-            cypher_response.set_data(first_result)
+            cypher_response.set_data(response.body[:results][0])
           else
             first_error = response.body[:errors].first
             tx_cleanup!(first_error)

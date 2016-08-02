@@ -236,16 +236,16 @@ module Neo4j
       def response
         return @response if @response
 
-        cypher = to_cypher
-        pretty_cypher = to_cypher(pretty: true) if self.class.pretty_cypher
-
         @response = if session_is_new_api?
-                      @session.query(self)
+                      @session.query(self, transaction: Transaction.current_for(@session), wrap_level: (:core_entity if unwrapped?))
                     else
-                      @session._query(cypher, merge_params, context: @options[:context], pretty_cypher: pretty_cypher)
+                      @session._query(to_cypher, merge_params,
+                                      context: @options[:context], pretty_cypher: (pretty_cypher if self.class.pretty_cypher)).tap(&method(:raise_if_cypher_error!))
                     end
+      end
 
-        (!@response.respond_to?(:error?) || !response.error?) ? @response : @response.raise_cypher_error
+      def raise_if_cypher_error!(response)
+        response.raise_cypher_error if response.respond_to?(:error?) && response.error?
       end
 
       def match_nodes(hash, optional_match = false)
@@ -270,9 +270,11 @@ module Neo4j
 
       def each
         response = self.response
-        if response.is_a?(Neo4j::Server::CypherResponse)
+        if defined?(Neo4j::Server::CypherResponse) && response.is_a?(Neo4j::Server::CypherResponse)
           response.unwrapped! if unwrapped?
           response.to_node_enumeration
+        elsif defined?(Neo4j::Core::CypherSession::Result) && response.is_a?(Neo4j::Core::CypherSession::Result)
+          response.to_a
         else
           Neo4j::Embedded::ResultWrapper.new(response, to_cypher, unwrapped?)
         end.each { |object| yield object }
@@ -308,8 +310,7 @@ module Neo4j
         query = return_query(columns)
         columns = query.response.columns
 
-        case columns.size
-        when 1
+        if columns.size == 1
           column = columns[0]
           query.map { |row| row[column] }
         else
@@ -492,9 +493,8 @@ module Neo4j
 
       # SHOULD BE DEPRECATED
       def merge_params
-        @clauses.compact!
-        @merge_params ||= @clauses.inject(@params.to_hash) { |params, clause| params.merge!(clause.params) }
-        @params.to_hash
+        @merge_params_base ||= @clauses.compact.inject({}) { |params, clause| params.merge!(clause.params) }
+        @params.to_hash.merge(@merge_params_base)
       end
     end
   end

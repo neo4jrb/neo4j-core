@@ -4,7 +4,9 @@ describe Neo4j::Session do
   let(:session) { Neo4j::Session.new }
   let(:error) { 'not impl.' }
   it 'raises errors for methods not implemented' do
-    [-> { session.start }, -> { session.shutdown }, -> { session.db_type }, -> { session.begin_tx }].each do |l|
+    [-> { session.start },
+     -> { session.shutdown },
+     -> { session.db_type }].each do |l|
       expect { l.call }.to raise_error error
     end
 

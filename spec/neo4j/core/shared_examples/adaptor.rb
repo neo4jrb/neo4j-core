@@ -1,31 +1,33 @@
-# Requires that an initialized subject is created as the `subject`
-# Requires that `setup_query_subscription` is called
+# Requires that an `adaptor` let variable exist with the connected adaptor
 RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
-  before(:all) { setup_query_subscription }
-
-  before { subject.connect }
-
+  let(:real_session) do
+    expect(adaptor).to receive(:connect)
+    Neo4j::Core::CypherSession.new(adaptor)
+  end
+  let(:session_double) { double('session', adaptor: adaptor) }
   # TODO: Test cypher errors
 
-  after { subject.end_transaction if subject.transaction_started? }
+  before { adaptor.query(session_double, 'MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n, r') }
+
+  subject { adaptor }
 
   describe '#query' do
     it 'Can make a query' do
-      subject.query('MERGE path=n-[rel:r]->(o) RETURN n, rel, o, path LIMIT 1')
+      adaptor.query(session_double, 'MERGE path=(n)-[rel:r]->(o) RETURN n, rel, o, path LIMIT 1')
     end
   end
 
   describe '#queries' do
     it 'allows for multiple queries' do
-      result = subject.queries do
+      result = adaptor.queries(session_double) do
         append 'CREATE (n:Label1) RETURN n'
         append 'CREATE (n:Label2) RETURN n'
       end
 
       expect(result[0].to_a[0].n).to be_a(Neo4j::Core::Node)
       expect(result[1].to_a[0].n).to be_a(Neo4j::Core::Node)
-      # Maybe should have method like subject.returns_node_and_relationship_metadata?
-      if subject.is_a?(::Neo4j::Core::CypherSession::Adaptors::HTTP) && subject.version < '2.1.5'
+      # Maybe should have method like adaptor.returns_node_and_relationship_metadata?
+      if adaptor.is_a?(::Neo4j::Core::CypherSession::Adaptors::HTTP) && adaptor.version < '2.1.5'
         expect(result[0].to_a[0].n.labels).to eq(nil)
         expect(result[1].to_a[0].n.labels).to eq(nil)
       else
@@ -35,12 +37,12 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
     end
 
     it 'allows for building with Query API' do
-      result = subject.queries do
+      result = adaptor.queries(session_double) do
         append query.create(n: {Label1: {}}).return(:n)
       end
 
       expect(result[0].to_a[0].n).to be_a(Neo4j::Core::Node)
-      if subject.is_a?(::Neo4j::Core::CypherSession::Adaptors::HTTP) && subject.version < '2.1.5'
+      if adaptor.is_a?(::Neo4j::Core::CypherSession::Adaptors::HTTP) && adaptor.version < '2.1.5'
         expect(result[0].to_a[0].n.labels).to eq(nil)
       else
         expect(result[0].to_a[0].n.labels).to eq([:Label1])
@@ -49,38 +51,137 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
   end
 
   describe 'transactions' do
-    it 'lets you execute a query in a transaction' do
+    def create_object_by_id(id, tx)
+      tx.query('CREATE (t:Temporary {id: {id}})', id: id)
+    end
+
+    def get_object_by_id(id, adaptor)
+      first = adaptor.query(session_double, 'MATCH (t:Temporary {id: {id}}) RETURN t', id: id).first
+      first && first.t
+    end
+
+    it 'logs one query per query_set in transaction' do
       expect_queries(1) do
-        subject.start_transaction
-        subject.query('MATCH n RETURN n LIMIT 1')
-        subject.end_transaction
+        tx = adaptor.transaction(session_double)
+        create_object_by_id(1, tx)
+        tx.close
       end
+      expect(get_object_by_id(1, adaptor)).to be_a(Neo4j::Core::Node)
 
       expect_queries(1) do
-        subject.transaction do
-          subject.query('MATCH n RETURN n LIMIT 1')
+        adaptor.transaction(session_double) do |tx|
+          create_object_by_id(2, tx)
         end
       end
+      expect(get_object_by_id(2, adaptor)).to be_a(Neo4j::Core::Node)
     end
 
-    it 'does not allow transactions in the wrong order' do
-      expect { subject.end_transaction }.to raise_error(RuntimeError, /Cannot close transaction without starting one/)
+    it 'allows for rollback' do
+      expect_queries(1) do
+        tx = adaptor.transaction(session_double)
+        create_object_by_id(3, tx)
+        tx.mark_failed
+        tx.close
+      end
+      expect(get_object_by_id(3, adaptor)).to be_nil
+
+      expect_queries(1) do
+        adaptor.transaction(session_double) do |tx|
+          create_object_by_id(4, tx)
+          tx.mark_failed
+        end
+      end
+      expect(get_object_by_id(4, adaptor)).to be_nil
+
+      expect_queries(1) do
+        expect do
+          adaptor.transaction(session_double) do |tx|
+            create_object_by_id(5, tx)
+            fail 'Failing transaction with error'
+          end
+        end.to raise_error 'Failing transaction with error'
+      end
+      expect(get_object_by_id(5, adaptor)).to be_nil
+
+      # Nested transaction, error from inside inner transaction handled outside of inner transaction
+      expect_queries(1) do
+        adaptor.transaction(session_double) do |_tx|
+          expect do
+            adaptor.transaction(session_double) do |tx|
+              create_object_by_id(6, tx)
+              fail 'Failing transaction with error'
+            end
+          end.to raise_error 'Failing transaction with error'
+        end
+      end
+      expect(get_object_by_id(6, adaptor)).to be_nil
+
+      # Nested transaction, error from inside inner transaction handled outside of inner transaction
+      expect_queries(2) do
+        adaptor.transaction(session_double) do |tx|
+          create_object_by_id(7, tx)
+          expect do
+            adaptor.transaction(session_double) do |tx|
+              create_object_by_id(8, tx)
+              fail 'Failing transaction with error'
+            end
+          end.to raise_error 'Failing transaction with error'
+        end
+      end
+      expect(get_object_by_id(7, adaptor)).to be_nil
+      expect(get_object_by_id(8, adaptor)).to be_nil
+
+      # Nested transaction, error from inside inner transaction handled outside of outer transaction
+      expect_queries(1) do
+        expect do
+          adaptor.transaction(session_double) do |_tx|
+            adaptor.transaction(session_double) do |tx|
+              create_object_by_id(9, tx)
+              fail 'Failing transaction with error'
+            end
+          end
+        end.to raise_error 'Failing transaction with error'
+      end
+      expect(get_object_by_id(9, adaptor)).to be_nil
     end
+    # it 'does not allow transactions in the wrong order' do
+    #   expect { adaptor.end_transaction }.to raise_error(RuntimeError, /Cannot close transaction without starting one/)
   end
 
   describe 'results' do
     it 'handles array results' do
-      result = subject.query("CREATE (a {b: 'c'}) RETURN [a]")
+      result = adaptor.query(session_double, "CREATE (a {b: 'c'}) RETURN [a] AS arr")
 
       expect(result.hashes).to be_a(Array)
       expect(result.hashes.size).to be(1)
-      expect(result.hashes[0][:'[a]']).to be_a(Array)
-      expect(result.hashes[0][:'[a]'][0]).to be_a(Neo4j::Core::Node)
-      expect(result.hashes[0][:'[a]'][0].properties).to eq(b: 'c')
+      expect(result.hashes[0][:arr]).to be_a(Array)
+      expect(result.hashes[0][:arr][0]).to be_a(Neo4j::Core::Node)
+      expect(result.hashes[0][:arr][0].properties).to eq(b: 'c')
+    end
+
+    it 'handles map results' do
+      result = adaptor.query(session_double, "CREATE (a {b: 'c'}) RETURN {foo: a} AS map")
+
+      expect(result.hashes).to be_a(Array)
+      expect(result.hashes.size).to be(1)
+      expect(result.hashes[0][:map]).to be_a(Hash)
+      expect(result.hashes[0][:map][:foo]).to be_a(Neo4j::Core::Node)
+      expect(result.hashes[0][:map][:foo].properties).to eq(b: 'c')
+    end
+
+    it 'handles map results with arrays' do
+      result = adaptor.query(session_double, "CREATE (a {b: 'c'}) RETURN {foo: [a]} AS map")
+
+      expect(result.hashes).to be_a(Array)
+      expect(result.hashes.size).to be(1)
+      expect(result.hashes[0][:map]).to be_a(Hash)
+      expect(result.hashes[0][:map][:foo]).to be_a(Array)
+      expect(result.hashes[0][:map][:foo][0]).to be_a(Neo4j::Core::Node)
+      expect(result.hashes[0][:map][:foo][0].properties).to eq(b: 'c')
     end
 
     it 'symbolizes keys for Neo4j objects' do
-      result = subject.query('RETURN {a: 1} AS obj')
+      result = adaptor.query(session_double, 'RETURN {a: 1} AS obj')
 
       expect(result.hashes).to eq([{obj: {a: 1}}])
 
@@ -113,63 +214,136 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
 
       # Normally I don't think you wouldn't wrap nodes/relationships/paths
       # with the same class.  It's just expedient to do so in this spec
-      it 'Returns wrapped objects from results' do
-        result = subject.query('CREATE path=(n {a: 1})-[r:foo {b: 2}]->(b) RETURN n,r,path')
 
-        result_entity = result.hashes[0][:n]
-        expect(result_entity).to be_a(WrapperClass)
-        expect(result_entity.wrapped_object).to be_a(Neo4j::Core::Node)
-        expect(result_entity.wrapped_object.properties).to eq(a: 1)
+      describe 'wrapping' do
+        let(:query) do
+          "MERGE path=(n:Foo {a: 1})-[r:foo {b: 2}]->(b:Foo)
+           RETURN #{return_clause} AS result"
+        end
 
-        result_entity = result.hashes[0][:r]
-        expect(result_entity).to be_a(WrapperClass)
-        expect(result_entity.wrapped_object).to be_a(Neo4j::Core::Relationship)
-        expect(result_entity.wrapped_object.properties).to eq(b: 2)
+        # Default wrap_level should be :core_entity
+        let(:wrap_level) { nil }
 
-        result_entity = result.hashes[0][:path]
-        expect(result_entity).to be_a(WrapperClass)
-        expect(result_entity.wrapped_object).to be_a(Neo4j::Core::Path)
+        subject { adaptor.query(session_double, query, {}, wrap_level: wrap_level).to_a[0].result }
+
+        let_context return_clause: 'n' do
+          it { should be_a(Neo4j::Core::Node) }
+          its(:properties) { should eq(a: 1) }
+        end
+
+        let_context return_clause: 'r' do
+          it { should be_a(Neo4j::Core::Relationship) }
+          its(:properties) { should eq(b: 2) }
+        end
+
+        let_context return_clause: 'path' do
+          it { should be_a(Neo4j::Core::Path) }
+        end
+
+        let_context return_clause: '{c: 3}' do
+          it { should eq(c: 3) }
+        end
+
+        # Possible to return better data structure for :none?
+        let_context wrap_level: :none do
+          let_context return_clause: 'n' do
+            it { should eq(a: 1) }
+          end
+
+          let_context return_clause: 'r' do
+            it { should eq(b: 2) }
+          end
+
+          let_context return_clause: 'path' do
+            it { should eq([{a: 1}, {b: 2}, {}]) }
+          end
+
+          let_context return_clause: '{c: 3}' do
+            it { should eq(c: 3) }
+          end
+        end
+
+        let_context wrap_level: :proc do
+          let_context return_clause: 'n' do
+            it { should be_a(WrapperClass) }
+            its(:wrapped_object) { should be_a(Neo4j::Core::Node) }
+            its(:'wrapped_object.properties') { should eq(a: 1) }
+          end
+
+          let_context return_clause: 'r' do
+            it { should be_a(WrapperClass) }
+            its(:wrapped_object) { should be_a(Neo4j::Core::Relationship) }
+            its(:'wrapped_object.properties') { should eq(b: 2) }
+          end
+
+          let_context return_clause: 'path' do
+            it { should be_a(WrapperClass) }
+            its(:wrapped_object) { should be_a(Neo4j::Core::Path) }
+          end
+
+          let_context return_clause: '{c: 3}' do
+            it { should eq(c: 3) }
+          end
+        end
       end
     end
   end
 
-  # describe 'schema inspection methods' do
-  #   describe 'indexes_for_label' do
-  #     let(:label) { "Foo#{SecureRandom.hex[0,10]}" }
-  #     subject { subject.indexes_for_label(label) }
+  describe 'cypher errors' do
+    before { delete_schema(real_session) }
+    before do
+      create_constraint(real_session, :Album, :uuid, type: :unique)
+    end
 
-  #     it { should eq([]) }
+    describe 'unique constraint error' do
+      it 'raises an error?' do
+        adaptor.query(real_session, "CREATE (:Album {uuid: 'dup'})").to_a
+        expect do
+          adaptor.query(real_session, "CREATE (:Album {uuid: 'dup'})").to_a
+        end.to raise_error(::Neo4j::Core::CypherSession::SchemaErrors::ConstraintValidationFailedError)
+      end
+    end
+  end
 
-  #     context 'index has been created' do
-  #       before { subject.query("CREATE INDEX ON :#{label}(bar)") }
+  describe 'schema inspection' do
+    before { delete_schema(real_session) }
+    before do
+      create_constraint(real_session, :Album, :al_id, type: :unique)
+      create_constraint(real_session, :Album, :name, type: :unique)
+      create_constraint(real_session, :Song, :so_id, type: :unique)
 
-  #       it { should eq([:bar]) }
+      create_index(real_session, :Band, :ba_id)
+      create_index(real_session, :Band, :fisk)
+      create_index(real_session, :Person, :name)
+    end
 
-  #       context 'index has been dropped' do
-  #         before { subject.query("DROP INDEX ON :#{label}(bar)") }
+    describe 'constraints' do
+      let(:label) {}
+      subject { adaptor.constraints(real_session) }
 
-  #         it { should eq([]) }
-  #       end
-  #     end
-  #   end
+      it do
+        should match_array([
+                             {type: :uniqueness, label: :Album, properties: [:al_id]},
+                             {type: :uniqueness, label: :Album, properties: [:name]},
+                             {type: :uniqueness, label: :Song, properties: [:so_id]}
+                           ])
+      end
+    end
 
-  #   describe 'uniqueness_constraints_for_label' do
-  #     let(:label) { "Foo#{SecureRandom.hex[0,10]}" }
-  #     subject { subject.uniqueness_constraints_for_label(label) }
+    describe 'indexes' do
+      let(:label) {}
+      subject { adaptor.indexes(real_session) }
 
-  #     it { should eq([]) }
-
-  #     context 'constraint has been created' do
-  #       before { subject.query("CREATE CONSTRAINT ON (n:#{label}) ASSERT n.bar IS UNIQUE") }
-
-  #       it { should eq([:bar]) }
-
-  #       context 'constraint has been dropped' do
-  #         before { subject.query("DROP CONSTRAINT ON (n:#{label}) ASSERT n.bar IS UNIQUE") }
-
-  #         it { should eq([]) }
-  #       end
-  #     end
-  #   end
-  # end
+      it do
+        should match_array([
+                             a_hash_including(label: :Band, properties: [:ba_id]),
+                             a_hash_including(label: :Band, properties: [:fisk]),
+                             a_hash_including(label: :Person, properties: [:name]),
+                             a_hash_including(label: :Album, properties: [:al_id]),
+                             a_hash_including(label: :Album, properties: [:name]),
+                             a_hash_including(label: :Song, properties: [:so_id])
+                           ])
+      end
+    end
+  end
 end

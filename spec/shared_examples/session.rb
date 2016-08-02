@@ -112,7 +112,7 @@ RSpec.shared_examples 'Neo4j::Session' do
 
         subject { Neo4j::Session.query.match(n: @label).match(match).where(n: {name: 'kalle'}).pluck(:n) }
 
-        let(:match) { ['n-[:friend]-o'] }
+        let(:match) { ['(n)-[:friend]-(o)'] }
         context 'no relationship' do
           its(:count) { should == 0 }
         end
@@ -125,23 +125,23 @@ RSpec.shared_examples 'Neo4j::Session' do
           it { is_expected.to include(@kalle) }
 
           context 'correct direction' do
-            let(:match) { ['n-[:friend]->o'] }
+            let(:match) { ['(n)-[:friend]->(o)'] }
             it { is_expected.to include(@kalle) }
           end
 
           context 'incorrect direction' do
-            let(:match) { ['n<-[:friend]-o'] }
+            let(:match) { ['(n)<-[:friend]-(o)'] }
             its(:count) { should == 0 }
           end
 
           describe 'with string input' do
             context 'correct direction' do
-              let(:match) { 'n-[:friend]->o' }
+              let(:match) { '(n)-[:friend]->(o)' }
               it { is_expected.to include(@kalle) }
             end
 
             context 'incorrect direction' do
-              let(:match) { 'n<-[:friend]-o' }
+              let(:match) { '(n)<-[:friend]-(o)' }
               its(:count) { should == 0 }
             end
           end

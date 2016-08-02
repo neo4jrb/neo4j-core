@@ -82,13 +82,13 @@ RSpec.shared_examples 'Neo4j::Node auto tx' do
         it 'deletes the node' do
           expect(n).to exist
           n.del
-          Neo4j::Transaction.current.close if Neo4j::Transaction.current
+          current_transaction.close if current_transaction
           expect(n).not_to exist
         end
 
         it 'does not raise an exception if node does not exist' do
           n.del
-          Neo4j::Transaction.current.close if Neo4j::Transaction.current
+          current_transaction.close if current_transaction
           if Neo4j::Session.current.db_type == :server_db
             expect { n.del }.not_to raise_error
           else
@@ -101,7 +101,7 @@ RSpec.shared_examples 'Neo4j::Node auto tx' do
           rel = n.create_rel(:friends, m)
           expect(rel).to exist
           n.del
-          Neo4j::Transaction.current.close if Neo4j::Transaction.current
+          current_transaction.close if current_transaction
           expect(n).not_to exist
           expect(rel).not_to exist
         end
@@ -109,13 +109,13 @@ RSpec.shared_examples 'Neo4j::Node auto tx' do
         it 'is aliased to delete' do
           n
           n.delete
-          Neo4j::Transaction.current.close if Neo4j::Transaction.current
+          current_transaction.close if current_transaction
           expect(n).not_to exist
         end
 
         it 'is aliased to destroy' do
           n.destroy
-          Neo4j::Transaction.current.close if Neo4j::Transaction.current
+          current_transaction.close if current_transaction
           expect(n).not_to exist
         end
       end

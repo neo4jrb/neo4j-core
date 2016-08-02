@@ -6,7 +6,6 @@ Coveralls.wear!
 
 # To run it manually via Rake
 if ENV['COVERAGE']
-  puts 'RUN SIMPLECOV'
   require 'simplecov'
   SimpleCov.formatter = SimpleCov::Formatter::HTMLFormatter
   SimpleCov.start
@@ -49,36 +48,30 @@ require "#{File.dirname(__FILE__)}/helpers"
 require 'neo4j/core/cypher_session'
 
 require 'neo4j/core/cypher_session/adaptors/http'
+require 'neo4j/core/cypher_session/adaptors/bolt'
 require 'neo4j/core/cypher_session/adaptors/embedded'
 module Neo4jSpecHelpers
   def log_queries!
-    Neo4j::Server::CypherSession.log_with do |message|
-      puts message
-    end
-    Neo4j::Core::CypherSession::Adaptors::Base.subscribe_to_query do |message|
-      puts message
-    end
-    Neo4j::Core::CypherSession::Adaptors::HTTP.subscribe_to_request do |message|
-      puts message
-    end
-    Neo4j::Core::CypherSession::Adaptors::Embedded.subscribe_to_transaction do |message|
-      puts message
-    end
+    Neo4j::Server::CypherSession.log_with(&method(:puts))
+    Neo4j::Core::CypherSession::Adaptors::Base.subscribe_to_query(&method(:puts))
+    Neo4j::Core::CypherSession::Adaptors::HTTP.subscribe_to_request(&method(:puts))
+    Neo4j::Core::CypherSession::Adaptors::Bolt.subscribe_to_request(&method(:puts))
+    Neo4j::Core::CypherSession::Adaptors::Embedded.subscribe_to_transaction(&method(:puts))
+  end
+
+  def current_transaction
+    Neo4j::Transaction.current_for(Neo4j::Session.current)
+  end
+
+  class << self
+    attr_accessor :expect_queries_count
   end
 
   # rubocop:disable Style/GlobalVars
   def expect_queries(count)
-    start_count = $expect_queries_count
+    start_count = Neo4jSpecHelpers.expect_queries_count
     yield
-    expect($expect_queries_count - start_count).to eq(count)
-  end
-
-  def setup_query_subscription
-    $expect_queries_count = 0
-
-    Neo4j::Core::CypherSession::Adaptors::Base.subscribe_to_query do |_message|
-      $expect_queries_count += 1
-    end
+    expect(Neo4jSpecHelpers.expect_queries_count - start_count).to eq(count)
   end
 
   def expect_http_requests(count)
@@ -145,6 +138,7 @@ FileUtils.rm_rf(EMBEDDED_DB_PATH)
 RSpec.configure do |config|
   config.include Neo4jSpecHelpers
   config.extend FixingRSpecHelpers
+  config.include Helpers
 
   config.before(:all, api: :server) do
     Neo4j::Session.current.close if Neo4j::Session.current
@@ -155,6 +149,15 @@ RSpec.configure do |config|
     Neo4j::Session.current.close if Neo4j::Session.current
     create_embedded_session
     Neo4j::Session.current.start unless Neo4j::Session.current.running?
+  end
+
+  config.before(:suite) do
+    # for expect_queries method
+    Neo4jSpecHelpers.expect_queries_count = 0
+
+    Neo4j::Core::CypherSession::Adaptors::Base.subscribe_to_query do |_message|
+      Neo4jSpecHelpers.expect_queries_count += 1
+    end
   end
 
   # if ENV['TEST_AUTHENTICATION'] == 'true'
@@ -191,6 +194,11 @@ RSpec.configure do |config|
 
     server_only: lambda do |bool|
       RUBY_PLATFORM == 'java' && bool
+    end,
+
+    bolt: lambda do
+      ENV['NEO4J_VERSION'].to_s.match(/^(community|enterprise)-2\./) ||
+        RUBY_ENGINE == 'jruby' # Because jruby doesn't implement sendmsg.  Hopefully we can figure this out
     end
   }
 end

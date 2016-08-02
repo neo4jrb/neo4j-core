@@ -2,36 +2,43 @@ require 'spec_helper'
 require 'neo4j/core/cypher_session/adaptors/http'
 require './spec/neo4j/core/shared_examples/adaptor'
 
-describe Neo4j::Core::CypherSession::Adaptors::HTTP, new_cypher_session: true do
+describe Neo4j::Core::CypherSession::Adaptors::HTTP do
   before(:all) { setup_http_request_subscription }
   let(:adaptor_class) { Neo4j::Core::CypherSession::Adaptors::HTTP }
 
   let(:url) { ENV['NEO4J_URL'] }
-  subject { adaptor_class.new(url) }
+  let(:adaptor) { adaptor_class.new(url) }
+  subject { adaptor }
 
   describe '#initialize' do
-    let_context(url: 'url') { subject_should_raise ArgumentError, /Invalid URL/ }
+    it 'validates URLs' do
+      expect { adaptor_class.new('url').connect }.to raise_error ArgumentError, /Invalid URL:/
+      expect { adaptor_class.new('https://foo@localhost:7474').connect }.not_to raise_error
 
-    let_context(url: 'bolt://localhost:7474') { subject_should_raise ArgumentError, /Invalid URL/ }
-    let_context(url: 'foo://localhost:7474') { subject_should_raise ArgumentError, /Invalid URL/ }
+      expect { adaptor_class.new('http://localhost:7474').connect }.not_to raise_error
+      expect { adaptor_class.new('https://localhost:7474').connect }.not_to raise_error
+      expect { adaptor_class.new('https://localhost:7474/').connect }.not_to raise_error
+      expect { adaptor_class.new('https://foo:bar@localhost:7474').connect }.not_to raise_error
+      expect { adaptor_class.new('bolt://localhost:7474').connect }.to raise_error ArgumentError, /Invalid URL/
+      expect { adaptor_class.new('foo://localhost:7474').connect }.to raise_error ArgumentError, /Invalid URL/
+    end
+  end
 
-    let_context(url: 'http://:bar@localhost:7474') { subject_should_not_raise }
-    let_context(url: 'https://:bar@localhost:7474') { subject_should_not_raise }
+  let(:session_double) { double('session', adaptor: subject) }
 
-    let_context(url: 'http://:bar@localhost:') { subject_should_not_raise }
-    let_context(url: 'https://:bar@localhost:') { subject_should_not_raise }
+  before do
+    adaptor.connect
+    adaptor.query(session_double, 'MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n, r')
+  end
 
-    let_context(url: 'http://localhost:7474') { subject_should_not_raise }
-    let_context(url: 'https://localhost:7474') { subject_should_not_raise }
-    let_context(url: 'https://localhost:7474/') { subject_should_not_raise }
-
-    let_context(url: 'http://foo@localhost:7474') { subject_should_not_raise }
-    let_context(url: 'https://foo@localhost:7474') { subject_should_not_raise }
-    let_context(url: 'http://foo:bar@localhost:7474') { subject_should_not_raise }
-    let_context(url: 'https://foo:bar@localhost:7474') { subject_should_not_raise }
-
-    let_context(url: 'http://localhost:7474/') { subject_should_not_raise }
-    let_context(url: 'https://localhost:7474/') { subject_should_not_raise }
+  describe 'transactions' do
+    it 'lets you execute a query in a transaction' do
+      expect_http_requests(2) do
+        tx = subject.transaction(session_double)
+        tx.query('MATCH (n) RETURN n LIMIT 1')
+        tx.close
+      end
+    end
   end
 
   context 'when connected' do
@@ -40,19 +47,14 @@ describe Neo4j::Core::CypherSession::Adaptors::HTTP, new_cypher_session: true do
     describe 'transactions' do
       it 'lets you execute a query in a transaction' do
         expect_http_requests(2) do
-          subject.start_transaction
-          subject.query('MATCH n RETURN n LIMIT 1')
-          subject.end_transaction
-        end
-
-        expect_http_requests(0) do
-          subject.transaction do
-          end
+          tx = subject.transaction(session_double)
+          tx.query('MATCH (n) RETURN n LIMIT 1')
+          tx.close
         end
 
         expect_http_requests(2) do
-          subject.transaction do
-            subject.query('MATCH n RETURN n LIMIT 1')
+          subject.transaction(session_double) do |tx|
+            tx.query('MATCH (n) RETURN n LIMIT 1')
           end
         end
       end
@@ -60,13 +62,13 @@ describe Neo4j::Core::CypherSession::Adaptors::HTTP, new_cypher_session: true do
 
     describe 'unwrapping' do
       it 'is not fooled by returned Maps with key expected for nodes/rels/paths' do
-        result = subject.query('RETURN {labels: 1} AS r')
+        result = subject.query(session_double, 'RETURN {labels: 1} AS r')
         expect(result.to_a[0].r).to eq(labels: 1)
 
-        result = subject.query('RETURN {type: 1} AS r')
+        result = subject.query(session_double, 'RETURN {type: 1} AS r')
         expect(result.to_a[0].r).to eq(type: 1)
 
-        result = subject.query('RETURN {start: 1} AS r')
+        result = subject.query(session_double, 'RETURN {start: 1} AS r')
         expect(result.to_a[0].r).to eq(start: 1)
       end
     end

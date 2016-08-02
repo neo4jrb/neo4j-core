@@ -12,6 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 - Removed httparty dependency which is no longer used (thanks isaacsanders / see #257)
+- If using a threaded server, a new session must be created for each thread (see [upgrade guide](TODO!!!!))
 
 ## [6.1.4] - 05-12-2016
 

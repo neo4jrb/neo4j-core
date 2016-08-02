@@ -3,6 +3,54 @@
 A simple Ruby wrapper around the Neo4j graph database that works with the server and embedded Neo4j API. This gem can be used both from JRuby and normal MRI.
 It can be used standalone without the neo4j gem.
 
+## Basic usage
+
+### Executing Cypher queries
+
+To make a basic connection to Neo4j to execute Cypher queries, first choose an adaptor.  Adaptors for HTTP and Embedded mode (jRuby only) are available (support for Neo4j 3.0's [Bolt protocol](http://alpha.neohq.net/docs/server-manual/bolt.html) is planned).  You can create an adaptor like:
+
+    http_adaptor = Neo4j::Core::CypherSession::Adaptors::HTTP.new('http://neo4j:pass@localhost:7474')
+
+    # or
+
+    neo4j_adaptor = Neo4j::Core::CypherSession::Adaptors::Embedded.new('/file/path/to/graph.db')
+
+Once you have an adaptor you can create a session like so:
+
+    neo4j_session = Neo4j::Core::CypherSession.new(http_adaptor)
+
+From there you can make queries with a Cypher string:
+
+    # Basic query
+    neo4j_session.query('MATCH (n) RETURN n LIMIT 10')
+
+    # Query with parameters
+    neo4j_session.query('MATCH (n) RETURN n LIMIT {limit}', limit: 10)
+
+Or via the `Neo4j::Core::Query` class
+
+    query_obj = Neo4j::Core::Query.new.match(:n).return(:n).limit(10)
+
+    neo4j_session.query(query_obj)
+
+Making multiple queries with one request is support with the HTTP Adaptor:
+
+    results = neo4j_session.queries do
+      append 'MATCH (n:Foo) RETURN n LIMIT 10'
+      append 'MATCH (n:Bar) RETURN n LIMIT 5'
+    end
+
+    results[0] # results of first query
+    results[1] # results of second query
+
+When doing batched queries, there is also a shortcut for getting a new `Neo4j::Core::Query`:
+
+    results = neo4j_session.queries do
+      append query.match(:n).return(:n).limit(10)
+    end
+
+    results[0] # result
+
 ## Documentation
 
 ### 3.0+ Documentation:

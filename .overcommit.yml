@@ -8,6 +8,8 @@ PreCommit:
     enabled: true
     exclude:
       - '**/db/structure.sql' # Ignore trailing whitespace in generated files
+      - 'ISSUE_TEMPLATE.md'
+      - 'PULL_REQUEST_TEMPLATE.md'
 
 PostCheckout:
   ALL: # Special hook name that customizes all hooks of this type

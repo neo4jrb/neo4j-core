@@ -18,6 +18,14 @@ module Neo4j
       def self.using_new_session?
         ENV.key?('NEW_NEO4J_SESSIONS')
       end
+
+      def self.wrapping_level(level = nil)
+        if level.nil?
+          @wrapping_level || :core_entity
+        else
+          @wrapping_level = level
+        end
+      end
     end
   end
 end

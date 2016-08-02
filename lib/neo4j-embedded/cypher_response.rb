@@ -39,6 +39,10 @@ module Neo4j
         @source.columns.map!(&:to_sym)
       end
 
+      def error?
+        false
+      end
+
       def each
         fail ResultsAlreadyConsumedException unless @unread
 

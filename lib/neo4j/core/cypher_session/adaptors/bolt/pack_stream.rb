@@ -1,4 +1,3 @@
-require 'spec_helper'
 require 'stringio'
 
 module Neo4j
@@ -50,6 +49,8 @@ module Neo4j
 
       HEADER_PACK_STRINGS = %w(C S L).freeze
 
+      Structure = Struct.new(:signature, :list)
+
       # Object which holds a Ruby object and can
       # pack it into a PackStream stream
       class Packer
@@ -62,8 +63,9 @@ module Neo4j
             pack_array_as_string([byte])
           else
             case @object
-            when Integer, Float, String, Symbol, Array, Hash
-              send(@object.class.name.downcase + '_stream')
+            when Date, Time, DateTime then string_stream
+            when Integer, Float, String, Symbol, Array, Structure, Hash
+              send(@object.class.name.split('::').last.downcase + '_stream')
             end
           end
         end
@@ -79,22 +81,21 @@ module Neo4j
         #                     +32 768 |             +2 147 483 647 | INT_32         | CA   |
         #              +2 147 483 648 | +9 223 372 036 854 775 807 | INT_64         | CB   |
 
-        # rubocop:disable Metrics/MethodLength
+        INT_HEADERS = MARKER_HEADERS[:int]
         def integer_stream
           case @object
           when -0x10...0x80 # TINY_INT
             pack_integer_object_as_string
           when -0x80...-0x10 # INT_8
-            MARKER_HEADERS[:int][8] + pack_integer_object_as_string
+            INT_HEADERS[8] + pack_integer_object_as_string
           when -0x8000...0x8000 # INT_16
-            MARKER_HEADERS[:int][16] + pack_integer_object_as_string(2)
+            INT_HEADERS[16] + pack_integer_object_as_string(2)
           when -0x80000000...0x80000000 # INT_32
-            MARKER_HEADERS[:int][32] + pack_integer_object_as_string(4)
+            INT_HEADERS[32] + pack_integer_object_as_string(4)
           when -0x8000000000000000...0x8000000000000000 # INT_64
-            MARKER_HEADERS[:int][64] + pack_integer_object_as_string(8)
+            INT_HEADERS[64] + pack_integer_object_as_string(8)
           end
         end
-        # rubocop:enable Metrics/MethodLength
 
         alias fixnum_stream integer_stream
         alias bignum_stream integer_stream
@@ -119,14 +120,14 @@ module Neo4j
         alias symbol_stream string_stream
 
         def array_stream
-          header_args = if @object.frozen?
-                          raise 'Struct too big' if @object.size > 65_535
-                          [0xB0, 0xDC, @object.size]
-                        else
-                          [0x90, 0xD4, @object.size]
-                        end
+          marker_string(0x90, 0xD4, @object.size) + @object.map do |e|
+            Packer.new(e).packed_stream
+          end.join
+        end
 
-          marker_string(*header_args) + @object.map do |e|
+        def structure_stream
+          fail 'Structure too big' if @object.list.size > 65_535
+          marker_string(0xB0, 0xDC, @object.list.size) + [@object.signature].pack('C') + @object.list.map do |e|
             Packer.new(e).packed_stream
           end.join
         end
@@ -160,7 +161,10 @@ module Neo4j
 
         def pack_integer_object_as_string(size = 1)
           bytes = []
-          (0...size).to_a.reverse.inject(@object) { |current, i| bytes << (current / (256**i)); current % (256**i) }
+          (0...size).to_a.reverse.inject(@object) do |current, i|
+            bytes << (current / (256**i))
+            current % (256**i)
+          end
 
           pack_array_as_string(bytes)
         end
@@ -187,15 +191,7 @@ module Neo4j
           if type_and_size = PackStream.marker_type_and_size(marker)
             type, size = type_and_size
 
-            if [:text, :list, :map, :struct].include?(type)
-              offset = marker - HEADER_BASE_BYTES[type]
-              s = shift_stream!(2**offset)
-              size = s.reverse.unpack(HEADER_PACK_STRINGS[offset])[0]
-              # require 'pry'
-              # binding.pry if size < 0
-            end
-
-            shift_value_for_type!(type, size)
+            shift_value_for_type!(type, size, marker)
           elsif MARKER_TYPES.key?(marker)
             MARKER_TYPES[marker]
           else
@@ -205,26 +201,39 @@ module Neo4j
 
         private
 
-        def shift_value_for_type!(type, size)
-          case type
-          when :int                      then value_for_int!(size)
-          when :float                    then value_for_float!
-          when :tiny_text, :text, :bytes then shift_stream!(size).force_encoding('UTF-8')
-          when :tiny_list, :list     then Array.new(size) { unpack_value! }
-          when :tiny_map, :map       then value_for_map!(size)
-          when :tiny_struct, :struct then Array.new(size) { unpack_value! }.freeze
+        METHOD_MAP = {
+          int: :value_for_int!,
+          float: :value_for_float!,
+          tiny_list: :value_for_list!,
+          list: :value_for_list!,
+          tiny_map: :value_for_map!,
+          map: :value_for_map!,
+          tiny_struct: :value_for_struct!,
+          struct: :value_for_struct!
+        }
+
+        def shift_value_for_type!(type, size, marker)
+          if [:text, :list, :map, :struct].include?(type)
+            offset = marker - HEADER_BASE_BYTES[type]
+            size = shift_stream!(2 << (offset - 1)).reverse.unpack(HEADER_PACK_STRINGS[offset])[0]
+          end
+
+          if [:tiny_text, :text, :bytes].include?(type)
+            shift_stream!(size).force_encoding('UTF-8')
+          else
+            send(METHOD_MAP[type], size)
           end
         end
 
         def value_for_int!(size)
-          r = shift_bytes!(size).reverse.each_with_index.inject(0) do |sum, (byte, i)|
+          r = shift_bytes!(size >> 3).reverse.each_with_index.inject(0) do |sum, (byte, i)|
             sum + (byte * (256**i))
           end
 
           (r >> (size - 1)) == 1 ? (r - (2**size)) : r
         end
 
-        def value_for_float!
+        def value_for_float!(_size)
           shift_stream!(8).unpack('G')[0]
         end
 
@@ -235,13 +244,22 @@ module Neo4j
           end
         end
 
+        def value_for_list!(size)
+          Array.new(size) { unpack_value! }
+        end
+
+        def value_for_struct!(size)
+          Structure.new(shift_byte!, value_for_list!(size))
+        end
+
+
         def shift_byte!
           shift_bytes!(1).first unless depleted?
         end
 
         def shift_bytes!(length)
           result = shift_stream!(length)
-          result && result.bytes
+          result && result.bytes.to_a
         end
 
         def shift_stream!(length)

@@ -27,7 +27,7 @@ module Neo4j
         conn = Faraday.new(url, init_params) do |b|
           b.request :basic_auth, params[:basic_auth][:username], params[:basic_auth][:password] if params[:basic_auth]
           b.request :multi_json
-          # b.response :logger
+          # b.response :logger, ::Logger.new(STDOUT), bodies: true
 
           b.response :multi_json, symbolize_keys: true, content_type: 'application/json'
           # b.use Faraday::Response::RaiseError
@@ -90,14 +90,25 @@ module Neo4j
         init_resource_data(data_resource, data_url)
       end
 
-      def close
-        super
-        Neo4j::Transaction.unregister_current
+      def self.transaction_class
+        Neo4j::Server::CypherTransaction
       end
 
-      def begin_tx
-        Neo4j::Transaction.current ? Neo4j::Transaction.current.push_nested! : wrap_resource(@connection)
-        Neo4j::Transaction.current
+      # Duplicate of CypherSession::Adaptor::Base#transaction
+      def transaction
+        return self.class.transaction_class.new(self) if !block_given?
+
+        begin
+          tx = transaction
+
+          yield tx
+        rescue Exception => e # rubocop:disable Lint/RescueException
+          tx.mark_failed
+
+          raise e
+        ensure
+          tx.close
+        end
       end
 
       def create_node(props = nil, labels = [])
@@ -154,12 +165,9 @@ module Neo4j
 
       def query(*args)
         if [[String], [String, Hash]].include?(args.map(&:class))
-          query = args[0]
-          params = args[1]
-
-          response = _query(query, params)
+          response = _query(*args)
           response.raise_error if response.error?
-          response.to_node_enumeration(query)
+          response.to_node_enumeration(args[0])
         else
           options = args[0] || {}
           Neo4j::Core::Query.new(options.merge(session: self))
@@ -199,19 +207,16 @@ module Neo4j
       end
 
       def _query_entity_data(query, id = nil, params = {})
-        _query(query, params).tap do |response|
-          response.raise_error if response.error?
-        end.entity_data(id)
+        _query(query, params).tap(&:raise_if_cypher_error!).entity_data(id)
       end
 
       def _query(query, params = {}, options = {})
         query, params = query_and_params(query, params)
 
-        curr_tx = Neo4j::Transaction.current
         ActiveSupport::Notifications.instrument('neo4j.cypher_query', params: params, context: options[:context],
                                                                       cypher: query, pretty_cypher: options[:pretty_cypher]) do
-          if curr_tx
-            curr_tx._query(query, params)
+          if current_transaction
+            current_transaction._query(query, params)
           else
             query = params.nil? ? {'query' => query} : {'query' => query, 'params' => params}
             response = @connection.post(resource_url(:cypher), query)
@@ -225,7 +230,7 @@ module Neo4j
 
         Enumerator.new do |yielder|
           response.data.each do |data|
-            if Neo4j::Transaction.current
+            if current_transaction
               data[:row].each do |id|
                 yielder << CypherNode.new(self, id).wrapper
               end
@@ -234,6 +239,10 @@ module Neo4j
             end
           end
         end
+      end
+
+      def current_transaction
+        Neo4j::Transaction.current_for(self)
       end
 
       EMPTY = ''

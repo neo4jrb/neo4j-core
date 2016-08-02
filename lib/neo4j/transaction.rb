@@ -1,39 +1,86 @@
+require 'active_support/core_ext/module/delegation'
+require 'active_support/per_thread_registry'
+
 module Neo4j
   module Transaction
     extend self
 
-    module Instance
-      # @private
-      def register_instance
-        @pushed_nested = 0
-        Neo4j::Transaction.register(self)
+    # Provides a simple API to manage transactions for each session in a thread-safe manner
+    class TransactionsRegistry
+      extend ActiveSupport::PerThreadRegistry
+
+      attr_accessor :transactions_by_session_id
+    end
+
+    class Base
+      attr_reader :session, :root
+
+      def initialize(session, _options = {})
+        @session = session
+
+        Transaction.stack_for(session) << self
+
+        @root = Transaction.stack_for(session).first
+        # Neo4j::Core::Label::SCHEMA_QUERY_SEMAPHORE.lock if root?
+
+        # @parent = session_transaction_stack.last
+        # session_transaction_stack << self
       end
 
-      # Marks this transaction as failed, which means that it will unconditionally be rolled back when close() is called. Aliased for legacy purposes.
-      def mark_failed
-        @failure = true
-      end
-      alias failure mark_failed
+      def inspect
+        status_string = [:id, :failed?, :active?, :commit_url].map do |method|
+          "#{method}: #{send(method)}" if respond_to?(method)
+        end.compact.join(', ')
 
-      # If it has been marked as failed. Aliased for legacy purposes.
-      def failed?
-        !!@failure
+        "<#{self.class} [#{status_string}]"
       end
-      alias failure? failed?
+
+      # Commits or marks this transaction for rollback, depending on whether #mark_failed has been previously invoked.
+      def close
+        tx_stack = Transaction.stack_for(@session)
+        fail 'Tried closing when transaction stack is empty (maybe you closed too many?)' if tx_stack.empty?
+        fail "Closed transaction which wasn't the most recent on the stack (maybe you forgot to close one?)" if tx_stack.pop != self
+
+        @closed = true
+
+        post_close! if tx_stack.empty?
+      end
+
+      def delete
+        fail 'not implemented'
+      end
+
+      def commit
+        fail 'not implemented'
+      end
 
       def autoclosed!
         @autoclosed = true if transient_failures_autoclose?
       end
 
-      def transient_failures_autoclose?
-        Neo4j::Session.current.version >= '2.2.6'
+      def closed?
+        !!@closed
       end
 
-      def autoclosed?
-        !!@autoclosed
+      # Marks this transaction as failed,
+      # which means that it will unconditionally be rolled back
+      # when #close is called.
+      # Aliased for legacy purposes.
+      def mark_failed
+        root.mark_failed if root && root != self
+        @failure = true
       end
+      alias failure mark_failed
+
+      # If it has been marked as failed.
+      # Aliased for legacy purposes.
+      def failed?
+        !!@failure
+      end
+      alias failure? failed?
 
       def mark_expired
+        @parent.mark_expired if @parent
         @expired = true
       end
 
@@ -41,42 +88,23 @@ module Neo4j
         !!@expired
       end
 
-      # @private
-      def push_nested!
-        @pushed_nested += 1
-      end
-
-      # @private
-      def pop_nested!
-        @pushed_nested -= 1
-      end
-
-      # Only for the embedded neo4j !
-      # Acquires a read lock for entity for this transaction.
-      # See neo4j java docs.
-      # @param [Neo4j::Node,Neo4j::Relationship] entity
-      # @return [Java::OrgNeo4jKernelImplCoreapi::PropertyContainerLocker]
-      def acquire_read_lock(entity)
-      end
-
-      # Only for the embedded neo4j !
-      # Acquires a write lock for entity for this transaction.
-      # See neo4j java docs.
-      # @param [Neo4j::Node,Neo4j::Relationship] entity
-      # @return [Java::OrgNeo4jKernelImplCoreapi::PropertyContainerLocker]
-      def acquire_write_lock(entity)
-      end
-
-      # Commits or marks this transaction for rollback, depending on whether failure() has been previously invoked.
-      def close
-        pop_nested!
-        return if @pushed_nested >= 0
-        fail "Can't commit transaction, already committed" if @pushed_nested < -1
-        Neo4j::Transaction.unregister(self)
-        post_close!
+      def root?
+        @root == self
       end
 
       private
+
+      def transient_failures_autoclose?
+        Gem::Version.new(@session.version) >= Gem::Version.new('2.2.6')
+      end
+
+      def autoclosed?
+        !!@autoclosed
+      end
+
+      def active?
+        !closed?
+      end
 
       def post_close!
         return if autoclosed?
@@ -89,56 +117,64 @@ module Neo4j
     end
 
     # @return [Neo4j::Transaction::Instance]
-    def new(current = Session.current!)
-      current.begin_tx
+    def new(session = Session.current!)
+      session.transaction
     end
 
     # Runs the given block in a new transaction.
     # @param [Boolean] run_in_tx if true a new transaction will not be created, instead if will simply yield to the given block
     # @@yield [Neo4j::Transaction::Instance]
-    def run(run_in_tx = true)
+    def run(*args)
+      session, run_in_tx = session_and_run_in_tx_from_args(args)
+
       fail ArgumentError, 'Expected a block to run in Transaction.run' unless block_given?
 
       return yield(nil) unless run_in_tx
 
-      tx = Neo4j::Transaction.new
+      tx = Neo4j::Transaction.new(session)
       yield tx
     rescue Exception => e # rubocop:disable Lint/RescueException
-      print_exception_cause(e)
+      # print_exception_cause(e)
+
       tx.mark_failed unless tx.nil?
-      raise
+      raise e
     ensure
       tx.close unless tx.nil?
     end
 
-    # @return [Neo4j::Transaction]
-    def current
-      Thread.current[:neo4j_curr_tx]
+    # To support old syntax of providing run_in_tx first
+    # But session first is ideal
+    def session_and_run_in_tx_from_args(args)
+      fail ArgumentError, 'Too many arguments' if args.size > 2
+
+      if args.empty?
+        [Session.current!, true]
+      else
+        result = args.dup
+        if result.size == 1
+          result << ([true, false].include?(args[0]) ? Session.current! : true)
+        end
+
+        [true, false].include?(result[0]) ? result.reverse : result
+      end
     end
 
-    # @private
+    def current_for(session)
+      stack_for(session).first
+    end
+
+    def stack_for(session)
+      TransactionsRegistry.transactions_by_session_id ||= {}
+      TransactionsRegistry.transactions_by_session_id[session.object_id] ||= []
+    end
+
+    private
+
     def print_exception_cause(exception)
       return if !exception.respond_to?(:cause) || !exception.cause.respond_to?(:print_stack_trace)
 
-      puts "Java Exception in a transaction, cause: #{exception.cause}"
+      Core.logger.info "Java Exception in a transaction, cause: #{exception.cause}"
       exception.cause.print_stack_trace
-    end
-
-    # @private
-    def unregister(tx)
-      Thread.current[:neo4j_curr_tx] = nil if tx == Thread.current[:neo4j_curr_tx]
-    end
-
-    # @private
-    def register(tx)
-      # we don't support running more then one transaction per thread
-      fail 'Already running a transaction' if current
-      Thread.current[:neo4j_curr_tx] = tx
-    end
-
-    # @private
-    def unregister_current
-      Thread.current[:neo4j_curr_tx] = nil
     end
   end
 end

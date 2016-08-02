@@ -60,5 +60,4 @@ describe Neo4j::Core::CypherSession::Adaptors::HasUri do
       subject_should_not_raise
     end
   end
-
 end

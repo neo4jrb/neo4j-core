@@ -1,12 +1,11 @@
 module Neo4j
   module Embedded
-    class EmbeddedTransaction
+    class EmbeddedTransaction < Neo4j::Transaction::Base
       attr_reader :root_tx
-      include Neo4j::Transaction::Instance
 
-      def initialize(root_tx)
-        @root_tx = root_tx
-        register_instance
+      def initialize(session)
+        super
+        @root_tx = @session.begin_tx
       end
 
       def acquire_read_lock(entity)
@@ -15,11 +14,6 @@ module Neo4j
 
       def acquire_write_lock(entity)
         @root_tx.acquire_write_lock(entity)
-      end
-
-
-      def inspect
-        "EmbeddedTransaction [nested: #{@pushed_nested} failed?: #{failure?} active: #{Neo4j::Transaction.current == self}]"
       end
 
       def delete

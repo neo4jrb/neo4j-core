@@ -1,9 +1,40 @@
 require 'neo4j/core/cypher_session'
 require 'neo4j/core/instrumentable'
+require 'neo4j/core/label'
 
 module Neo4j
   module Core
     class CypherSession
+      class CypherError < StandardError
+        attr_reader :code, :message, :stack_trace
+
+        def self.new_from(code, message, stack_trace = nil)
+          @code = code
+          @message = message
+          @stack_trace = stack_trace
+
+          msg = <<-ERROR
+  Cypher error:
+  #{ANSI::CYAN}#{code}#{ANSI::CLEAR}: #{message}
+  #{stack_trace}
+ERROR
+
+          error_class_from(code).new(msg)
+        end
+
+        def self.error_class_from(code)
+          case code
+          when /(ConstraintValidationFailed|ConstraintViolation)/
+            SchemaErrors::ConstraintValidationFailedError
+          else
+            CypherError
+          end
+        end
+      end
+      module SchemaErrors
+        class ConstraintValidationFailedError < CypherError; end
+      end
+
       module Adaptors
         MAP = {}
 
@@ -22,6 +53,8 @@ module Neo4j
           def connect(*_args)
             fail '#connect not implemented!'
           end
+
+          attr_accessor :wrap_level
 
           Query = Struct.new(:cypher, :parameters, :pretty_cypher, :context)
 
@@ -52,68 +85,71 @@ module Neo4j
             end
           end
 
-          def query(*args)
-            queries { append(*args) }[0]
+          def query(session, *args)
+            options = (args.size == 3 || (args[0].is_a?(::Neo4j::Core::Query) && args.size == 2)) ? args.pop : {}
+
+            queries(session, options) { append(*args) }[0]
           end
 
-          def queries(&block)
+          def queries(session, options = {}, &block)
             query_builder = QueryBuilder.new
 
             query_builder.instance_eval(&block)
 
-            query_set(query_builder.queries)
+            new_or_current_transaction(session, options[:transaction]) do |tx|
+              query_set(tx, query_builder.queries, {commit: !options[:transaction]}.merge(options))
+            end
           end
 
-          def query_set(_queries)
-            fail '#queries not implemented!'
+          [:query_set,
+           :version,
+           :indexes,
+           :constraints,
+           :connected?].each do |method|
+            define_method(method) do |*_args|
+              fail "##{method} method not implemented on adaptor!"
+            end
           end
 
-          def start_transaction(*_args)
-            fail '#start_transaction not implemented!'
-          end
+          # If called without a block, returns a Transaction object
+          # which can be used to call query/queries/mark_failed/commit
+          # If called with a block, the Transaction object is yielded
+          # to the block and `commit` is ensured.  Any uncaught exceptions
+          # will mark the transaction as failed first
+          def transaction(session)
+            return self.class.transaction_class.new(session) if !block_given?
 
-          def end_transaction(*_args)
-            fail '#end_transaction not implemented!'
-          end
+            begin
+              tx = transaction(session)
 
-          def transaction_started?(*_args)
-            fail '#transaction_started? not implemented!'
-          end
+              yield tx
+            rescue => e
+              tx.mark_failed
 
-          def version(*_args)
-            fail '#version not implemented!'
-          end
-
-          # Schema inspection methods
-          def indexes_for_label(*_args)
-            fail '#indexes_for_label not implemented!'
-          end
-
-          def uniqueness_constraints_for_label(*_args)
-            fail '#uniqueness_constraints_for_label not implemented!'
+              raise e
+            ensure
+              tx.close
+            end
           end
 
           def logger
             return @logger if @logger
 
-            if @options[:logger]
-              @logger = @options[:logger]
-            else
-              @logger = Logger.new(logger_location).tap do |logger|
-                logger.level = logger_level
-              end
-            end
+            @logger = if @options[:logger]
+                        @options[:logger]
+                      else
+                        Logger.new(logger_location).tap do |logger|
+                          logger.level = logger_level
+                        end
+                      end
           end
 
-          # Uses #start_transaction and #end_transaction to allow
-          # execution of queries within a block to be part of a
-          # full transaction
-          def transaction
-            start_transaction
+          def setup_queries!(queries, transaction, options = {})
+            fail 'Query attempted without a connection' if !connected?
+            fail "Invalid transaction object: #{transaction.inspect}" if !transaction.is_a?(self.class.transaction_class)
 
-            yield
-          ensure
-            end_transaction if transaction_started?
+            # context option not yet implemented
+            self.class.instrument_queries(queries) unless options[:skip_instrumentation]
           end
 
           EMPTY = ''
@@ -133,9 +169,26 @@ module Neo4j
                 instrument_query(query) {}
               end
             end
+
+            def transaction_class
+              fail '.transaction_class method not implemented on adaptor!'
+            end
           end
 
           private
+
+          def new_or_current_transaction(session, tx, &block)
+            if tx
+              yield(tx)
+            else
+              transaction(session, &block)
+            end
+          end
+
+          def validate_query_set!(transaction, _queries, _options = {})
+            fail 'Query attempted without a connection' if !connected?
+            fail "Invalid transaction object: #{transaction}" if !transaction.is_a?(self.class.transaction_class)
+          end
 
           def logger_location
             @options[:logger_location] || STDOUT
@@ -144,7 +197,6 @@ module Neo4j
           def logger_level
             @options[:logger_level] || Logger::WARN
           end
-
         end
       end
     end

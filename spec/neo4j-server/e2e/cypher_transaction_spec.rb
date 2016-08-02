@@ -7,18 +7,20 @@ module Neo4j
       before { session || create_server_session }
 
       after do
-        session && session.close
-        Neo4j::Transaction.current && Neo4j::Transaction.current.close
+        if session
+          current_transaction.close if current_transaction
+          session.close
+        end
       end
 
       context 'where no queries are made' do
         it 'can open and close a transaction' do
-          tx = session.begin_tx
+          tx = Transaction.new(session)
           expect { tx.close }.not_to raise_error
         end
 
         it 'returns an OpenStruct to mimic a completed transaction' do
-          tx = session.begin_tx
+          tx = Transaction.new(session)
           response = tx.close
           expect(response.status).to eq(200)
           expect(response).to be_a(OpenStruct)
@@ -27,7 +29,7 @@ module Neo4j
 
       context 'where queries are made' do
         it 'can open and close a transaction' do
-          tx = session.begin_tx
+          tx = Transaction.new(session)
           tx._query("CREATE (n:Student { name: 'John' }) RETURN n")
           response = tx.close
           expect(response.status).to eq 200
@@ -36,13 +38,13 @@ module Neo4j
 
         it 'can run a valid query' do
           id = session.query.create('(n)').return('ID(n) AS id').first[:id]
-          tx = session.begin_tx
+          tx = Transaction.new(session)
           q = tx._query("MATCH (n) WHERE ID(n) = #{id} RETURN ID(n)")
-          expect(q.response.body[:results]).to eq([{columns: ['ID(n)'], data: [{row: [id], rest: [id]}]}])
+          expect(q.response.body[:results]).to match [{columns: ['ID(n)'], data: [a_hash_including(row: [id], rest: [id])]}]
         end
 
         it 'sets the response error fields if not a valid query' do
-          tx = session.begin_tx
+          tx = Transaction.new(session)
           r = tx._query('START n=fs(0) RRETURN ID(n)')
           expect(r.error?).to be true
 
@@ -176,7 +178,7 @@ module Neo4j
 
       describe '.create' do
         it 'creates a node' do
-          tx = session.begin_tx
+          tx = Transaction.new(session)
           node = Neo4j::Node.create(name: 'andreas')
           expect(tx.close.status).to eq(200)
           expect(node['name']).to eq('andreas')
@@ -187,7 +189,7 @@ module Neo4j
       describe '#del' do
         it 'deletes a node' do
           begin
-            tx = session.begin_tx
+            tx = Transaction.new(session)
             node = Neo4j::Node.create(name: 'andreas')
             id = node.neo_id
             node.del
