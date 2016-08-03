@@ -48,3 +48,7 @@ matrix:
     - rvm: jruby-9.0.4.0
       env: NEO4J_VERSION=community-2.1.8
 
+    # NEW_NEO4J_SESSIONS
+    - rvm: jruby-9.0.4.0
+      env: NEO4J_VERSION=community-2.3.5 NEW_NEO4J_SESSIONS=true
+
