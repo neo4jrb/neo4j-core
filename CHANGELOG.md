@@ -14,12 +14,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - Ability to specify `:neo_id`/`'neo_id'` in order clauses to order by `ID()` (thanks klobuczek / see: #253)
+- Introducing new Cypher session API which is designed to replace the old API (WHOA!)
+- Bolt support via the new session API
 
 ### Changed
 
 - Removed httparty dependency which is no longer used (thanks isaacsanders / see #257)
 - If using a threaded server, a new session must be created for each thread (see [upgrade guide](TODO!!!!))
-- Introducing new Cypher session API which is designed to replace the old API (WHOA!)
+
 
 ## [6.1.4] - 05-12-2016
 
