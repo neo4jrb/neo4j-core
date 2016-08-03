@@ -72,8 +72,8 @@ module Neo4j
             ::Neo4j::Core::Relationship.new(entity.get_id,
                                             entity.get_type.name,
                                             get_entity_properties(entity),
-                                            entity.get_start_node.neo_id,
-                                            entity.get_end_node.neo_id)
+                                            entity.get_start_node.id,
+                                            entity.get_end_node.id)
           end
 
           def wrap_path(entity)
@@ -84,12 +84,12 @@ module Neo4j
 
           def wrap_value(entity)
             if entity.is_a?(Java::ScalaCollectionConvert::Wrappers::MapWrapper)
-              entity.each_with_object({}) { |(k, v), r| r[k.to_sym] = v }
+              entity.each_with_object({}) { |(k, v), r| r[k.to_sym] = _wrap_entity(v) }
             elsif entity.is_a?(Java::OrgNeo4jKernelImplCore::NodeProxy) ||
                   entity.is_a?(Java::OrgNeo4jKernelImplCore::RelationshipProxy)
               entity.property_keys.each_with_object({}) { |key, hash| hash[key.to_sym] = entity.get_property(key) }
-            elsif entity.respond_to?(:path_entities)
-              entity.to_a.map(&method(:wrap_value))
+            elsif entity.respond_to?(:path_entities) || entity.is_a?(Java::ScalaCollectionConvert::Wrappers::SeqWrapper)
+              entity.to_a.map(&method(:_wrap_entity))
             else
               # Convert from Java?
               entity
