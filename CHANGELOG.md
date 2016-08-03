@@ -19,6 +19,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Removed httparty dependency which is no longer used (thanks isaacsanders / see #257)
 - If using a threaded server, a new session must be created for each thread (see [upgrade guide](TODO!!!!))
+- Introducing new Cypher session API which is designed to replace the old API (WHOA!)
 
 ## [6.1.4] - 05-12-2016
 
