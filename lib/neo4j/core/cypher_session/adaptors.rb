@@ -1,6 +1,7 @@
 require 'neo4j/core/cypher_session'
 require 'neo4j/core/instrumentable'
 require 'neo4j/core/label'
+require 'neo4j-core/version'
 
 module Neo4j
   module Core

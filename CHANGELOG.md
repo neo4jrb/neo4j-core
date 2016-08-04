@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [7.0.0.alpha.3] - 2016-08-04
+
+### Fixed
+
+- Fixed error when running rake tasks #1251
+
 ## [7.0.0.alpha.2] - 2016-08-02
 
 ### Fixed
