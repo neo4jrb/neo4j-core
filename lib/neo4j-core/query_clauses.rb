@@ -13,6 +13,7 @@ module Neo4j
         UNDERSCORE = '_'
         COMMA_SPACE = ', '
         AND = ' AND '
+        PRETTY_NEW_LINE = "\n  "
 
         attr_accessor :params, :arg
         attr_reader :options, :param_vars_added
@@ -148,11 +149,12 @@ module Neo4j
           end
 
           def clause_string(clauses, pretty)
-            join_string = clause_join + (pretty ? "\n  " : '')
+            join_string = pretty ? clause_join + PRETTY_NEW_LINE : clause_join
 
             strings = clause_strings(clauses)
-            string = ((pretty && strings.size > 1) ? "\n  " : '')
-            string + strings.join(join_string).strip
+            stripped_string = strings.join(join_string)
+            stripped_string.strip!
+            (pretty && strings.size > 1) ? PRETTY_NEW_LINE + stripped_string : stripped_string
           end
 
           def clause_join
