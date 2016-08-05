@@ -39,6 +39,7 @@ ERROR
       module SchemaErrors
         class ConstraintValidationFailedError < CypherError; end
       end
+      class ConnectionFailedError < StandardError; end
 
       module Adaptors
         MAP = {}

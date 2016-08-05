@@ -17,6 +17,8 @@ module Neo4j
 
           def connect
             @requestor = Requestor.new(@url, USER_AGENT_STRING, self.class.method(:instrument_request))
+          rescue Faraday::ConnectionFailed => e
+            raise CypherSession::ConnectionFailedError, "#{e.class}: #{e.message}"
           end
 
           ROW_REST = %w(row REST)
