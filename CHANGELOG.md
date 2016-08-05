@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [7.0.0.alpha.4] - 2016-08-05
+
+### Fixed
+
+- Changes to reduce memory allocations (Thanks ProGM / see #261)
+
+### Changed
+
+- Raise standard `Neo4j::Core::CypherSession::ConnectionFailedError` error instead of individual errors from adaptors
+
 ## [7.0.0.alpha.3] - 2016-08-04
 
 ### Fixed
