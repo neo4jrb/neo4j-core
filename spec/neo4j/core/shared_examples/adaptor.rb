@@ -1,7 +1,7 @@
 # Requires that an `adaptor` let variable exist with the connected adaptor
 RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
   let(:real_session) do
-    expect(adaptor).to receive(:connect)
+    expect(adaptor).to receive(:connect).and_call_original
     Neo4j::Core::CypherSession.new(adaptor)
   end
   let(:session_double) { double('session', adaptor: adaptor) }
@@ -14,6 +14,11 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
   describe '#query' do
     it 'Can make a query' do
       adaptor.query(session_double, 'MERGE path=(n)-[rel:r]->(o) RETURN n, rel, o, path LIMIT 1')
+    end
+
+    it 'Can make a delete query' do
+      adaptor.query(real_session, 'CREATE (n:Label1) RETURN n')
+      adaptor.query(real_session, 'MATCH (n) DELETE n')
     end
   end
 
