@@ -639,6 +639,10 @@ describe Neo4j::Core::Query do
     describe '.create(q: {Person: {age: nil, height: 70}})' do
       it_generates 'CREATE (q:`Person` {age: {q_Person_age}, height: {q_Person_height}})', q_Person_age: nil, q_Person_height: 70
     end
+
+    describe '.create(q: {Person: {name: \'{Tricky .Value}\'}})' do
+      it_generates 'CREATE (q:`Person` {name: {q_Person_name}})', q_Person_name: '{Tricky .Value}'
+    end
   end
 
   describe '#create_unique' do
