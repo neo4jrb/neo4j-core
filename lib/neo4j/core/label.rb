@@ -155,22 +155,8 @@ module Neo4j
         end
       end
 
-      # Schema queries can run separately from other queries, but they should
-      # be mutually exclusive to each other or we get locking errors
-      # SCHEMA_QUERY_SEMAPHORE = Mutex.new
-
-      # If there is a transaction going on, this could block
-      # So we run in a thread and it will go through at the next opportunity
       def schema_query(cypher)
-        # Thread.new do
-        # SCHEMA_QUERY_SEMAPHORE.synchronize do
-
         @session.transaction { |tx| tx.query(cypher, {}) }
-      rescue Exception => e # rubocop:disable Lint/RescueException
-        puts 'ERROR during schema query:', e.message, e.backtrace
-
-        # end
-        # end.tap { |thread| schema_threads << thread }
       end
 
       def validate_index_options!(options)
