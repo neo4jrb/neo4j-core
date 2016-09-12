@@ -387,8 +387,6 @@ module Neo4j
       end
 
       def &(other)
-        fail "Sessions don't match!" if @session != other.session
-
         self.class.new(session: @session).tap do |new_query|
           new_query.options = options.merge(other.options)
           new_query.clauses = clauses + other.clauses
