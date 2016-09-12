@@ -337,6 +337,24 @@ module Neo4j
         end
       end
 
+      class CallClause < Clause
+        KEYWORD = 'CALL'
+
+        def from_string(value)
+          value
+        end
+
+        class << self
+          def clause_strings(clauses)
+            clauses.map!(&:value)
+          end
+
+          def clause_join
+            " #{KEYWORD} "
+          end
+        end
+      end
+
       class MatchClause < Clause
         KEYWORD = 'MATCH'
 
