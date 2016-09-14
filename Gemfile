@@ -9,7 +9,11 @@ gem 'tins', '< 1.7' if RUBY_VERSION.to_f < 2.0
 
 group 'development' do
   gem 'guard-rspec', require: false if RUBY_PLATFORM != 'java'
-  gem 'overcommit'
+  if RUBY_VERSION.to_f < 2.0
+    gem 'overcommit', '< 0.35.0'
+  else
+    gem 'overcommit'
+  end
 end
 
 group 'test' do
