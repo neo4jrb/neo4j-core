@@ -31,6 +31,10 @@ ERROR
           case code
           when /(ConstraintValidationFailed|ConstraintViolation)/
             SchemaErrors::ConstraintValidationFailedError
+          when /IndexAlreadyExists/
+            SchemaErrors::IndexAlreadyExistsError
+          when /ConstraintAlreadyExists/ # ?????
+            SchemaErrors::ConstraintAlreadyExistsError
           else
             CypherError
           end
@@ -38,6 +42,8 @@ ERROR
       end
       module SchemaErrors
         class ConstraintValidationFailedError < CypherError; end
+        class ConstraintAlreadyExistsError < CypherError; end
+        class IndexAlreadyExistsError < CypherError; end
       end
       class ConnectionFailedError < StandardError; end
 
