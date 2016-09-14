@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [6.1.5] - 05-12-2016
+
+### Added
+
+- `call` method for `Query` API for `CALL` clause introduced in Neo4j 3.0 (see #268)
+
 ## [6.1.4] - 05-12-2016
 
 ### Added
