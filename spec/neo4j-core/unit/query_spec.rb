@@ -278,6 +278,14 @@ describe Neo4j::Core::Query do
     end
   end
 
+  # CALL
+
+  describe '#call' do
+    describe ".call('db.constraints()')" do
+      it_generates 'CALL db.constraints()'
+    end
+  end
+
   # USING
 
   describe '#using' do

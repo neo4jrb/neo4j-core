@@ -158,11 +158,10 @@ module Neo4j
       # DETACH DELETE clause
       # @return [Query]
 
-      METHODS = %w(start match optional_match using where create create_unique merge set on_create_set on_match_set remove unwind delete detach_delete with return order skip limit)
-      BREAK_METHODS = %(with)
+      METHODS = %w(start match optional_match call using where create create_unique merge set on_create_set on_match_set remove unwind delete detach_delete with return order skip limit) # rubocop:disable Metrics/LineLength
+      BREAK_METHODS = %(with call)
 
       CLAUSIFY_CLAUSE = proc { |method| const_get(method.to_s.split('_').map(&:capitalize).join + 'Clause') }
-
       CLAUSES = METHODS.map(&CLAUSIFY_CLAUSE)
 
       METHODS.each_with_index do |clause, i|
