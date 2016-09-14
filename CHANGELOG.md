@@ -39,6 +39,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - If using a threaded server, a new session must be created for each thread (see [upgrade guide](TODO!!!!))
 
 
+## [6.1.5] - 05-12-2016
+
+### Added
+
+- `call` method for `Query` API for `CALL` clause introduced in Neo4j 3.0 (see #268)
+
 ## [6.1.4] - 05-12-2016
 
 ### Added
