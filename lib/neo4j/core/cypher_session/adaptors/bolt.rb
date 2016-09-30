@@ -44,7 +44,8 @@ module Neo4j
 
             if @socket.ready?
               debug_remaining_buffer
-              fail 'Making query, but expected there to be no buffer remaining!'
+              fail "Making query, but expected there to be no buffer remaining!\n"\
+                   "Queries: #{queries.map(&:cypher)}"
             end
 
             send_query_jobs(queries)

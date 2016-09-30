@@ -53,14 +53,14 @@ ERROR
         class Base
           include Neo4j::Core::Instrumentable
 
-          gem, version = if defined?(::Neo4j::ActiveNode)
-                           ['neo4j', ::Neo4j::VERSION]
-                         else
-                           ['neo4j-core', ::Neo4j::Core::VERSION]
+          gem_name, version = if defined?(::Neo4j::ActiveNode)
+                                ['neo4j', ::Neo4j::VERSION]
+                              else
+                                ['neo4j-core', ::Neo4j::Core::VERSION]
                          end
 
 
-          USER_AGENT_STRING = "#{gem}-gem/#{version} (https://github.com/neo4jrb/#{gem})"
+          USER_AGENT_STRING = "#{gem_name}-gem/#{version} (https://github.com/neo4jrb/#{gem_name})"
 
           def connect(*_args)
             fail '#connect not implemented!'
@@ -141,11 +141,11 @@ ERROR
 
               yield tx
             rescue => e
-              tx.mark_failed
+              tx.mark_failed if tx
 
               raise e
             ensure
-              tx.close
+              tx.close if tx
             end
           end
 
