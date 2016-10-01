@@ -52,10 +52,16 @@ module Neo4j
 
           def extract_message_groups(flush_messages_proc)
             fields_messages = flush_messages_proc.call
+
             validate_message_type!(fields_messages[0], :success)
 
             result_messages = []
-            while (messages = flush_messages_proc.call)[0].type != :success
+            messages = nil
+
+            loop do
+              messages = flush_messages_proc.call
+              next if messages.nil?
+              break if messages[0].type == :success
               result_messages.concat(messages)
             end
 
@@ -88,7 +94,7 @@ module Neo4j
             when :proc
               yield.wrap
             else
-              fail ArgumentError, "Inalid wrap_level: #{@wrap_level.inspect}"
+              fail ArgumentError, "Invalid wrap_level: #{@wrap_level.inspect}"
             end
           end
 
