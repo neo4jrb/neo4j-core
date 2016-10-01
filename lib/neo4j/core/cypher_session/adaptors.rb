@@ -57,7 +57,7 @@ ERROR
                                 ['neo4j', ::Neo4j::VERSION]
                               else
                                 ['neo4j-core', ::Neo4j::Core::VERSION]
-                         end
+                              end
 
 
           USER_AGENT_STRING = "#{gem_name}-gem/#{version} (https://github.com/neo4jrb/#{gem_name})"
