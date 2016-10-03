@@ -11,6 +11,7 @@ group 'development' do
   gem 'guard-rspec', require: false if RUBY_PLATFORM != 'java'
   if RUBY_VERSION.to_f < 2.0
     gem 'overcommit', '< 0.35.0'
+    gem 'term-ansicolor', '< 1.4'
   else
     gem 'overcommit'
   end
