@@ -15,6 +15,10 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
     it 'Can make a query' do
       adaptor.query(session_double, 'MERGE path=(n)-[rel:r]->(o) RETURN n, rel, o, path LIMIT 1')
     end
+
+    it 'can make a query with a large payload' do
+      adaptor.query(session_double, 'CREATE (n:Test) SET n = {props} RETURN n', props: {text: 'a' * 10_000})
+    end
   end
 
   describe '#queries' do
