@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [7.0.0.alpha.8] - 2016-10-04
+
+### Fixed
+
+- Bug with bolt and large parameters
+
+### Changed
+
+- Error handling and debug messages
+
 ## [7.0.0.alpha.7] - 2016-09-14
 
 ### Added
