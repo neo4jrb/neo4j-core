@@ -7,7 +7,7 @@ before_script:
   - "bin/rake neo4j:start --trace"
   - "sleep 10"
 script:
-  - "travis_retry bin/rake default --trace"
+  - "rspec --tag $RSPEC_TAGS"
 language: ruby
 cache: bundler
 sudo: false
@@ -50,5 +50,5 @@ matrix:
 
     # NEW_NEO4J_SESSIONS
     - rvm: jruby-9.0.4.0
-      env: NEO4J_VERSION=community-2.3.5 NEW_NEO4J_SESSIONS=true
+      env: RSPEC_TAGS=new_cypher_session NEO4J_VERSION=community-2.3.5 NEW_NEO4J_SESSIONS=true
 
