@@ -7,7 +7,7 @@ before_script:
   - "bin/rake neo4j:start --trace"
   - "sleep 10"
 script:
-  - "rspec --tag $RSPEC_TAGS"
+  - "bundle exec rspec --tag $RSPEC_TAGS"
 language: ruby
 cache: bundler
 sudo: false
