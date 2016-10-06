@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [7.0.0.rc.2] - 2016-10-06
+
+### Fixed
+
+- Gemspec changes to not allow upgrade to `net-http-persistent` because of breaking changes in 3.0.0 of that gem (thanks @ProGM)
+
 ## [7.0.0.rc.1] - 2016-10-04
 
 - No changes from `alpha.8`
