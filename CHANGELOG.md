@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [6.1.6] - 10-14-2016
+
+### Fixed
+
+- Fixed `net-http-persistent` error `wrong number of arguments (given 2, expected 0) (ArgumentError)` by requiring `~> 2.9.4` (3.0 introduced a breaking change) (Thanks to tildedash on Slack and @swiftly112)
+
 ## [6.1.5] - 05-12-2016
 
 ### Added
