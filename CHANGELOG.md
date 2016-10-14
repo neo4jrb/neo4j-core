@@ -64,6 +64,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Removed httparty dependency which is no longer used (thanks isaacsanders / see #257)
 - If using a threaded server, a new session must be created for each thread (see [upgrade guide](TODO!!!!))
 
+## [6.1.6] - 10-14-2016
+
+### Fixed
+
+- Fixed `net-http-persistent` error `wrong number of arguments (given 2, expected 0) (ArgumentError)` by requiring `~> 2.9.4` (3.0 introduced a breaking change) (Thanks to tildedash on Slack and @swiftly112)
 
 ## [6.1.5] - 05-12-2016
 
