@@ -1,6 +1,7 @@
 require 'spec_helper'
 require 'neo4j/core/cypher_session/adaptors/http'
 require './spec/neo4j/core/shared_examples/adaptor'
+require './spec/neo4j/core/shared_examples/http'
 
 describe Neo4j::Core::CypherSession::Adaptors::HTTP do
   before(:all) { setup_http_request_subscription }
@@ -22,6 +23,24 @@ describe Neo4j::Core::CypherSession::Adaptors::HTTP do
       expect { adaptor_class.new('bolt://localhost:7474').connect }.to raise_error ArgumentError, /Invalid URL/
       expect { adaptor_class.new('foo://localhost:7474').connect }.to raise_error ArgumentError, /Invalid URL/
     end
+
+    it 'uses net_http_persistent by default' do
+      expect_any_instance_of(Faraday::Connection).to receive(:adapter).with(:net_http_persistent)
+      conn = adaptor_class.new(url).connect
+    end
+
+    it 'passes the :http_adapter option to Faraday' do
+      expect_any_instance_of(Faraday::Connection).to receive(:adapter).with(:something)
+      conn = adaptor_class.new(url, http_adapter: :something).connect
+    end
+
+    (Faraday::Adapter.instance_variable_get(:@registered_middleware).keys - [:test, :rack]).each do |adapter_name|
+      describe "the :#{adapter_name} adapter" do
+        let(:http_adapter) { adapter_name }
+        it_behaves_like 'Neo4j::Core::CypherSession::Adaptors::Http'
+      end
+    end
+
   end
 
   let(:session_double) { double('session', adaptor: subject) }
