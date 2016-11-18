@@ -26,8 +26,8 @@ module Neo4j
           private
 
           def tx_query(cypher)
-            query = Adaptors::Base::Query.new(cypher, {}, cypher)
-            adaptor.send(:query_set, self, [query], skip_instrumentation: true)
+            query = Adapters::Base::Query.new(cypher, {}, cypher)
+            adapter.send(:query_set, self, [query], skip_instrumentation: true)
           end
         end
       end

@@ -7,7 +7,7 @@ module Neo4j
         class Embedded < Base
           def initialize(*args)
             super
-            @java_tx = adaptor.graph_db.begin_tx
+            @java_tx = adapter.graph_db.begin_tx
           end
 
           def commit

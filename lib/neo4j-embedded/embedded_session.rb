@@ -77,7 +77,7 @@ module Neo4j
         Neo4j::Embedded::EmbeddedTransaction
       end
 
-      # Duplicate of CypherSession::Adaptor::Base#transaction
+      # Duplicate of CypherSession::Adapter::Base#transaction
       def transaction
         return self.class.transaction_class.new(self) if !block_given?
 

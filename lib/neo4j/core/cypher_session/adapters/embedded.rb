@@ -1,11 +1,11 @@
-require 'neo4j/core/cypher_session/adaptors'
+require 'neo4j/core/cypher_session/adapters'
 require 'neo4j/core/cypher_session/responses/embedded'
 require 'active_support/hash_with_indifferent_access'
 
 module Neo4j
   module Core
     class CypherSession
-      module Adaptors
+      module Adapters
         class Embedded < Base
           attr_reader :graph_db, :path
 
@@ -52,7 +52,7 @@ module Neo4j
 
           def indexes(session, _label = nil)
             Transaction.run(session) do
-              graph_db = session.adaptor.graph_db
+              graph_db = session.adapter.graph_db
 
               graph_db.schema.get_indexes.map do |definition|
                 {properties: definition.property_keys.map(&:to_sym),
@@ -100,7 +100,7 @@ module Neo4j
           end
 
           def all_labels(session)
-            Java::OrgNeo4jTooling::GlobalGraphOperations.at(session.adaptor.graph_db).get_all_labels.to_a
+            Java::OrgNeo4jTooling::GlobalGraphOperations.at(session.adapter.graph_db).get_all_labels.to_a
           end
 
           def indifferent_params(query)

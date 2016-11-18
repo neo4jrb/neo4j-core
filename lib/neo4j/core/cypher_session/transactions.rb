@@ -12,19 +12,19 @@ module Neo4j
                       end
             options[:transaction] ||= self
 
-            adaptor.query(@session, *args)
+            adapter.query(@session, *args)
           end
 
           def queries(options = {}, &block)
-            adaptor.queries(@session, {transaction: self}.merge(options), &block)
+            adapter.queries(@session, {transaction: self}.merge(options), &block)
           end
 
           private
 
           # Because we're inheriting from the old Transaction class
-          # but the new adaptors work much like the old sessions
-          def adaptor
-            @session.adaptor
+          # but the new adapters work much like the old sessions
+          def adapter
+            @session.adapter
           end
         end
       end

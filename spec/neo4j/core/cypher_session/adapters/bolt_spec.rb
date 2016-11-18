@@ -1,19 +1,19 @@
 require 'spec_helper'
-require 'neo4j/core/cypher_session/adaptors/bolt'
-require './spec/neo4j/core/shared_examples/adaptor'
+require 'neo4j/core/cypher_session/adapters/bolt'
+require './spec/neo4j/core/shared_examples/adapter'
 
-describe Neo4j::Core::CypherSession::Adaptors::Bolt, bolt: true do
-  let(:adaptor_class) { Neo4j::Core::CypherSession::Adaptors::Bolt }
+describe Neo4j::Core::CypherSession::Adapters::Bolt, bolt: true do
+  let(:adapter_class) { Neo4j::Core::CypherSession::Adapters::Bolt }
   let(:url) { ENV['NEO4J_BOLT_URL'] }
 
-  # let(:adaptor) { adaptor_class.new(url, logger_level: Logger::DEBUG) }
-  let(:adaptor) { adaptor_class.new(url) }
+  # let(:adapter) { adapter_class.new(url, logger_level: Logger::DEBUG) }
+  let(:adapter) { adapter_class.new(url) }
 
-  subject { adaptor }
+  subject { adapter }
 
   describe '#initialize' do
     before do
-      allow_any_instance_of(adaptor_class).to receive(:open_socket)
+      allow_any_instance_of(adapter_class).to receive(:open_socket)
     end
 
     let_context(url: 'url') { subject_should_raise ArgumentError, /Invalid URL/ }
@@ -32,9 +32,9 @@ describe Neo4j::Core::CypherSession::Adaptors::Bolt, bolt: true do
     let_context(url: 'bolt://foo:bar@localhost:7687') { subject_should_not_raise }
   end
 
-  context 'connected adaptor' do
-    before { adaptor.connect }
+  context 'connected adapter' do
+    before { adapter.connect }
 
-    it_behaves_like 'Neo4j::Core::CypherSession::Adaptor'
+    it_behaves_like 'Neo4j::Core::CypherSession::Adapter'
   end
 end

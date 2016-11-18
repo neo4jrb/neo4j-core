@@ -5,15 +5,15 @@ module Neo4j
     class CypherSession
       module Transactions
         class HTTP < Base
-          # Should perhaps have transaction adaptors only define #close
+          # Should perhaps have transaction adapters only define #close
           # commit/delete are, I think, an implementation detail
 
           def commit
-            adaptor.requestor.request(:post, query_path(true)) if started?
+            adapter.requestor.request(:post, query_path(true)) if started?
           end
 
           def delete
-            adaptor.requestor.request(:delete, query_path) if started?
+            adapter.requestor.request(:delete, query_path) if started?
           end
 
           def query_path(commit = false)
@@ -43,7 +43,7 @@ module Neo4j
           private
 
           def connection
-            adaptor.connection
+            adapter.connection
           end
         end
       end

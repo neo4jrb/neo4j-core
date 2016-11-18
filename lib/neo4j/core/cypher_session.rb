@@ -1,14 +1,14 @@
 module Neo4j
   module Core
     class CypherSession
-      attr_reader :adaptor
+      attr_reader :adapter
 
-      def initialize(adaptor)
-        fail ArgumentError, "Invalid adaptor: #{adaptor.inspect}" if !adaptor.is_a?(Adaptors::Base)
+      def initialize(adapter)
+        fail ArgumentError, "Invalid adapter: #{adapter.inspect}" if !adapter.is_a?(Adapters::Base)
 
-        @adaptor = adaptor
+        @adapter = adapter
 
-        @adaptor.connect
+        @adapter.connect
       end
 
       def transaction_class
@@ -19,7 +19,7 @@ module Neo4j
         version
       ).each do |method, &_block|
         define_method(method) do |*args, &block|
-          @adaptor.send(method, *args, &block)
+          @adapter.send(method, *args, &block)
         end
       end
 
@@ -33,7 +33,7 @@ module Neo4j
         constraints
       ).each do |method, &_block|
         define_method(method) do |*args, &block|
-          @adaptor.send(method, self, *args, &block)
+          @adapter.send(method, self, *args, &block)
         end
       end
     end

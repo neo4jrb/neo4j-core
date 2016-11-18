@@ -1,6 +1,6 @@
 # encoding: UTF-8
 
-require './lib/neo4j/core/cypher_session/adaptors/bolt/pack_stream'
+require './lib/neo4j/core/cypher_session/adapters/bolt/pack_stream'
 
 module Neo4j
   # rubocop:disable Metrics/ModuleLength
