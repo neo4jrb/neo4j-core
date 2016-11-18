@@ -22,6 +22,7 @@ module Neo4j
       # @param [Hash] params could be empty or contain basic authentication user and password
       # @return [Faraday]
       # @see https://github.com/lostisland/faraday
+      # rubocop:disable AbcSize
       def self.create_connection(params, url = nil)
         http_adaptor = (params.delete(:http_adaptor) || params.delete('http_adaptor') || :net_http_persistent).to_sym
         require 'typhoeus/adapters/faraday' if http_adaptor == :typhoeus
@@ -39,6 +40,7 @@ module Neo4j
         conn.headers = {'Content-Type' => 'application/json', 'User-Agent' => ::Neo4j::Session.user_agent_string}
         conn
       end
+      # rubocop:enable AbcSize
 
       # Opens a session to the database
       # @see Neo4j::Session#open

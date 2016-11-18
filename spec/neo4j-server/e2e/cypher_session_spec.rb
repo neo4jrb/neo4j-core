@@ -45,7 +45,7 @@ module Neo4j
             create_server_session(http_adaptor: :something)
           end
 
-          it "will pass through a string key" do
+          it 'will pass through a string key' do
             expect(Neo4j::Server::CypherSession).to receive(:open).with(anything, hash_including('http_adaptor' => :something))
             create_server_session('http_adaptor' => :something)
           end
