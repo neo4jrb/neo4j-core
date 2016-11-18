@@ -16,7 +16,7 @@ module Neo4j
           end
 
           def connect
-            @requestor = Requestor.new(@url, USER_AGENT_STRING, self.class.method(:instrument_request), @options[:http_adapter])
+            @requestor = Requestor.new(@url, USER_AGENT_STRING, self.class.method(:instrument_request), @options[:http_adaptor])
           rescue Faraday::ConnectionFailed => e
             raise CypherSession::ConnectionFailedError, "#{e.class}: #{e.message}"
           end
@@ -94,12 +94,12 @@ module Neo4j
             default_url('http://neo4:neo4j@localhost:7474')
             validate_uri { |uri| uri.is_a?(URI::HTTP) }
 
-            def initialize(url, user_agent_string, instrument_proc, adapter)
+            def initialize(url, user_agent_string, instrument_proc, adaptor)
               self.url = url
               @user = user
               @password = password
               @user_agent_string = user_agent_string
-              @faraday = faraday_connection(adapter)
+              @faraday = faraday_connection(adaptor)
               @instrument_proc = instrument_proc
             end
 
@@ -134,17 +134,17 @@ module Neo4j
 
             private
 
-            def faraday_connection(adapter)
+            def faraday_connection(adaptor)
               require 'faraday'
               require 'faraday_middleware/multi_json'
-              require 'typhoeus/adapters/faraday' if adapter == :typhoeus
+              require 'typhoeus/adapters/faraday' if adaptor == :typhoeus
 
               Faraday.new(url) do |c|
                 c.request :basic_auth, user, password
                 c.request :multi_json
 
                 c.response :multi_json, symbolize_keys: true, content_type: 'application/json'
-                c.adapter(adapter || :net_http_persistent)
+                c.adapter(adaptor || :net_http_persistent)
 
                 # c.response :logger, ::Logger.new(STDOUT), bodies: true
 
