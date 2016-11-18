@@ -40,7 +40,6 @@ describe Neo4j::Core::CypherSession::Adaptors::HTTP do
         it_behaves_like 'Neo4j::Core::CypherSession::Adaptors::Http'
       end
     end
-
   end
 
   let(:session_double) { double('session', adaptor: subject) }
