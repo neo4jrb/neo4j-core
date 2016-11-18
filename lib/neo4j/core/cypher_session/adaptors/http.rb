@@ -10,11 +10,11 @@ module Neo4j
           # @transaction_state valid states
           # nil, :open_requested, :open, :close_requested
 
-          def initialize(url, _options = {})
+          def initialize(url, options = {})
             @url = url
             @url_components = url_components!(url)
             @transaction_state = nil
-            @http_adaptor = _options[:http_adaptor] || :net_http_persistent
+            @http_adaptor = options[:http_adaptor] || :net_http_persistent
           end
 
           def connect

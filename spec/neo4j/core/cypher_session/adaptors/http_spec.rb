@@ -34,7 +34,6 @@ describe Neo4j::Core::CypherSession::Adaptors::HTTP, new_cypher_session: true do
         it_behaves_like 'Neo4j::Core::CypherSession::Adaptors::Http'
       end
     end
-
   end
 
   let(:url) { ENV['NEO4J_URL'] }
