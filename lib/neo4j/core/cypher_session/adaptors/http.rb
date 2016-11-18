@@ -14,7 +14,7 @@ module Neo4j
             @url = url
             @url_components = url_components!(url)
             @transaction_state = nil
-            @http_adaptor = options[:http_adaptor] || :net_http_persistent
+            @http_adaptor = (options[:http_adaptor] || options['http_adaptor'] || :net_http_persistent).to_sym
           end
 
           def connect

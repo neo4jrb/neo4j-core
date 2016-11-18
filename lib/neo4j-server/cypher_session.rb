@@ -31,8 +31,7 @@ module Neo4j
 
           b.response :multi_json, symbolize_keys: true, content_type: 'application/json'
           # b.use Faraday::Response::RaiseError
-          b.adapter :net_http_persistent
-          # b.adapter  Faraday.default_adapter
+          b.adapter (params.delete(:http_adaptor) || params.delete('http_adaptor') || :net_http_persistent).to_sym
         end
         conn.headers = {'Content-Type' => 'application/json', 'User-Agent' => ::Neo4j::Session.user_agent_string}
         conn
