@@ -1,4 +1,5 @@
 require 'spec_helper'
+require './spec/neo4j-server/shared_examples/cypher_session'
 
 module Neo4j
   module Server
@@ -47,6 +48,13 @@ module Neo4j
           it "will pass through a string key" do
             expect(Neo4j::Server::CypherSession).to receive(:open).with(anything, hash_including('http_adaptor' => :something))
             create_server_session('http_adaptor' => :something)
+          end
+
+          with_each_faraday_adaptor do |adaptor_name|
+            describe "when set to :#{adaptor_name}" do
+              let(:http_adaptor) { adaptor_name }
+              it_behaves_like 'Neo4j::Server::CypherSession'
+            end
           end
         end
       end

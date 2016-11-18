@@ -154,3 +154,11 @@ RSpec.configure do |c|
     end
   }
 end
+
+def with_each_faraday_adaptor
+  adaptors = Faraday::Adapter.instance_variable_get(:@registered_middleware).keys - [:test, :rack]
+  adaptors -= [:patron, :em_synchrony, :em_http] if RUBY_PLATFORM == 'java'
+  adaptors.each do |adaptor_name|
+    yield adaptor_name
+  end
+end

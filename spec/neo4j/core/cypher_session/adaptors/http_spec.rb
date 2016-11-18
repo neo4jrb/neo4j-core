@@ -34,12 +34,10 @@ describe Neo4j::Core::CypherSession::Adaptors::HTTP, new_cypher_session: true do
         adaptor_class.new(server_url, 'http_adaptor' => :something).connect
       end
 
-      adaptors = Faraday::Adapter.instance_variable_get(:@registered_middleware).keys - [:test, :rack]
-      adaptors -= [:patron, :em_synchrony, :em_http] if RUBY_PLATFORM == 'java'
-      adaptors.each do |adaptor_name|
+      with_each_faraday_adaptor do |adaptor_name|
         describe "the :#{adaptor_name} adaptor" do
           let(:http_adaptor) { adaptor_name }
-          it_behaves_like 'Neo4j::Core::CypherSession::Adaptors::Http'
+          it_behaves_like 'Neo4j::Core::CypherSession::Adaptors::HTTP'
         end
       end
     end
