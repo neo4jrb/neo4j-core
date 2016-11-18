@@ -20,12 +20,12 @@ describe Neo4j::Core::CypherSession::Adaptors::HTTP, new_cypher_session: true do
 
     it 'uses net_http_persistent by default' do
       expect_any_instance_of(Faraday::Connection).to receive(:adapter).with(:net_http_persistent)
-      adaptor_class.new(url).connect
+      adaptor_class.new(server_url).connect
     end
 
     it 'passes the :http_adaptor option to Faraday' do
       expect_any_instance_of(Faraday::Connection).to receive(:adapter).with(:something)
-      adaptor_class.new(url, http_adaptor: :something).connect
+      adaptor_class.new(server_url, http_adaptor: :something).connect
     end
 
     adaptors = Faraday::Adapter.instance_variable_get(:@registered_middleware).keys - [:test, :rack]
@@ -38,8 +38,7 @@ describe Neo4j::Core::CypherSession::Adaptors::HTTP, new_cypher_session: true do
     end
   end
 
-  let(:url) { ENV['NEO4J_URL'] }
-  let(:adaptor) { adaptor_class.new(url) }
+  let(:adaptor) { adaptor_class.new(server_url) }
 
   before { adaptor.connect }
 
