@@ -24,22 +24,29 @@ describe Neo4j::Core::CypherSession::Adaptors::HTTP do
       expect { adaptor_class.new('foo://localhost:7474').connect }.to raise_error ArgumentError, /Invalid URL/
     end
 
-    it 'uses net_http_persistent by default' do
-      expect_any_instance_of(Faraday::Connection).to receive(:adapter).with(:net_http_persistent)
-      adaptor_class.new(url).connect
-    end
+    describe 'the http_adaptor option for Faraday' do
+      it 'uses net_http_persistent by default' do
+        expect_any_instance_of(Faraday::Connection).to receive(:adapter).with(:net_http_persistent)
+        adaptor_class.new(url).connect
+      end
 
-    it 'passes the :http_adaptor option to Faraday' do
-      expect_any_instance_of(Faraday::Connection).to receive(:adapter).with(:something)
-      adaptor_class.new(url, http_adaptor: :something).connect
-    end
+      it 'will pass through a symbol key' do
+        expect_any_instance_of(Faraday::Connection).to receive(:adapter).with(:something)
+        adaptor_class.new(url, http_adaptor: :something).connect
+      end
 
-    adaptors = Faraday::Adapter.instance_variable_get(:@registered_middleware).keys - [:test, :rack]
-    adaptors -= [:patron, :em_synchrony, :em_http] if RUBY_PLATFORM == 'java'
-    adaptors.each do |adaptor_name|
-      describe "the :#{adaptor_name} adaptor" do
-        let(:http_adaptor) { adaptor_name }
-        it_behaves_like 'Neo4j::Core::CypherSession::Adaptors::Http'
+      it 'will pass through a string key' do
+        expect_any_instance_of(Faraday::Connection).to receive(:adapter).with(:something)
+        adaptor_class.new(url, 'http_adaptor' => :something).connect
+      end
+
+      adaptors = Faraday::Adapter.instance_variable_get(:@registered_middleware).keys - [:test, :rack]
+      adaptors -= [:patron, :em_synchrony, :em_http] if RUBY_PLATFORM == 'java'
+      adaptors.each do |adaptor_name|
+        describe "the :#{adaptor_name} adaptor" do
+          let(:http_adaptor) { adaptor_name }
+          it_behaves_like 'Neo4j::Core::CypherSession::Adaptors::Http'
+        end
       end
     end
   end

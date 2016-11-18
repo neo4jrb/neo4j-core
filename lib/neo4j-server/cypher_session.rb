@@ -23,6 +23,9 @@ module Neo4j
       # @return [Faraday]
       # @see https://github.com/lostisland/faraday
       def self.create_connection(params, url = nil)
+        http_adaptor = (params.delete(:http_adaptor) || params.delete('http_adaptor') || :net_http_persistent).to_sym
+        require 'typhoeus/adapters/faraday' if http_adaptor == :typhoeus
+
         init_params = params[:initialize] && params.delete(:initialize)
         conn = Faraday.new(url, init_params) do |b|
           b.request :basic_auth, params[:basic_auth][:username], params[:basic_auth][:password] if params[:basic_auth]
@@ -31,8 +34,7 @@ module Neo4j
 
           b.response :multi_json, symbolize_keys: true, content_type: 'application/json'
           # b.use Faraday::Response::RaiseError
-          b.adapter :net_http_persistent
-          # b.adapter  Faraday.default_adapter
+          b.adapter http_adaptor
         end
         conn.headers = {'Content-Type' => 'application/json', 'User-Agent' => ::Neo4j::Session.user_agent_string}
         conn

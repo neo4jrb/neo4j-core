@@ -16,7 +16,8 @@ module Neo4j
           end
 
           def connect
-            @requestor = Requestor.new(@url, USER_AGENT_STRING, self.class.method(:instrument_request), @options[:http_adaptor])
+            @requestor = Requestor.new(@url, USER_AGENT_STRING, self.class.method(:instrument_request),
+                                       @options[:http_adaptor] || @options['http_adaptor'])
           rescue Faraday::ConnectionFailed => e
             raise CypherSession::ConnectionFailedError, "#{e.class}: #{e.message}"
           end

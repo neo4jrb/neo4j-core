@@ -37,6 +37,20 @@ module Neo4j
           expect(connection.port).to eq ENV['NEO4J_URL'] ? URI(ENV['NEO4J_URL']).port : 7474
           expect(connection.host).to eq 'localhost'
         end
+
+        describe 'a faraday connection type http_adaptor param' do
+          it 'will pass through a symbol key' do
+            # expect(Neo4j::Server::CypherSession).to receive(:open).with(anything, hash_including(http_adaptor: :something))
+            expect_any_instance_of(Faraday::Connection).to receive(:adapter).with(:typhoeus).and_call_original
+            create_server_session(http_adaptor: :typhoeus)
+          end
+
+          it "will pass through a string key" do
+            # expect(Neo4j::Server::CypherSession).to receive(:open).with(anything, hash_including('http_adaptor' => :something))
+            expect_any_instance_of(Faraday::Connection).to receive(:adapter).with(:typhoeus).and_call_original
+            create_server_session('http_adaptor' => :typhoeus)
+          end
+        end
       end
 
 
