@@ -1,6 +1,7 @@
 require 'spec_helper'
 require 'neo4j/core/cypher_session/adaptors/http'
 require './spec/neo4j/core/shared_examples/adaptor'
+require './spec/neo4j/core/shared_examples/http'
 
 describe Neo4j::Core::CypherSession::Adaptors::HTTP, new_cypher_session: true do
   before(:all) { setup_http_request_subscription }
@@ -16,6 +17,24 @@ describe Neo4j::Core::CypherSession::Adaptors::HTTP, new_cypher_session: true do
       expect { adaptor_class.new('https://localhost:7474/') }.not_to raise_error
       expect { adaptor_class.new('https://foo:bar@localhost:7474') }.not_to raise_error
     end
+
+    it 'uses net_http_persistent by default' do
+      expect_any_instance_of(Faraday::Connection).to receive(:adapter).with(:net_http_persistent)
+      conn = adaptor_class.new(url).connect
+    end
+
+    it 'passes the :http_adapter option to Faraday' do
+      expect_any_instance_of(Faraday::Connection).to receive(:adapter).with(:something)
+      conn = adaptor_class.new(url, http_adapter: :something).connect
+    end
+
+    (Faraday::Adapter.instance_variable_get(:@registered_middleware).keys - [:test, :rack]).each do |adaptor_name|
+      describe "the :#{adaptor_name} adapter" do
+        let(:http_adaptor) { adaptor_name }
+        it_behaves_like 'Neo4j::Core::CypherSession::Adaptors::Http'
+      end
+    end
+
   end
 
   let(:url) { ENV['NEO4J_URL'] }

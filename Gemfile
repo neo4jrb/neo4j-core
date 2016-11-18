@@ -24,4 +24,10 @@ group 'test' do
   gem 'rspec', '~> 3.0'
   gem 'rspec-its'
   gem 'dotenv'
+  gem 'em-http-request', '>= 1.1', require: 'em-http'
+  gem 'em-synchrony', '>= 1.0.3', require: ['em-synchrony', 'em-synchrony/em-http']
+  gem 'excon', '>= 0.27.4'
+  gem 'patron', '>= 0.4.2', platforms: :ruby
+  gem 'rack-test', '>= 0.6', require: 'rack/test'
+  gem 'typhoeus', '>= 0.3.3', platforms: [:ruby_18, :ruby_19, :ruby_20, :ruby_21, :ruby_22, :ruby_23]
 end
