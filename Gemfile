@@ -23,7 +23,7 @@ group 'test' do
   gem 'rspec', '~> 3.0'
   gem 'rspec-its'
   gem 'dotenv'
-  gem 'activesupport', '~> 4.0'
+  gem 'activesupport', '>= 4.0'
 
   gem 'em-http-request', '>= 1.1', require: 'em-http', platforms: :ruby
   gem 'em-synchrony', '>= 1.0.3', require: ['em-synchrony', 'em-synchrony/em-http'], platforms: :ruby
