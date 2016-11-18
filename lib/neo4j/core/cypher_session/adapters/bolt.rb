@@ -1,7 +1,7 @@
-require 'neo4j/core/cypher_session/adaptors'
-require 'neo4j/core/cypher_session/adaptors/has_uri'
-require 'neo4j/core/cypher_session/adaptors/bolt/pack_stream'
-require 'neo4j/core/cypher_session/adaptors/bolt/chunk_writer_io'
+require 'neo4j/core/cypher_session/adapters'
+require 'neo4j/core/cypher_session/adapters/has_uri'
+require 'neo4j/core/cypher_session/adapters/bolt/pack_stream'
+require 'neo4j/core/cypher_session/adapters/bolt/chunk_writer_io'
 require 'neo4j/core/cypher_session/responses/bolt'
 require 'io/wait'
 
@@ -9,9 +9,9 @@ require 'io/wait'
 module Neo4j
   module Core
     class CypherSession
-      module Adaptors
+      module Adapters
         class Bolt < Base
-          include Adaptors::HasUri
+          include Adapters::HasUri
           default_url('bolt://neo4:neo4j@localhost:7687')
           validate_uri do |uri|
             uri.scheme == 'bolt'

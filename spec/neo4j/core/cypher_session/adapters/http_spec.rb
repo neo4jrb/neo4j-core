@@ -1,34 +1,34 @@
 require 'spec_helper'
-require 'neo4j/core/cypher_session/adaptors/http'
-require './spec/neo4j/core/shared_examples/adaptor'
+require 'neo4j/core/cypher_session/adapters/http'
+require './spec/neo4j/core/shared_examples/adapter'
 
-describe Neo4j::Core::CypherSession::Adaptors::HTTP do
+describe Neo4j::Core::CypherSession::Adapters::HTTP do
   before(:all) { setup_http_request_subscription }
-  let(:adaptor_class) { Neo4j::Core::CypherSession::Adaptors::HTTP }
+  let(:adapter_class) { Neo4j::Core::CypherSession::Adapters::HTTP }
 
   let(:url) { ENV['NEO4J_URL'] }
-  let(:adaptor) { adaptor_class.new(url) }
-  subject { adaptor }
+  let(:adapter) { adapter_class.new(url) }
+  subject { adapter }
 
   describe '#initialize' do
     it 'validates URLs' do
-      expect { adaptor_class.new('url').connect }.to raise_error ArgumentError, /Invalid URL:/
-      expect { adaptor_class.new('https://foo@localhost:7474').connect }.not_to raise_error
+      expect { adapter_class.new('url').connect }.to raise_error ArgumentError, /Invalid URL:/
+      expect { adapter_class.new('https://foo@localhost:7474').connect }.not_to raise_error
 
-      expect { adaptor_class.new('http://localhost:7474').connect }.not_to raise_error
-      expect { adaptor_class.new('https://localhost:7474').connect }.not_to raise_error
-      expect { adaptor_class.new('https://localhost:7474/').connect }.not_to raise_error
-      expect { adaptor_class.new('https://foo:bar@localhost:7474').connect }.not_to raise_error
-      expect { adaptor_class.new('bolt://localhost:7474').connect }.to raise_error ArgumentError, /Invalid URL/
-      expect { adaptor_class.new('foo://localhost:7474').connect }.to raise_error ArgumentError, /Invalid URL/
+      expect { adapter_class.new('http://localhost:7474').connect }.not_to raise_error
+      expect { adapter_class.new('https://localhost:7474').connect }.not_to raise_error
+      expect { adapter_class.new('https://localhost:7474/').connect }.not_to raise_error
+      expect { adapter_class.new('https://foo:bar@localhost:7474').connect }.not_to raise_error
+      expect { adapter_class.new('bolt://localhost:7474').connect }.to raise_error ArgumentError, /Invalid URL/
+      expect { adapter_class.new('foo://localhost:7474').connect }.to raise_error ArgumentError, /Invalid URL/
     end
   end
 
-  let(:session_double) { double('session', adaptor: subject) }
+  let(:session_double) { double('session', adapter: subject) }
 
   before do
-    adaptor.connect
-    adaptor.query(session_double, 'MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n, r')
+    adapter.connect
+    adapter.query(session_double, 'MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n, r')
   end
 
   describe 'transactions' do
@@ -74,5 +74,5 @@ describe Neo4j::Core::CypherSession::Adaptors::HTTP do
     end
   end
 
-  it_behaves_like 'Neo4j::Core::CypherSession::Adaptor'
+  it_behaves_like 'Neo4j::Core::CypherSession::Adapter'
 end

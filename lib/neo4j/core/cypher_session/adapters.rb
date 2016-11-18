@@ -47,7 +47,7 @@ ERROR
       end
       class ConnectionFailedError < StandardError; end
 
-      module Adaptors
+      module Adapters
         MAP = {}
 
         class Base
@@ -124,7 +124,7 @@ ERROR
            :constraints,
            :connected?].each do |method|
             define_method(method) do |*_args|
-              fail "##{method} method not implemented on adaptor!"
+              fail "##{method} method not implemented on adapter!"
             end
           end
 
@@ -188,7 +188,7 @@ ERROR
             end
 
             def transaction_class
-              fail '.transaction_class method not implemented on adaptor!'
+              fail '.transaction_class method not implemented on adapter!'
             end
           end
 

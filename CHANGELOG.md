@@ -37,7 +37,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
-- Raise standard `Neo4j::Core::CypherSession::ConnectionFailedError` error instead of individual errors from adaptors
+- Raise standard `Neo4j::Core::CypherSession::ConnectionFailedError` error instead of individual errors from adapters
 
 ## [7.0.0.alpha.3] - 2016-08-04
 
@@ -145,7 +145,7 @@ This release contains no changes since the last alpha. Below are all modificatio
 
 ### Added
 
-- New session, adaptors, and rewritten Node, Relationship, and Path classes. They are not yet in use but are part of ongoing refactoring and rebuilding.
+- New session, adapters, and rewritten Node, Relationship, and Path classes. They are not yet in use but are part of ongoing refactoring and rebuilding.
 
 ### Fixed
 
@@ -190,7 +190,7 @@ This release contains no changes since the last alpha. Below are all modificatio
 - Refactored `Neo4j::Label#create_index` and `Neo4j::Label#create_constraint` to have compatible signatures. As part of the refactoring of `Neo4j::Label#creator_index`, the method no longer accepts multiple properties. The method will need to be called once for each, when needed.
 
 ### Added
-- New session, adaptors, and rewritten Node, Relationship, and Path classes. They are not yet in use but are part of ongoing refactoring and rebuilding.
+- New session, adapters, and rewritten Node, Relationship, and Path classes. They are not yet in use but are part of ongoing refactoring and rebuilding.
 
 ## [5.1.12] - 2015-11-23
 

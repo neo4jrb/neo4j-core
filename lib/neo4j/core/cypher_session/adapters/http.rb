@@ -1,12 +1,12 @@
-require 'neo4j/core/cypher_session/adaptors'
-require 'neo4j/core/cypher_session/adaptors/has_uri'
+require 'neo4j/core/cypher_session/adapters'
+require 'neo4j/core/cypher_session/adapters/has_uri'
 require 'neo4j/core/cypher_session/responses/http'
 
 # TODO: Work with `Query` objects
 module Neo4j
   module Core
     class CypherSession
-      module Adaptors
+      module Adapters
         class HTTP < Base
           attr_reader :requestor, :url
 
@@ -90,7 +90,7 @@ module Neo4j
           #  - Takes care of JSONifying objects passed as body (Hash/Array/Query)
           #  - Sets headers, including user agent string
           class Requestor
-            include Adaptors::HasUri
+            include Adapters::HasUri
             default_url('http://neo4:neo4j@localhost:7474')
             validate_uri { |uri| uri.is_a?(URI::HTTP) }
 

@@ -7,17 +7,17 @@ It can be used standalone without the neo4j gem.
 
 ### Executing Cypher queries
 
-To make a basic connection to Neo4j to execute Cypher queries, first choose an adaptor.  Adaptors for HTTP and Embedded mode (jRuby only) are available (support for Neo4j 3.0's [Bolt protocol](http://alpha.neohq.net/docs/server-manual/bolt.html) is planned).  You can create an adaptor like:
+To make a basic connection to Neo4j to execute Cypher queries, first choose an adapter.  Adapters for HTTP and Embedded mode (jRuby only) are available (support for Neo4j 3.0's [Bolt protocol](http://alpha.neohq.net/docs/server-manual/bolt.html) is planned).  You can create an adapter like:
 
-    http_adaptor = Neo4j::Core::CypherSession::Adaptors::HTTP.new('http://neo4j:pass@localhost:7474')
+    http_adapter = Neo4j::Core::CypherSession::Adapters::HTTP.new('http://neo4j:pass@localhost:7474')
 
     # or
 
-    neo4j_adaptor = Neo4j::Core::CypherSession::Adaptors::Embedded.new('/file/path/to/graph.db')
+    neo4j_adapter = Neo4j::Core::CypherSession::Adapters::Embedded.new('/file/path/to/graph.db')
 
-Once you have an adaptor you can create a session like so:
+Once you have an adapter you can create a session like so:
 
-    neo4j_session = Neo4j::Core::CypherSession.new(http_adaptor)
+    neo4j_session = Neo4j::Core::CypherSession.new(http_adapter)
 
 From there you can make queries with a Cypher string:
 
@@ -33,7 +33,7 @@ Or via the `Neo4j::Core::Query` class
 
     neo4j_session.query(query_obj)
 
-Making multiple queries with one request is support with the HTTP Adaptor:
+Making multiple queries with one request is support with the HTTP Adapter:
 
     results = neo4j_session.queries do
       append 'MATCH (n:Foo) RETURN n LIMIT 10'

@@ -47,16 +47,16 @@ require "#{File.dirname(__FILE__)}/helpers"
 
 require 'neo4j/core/cypher_session'
 
-require 'neo4j/core/cypher_session/adaptors/http'
-require 'neo4j/core/cypher_session/adaptors/bolt'
-require 'neo4j/core/cypher_session/adaptors/embedded'
+require 'neo4j/core/cypher_session/adapters/http'
+require 'neo4j/core/cypher_session/adapters/bolt'
+require 'neo4j/core/cypher_session/adapters/embedded'
 module Neo4jSpecHelpers
   def log_queries!
     Neo4j::Server::CypherSession.log_with(&method(:puts))
-    Neo4j::Core::CypherSession::Adaptors::Base.subscribe_to_query(&method(:puts))
-    Neo4j::Core::CypherSession::Adaptors::HTTP.subscribe_to_request(&method(:puts))
-    Neo4j::Core::CypherSession::Adaptors::Bolt.subscribe_to_request(&method(:puts))
-    Neo4j::Core::CypherSession::Adaptors::Embedded.subscribe_to_transaction(&method(:puts))
+    Neo4j::Core::CypherSession::Adapters::Base.subscribe_to_query(&method(:puts))
+    Neo4j::Core::CypherSession::Adapters::HTTP.subscribe_to_request(&method(:puts))
+    Neo4j::Core::CypherSession::Adapters::Bolt.subscribe_to_request(&method(:puts))
+    Neo4j::Core::CypherSession::Adapters::Embedded.subscribe_to_transaction(&method(:puts))
   end
 
   def current_transaction
@@ -83,7 +83,7 @@ module Neo4jSpecHelpers
   def setup_http_request_subscription
     $expect_http_request_count = 0
 
-    Neo4j::Core::CypherSession::Adaptors::HTTP.subscribe_to_request do |_message|
+    Neo4j::Core::CypherSession::Adapters::HTTP.subscribe_to_request do |_message|
       $expect_http_request_count += 1
     end
   end
@@ -155,7 +155,7 @@ RSpec.configure do |config|
     # for expect_queries method
     Neo4jSpecHelpers.expect_queries_count = 0
 
-    Neo4j::Core::CypherSession::Adaptors::Base.subscribe_to_query do |_message|
+    Neo4j::Core::CypherSession::Adapters::Base.subscribe_to_query do |_message|
       Neo4jSpecHelpers.expect_queries_count += 1
     end
   end
