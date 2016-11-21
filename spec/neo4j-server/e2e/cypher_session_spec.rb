@@ -43,13 +43,13 @@ module Neo4j
             it 'will pass through a symbol key' do
               # expect(Neo4j::Server::CypherSession).to receive(:open).with(anything, hash_including(http_adaptor: :something))
               expect_any_instance_of(Faraday::Connection).to receive(:adapter).with(:typhoeus).and_call_original
-              create_server_session(faraday_options: { adapter: :typhoeus })
+              create_server_session(faraday_options: {adapter: :typhoeus})
             end
 
             it 'will pass through a string key' do
               # expect(Neo4j::Server::CypherSession).to receive(:open).with(anything, hash_including('http_adaptor' => :something))
               expect_any_instance_of(Faraday::Connection).to receive(:adapter).with(:typhoeus).and_call_original
-              create_server_session('faraday_options' => { 'adapter' => :typhoeus })
+              create_server_session('faraday_options' => {'adapter' => :typhoeus})
             end
           end
         end

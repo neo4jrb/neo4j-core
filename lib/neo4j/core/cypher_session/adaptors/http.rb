@@ -135,7 +135,7 @@ module Neo4j
 
             private
 
-            def faraday_connection(faraday_options={})
+            def faraday_connection(faraday_options = {})
               adapter = (faraday_options[:adapter] || faraday_options['adapter'] || :net_http_persistent).to_sym
               require 'faraday'
               require 'faraday_middleware/multi_json'
