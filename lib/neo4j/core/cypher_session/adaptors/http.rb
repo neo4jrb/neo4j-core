@@ -14,7 +14,7 @@ module Neo4j
             @url = url
             @url_components = url_components!(url)
             @transaction_state = nil
-            @http_adaptor = (options[:http_adaptor] || options['http_adaptor'] || :net_http_persistent).to_sym
+            @faraday_options = options[:faraday_options] || options['faraday_options'] || {}
           end
 
           def connect
@@ -137,14 +137,15 @@ module Neo4j
           end
 
           def connection
-            require 'typhoeus/adapters/faraday' if @http_adaptor == :typhoeus
+            adapter = (@faraday_options[:adapter] || @faraday_options['adapter'] || :net_http_persistent).to_sym
+            require 'typhoeus/adapters/faraday' if adapter == :typhoeus
 
             Faraday.new(@url) do |c|
               c.request :basic_auth, user, password
               c.request :multi_json
 
               c.response :multi_json, symbolize_keys: true, content_type: 'application/json'
-              c.adapter @http_adaptor
+              c.adapter adapter
 
               c.headers['Content-Type'] = 'application/json'
               c.headers['User-Agent'] = user_agent_string

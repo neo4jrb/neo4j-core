@@ -26,17 +26,17 @@ describe Neo4j::Core::CypherSession::Adaptors::HTTP, new_cypher_session: true do
 
       it 'will pass through a symbol key' do
         expect_any_instance_of(Faraday::Connection).to receive(:adapter).with(:something)
-        adaptor_class.new(server_url, http_adaptor: :something).connect
+        adaptor_class.new(server_url, faraday_options: {adapter: :something}).connect
       end
 
       it 'will pass through a string key' do
         expect_any_instance_of(Faraday::Connection).to receive(:adapter).with(:something)
-        adaptor_class.new(server_url, 'http_adaptor' => :something).connect
+        adaptor_class.new(server_url, faraday_options: {'adapter' => :something}).connect
       end
 
-      with_each_faraday_adaptor do |adaptor_name|
-        describe "the :#{adaptor_name} adaptor" do
-          let(:http_adaptor) { adaptor_name }
+      with_each_faraday_adaptor do |adapter_name|
+        describe "the :#{adapter_name} adaptor" do
+          let(:adapter) { adapter_name }
           it_behaves_like 'Neo4j::Core::CypherSession::Adaptors::HTTP'
         end
       end

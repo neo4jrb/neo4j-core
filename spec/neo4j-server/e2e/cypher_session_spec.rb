@@ -39,21 +39,25 @@ module Neo4j
           expect(connection.host).to eq 'localhost'
         end
 
-        describe 'a faraday connection type http_adaptor param' do
-          it 'will pass through a symbol key' do
-            expect(Neo4j::Server::CypherSession).to receive(:open).with(anything, hash_including(http_adaptor: :something))
-            create_server_session(http_adaptor: :something)
-          end
+        describe 'faraday_options' do
+          describe 'the http_adaptor options' do
+            it 'will pass through a symbol key' do
+              faraday_hash = {farday_options: {adapter: :something}}
+              expect(Neo4j::Server::CypherSession).to receive(:open).with(anything, hash_including(faraday_hash))
+              create_server_session(faraday_hash)
+            end
 
-          it 'will pass through a string key' do
-            expect(Neo4j::Server::CypherSession).to receive(:open).with(anything, hash_including('http_adaptor' => :something))
-            create_server_session('http_adaptor' => :something)
-          end
+            it 'will pass through a string key' do
+              faraday_hash = {farday_options: {adapter: :something}}
+              expect(Neo4j::Server::CypherSession).to receive(:open).with(anything, hash_including(faraday_hash))
+              create_server_session(faraday_hash)
+            end
 
-          with_each_faraday_adaptor do |adaptor_name|
-            describe "when set to :#{adaptor_name}" do
-              let(:http_adaptor) { adaptor_name }
-              it_behaves_like 'Neo4j::Server::CypherSession'
+            with_each_faraday_adaptor do |adapter_name|
+              describe "when set to :#{adapter_name}" do
+                let(:adapter) { adapter_name }
+                it_behaves_like 'Neo4j::Server::CypherSession'
+              end
             end
           end
         end
