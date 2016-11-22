@@ -17,7 +17,7 @@ To make a basic connection to Neo4j to execute Cypher queries, first choose an a
 
 The `http_adaptor` can also take `:faraday_options`.  Currently, only :adapter is supported (defaulting to `:net_http_persistent`):
 
-    http_adaptor = Neo4j::Core::CypherSession::Adaptors::HTTP.new('http://neo4j:pass@localhost:7474', faraday_options: { adaptor: :typhoeus })
+    http_adaptor = Neo4j::Core::CypherSession::Adaptors::HTTP.new('http://neo4j:pass@localhost:7474', faraday_options: { adapter: :typhoeus })
 
 Note you **must** install any required http adaptor gems yourself as per [Faraday](https://github.com/lostisland/faraday).  Ex for `:typhoeus`, add to your Gemfile:
 
