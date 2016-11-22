@@ -18,10 +18,18 @@ group 'development' do
 end
 
 group 'test' do
+  gem 'term-ansicolor', '~> 1.3.0' if RUBY_VERSION.to_f < 2.0
   gem 'coveralls', require: false
   gem 'simplecov-html', require: false
   gem 'tins', '< 1.7' if RUBY_VERSION.to_f < 2.0
   gem 'rspec', '~> 3.0'
   gem 'rspec-its'
   gem 'dotenv'
+  gem 'activesupport', '>= 4.0' unless RUBY_VERSION.to_f < 2.2
+
+  gem 'em-http-request', '>= 1.1', require: 'em-http', platforms: :ruby
+  gem 'em-synchrony', '>= 1.0.3', require: ['em-synchrony', 'em-synchrony/em-http'], platforms: :ruby
+  gem 'excon', '>= 0.27.4'
+  gem 'patron', '>= 0.4.2', platforms: :ruby
+  gem 'typhoeus', '>= 0.3.3'
 end

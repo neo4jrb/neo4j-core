@@ -1,4 +1,5 @@
 require 'spec_helper'
+require './spec/neo4j-server/shared_examples/cypher_session'
 
 module Neo4j
   module Server
@@ -36,6 +37,29 @@ module Neo4j
           connection = Neo4j::Session.current.connection
           expect(connection.port).to eq 7474
           expect(connection.host).to eq 'localhost'
+        end
+
+        describe 'faraday_options' do
+          describe 'the http_adaptor options' do
+            it 'will pass through a symbol key' do
+              faraday_hash = {farday_options: {adapter: :something}}
+              expect(Neo4j::Server::CypherSession).to receive(:open).with(anything, hash_including(faraday_hash))
+              create_server_session(faraday_hash)
+            end
+
+            it 'will pass through a string key' do
+              faraday_hash = {farday_options: {adapter: :something}}
+              expect(Neo4j::Server::CypherSession).to receive(:open).with(anything, hash_including(faraday_hash))
+              create_server_session(faraday_hash)
+            end
+
+            with_each_faraday_adaptor do |adapter_name|
+              describe "when set to :#{adapter_name}" do
+                let(:adapter) { adapter_name }
+                it_behaves_like 'Neo4j::Server::CypherSession'
+              end
+            end
+          end
         end
       end
 

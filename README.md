@@ -3,6 +3,31 @@
 A simple Ruby wrapper around the Neo4j graph database that works with the server and embedded Neo4j API. This gem can be used both from JRuby and normal MRI.
 It can be used standalone without the neo4j gem.
 
+## Basic usage
+
+### Executing Cypher queries
+
+To make a basic connection to Neo4j to execute Cypher queries, first choose an adaptor.  Adaptors for HTTP and Embedded mode (jRuby only) are available.  You can create an adaptor like:
+
+    http_adaptor = Neo4j::Core::CypherSession::Adaptors::HTTP.new('http://neo4j:pass@localhost:7474')
+
+    # or
+
+    neo4j_adaptor = Neo4j::Core::CypherSession::Adaptors::Embedded.new('/file/path/to/graph.db')
+
+The HTTP Adaptor can also take `:faraday_options`.  Currently, only :adapter is supported (defaulting to `:net_http_persistent`):
+
+    http_adaptor = Neo4j::Core::CypherSession::Adaptors::HTTP.new('http://neo4j:pass@localhost:7474', faraday_options: { adapter: :typhoeus })
+
+Note you **must** install any required http adaptor gems yourself as per [Faraday](https://github.com/lostisland/faraday).  Ex for `:typhoeus`, add to your Gemfile:
+
+    gem 'typhoeus'
+
+Once you have an adaptor you can create a session like so:
+
+    neo4j_session = Neo4j::Core::CypherSession.new(http_adaptor)
+
+
 ## Documentation
 
 ### 3.0+ Documentation:

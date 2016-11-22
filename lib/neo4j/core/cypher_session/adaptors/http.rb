@@ -10,10 +10,11 @@ module Neo4j
           # @transaction_state valid states
           # nil, :open_requested, :open, :close_requested
 
-          def initialize(url, _options = {})
+          def initialize(url, options = {})
             @url = url
             @url_components = url_components!(url)
             @transaction_state = nil
+            @faraday_options = options[:faraday_options] || options['faraday_options'] || {}
           end
 
           def connect
@@ -136,12 +137,15 @@ module Neo4j
           end
 
           def connection
+            adapter = (@faraday_options[:adapter] || @faraday_options['adapter'] || :net_http_persistent).to_sym
+            require 'typhoeus/adapters/faraday' if adapter == :typhoeus
+
             Faraday.new(@url) do |c|
               c.request :basic_auth, user, password
               c.request :multi_json
 
               c.response :multi_json, symbolize_keys: true, content_type: 'application/json'
-              c.use Faraday::Adapter::NetHttpPersistent
+              c.adapter adapter
 
               c.headers['Content-Type'] = 'application/json'
               c.headers['User-Agent'] = user_agent_string
