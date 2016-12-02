@@ -11,8 +11,8 @@ module Neo4j
       module PrivateMethods
         private
 
-        def extract_adapter_from_options(params)
-          extract_adapter(params.delete(:faraday_options) || params.delete('faraday_options') || {})
+        def extract_faraday_options(params, defaults = {})
+          verify_faraday_options(params.delete(:faraday_options) || params.delete('faraday_options') || {}, defaults)
         end
 
         def extract_basic_auth(url, params)
@@ -39,17 +39,17 @@ module Neo4j
       # @return [Faraday]
       # @see https://github.com/lostisland/faraday
       def self.create_connection(params, url = nil)
-        adapter = extract_adapter_from_options(params)
-
         init_params = params[:initialize] && params.delete(:initialize)
-        conn = Faraday.new(url, init_params) do |b|
-          b.request :basic_auth, params[:basic_auth][:username], params[:basic_auth][:password] if params[:basic_auth]
-          b.request :multi_json
-          # b.response :logger, ::Logger.new(STDOUT), bodies: true
 
-          b.response :multi_json, symbolize_keys: true, content_type: 'application/json'
+        request = [:multi_json]
+        request.unshift([:basic_auth, params[:basic_auth][:username], params[:basic_auth][:password]]) if params[:basic_auth]
+
+        faraday_options = extract_faraday_options(
+          params, request: request, response: [:multi_json, symbolize_keys: true, content_type: 'application/json'])
+        conn = Faraday.new(url, init_params) do |b|
+          # b.response :logger, ::Logger.new(STDOUT), bodies: true
           # b.use Faraday::Response::RaiseError
-          b.adapter adapter
+          set_faraday_middleware b, faraday_options
         end
         conn.headers = {'Content-Type' => 'application/json', 'User-Agent' => ::Neo4j::Session.user_agent_string}
         conn

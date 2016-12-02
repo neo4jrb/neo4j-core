@@ -138,22 +138,22 @@ module Neo4j
             private
 
             def faraday_connection(faraday_options = {})
-              adapter = extract_adapter(faraday_options)
+              verify_faraday_options(faraday_options,
+                                     request: [
+                                       [:basic_auth, user, password],
+                                       :multi_json
+                                     ],
+                                     response: [:multi_json, symbolize_keys: true, content_type: 'application/json']
+                                    )
               require 'faraday'
               require 'faraday_middleware/multi_json'
 
-              Faraday.new(url) do |c|
-                c.request :basic_auth, user, password
-                c.request :multi_json
-
-                c.response :multi_json, symbolize_keys: true, content_type: 'application/json'
-                c.adapter(adapter || :net_http_persistent)
-
+              conn = Faraday.new(url) do |c|
                 # c.response :logger, ::Logger.new(STDOUT), bodies: true
-
-                c.headers['Content-Type'] = 'application/json'
-                c.headers['User-Agent'] = @user_agent_string
+                set_faraday_middleware c, faraday_options
               end
+              conn.headers = {'Content-Type' => 'application/json', 'User-Agent' => @user_agent_string}
+              conn
             end
 
             def request_body(body)
