@@ -15,9 +15,31 @@ To make a basic connection to Neo4j to execute Cypher queries, first choose an a
 
     neo4j_adaptor = Neo4j::Core::CypherSession::Adaptors::Embedded.new('/file/path/to/graph.db')
 
-The `http_adaptor` can also take `:faraday_options`.  Currently, only :adapter is supported (defaulting to `:net_http_persistent`):
+The `http_adaptor` can also take `:faraday_options`.  Multiple middlewares with the same key can be passed through using arrays:
 
-    http_adaptor = Neo4j::Core::CypherSession::Adaptors::HTTP.new('http://neo4j:pass@localhost:7474', faraday_options: { adapter: :typhoeus })
+    http_adaptor = Neo4j::Core::CypherSession::Adaptors::HTTP.new('http://neo4j:pass@localhost:7474',
+      faraday_options: {
+        adapter: :typhoeus,
+        # This will pass 2 items to Faraday.  You must use multidimensional arrays to pass single args separately
+        request: [
+          [:multipart],
+          [:url_encoded]
+        ],
+        # This will only pass a single item
+        response: [:multi_json, symbolize_keys: true, content_type: 'application/json']
+      })
+
+This will initialize Faraday like so:
+
+    Faraday.new(url: 'http://neo4j:pass@localhost:7474') do |faraday|
+      faraday.request :multipart
+      faraday.request :url_encoded
+
+      faraday.response :multi_json, symbolize_keys: true, content_type: 'application/json'
+      faraday.adapter: :typhoeus
+    end
+
+The order that the keys are passed through to Faraday will remain hash ordered *except* that `adapter` is always last.  Arrays within each key are passed in order.
 
 Note you **must** install any required http adaptor gems yourself as per [Faraday](https://github.com/lostisland/faraday).  Ex for `:typhoeus`, add to your Gemfile:
 
