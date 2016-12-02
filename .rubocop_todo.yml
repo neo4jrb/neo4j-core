@@ -33,12 +33,12 @@ Lint/UnusedMethodArgument:
 
 # Offense count: 24
 Metrics/AbcSize:
-  Max: 22
+  Max: 17
 
 # Offense count: 12
 # Configuration parameters: CountComments.
 Metrics/ClassLength:
-  Max: 194
+  Max: 191
 
 # Offense count: 1
 Metrics/CyclomaticComplexity:
@@ -58,7 +58,7 @@ Metrics/MethodLength:
 # Offense count: 1
 # Configuration parameters: CountComments.
 Metrics/ModuleLength:
-  Max: 125
+  Max: 113
 
 # Offense count: 1
 Metrics/PerceivedComplexity:

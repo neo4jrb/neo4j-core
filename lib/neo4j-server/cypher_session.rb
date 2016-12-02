@@ -1,4 +1,5 @@
 require 'uri'
+require 'neo4j/core/cypher_session/adaptors/faraday_helpers'
 
 module Neo4j
   module Server
@@ -7,7 +8,22 @@ module Neo4j
     end
 
     class CypherSession < Neo4j::Session
+      module PrivateMethods
+        private
+
+        def extract_adapter_from_options(params)
+          extract_adapter(params.delete(:faraday_options) || params.delete('faraday_options') || {})
+        end
+
+        def extract_basic_auth(url, params)
+          return unless url && URI(url).userinfo
+          params[:basic_auth] = {username: URI(url).user, password: URI(url).password}
+        end
+      end
+
       include Resource
+      extend Neo4j::Core::CypherSession::Adaptors::FaradayHelpers
+      extend Neo4j::Server::CypherSession::PrivateMethods
 
       alias super_query query
       attr_reader :connection
@@ -23,9 +39,7 @@ module Neo4j
       # @return [Faraday]
       # @see https://github.com/lostisland/faraday
       def self.create_connection(params, url = nil)
-        faraday_options = params.delete(:faraday_options) || params.delete('faraday_options') || {}
-        adapter = (faraday_options[:adapter] || faraday_options['adapter'] || :net_http_persistent).to_sym
-        require 'typhoeus/adapters/faraday' if adapter == :typhoeus
+        adapter = extract_adapter_from_options(params)
 
         init_params = params[:initialize] && params.delete(:initialize)
         conn = Faraday.new(url, init_params) do |b|
@@ -60,13 +74,6 @@ module Neo4j
         data_url << '/' unless data_url.nil? || data_url.end_with?('/')
         CypherSession.new(data_url, connection)
       end
-
-      def self.extract_basic_auth(url, params)
-        return unless url && URI(url).userinfo
-        params[:basic_auth] = {username: URI(url).user, password: URI(url).password}
-      end
-
-      private_class_method :extract_basic_auth
 
       def db_type
         :server_db

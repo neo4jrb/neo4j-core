@@ -1,5 +1,6 @@
 require 'neo4j/core/cypher_session/adaptors'
 require 'neo4j/core/cypher_session/adaptors/has_uri'
+require 'neo4j/core/cypher_session/adaptors/faraday_helpers'
 require 'neo4j/core/cypher_session/responses/http'
 
 # TODO: Work with `Query` objects
@@ -92,6 +93,7 @@ module Neo4j
           #  - Sets headers, including user agent string
           class Requestor
             include Adaptors::HasUri
+            include FaradayHelpers
             default_url('http://neo4:neo4j@localhost:7474')
             validate_uri { |uri| uri.is_a?(URI::HTTP) }
 
@@ -136,10 +138,9 @@ module Neo4j
             private
 
             def faraday_connection(faraday_options = {})
-              adapter = (faraday_options[:adapter] || faraday_options['adapter'] || :net_http_persistent).to_sym
+              adapter = extract_adapter(faraday_options)
               require 'faraday'
               require 'faraday_middleware/multi_json'
-              require 'typhoeus/adapters/faraday' if adapter == :typhoeus
 
               Faraday.new(url) do |c|
                 c.request :basic_auth, user, password
