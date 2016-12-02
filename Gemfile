@@ -30,5 +30,4 @@ group 'test' do
   gem 'excon', '>= 0.27.4'
   gem 'patron', '>= 0.4.2', platforms: :ruby
   gem 'typhoeus', '>= 0.3.3'
-  gem 'byebug'
 end
