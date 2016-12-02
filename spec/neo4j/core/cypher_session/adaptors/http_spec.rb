@@ -32,13 +32,13 @@ describe Neo4j::Core::CypherSession::Adaptors::HTTP do
         end
 
         it 'will pass through a symbol key' do
-          expect_any_instance_of(Faraday::Connection).to receive(:adapter).with(:something)
-          adaptor_class.new(url, faraday_options: {adapter: :something}).connect
+          expect_any_instance_of(Faraday::Connection).to receive(:adapter).with(:typhoeus)
+          adaptor_class.new(url, faraday_options: {adapter: :typhoeus}).connect
         end
 
         it 'will pass through a string key' do
-          expect_any_instance_of(Faraday::Connection).to receive(:adapter).with(:something)
-          adaptor_class.new(url, 'faraday_options' => {'adapter' => :something}).connect
+          expect_any_instance_of(Faraday::Connection).to receive(:adapter).with(:typhoeus)
+          adaptor_class.new(url, 'faraday_options' => {'adapter' => :typhoeus}).connect
         end
 
         adaptors = Faraday::Adapter.instance_variable_get(:@registered_middleware).keys - [:test, :rack]
