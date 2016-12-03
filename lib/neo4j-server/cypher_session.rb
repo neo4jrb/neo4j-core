@@ -16,8 +16,9 @@ module Neo4j
         end
 
         def extract_basic_auth(url, params)
-          return unless url && URI(url).userinfo
-          params[:basic_auth] = {username: URI(url).user, password: URI(url).password}
+          uri = URI(url) if url
+          return unless url && uri.userinfo
+          params[:basic_auth] = {username: uri.user, password: uri.password}
         end
       end
 
