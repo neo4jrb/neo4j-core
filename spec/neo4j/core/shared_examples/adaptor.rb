@@ -40,6 +40,15 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
       end
     end
 
+    it 'fails correctly on failing queries' do
+      expect do
+        adaptor.queries(session_double) do
+          append 'CREATE (n:Label1:) RETURN n'
+          append 'CREATE (n:Label2) RETURN n'
+        end
+      end.to raise_error Neo4j::Core::CypherSession::CypherError, /SyntaxError/
+    end
+
     it 'allows for building with Query API' do
       result = adaptor.queries(session_double) do
         append query.create(n: {Label1: {}}).return(:n)
