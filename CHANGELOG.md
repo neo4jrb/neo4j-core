@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+
+### Added
+
+- `after_commit` hooks for transactions (see #277 / thanks @ProGM)
+
 ## [7.0.0] - 2016-12-14
 
 NO CHANGES FROM 7.0.0.rc.2
