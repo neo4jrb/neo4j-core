@@ -44,6 +44,7 @@ module Neo4j
           def indexes(_session)
             response = @requestor.get('db/data/schema/index')
 
+            check_for_schema_response_error!(response.body)
             list = response.body || []
 
             list.map do |item|
@@ -58,12 +59,21 @@ module Neo4j
           def constraints(_session, _label = nil, _options = {})
             response = @requestor.get('db/data/schema/constraint')
 
+            check_for_schema_response_error!(response.body)
             list = response.body || []
             list.map do |item|
               {type: CONSTRAINT_TYPES[item[:type]],
                label: item[:label].to_sym,
                properties: item[:property_keys].map(&:to_sym)}
             end
+          end
+
+          def check_for_schema_response_error!(response_body)
+            return if !response_body.is_a?(Hash) || !response_body.key?(:errors)
+
+            message = response_body[:errors].map { |error| "#{error[:code]}: #{error[:message]}" }.join("\n    ")
+
+            fail CypherSession::ConnectionFailedError, "Connection failure: \n    #{message}"
           end
 
           def self.transaction_class
