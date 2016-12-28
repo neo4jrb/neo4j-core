@@ -17,8 +17,6 @@ module Neo4j
 
           def connect
             @requestor = Requestor.new(@url, USER_AGENT_STRING, self.class.method(:instrument_request))
-          rescue Faraday::ConnectionFailed => e
-            raise CypherSession::ConnectionFailedError, "#{e.class}: #{e.message}"
           end
 
           ROW_REST = %w(row REST)
@@ -109,7 +107,7 @@ module Neo4j
               @user = user
               @password = password
               @user_agent_string = user_agent_string
-              @faraday = faraday_connection
+              @faraday = wrap_connection_failed! { faraday_connection }
               @instrument_proc = instrument_proc
             end
 
@@ -124,10 +122,12 @@ module Neo4j
               request_body = request_body(body)
               url = url_from_path(path)
               @instrument_proc.call(method, url, request_body) do
-                @faraday.run_request(method, url, request_body, REQUEST_HEADERS) do |req|
-                  # Temporary
-                  # req.options.timeout = 5
-                  # req.options.open_timeout = 5
+                wrap_connection_failed! do
+                  @faraday.run_request(method, url, request_body, REQUEST_HEADERS) do |req|
+                    # Temporary
+                    # req.options.timeout = 5
+                    # req.options.open_timeout = 5
+                  end
                 end
               end
             end
@@ -176,6 +176,12 @@ module Neo4j
               else
                 {statements: [self.class.statement_from_query(body)]} if body.respond_to?(:cypher)
               end
+            end
+
+            def wrap_connection_failed!
+              yield
+            rescue Faraday::ConnectionFailed => e
+              raise CypherSession::ConnectionFailedError, "#{e.class}: #{e.message}"
             end
 
             class << self

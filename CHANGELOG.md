@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [7.0.2] - 2016-12-28
+
+### Fixed
+
+- `Neo4j::Core::CypherSession::ConnectionFailedError` raised on requests to Neo4j (not just on connections)
+
 ## [7.0.1] - 2016-12-23
 
 ### Added
