@@ -137,6 +137,8 @@ module Neo4j
 
           def open_socket
             @socket = TCPSocket.open(host, port)
+          rescue Errno::ECONNREFUSED => e
+            raise Neo4j::Core::CypherSession::ConnectionFailedError, e.message
           end
 
           GOGOBOLT = "\x60\x60\xB0\x17"
