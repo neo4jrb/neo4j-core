@@ -33,7 +33,7 @@ Or via the `Neo4j::Core::Query` class
 
     neo4j_session.query(query_obj)
 
-Making multiple queries with one request is support with the HTTP Adaptor:
+Making multiple queries with one request is supported with the HTTP Adaptor:
 
     results = neo4j_session.queries do
       append 'MATCH (n:Foo) RETURN n LIMIT 10'
