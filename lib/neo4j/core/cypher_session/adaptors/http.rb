@@ -44,7 +44,7 @@ module Neo4j
           def indexes(_session)
             response = @requestor.get('db/data/schema/index')
 
-            list = response.body || []
+            list = response.body && !response.body.empty? ? response.body : []
 
             list.map do |item|
               {label: item[:label].to_sym,
