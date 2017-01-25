@@ -3,11 +3,15 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [7.0.1] - 2016-12-23
 
 ### Added
 
 - `after_commit` hooks for transactions (see #277 / thanks @ProGM)
+
+### Fixed
+
+- When requests for constraints and indexes return an error, it is now raised as a Ruby exception (see https://github.com/neo4jrb/devise-neo4j/issues/27 and https://github.com/neo4jrb/neo4j/issues/1334)
 
 ## [7.0.0] - 2016-12-14
 
