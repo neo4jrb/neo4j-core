@@ -227,7 +227,7 @@ module Neo4j
 
           def flush_chunks(first_chunk_size)
             chunk_size = first_chunk_size
-            chunk = ""
+            chunk = ''
 
             loop do
               chunk += recvmsg(chunk_size)
