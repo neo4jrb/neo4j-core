@@ -44,13 +44,7 @@ describe Neo4j::Core::CypherSession::Adaptors::Bolt, bolt: true do
         "\x00\x00"
       ]
 
-      allow(adaptor).to receive(:recvmsg) do |_, peek|
-        if peek
-          responses.first
-        else
-          responses.shift
-        end
-      end
+      allow(adaptor).to receive(:recvmsg) { |_, peek| responses.public_send(peek ? :first : :shift) }
     end
 
     it 'handles chunked responses' do

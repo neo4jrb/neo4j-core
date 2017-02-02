@@ -227,10 +227,10 @@ module Neo4j
 
           def flush_chunks(first_chunk_size)
             chunk_size = first_chunk_size
-            chunk = ''
+            chunk = String.new
 
             loop do
-              chunk += recvmsg(chunk_size)
+              chunk << recvmsg(chunk_size)
               chunk_size = recvmsg(2, true).unpack('s>*')[0]
 
               break if chunk_size.zero?
