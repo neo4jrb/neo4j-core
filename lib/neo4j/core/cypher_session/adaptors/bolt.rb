@@ -183,9 +183,9 @@ module Neo4j
             @socket.sendmsg(message)
           end
 
-          def recvmsg(size, peek = false, timeout = 10)
+          def recvmsg(size, timeout = 10)
             Timeout.timeout(timeout) do
-              @socket.recv(size, (Socket::MSG_PEEK if peek)).tap do |result|
+              @socket.recv(size).tap do |result|
                 log_message :S, result
               end
             end
