@@ -1,5 +1,6 @@
 require 'neo4j/core/cypher_session/adaptors'
 require 'neo4j/core/cypher_session/adaptors/has_uri'
+require 'neo4j/core/cypher_session/adaptors/faraday_helpers'
 require 'neo4j/core/cypher_session/responses/http'
 
 # TODO: Work with `Query` objects
@@ -16,7 +17,8 @@ module Neo4j
           end
 
           def connect
-            @requestor = Requestor.new(@url, USER_AGENT_STRING, self.class.method(:instrument_request))
+            @requestor = Requestor.new(@url, USER_AGENT_STRING, self.class.method(:instrument_request),
+                                       @options[:faraday_options] || @options['faraday_options'] || {})
           rescue Faraday::ConnectionFailed => e
             raise CypherSession::ConnectionFailedError, "#{e.class}: #{e.message}"
           end
@@ -101,15 +103,16 @@ module Neo4j
           #  - Sets headers, including user agent string
           class Requestor
             include Adaptors::HasUri
+            include FaradayHelpers
             default_url('http://neo4:neo4j@localhost:7474')
             validate_uri { |uri| uri.is_a?(URI::HTTP) }
 
-            def initialize(url, user_agent_string, instrument_proc)
+            def initialize(url, user_agent_string, instrument_proc, faraday_options)
               self.url = url
               @user = user
               @password = password
               @user_agent_string = user_agent_string
-              @faraday = faraday_connection
+              @faraday = faraday_connection(faraday_options)
               @instrument_proc = instrument_proc
             end
 
@@ -144,22 +147,23 @@ module Neo4j
 
             private
 
-            def faraday_connection
+            def faraday_connection(faraday_options = {})
+              verify_faraday_options(faraday_options,
+                                     request: [
+                                       [:basic_auth, user, password],
+                                       :multi_json
+                                     ],
+                                     response: [:multi_json, symbolize_keys: true, content_type: 'application/json']
+                                    )
               require 'faraday'
               require 'faraday_middleware/multi_json'
 
-              Faraday.new(url) do |c|
-                c.request :basic_auth, user, password
-                c.request :multi_json
-
-                c.response :multi_json, symbolize_keys: true, content_type: 'application/json'
-                c.use Faraday::Adapter::NetHttpPersistent
-
+              conn = Faraday.new(url) do |c|
                 # c.response :logger, ::Logger.new(STDOUT), bodies: true
-
-                c.headers['Content-Type'] = 'application/json'
-                c.headers['User-Agent'] = @user_agent_string
+                set_faraday_middleware c, faraday_options
               end
+              conn.headers = {'Content-Type' => 'application/json', 'User-Agent' => @user_agent_string}
+              conn
             end
 
             def request_body(body)

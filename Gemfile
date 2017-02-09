@@ -23,5 +23,11 @@ group 'test' do
   gem 'rspec', '~> 3.0'
   gem 'rspec-its'
   gem 'dotenv'
-  gem 'activesupport', '~> 4.0'
+  gem 'activesupport', RUBY_VERSION.to_f >= 2.2 ? '>= 4.0' : '~> 4'
+
+  gem 'em-http-request', '>= 1.1', require: 'em-http', platforms: :ruby
+  gem 'em-synchrony', '>= 1.0.3', require: ['em-synchrony', 'em-synchrony/em-http'], platforms: :ruby
+  gem 'excon', '>= 0.27.4'
+  gem 'patron', '>= 0.4.2', platforms: :ruby
+  gem 'typhoeus', '>= 0.3.3'
 end

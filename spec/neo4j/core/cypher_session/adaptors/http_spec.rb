@@ -1,6 +1,7 @@
 require 'spec_helper'
 require 'neo4j/core/cypher_session/adaptors/http'
 require './spec/neo4j/core/shared_examples/adaptor'
+require './spec/neo4j/core/shared_examples/http'
 
 describe Neo4j::Core::CypherSession::Adaptors::HTTP do
   before(:all) { setup_http_request_subscription }
@@ -21,6 +22,34 @@ describe Neo4j::Core::CypherSession::Adaptors::HTTP do
       expect { adaptor_class.new('https://foo:bar@localhost:7474').connect }.not_to raise_error
       expect { adaptor_class.new('bolt://localhost:7474').connect }.to raise_error ArgumentError, /Invalid URL/
       expect { adaptor_class.new('foo://localhost:7474').connect }.to raise_error ArgumentError, /Invalid URL/
+    end
+
+    describe 'the faraday_options param' do
+      describe 'the adapter option' do
+        it 'uses net_http_persistent by default' do
+          expect_any_instance_of(Faraday::Connection).to receive(:adapter).with(:net_http_persistent)
+          adaptor_class.new(url).connect
+        end
+
+        it 'will pass through a symbol key' do
+          expect_any_instance_of(Faraday::Connection).to receive(:adapter).with(:typhoeus)
+          adaptor_class.new(url, faraday_options: {adapter: :typhoeus}).connect
+        end
+
+        it 'will pass through a string key' do
+          expect_any_instance_of(Faraday::Connection).to receive(:adapter).with(:typhoeus)
+          adaptor_class.new(url, 'faraday_options' => {'adapter' => :typhoeus}).connect
+        end
+
+        adaptors = Faraday::Adapter.instance_variable_get(:@registered_middleware).keys - [:test, :rack]
+        adaptors -= [:patron, :em_synchrony, :em_http] if RUBY_PLATFORM == 'java'
+        adaptors.each do |adapter_name|
+          describe "the :#{adapter_name} adapter" do
+            let(:http_adapter) { adapter_name }
+            it_behaves_like 'Neo4j::Core::CypherSession::Adaptors::Http'
+          end
+        end
+      end
     end
   end
 

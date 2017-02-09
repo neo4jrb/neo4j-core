@@ -1,4 +1,5 @@
 require 'uri'
+require 'neo4j/core/cypher_session/adaptors/faraday_helpers'
 
 module Neo4j
   module Server
@@ -7,7 +8,23 @@ module Neo4j
     end
 
     class CypherSession < Neo4j::Session
+      module PrivateMethods
+        private
+
+        def extract_faraday_options(params, defaults = {})
+          verify_faraday_options(params.delete(:faraday_options) || params.delete('faraday_options') || {}, defaults)
+        end
+
+        def extract_basic_auth(url, params)
+          uri = URI(url) if url
+          return unless url && uri.userinfo
+          params[:basic_auth] = {username: uri.user, password: uri.password}
+        end
+      end
+
       include Resource
+      extend Neo4j::Core::CypherSession::Adaptors::FaradayHelpers
+      extend Neo4j::Server::CypherSession::PrivateMethods
 
       alias super_query query
       attr_reader :connection
@@ -24,15 +41,16 @@ module Neo4j
       # @see https://github.com/lostisland/faraday
       def self.create_connection(params, url = nil)
         init_params = params[:initialize] && params.delete(:initialize)
-        conn = Faraday.new(url, init_params) do |b|
-          b.request :basic_auth, params[:basic_auth][:username], params[:basic_auth][:password] if params[:basic_auth]
-          b.request :multi_json
-          # b.response :logger, ::Logger.new(STDOUT), bodies: true
 
-          b.response :multi_json, symbolize_keys: true, content_type: 'application/json'
+        request = [:multi_json]
+        request.unshift([:basic_auth, params[:basic_auth][:username], params[:basic_auth][:password]]) if params[:basic_auth]
+
+        faraday_options = extract_faraday_options(
+          params, request: request, response: [:multi_json, symbolize_keys: true, content_type: 'application/json'])
+        conn = Faraday.new(url, init_params) do |b|
+          # b.response :logger, ::Logger.new(STDOUT), bodies: true
           # b.use Faraday::Response::RaiseError
-          b.use Faraday::Adapter::NetHttpPersistent
-          # b.adapter  Faraday.default_adapter
+          set_faraday_middleware b, faraday_options
         end
         conn.headers = {'Content-Type' => 'application/json', 'User-Agent' => ::Neo4j::Session.user_agent_string}
         conn
@@ -57,13 +75,6 @@ module Neo4j
         data_url << '/' unless data_url.nil? || data_url.end_with?('/')
         CypherSession.new(data_url, connection)
       end
-
-      def self.extract_basic_auth(url, params)
-        return unless url && URI(url).userinfo
-        params[:basic_auth] = {username: URI(url).user, password: URI(url).password}
-      end
-
-      private_class_method :extract_basic_auth
 
       def db_type
         :server_db

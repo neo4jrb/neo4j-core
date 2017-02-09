@@ -1,4 +1,5 @@
 require 'spec_helper'
+require './spec/neo4j-server/cypher_session/shared_examples/adaptor'
 
 module Neo4j
   module Server
@@ -18,27 +19,14 @@ module Neo4j
           Neo4j::Session.set_current(@before_session)
         end
 
-        it 'can use a user supplied faraday connection for a new session' do
-          connection = Faraday.new do |faraday|
-            faraday.request :basic_auth, basic_auth_hash[:username], basic_auth_hash[:password]
-
-            faraday.request :multi_json
-            faraday.response :multi_json, symbolize_keys: true, content_type: 'application/json'
-            faraday.adapter Faraday.default_adapter
-          end
-          connection.headers = {'Content-Type' => 'application/json'}
-
-          expect(connection).to receive(:get).at_least(:once).and_call_original
-          create_server_session(connection: connection)
-        end
-
         it 'adds host and port to the connection object' do
           connection = Neo4j::Session.current.connection
           expect(connection.port).to eq ENV['NEO4J_URL'] ? URI(ENV['NEO4J_URL']).port : 7474
           expect(connection.host).to eq 'localhost'
         end
-      end
 
+        it_behaves_like 'Neo4j::Server::CypherSession::Adaptor'
+      end
 
       describe 'named sessions' do
         before { Neo4j::Session.current && Neo4j::Session.current.close }
