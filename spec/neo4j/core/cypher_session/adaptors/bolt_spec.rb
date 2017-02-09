@@ -32,6 +32,27 @@ describe Neo4j::Core::CypherSession::Adaptors::Bolt, bolt: true do
     let_context(url: 'bolt://foo:bar@localhost:7687') { subject_should_not_raise }
   end
 
+  describe 'message in multiple chunks' do
+    before do
+      # This is standard response for INIT message, split into two chunks.
+      # Normally it has form of ["\x00\x03", "\xB1p\xA0", "\x00\x00"]
+      responses = [
+        "\x00\x02",
+        "\xB1p",
+        "\x00\x01",
+        "\xA0",
+        "\x00\x00"
+      ]
+
+      allow(adaptor).to receive(:recvmsg) { responses.shift }
+    end
+
+    it 'handles chunked responses' do
+      adaptor.send(:init)
+      expect(adaptor.send(:flush_messages)[0].args.first).to eq({})
+    end
+  end
+
   context 'connected adaptor' do
     before { adaptor.connect }
 
