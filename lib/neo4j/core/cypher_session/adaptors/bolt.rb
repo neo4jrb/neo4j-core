@@ -185,9 +185,9 @@ module Neo4j
             @socket.sendmsg(message)
           end
 
-          def recvmsg(size, peek = false, timeout = 10)
+          def recvmsg(size, timeout = 10)
             Timeout.timeout(timeout) do
-              @socket.recv(size, (Socket::MSG_PEEK if peek)).tap do |result|
+              @socket.recv(size).tap do |result|
                 log_message :S, result
               end
             end
@@ -219,27 +219,12 @@ module Neo4j
             if !(header = recvmsg(2)).empty? && (chunk_size = header.unpack('s>*')[0]) > 0
               log_message :S, :chunk_size, chunk_size
 
-              chunk = flush_chunks(chunk_size)
+              chunk = recvmsg(chunk_size)
 
               unpacker = PackStream::Unpacker.new(StringIO.new(chunk))
 
               [].tap { |r| while arg = unpacker.unpack_value!; r << arg; end }
             end
-          end
-
-          def flush_chunks(first_chunk_size)
-            chunk_size = first_chunk_size
-            chunk = ""
-
-            loop do
-              chunk += recvmsg(chunk_size)
-              chunk_size = recvmsg(2, true).unpack('s>*')[0]
-
-              break if chunk_size.zero?
-              recvmsg(2)
-            end
-
-            chunk
           end
 
           # Represents messages sent to or received from the server
