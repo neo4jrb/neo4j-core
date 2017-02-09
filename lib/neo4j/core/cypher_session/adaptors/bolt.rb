@@ -201,7 +201,7 @@ module Neo4j
                 Message.new(structure.signature, *structure.list).tap do |message|
                   log_message :S, message.type, message.args.join(' ')
                 end
-              end.tap { flush_response }
+              end
             end
           end
 
@@ -215,16 +215,18 @@ module Neo4j
           end
 
           # Replace with Enumerator?
+          # rubocop:disable Style/EmptyLiteral
           def flush_response
-            if !(header = recvmsg(2)).empty? && (chunk_size = header.unpack('s>*')[0]) > 0
+            chunk = String.new
+
+            while !(header = recvmsg(2)).empty? && (chunk_size = header.unpack('s>*')[0]) > 0
               log_message :S, :chunk_size, chunk_size
 
-              chunk = recvmsg(chunk_size)
-
-              unpacker = PackStream::Unpacker.new(StringIO.new(chunk))
-
-              [].tap { |r| while arg = unpacker.unpack_value!; r << arg; end }
+              chunk << recvmsg(chunk_size)
             end
+
+            unpacker = PackStream::Unpacker.new(StringIO.new(chunk))
+            [].tap { |r| while arg = unpacker.unpack_value!; r << arg; end }
           end
 
           # Represents messages sent to or received from the server

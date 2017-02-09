@@ -148,6 +148,46 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
       end
       expect(get_object_by_id(9, adaptor)).to be_nil
     end
+
+    describe 'after_commit hook' do
+      it 'gets called when the root transaction is closed' do
+        data = false
+        tx1 = adaptor.transaction(session_double)
+        tx2 = adaptor.transaction(session_double)
+        tx3 = adaptor.transaction(session_double)
+        tx3.root.after_commit { data = true }
+        tx3.close
+        tx2.close
+        expect { tx1.close }.to change { data }.to(true)
+        expect(data).to be_truthy
+      end
+
+      it 'is ignored when the root transaction fails' do
+        data = false
+        tx1 = adaptor.transaction(session_double)
+        tx2 = adaptor.transaction(session_double)
+        tx3 = adaptor.transaction(session_double)
+        tx3.root.after_commit { data = true }
+        tx1.mark_failed
+        tx3.close
+        tx2.close
+        expect { tx1.close }.not_to change { data }
+        expect(data).to be_falsey
+      end
+
+      it 'is ignored when a child transaction fails' do
+        data = false
+        tx1 = adaptor.transaction(session_double)
+        tx2 = adaptor.transaction(session_double)
+        tx3 = adaptor.transaction(session_double)
+        tx3.root.after_commit { data = true }
+        tx3.mark_failed
+        tx3.close
+        tx2.close
+        expect { tx1.close }.not_to change { data }
+        expect(data).to be_falsey
+      end
+    end
     # it 'does not allow transactions in the wrong order' do
     #   expect { adaptor.end_transaction }.to raise_error(RuntimeError, /Cannot close transaction without starting one/)
   end

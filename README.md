@@ -1,4 +1,4 @@
-# Neo4j-core [![Code Climate](https://codeclimate.com/github/neo4jrb/neo4j-core.png)](https://codeclimate.com/github/neo4jrb/neo4j-core) [![Build Status](https://travis-ci.org/neo4jrb/neo4j-core.png)](https://travis-ci.org/neo4jrb/neo4j-core) [![Coverage Status](https://coveralls.io/repos/neo4jrb/neo4j-core/badge.png?branch=master)](https://coveralls.io/r/neo4jrb/neo4j-core?branch=master) [![PullReview stats](https://www.pullreview.com/github/neo4jrb/neo4j-core/badges/master.svg?)](https://www.pullreview.com/github/neo4jrb/neo4j-core/reviews/master)
+# Neo4j-core [![Code Climate](https://codeclimate.com/github/neo4jrb/neo4j-core.svg)](https://codeclimate.com/github/neo4jrb/neo4j-core) [![Build Status](https://travis-ci.org/neo4jrb/neo4j-core.svg)](https://travis-ci.org/neo4jrb/neo4j-core) [![Coverage Status](https://coveralls.io/repos/neo4jrb/neo4j-core/badge.svg?branch=master)](https://coveralls.io/r/neo4jrb/neo4j-core?branch=master) [![PullReview stats](https://www.pullreview.com/github/neo4jrb/neo4j-core/badges/master.svg?)](https://www.pullreview.com/github/neo4jrb/neo4j-core/reviews/master)
 
 A simple Ruby wrapper around the Neo4j graph database that works with the server and embedded Neo4j API. This gem can be used both from JRuby and normal MRI.
 It can be used standalone without the neo4j gem.
@@ -33,7 +33,7 @@ Or via the `Neo4j::Core::Query` class
 
     neo4j_session.query(query_obj)
 
-Making multiple queries with one request is support with the HTTP Adaptor:
+Making multiple queries with one request is supported with the HTTP Adaptor:
 
     results = neo4j_session.queries do
       append 'MATCH (n:Foo) RETURN n LIMIT 10'

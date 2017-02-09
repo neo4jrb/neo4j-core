@@ -19,6 +19,19 @@ module Neo4j
             adaptor.queries(@session, {transaction: self}.merge(options), &block)
           end
 
+          def after_commit_registry
+            @after_commit_registry ||= []
+          end
+
+          def after_commit(&block)
+            after_commit_registry << block
+          end
+
+          def post_close!
+            super
+            after_commit_registry.each(&:call) unless failed?
+          end
+
           private
 
           # Because we're inheriting from the old Transaction class
