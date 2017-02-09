@@ -215,9 +215,8 @@ module Neo4j
           end
 
           # Replace with Enumerator?
-          # rubocop:disable Style/EmptyLiteral
           def flush_response
-            chunk = String.new
+            chunk = ''
 
             while !(header = recvmsg(2)).empty? && (chunk_size = header.unpack('s>*')[0]) > 0
               log_message :S, :chunk_size, chunk_size
