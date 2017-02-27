@@ -66,7 +66,7 @@ module Neo4j
 
             result.map do |row|
               label, property = row.description.match(/INDEX ON :([^\(]+)\(([^\)]+)\)/)[1, 2]
-              {type: row.type.to_sym, label: label.to_sym, properties: [property.to_sym]}
+              {type: row.type.to_sym, label: label.to_sym, properties: [property.to_sym], state: row.state.to_sym}
             end
           end
 
