@@ -137,6 +137,8 @@ module Neo4j
 
           def open_socket
             @socket = TCPSocket.open(host, port)
+          rescue Errno::ECONNREFUSED => e
+            raise Neo4j::Core::CypherSession::ConnectionFailedError, e.message
           end
 
           GOGOBOLT = "\x60\x60\xB0\x17"
@@ -213,9 +215,8 @@ module Neo4j
           end
 
           # Replace with Enumerator?
-          # rubocop:disable Style/EmptyLiteral
           def flush_response
-            chunk = String.new
+            chunk = ''
 
             while !(header = recvmsg(2)).empty? && (chunk_size = header.unpack('s>*')[0]) > 0
               log_message :S, :chunk_size, chunk_size
