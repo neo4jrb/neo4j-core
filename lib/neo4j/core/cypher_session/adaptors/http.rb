@@ -1,6 +1,7 @@
 require 'neo4j/core/cypher_session/adaptors'
 require 'neo4j/core/cypher_session/adaptors/has_uri'
 require 'neo4j/core/cypher_session/responses/http'
+require 'typhoeus/adapters/faraday'
 
 # TODO: Work with `Query` objects
 module Neo4j
@@ -153,7 +154,7 @@ module Neo4j
                 c.request :multi_json
 
                 c.response :multi_json, symbolize_keys: true, content_type: 'application/json'
-                c.use Faraday::Adapter::NetHttpPersistent
+                c.use Faraday::Adapter::Typhoeus
 
                 # c.response :logger, ::Logger.new(STDOUT), bodies: true
 

@@ -1,4 +1,5 @@
 require 'uri'
+require 'typhoeus/adapters/faraday'
 
 module Neo4j
   module Server
@@ -31,7 +32,7 @@ module Neo4j
 
           b.response :multi_json, symbolize_keys: true, content_type: 'application/json'
           # b.use Faraday::Response::RaiseError
-          b.use Faraday::Adapter::NetHttpPersistent
+          b.use Faraday::Adapter::Typhoeus
           # b.adapter  Faraday.default_adapter
         end
         conn.headers = {'Content-Type' => 'application/json', 'User-Agent' => ::Neo4j::Session.user_agent_string}
