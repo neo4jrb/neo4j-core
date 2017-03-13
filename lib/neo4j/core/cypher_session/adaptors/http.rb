@@ -147,9 +147,9 @@ module Neo4j
               require 'faraday'
               require 'faraday_middleware/multi_json'
 
-              Faraday.new(url,params) do |c|
+              Faraday.new(url,options) do |c|
                 c.request :basic_auth, user, password
-                c.request :basic_auth, params[:basic_auth][:username], params[:basic_auth][:password] if params[:basic_auth]
+                c.request :basic_auth, options[:basic_auth][:username], options[:basic_auth][:password] if options[:basic_auth]
                 c.request :multi_json
 
                 c.response :multi_json, symbolize_keys: true, content_type: 'application/json'
