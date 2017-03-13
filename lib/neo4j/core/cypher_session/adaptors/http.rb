@@ -147,10 +147,6 @@ module Neo4j
               require 'faraday'
               require 'faraday_middleware/multi_json'
 
-            def faraday_connection(options = {})
-              require 'faraday'
-              require 'faraday_middleware/multi_json'
-
               Faraday.new(url, options) do |c|
                 c.request :basic_auth, config_username(user, options), config_password(password, options)
                 c.request :multi_json
