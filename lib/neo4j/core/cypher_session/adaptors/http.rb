@@ -16,7 +16,7 @@ module Neo4j
           end
 
           def connect
-            @requestor = Requestor.new(@url, USER_AGENT_STRING, self.class.method(:instrument_request), @options[:faraday_opts] = {})
+            @requestor = Requestor.new(@url, USER_AGENT_STRING, self.class.method(:instrument_request), @options[:faraday_options] ||= {})
           end
 
           ROW_REST = %w(row REST)
@@ -101,13 +101,12 @@ module Neo4j
             include Adaptors::HasUri
             default_url('http://neo4:neo4j@localhost:7474')
             validate_uri { |uri| uri.is_a?(URI::HTTP) }
-            def initialize(url, user_agent_string, instrument_proc, params = {})
+            def initialize(url, user_agent_string, instrument_proc, faraday_options = {})
               self.url = url
               @user = user
               @password = password
               @user_agent_string = user_agent_string
-              init_params = params[:initialize] && params.delete(:initialize) if params.key?(:initialize)
-              @faraday = wrap_connection_failed! { faraday_connection(init_params) }
+              @faraday = wrap_connection_failed! { faraday_connection(faraday_options.fetch(:initialize, {})) }
               @instrument_proc = instrument_proc
             end
 
@@ -144,7 +143,7 @@ module Neo4j
 
             private
 
-            def faraday_connection(params = {})
+            def faraday_connection(options = {})
               require 'faraday'
               require 'faraday_middleware/multi_json'
 
