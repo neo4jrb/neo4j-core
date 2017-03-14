@@ -16,7 +16,7 @@ module Neo4j
           end
 
           def connect
-            @requestor = Requestor.new(@url, USER_AGENT_STRING, self.class.method(:instrument_request), @options[:faraday_options] ||= {})
+            @requestor = Requestor.new(@url, USER_AGENT_STRING, self.class.method(:instrument_request), @options.fetch(:faraday_options, {}))
           end
 
           ROW_REST = %w(row REST)
@@ -106,7 +106,7 @@ module Neo4j
               @user = user
               @password = password
               @user_agent_string = user_agent_string
-              @faraday = wrap_connection_failed! { faraday_connection(faraday_options.fetch(:initialize, {})) }
+              @faraday = wrap_connection_failed! { faraday_connection(faraday_options) }
               @instrument_proc = instrument_proc
             end
 
