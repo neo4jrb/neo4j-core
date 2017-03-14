@@ -16,7 +16,7 @@ module Neo4j
           end
 
           def connect
-            @requestor = Requestor.new(@url, USER_AGENT_STRING, self.class.method(:instrument_request))
+            @requestor = Requestor.new(@url, USER_AGENT_STRING, self.class.method(:instrument_request), @options[:faraday_options] ||= {})
           end
 
           ROW_REST = %w(row REST)
@@ -101,13 +101,12 @@ module Neo4j
             include Adaptors::HasUri
             default_url('http://neo4:neo4j@localhost:7474')
             validate_uri { |uri| uri.is_a?(URI::HTTP) }
-
-            def initialize(url, user_agent_string, instrument_proc)
+            def initialize(url, user_agent_string, instrument_proc, faraday_options = {})
               self.url = url
               @user = user
               @password = password
               @user_agent_string = user_agent_string
-              @faraday = wrap_connection_failed! { faraday_connection }
+              @faraday = wrap_connection_failed! { faraday_connection(faraday_options.fetch(:initialize, {})) }
               @instrument_proc = instrument_proc
             end
 
@@ -144,12 +143,12 @@ module Neo4j
 
             private
 
-            def faraday_connection
+            def faraday_connection(options = {})
               require 'faraday'
               require 'faraday_middleware/multi_json'
 
-              Faraday.new(url) do |c|
-                c.request :basic_auth, user, password
+              Faraday.new(url, options) do |c|
+                c.request :basic_auth, config_username(user, options), config_password(password, options)
                 c.request :multi_json
 
                 c.response :multi_json, symbolize_keys: true, content_type: 'application/json'
@@ -160,6 +159,14 @@ module Neo4j
                 c.headers['Content-Type'] = 'application/json'
                 c.headers['User-Agent'] = @user_agent_string
               end
+            end
+
+            def config_password(password, options)
+              options[:basic_auth] ? options[:basic_auth][:password] : password
+            end
+
+            def config_username(user, options)
+              options[:basic_auth] ? options[:basic_auth][:username] : user
             end
 
             def request_body(body)
