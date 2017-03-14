@@ -148,7 +148,7 @@ module Neo4j
               require 'faraday_middleware/multi_json'
 
               Faraday.new(url, options) do |c|
-                c.request :basic_auth, config_username(user, options), config_password(password, options)
+                c.request :basic_auth, username_config(options), password_config(options)
                 c.request :multi_json
 
                 c.response :multi_json, symbolize_keys: true, content_type: 'application/json'
@@ -161,12 +161,12 @@ module Neo4j
               end
             end
 
-            def config_password(password, options)
-              options[:basic_auth] ? options[:basic_auth][:password] : password
+            def password_config(options)
+              options.fetch(:basic_auth, {}).fetch(:password, @password)
             end
 
-            def config_username(user, options)
-              options[:basic_auth] ? options[:basic_auth][:username] : user
+            def username_config(options)
+              options.fetch(:basic_auth, {}).fetch(:username, @user)
             end
 
             def request_body(body)
