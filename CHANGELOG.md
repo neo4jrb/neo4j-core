@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased] - Unreleased
+
+### Added
+
+- Added back ability to configure internal faraday adaptor (thanks @heavydawson / see #288)
+
 ## [7.0.6] - 2016-03-10
 
 ### Changed
