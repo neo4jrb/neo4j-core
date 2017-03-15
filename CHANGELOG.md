@@ -3,31 +3,35 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased] - Unreleased
+## [7.0.7] - 2017-03-15
 
 ### Added
 
 - Added back ability to configure internal faraday adaptor (thanks @heavydawson / see #288)
 
-## [7.0.6] - 2016-03-10
+### Fixed
+
+- Fix Ruby 2.4 deprecations re: Integer (see #290 / thanks @jboler)
+
+## [7.0.6] - 2017-03-10
 
 ### Changed
 
 - Allow for newer versions of Faraday (thanks @thanksafestein / see #287)
 
-## [7.0.5] - 2016-02-27
+## [7.0.5] - 2017-02-27
 
 ### Added
 
 - Support returning state information from indexes with Bolt (thanks @heavydawson / see #285)
 
-## [7.0.4] - 2016-02-08
+## [7.0.4] - 2017-02-08
 
 ### Fixed
 
 - Handling messages sent in multiple chunks (thanks @dominikgrygiel / see #284)
 
-## [7.0.3] - 2016-01-03
+## [7.0.3] - 2017-01-03
 
 ### Fixed
 
