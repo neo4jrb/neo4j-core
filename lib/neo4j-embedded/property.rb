@@ -20,7 +20,7 @@ module Neo4j
 
       # Sets the property of this node.
       # Property keys are always strings. Valid property value types are the primitives:
-      # (<tt>String</tt>, <tt>Fixnum</tt>, <tt>Float</tt>, <tt>FalseClass</tt>, <tt>TrueClass</tt>)
+      # (<tt>String</tt>, <tt>Integer</tt>, <tt>Float</tt>, <tt>FalseClass</tt>, <tt>TrueClass</tt>)
       # or an array of those primitives.
       #
       # ==== Gotchas
@@ -28,7 +28,7 @@ module Neo4j
       # * You can *not* delete or add one item in the array (e.g. person.phones.delete('123')) but instead you must create a new array instead.
       #
       # @param [String, Symbol] k of the property to set
-      # @param [String,Fixnum,Float,true,false, Array] v to set
+      # @param [String,Integer,Float,true,false, Array] v to set
       def []=(k, v)
         to_java_property(k, v)
       end
@@ -95,7 +95,7 @@ module Neo4j
           :double
         when FalseClass, TrueClass
           :boolean
-        when Fixnum
+        when Integer
           :long
         else
           fail "Not allowed to store array with value #{value.inspect} type #{value.class}"
