@@ -2,7 +2,7 @@ RSpec.shared_examples 'Neo4j::Node with tx' do
   shared_examples 'a node with properties and id' do
     describe '#neo_id' do
       it 'is a fixnum' do
-        expect(subject.neo_id).to be_a(Fixnum)
+        expect(subject.neo_id).to be_an(Integer)
       end
     end
 

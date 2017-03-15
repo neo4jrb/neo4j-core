@@ -11,7 +11,7 @@ RSpec.shared_examples 'Neo4j::Node auto tx' do
         subject { Neo4j::Node.create }
 
         its(:exist?) { should be true }
-        its(:neo_id) { should be_a(Fixnum) }
+        its(:neo_id) { should be_an(Integer) }
         its(:props) { should == {} }
       end
 
@@ -19,7 +19,7 @@ RSpec.shared_examples 'Neo4j::Node auto tx' do
         subject { Neo4j::Node.create(name: 'kalle', age: 42) }
 
         its(:exist?) { should be true }
-        its(:neo_id) { should be_a(Fixnum) }
+        its(:neo_id) { should be_an(Integer) }
         its(:props) { should == {name: 'kalle', age: 42} }
 
         it 'read the properties using []' do
@@ -73,7 +73,7 @@ RSpec.shared_examples 'Neo4j::Node auto tx' do
       describe 'neo_id' do
         it 'returns the neo4j id' do
           neo_id = node.neo_id
-          expect(neo_id).to be_a(Fixnum)
+          expect(neo_id).to be_an(Integer)
         end
       end
 
@@ -138,7 +138,7 @@ RSpec.shared_examples 'Neo4j::Node auto tx' do
           expect(node[:foo]).to eq('bar')
         end
 
-        it 'can write and read Fixnum' do
+        it 'can write and read Integer' do
           node[:foo] = 42
           expect(node[:foo]).to eq(42)
         end
@@ -156,7 +156,7 @@ RSpec.shared_examples 'Neo4j::Node auto tx' do
         end
 
         context 'reading/writing Arrays' do
-          it 'can handle ruby arrays of Fixnum' do
+          it 'can handle ruby arrays of Integer' do
             node[:foo] = [1, 2, 3]
             expect(node[:foo]).to eq [1, 2, 3]
             expect(node[:foo]).to be_an(Array)
@@ -323,7 +323,7 @@ RSpec.shared_examples 'Neo4j::Node auto tx' do
       describe 'create_rel' do
         it 'can create a new relationship' do
           rel = node_a.create_rel(:best_friend, node_b)
-          expect(rel.neo_id).to be_a_kind_of(Fixnum)
+          expect(rel.neo_id).to be_a_kind_of(Integer)
           expect(rel.exist?).to be true
         end
 
