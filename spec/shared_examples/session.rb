@@ -33,7 +33,7 @@ RSpec.shared_examples 'Neo4j::Session' do
         expect(node[:version]).to eq(1.1)
       end
 
-      it 'allows finding nodes by a key with a Fixnum value' do
+      it 'allows finding nodes by a key with an Integer value' do
         node = session.find_nodes(:label, :id, 2).first
         verify node
       end
