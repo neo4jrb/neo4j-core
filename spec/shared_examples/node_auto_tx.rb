@@ -11,7 +11,7 @@ RSpec.shared_examples 'Neo4j::Node auto tx' do
         subject { Neo4j::Node.create }
 
         its(:exist?) { should be true }
-        its(:neo_id) { should be_a(Integer) }
+        its(:neo_id) { should be_an(Integer) }
         its(:props) { should == {} }
       end
 
@@ -19,7 +19,7 @@ RSpec.shared_examples 'Neo4j::Node auto tx' do
         subject { Neo4j::Node.create(name: 'kalle', age: 42) }
 
         its(:exist?) { should be true }
-        its(:neo_id) { should be_a(Integer) }
+        its(:neo_id) { should be_an(Integer) }
         its(:props) { should == {name: 'kalle', age: 42} }
 
         it 'read the properties using []' do
@@ -73,7 +73,7 @@ RSpec.shared_examples 'Neo4j::Node auto tx' do
       describe 'neo_id' do
         it 'returns the neo4j id' do
           neo_id = node.neo_id
-          expect(neo_id).to be_a(Integer)
+          expect(neo_id).to be_an(Integer)
         end
       end
 
