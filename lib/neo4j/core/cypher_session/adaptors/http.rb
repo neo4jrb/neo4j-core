@@ -126,11 +126,7 @@ module Neo4j
               url = url_from_path(path)
               @instrument_proc.call(method, url, request_body) do
                 wrap_connection_failed! do
-                  @faraday.run_request(method, url, request_body, REQUEST_HEADERS) do |req|
-                    # Temporary
-                    # req.options.timeout = 5
-                    # req.options.open_timeout = 5
-                  end
+                  @faraday.run_request(method, url, request_body, REQUEST_HEADERS)
                 end
               end
             end
@@ -155,7 +151,6 @@ module Neo4j
                 faraday.request :multi_json
 
                 faraday.response :multi_json, symbolize_keys: true, content_type: 'application/json'
-                faraday.use Faraday::Adapter::NetHttpPersistent
 
                 faraday.headers['Content-Type'] = 'application/json'
                 faraday.headers['User-Agent'] = @user_agent_string
