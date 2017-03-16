@@ -15,7 +15,7 @@ module Neo4j
             @options = options
           end
 
-          DEFAULT_FARADAY_CONFIGURATOR = Proc.new do |faraday|
+          DEFAULT_FARADAY_CONFIGURATOR = proc do |faraday|
             faraday.use Faraday::Adapter::NetHttpPersistent
           end
 
