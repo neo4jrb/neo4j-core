@@ -15,8 +15,12 @@ module Neo4j
             @options = options
           end
 
+          DEFAULT_FARADAY_CONFIGURATOR = proc do |faraday|
+            faraday.use Faraday::Adapter::NetHttpPersistent
+          end
+
           def connect
-            @requestor = Requestor.new(@url, USER_AGENT_STRING, self.class.method(:instrument_request), @options.fetch(:faraday_options, {}))
+            @requestor = Requestor.new(@url, USER_AGENT_STRING, self.class.method(:instrument_request), @options.fetch(:faraday_configurator, DEFAULT_FARADAY_CONFIGURATOR))
           end
 
           ROW_REST = %w(row REST)
@@ -101,12 +105,12 @@ module Neo4j
             include Adaptors::HasUri
             default_url('http://neo4:neo4j@localhost:7474')
             validate_uri { |uri| uri.is_a?(URI::HTTP) }
-            def initialize(url, user_agent_string, instrument_proc, faraday_options = {})
+            def initialize(url, user_agent_string, instrument_proc, faraday_configurator)
               self.url = url
               @user = user
               @password = password
               @user_agent_string = user_agent_string
-              @faraday = wrap_connection_failed! { faraday_connection(faraday_options) }
+              @faraday = wrap_connection_failed! { faraday_connection(faraday_configurator) }
               @instrument_proc = instrument_proc
             end
 
@@ -122,11 +126,7 @@ module Neo4j
               url = url_from_path(path)
               @instrument_proc.call(method, url, request_body) do
                 wrap_connection_failed! do
-                  @faraday.run_request(method, url, request_body, REQUEST_HEADERS) do |req|
-                    # Temporary
-                    # req.options.timeout = 5
-                    # req.options.open_timeout = 5
-                  end
+                  @faraday.run_request(method, url, request_body, REQUEST_HEADERS)
                 end
               end
             end
@@ -143,21 +143,19 @@ module Neo4j
 
             private
 
-            def faraday_connection(options = {})
+            def faraday_connection(configurator)
               require 'faraday'
               require 'faraday_middleware/multi_json'
 
-              Faraday.new(url, options) do |c|
-                c.request :basic_auth, username_config(options), password_config(options)
-                c.request :multi_json
+              Faraday.new(url) do |faraday|
+                faraday.request :multi_json
 
-                c.response :multi_json, symbolize_keys: true, content_type: 'application/json'
-                c.use Faraday::Adapter::NetHttpPersistent
+                faraday.response :multi_json, symbolize_keys: true, content_type: 'application/json'
 
-                # c.response :logger, ::Logger.new(STDOUT), bodies: true
+                faraday.headers['Content-Type'] = 'application/json'
+                faraday.headers['User-Agent'] = @user_agent_string
 
-                c.headers['Content-Type'] = 'application/json'
-                c.headers['User-Agent'] = @user_agent_string
+                configurator.call(faraday)
               end
             end
 
