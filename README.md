@@ -1,4 +1,10 @@
-# Neo4j-core [![Code Climate](https://codeclimate.com/github/neo4jrb/neo4j-core.svg)](https://codeclimate.com/github/neo4jrb/neo4j-core) [![Build Status](https://travis-ci.org/neo4jrb/neo4j-core.svg)](https://travis-ci.org/neo4jrb/neo4j-core) [![Coverage Status](https://coveralls.io/repos/neo4jrb/neo4j-core/badge.svg?branch=master)](https://coveralls.io/r/neo4jrb/neo4j-core?branch=master) [![PullReview stats](https://www.pullreview.com/github/neo4jrb/neo4j-core/badges/master.svg?)](https://www.pullreview.com/github/neo4jrb/neo4j-core/reviews/master)
+# Neo4j-core
+
+[![Actively Maintained](https://img.shields.io/badge/Maintenance%20Level-Actively%20Maintained-green.svg)](https://gist.github.com/cheerfulstoic/d107229326a01ff0f333a1d3476e068d)
+[![Code Climate](https://codeclimate.com/github/neo4jrb/neo4j-core.svg)](https://codeclimate.com/github/neo4jrb/neo4j-core)
+[![Build Status](https://travis-ci.org/neo4jrb/neo4j-core.svg)](https://travis-ci.org/neo4jrb/neo4j-core)
+[![Coverage Status](https://coveralls.io/repos/neo4jrb/neo4j-core/badge.svg?branch=master)](https://coveralls.io/r/neo4jrb/neo4j-core?branch=master)
+[![PullReview stats](https://www.pullreview.com/github/neo4jrb/neo4j-core/badges/master.svg?)](https://www.pullreview.com/github/neo4jrb/neo4j-core/reviews/master)
 
 A simple Ruby wrapper around the Neo4j graph database that works with the server and embedded Neo4j API. This gem can be used both from JRuby and normal MRI.
 It can be used standalone without the neo4j gem.
