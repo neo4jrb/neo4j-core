@@ -53,7 +53,7 @@ module Neo4j
     #   Neo4j::Session.query.match("(c:person)-[:friends]->(p:person)").where(c: {name: 'andreas'}).pluck(:p).first[:name]
     #
     # @example Show the generated Cypher
-    #   Neo4j::Session.query..match("(c:person)-[:friends]->(p:person)").where(c: {name: 'andreas'}).return(:p).to_cypher
+    #   Neo4j::Session.query.match("(c:person)-[:friends]->(p:person)").where(c: {name: 'andreas'}).return(:p).to_cypher
     #
     # @example Use Cypher string instead of the cypher DSL
     #   Neo4j::Session.query("MATCH (c:person)-[:friends]->(p:person) WHERE c.name = \"andreas\" RETURN p").first[:p][:name]
