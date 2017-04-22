@@ -47,7 +47,7 @@ module Neo4j
             response = @requestor.get('db/data/schema/index')
 
             check_for_schema_response_error!(response.body)
-            list = response.body || []
+            list = response.body && !response.body.empty? ? response.body : []
 
             list.map do |item|
               {label: item[:label].to_sym,
