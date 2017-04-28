@@ -16,7 +16,7 @@ module Neo4j
           end
 
           DEFAULT_FARADAY_CONFIGURATOR = proc do |faraday|
-            faraday.use Faraday::Adapter::NetHttpPersistent
+            faraday.adapter :typhoeus
           end
 
           def connect

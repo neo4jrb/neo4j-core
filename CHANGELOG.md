@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [7.1.0] - 2017-04-27
+
+- Changed default adaptor for HTTP adaptor in new API to use `typhoeus` rather than `net-http-persistent` because it has shown itself to be more stable under higher load
+
 ## [7.0.8] - 2017-03-16
 
 ### Changed
