@@ -16,6 +16,8 @@ module Neo4j
           end
 
           DEFAULT_FARADAY_CONFIGURATOR = proc do |faraday|
+            require 'typhoeus'
+            require 'typhoeus/adapters/faraday'
             faraday.adapter :typhoeus
           end
 

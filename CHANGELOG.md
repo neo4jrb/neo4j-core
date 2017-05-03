@@ -3,7 +3,15 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [7.1.1] - 2017-05-02
+
+### Fixed
+
+- Use `typhoeus` in old API as well to fix tests.  Also include `require` statements (see [this issue](https://github.com/neo4jrb/neo4j/issues/1377))
+
 ## [7.1.0] - 2017-04-27
+
+### Fixed
 
 - Changed default adaptor for HTTP adaptor in new API to use `typhoeus` rather than `net-http-persistent` because it has shown itself to be more stable under higher load
 
