@@ -211,7 +211,7 @@ module Neo4j
       end
 
       def constraint_error?
-        @error_code == CONSTRAINT_ERROR || @error_msg.include?('already exists with')
+        @error_code == CONSTRAINT_ERROR || (@error_msg || '').include?('already exists with')
       end
 
       def raise_cypher_error
