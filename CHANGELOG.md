@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [7.0.9] - 2017-05-04
+
+### Fixed
+
+- Guard against `nil` value (thanks @WardCunningham / see #293)
+
 ## [7.0.8] - 2017-03-16
 
 ### Changed
