@@ -13,6 +13,7 @@ cache: bundler
 sudo: false
 jdk: oraclejdk8
 rvm:
+  - 2.4.1
   - 2.3.1
   - 2.2.5
   - jruby-1.7.23
@@ -27,19 +28,19 @@ env:
 matrix:
   include:
     - script: "bundle exec rubocop"
-      rvm: 2.3.1
+      rvm: 2.4.1
       jdk:
       before_script:
       env: "RUBOCOP=true"
 
     # Older versions of Neo4j with latest version of Ruby
-    - rvm: 2.3.1
+    - rvm: 2.4.1
       env: NEO4J_VERSION=community-3.0.9
-    - rvm: 2.3.1
+    - rvm: 2.4.1
       env: NEO4J_VERSION=community-2.3.9
-    - rvm: 2.3.1
+    - rvm: 2.4.1
       env: NEO4J_VERSION=community-2.2.10
-    - rvm: 2.3.1
+    - rvm: 2.4.1
       env: NEO4J_VERSION=community-2.1.8
 
     # Older versions of Neo4j with latest version of jRuby
