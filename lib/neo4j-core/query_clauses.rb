@@ -196,9 +196,14 @@ module Neo4j
           self.class.paramaterize_key!(param)
 
           if value.is_a?(Range)
-            min_param, max_param = add_params("#{param}_range_min" => value.min, "#{param}_range_max" => value.max)
-
-            "#{key} IN RANGE({#{min_param}}, {#{max_param}})"
+            case value.begin
+            when Integer
+              min_param, max_param = add_params("#{param}_range_min" => value.min, "#{param}_range_max" => value.max)
+              "#{key} IN RANGE({#{min_param}}, {#{max_param}})"
+            else
+              min_param, max_param = add_params("#{param}_range_min" => value.begin, "#{param}_range_max" => value.end)
+              "#{key} >= {#{min_param}} AND #{previous_keys[-2]}.#{key} <#{'=' unless value.exclude_end?} {#{max_param}}"
+            end
           else
             value = value.first if array_value?(value, is_set) && value.size == 1
             operator = array_value?(value, is_set) ? 'IN' : '='
@@ -281,7 +286,6 @@ module Neo4j
           when Hash then hash_key_value_string(key, value, previous_keys)
           when NilClass then "#{key} IS NULL"
           when Regexp then regexp_key_value_string(key, value, previous_keys)
-          when Array, Range then key_value_string(key, value, previous_keys)
           else
             key_value_string(key, value, previous_keys)
           end
