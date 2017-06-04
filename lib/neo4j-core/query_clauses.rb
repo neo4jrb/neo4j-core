@@ -196,7 +196,7 @@ module Neo4j
           self.class.paramaterize_key!(param)
 
           if value.is_a?(Range)
-            range_key_value_string(key, value, previous_keys)
+            range_key_value_string(key, value, previous_keys, param)
           else
             value = value.first if array_value?(value, is_set) && value.size == 1
             operator = array_value?(value, is_set) ? 'IN' : '='
@@ -207,7 +207,7 @@ module Neo4j
           end
         end
 
-        def range_key_value_string(key, value, previous_keys)
+        def range_key_value_string(key, value, previous_keys, param)
           case value.begin
           when Integer
             min_param, max_param = add_params("#{param}_range_min" => value.min, "#{param}_range_max" => value.max)
