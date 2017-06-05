@@ -111,11 +111,7 @@ module Neo4j
         def attributes_from_key_and_value(_key, value)
           return nil unless value.is_a?(Hash)
 
-          if value.values.map(&:class) == [Hash]
-            value.first[1]
-          else
-            value
-          end
+          value.values.map(&:class) == [Hash] ? value.first[1] : value
         end
 
         class << self
@@ -166,11 +162,7 @@ module Neo4j
           end
 
           def from_key_and_single_value(key, value)
-            if value.to_sym == :neo_id
-              "ID(#{key})"
-            else
-              "#{key}.#{value}"
-            end
+            value.to_sym == :neo_id ? "ID(#{key})" : "#{key}.#{value}"
           end
         end
 
@@ -199,23 +191,16 @@ module Neo4j
             range_key_value_string(key, value, previous_keys, param)
           else
             value = value.first if array_value?(value, is_set) && value.size == 1
-            operator = array_value?(value, is_set) ? 'IN' : '='
 
             param = add_param(param, value)
 
-            "#{key} #{operator} {#{param}}"
+            "#{key} #{array_value?(value, is_set) ? 'IN' : '='} {#{param}}"
           end
         end
 
         def range_key_value_string(key, value, previous_keys, param)
-          case value.begin
-          when Integer
-            min_param, max_param = add_params("#{param}_range_min" => value.min, "#{param}_range_max" => value.max)
-            "#{key} IN RANGE({#{min_param}}, {#{max_param}})"
-          else
-            min_param, max_param = add_params("#{param}_range_min" => value.begin, "#{param}_range_max" => value.end)
-            "#{key} >= {#{min_param}} AND #{previous_keys[-2]}.#{key} <#{'=' unless value.exclude_end?} {#{max_param}}"
-          end
+          begin_param, end_param = add_params("#{param}_range_min" => value.begin, "#{param}_range_max" => value.end)
+          "#{key} >= {#{begin_param}} AND #{previous_keys[-2]}.#{key} <#{'=' unless value.exclude_end?} {#{end_param}}"
         end
 
         def array_value?(value, is_set)
