@@ -189,7 +189,7 @@ describe Neo4j::Core::Query do
   end
 
   def expects_cypher(cypher, params = {})
-    query = eval("Neo4j::Core::Query.new#{self.class.description}") # rubocop:disable Lint/Eval
+    query = eval("Neo4j::Core::Query.new#{self.class.description}") # rubocop:disable Security/Eval
     add_query_doc_line(cypher, params)
 
     expect(query.to_cypher).to eq(cypher)
