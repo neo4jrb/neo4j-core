@@ -132,7 +132,7 @@ RSpec.shared_examples 'Neo4j::Node with tx' do
         end
 
         it 'correctly wraps nodes' do
-          expect(Neo4j::Transaction.run { names }).to eq %w(son father grandfather)
+          expect(Neo4j::Transaction.run { names }).to eq %w[son father grandfather]
         end
       end
     end

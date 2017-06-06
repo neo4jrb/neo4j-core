@@ -80,7 +80,7 @@ module Neo4j
       end
 
       def hash_value_as_object(value, session)
-        return value unless [:node, :relationship].include?(identify_entity(value))
+        return value unless %i[node relationship].include?(identify_entity(value))
         add_entity_id(value)
 
         basic_obj = (node?(value) ? CypherNode : CypherRelationship).new(session, value)
@@ -95,7 +95,7 @@ module Neo4j
           elsif self_string.include?('relationship')
             :relationship
           end
-        elsif [:nodes, :relationships, :start, :end, :length].all? { |k| data.key?(k) }
+        elsif %i[nodes relationships start end length].all? { |k| data.key?(k) }
           :path
         end
       end
@@ -159,7 +159,7 @@ module Neo4j
         raise_cypher_error if error?
       end
 
-      RETRYABLE_ERROR_STATUSES = %w(DeadlockDetectedException AcquireLockTimeoutException ExternalResourceFailureException UnknownFailureException)
+      RETRYABLE_ERROR_STATUSES = %w[DeadlockDetectedException AcquireLockTimeoutException ExternalResourceFailureException UnknownFailureException]
       def retryable_error?
         return unless error?
         RETRYABLE_ERROR_STATUSES.include?(@error_status)

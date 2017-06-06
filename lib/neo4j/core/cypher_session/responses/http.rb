@@ -50,8 +50,8 @@ module Neo4j
             self_string = rest_datum[:self]
             if self_string
               type = self_string.split('/')[-2]
-              type.to_sym if %w(node relationship).include?(type)
-            elsif [:nodes, :relationships, :start, :end, :length].all? { |k| rest_datum.key?(k) }
+              type.to_sym if %w[node relationship].include?(type)
+            elsif %i[nodes relationships start end length].all? { |k| rest_datum.key?(k) }
               :path
             end
           end

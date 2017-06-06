@@ -84,7 +84,7 @@ module Neo4j
             Neo4j::Core::CypherSession::Transactions::Bolt
           end
 
-          instrument(:request, 'neo4j.core.bolt.request', %w(url body)) do |_, start, finish, _id, payload|
+          instrument(:request, 'neo4j.core.bolt.request', %w[url body]) do |_, start, finish, _id, payload|
             ms = (finish - start) * 1000
 
             " #{ANSI::BLUE}BOLT REQUEST:#{ANSI::CLEAR} #{ANSI::YELLOW}#{ms.round}ms#{ANSI::CLEAR} #{payload[:url]}"

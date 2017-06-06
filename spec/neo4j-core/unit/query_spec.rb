@@ -3,7 +3,7 @@ require 'spec_helper'
 class DocGenerator
   QUERY_DOCS_PATH = File.join('..', 'neo4j', 'docs')
 
-  RST_HEADER_ORDER = %w(- ~ ^)
+  RST_HEADER_ORDER = %w[- ~ ^]
 
   def initialize(filename)
     @filename = filename
@@ -111,7 +111,7 @@ describe Neo4j::Core::Query do
       end
     end
 
-    [:uuid, :neo_id].each do |primary_key|
+    %i[uuid neo_id].each do |primary_key|
       describe "find_in_batches with #{primary_key}" do
         {
           1 => 5,

@@ -15,15 +15,15 @@ module Neo4j
         Neo4j::Core::CypherSession::Transactions::Base
       end
 
-      %w(
+      %w[
         version
-      ).each do |method, &_block|
+      ].each do |method, &_block|
         define_method(method) do |*args, &block|
           @adaptor.send(method, *args, &block)
         end
       end
 
-      %w(
+      %w[
         query
         queries
 
@@ -31,7 +31,7 @@ module Neo4j
 
         indexes
         constraints
-      ).each do |method, &_block|
+      ].each do |method, &_block|
         define_method(method) do |*args, &block|
           @adaptor.send(method, self, *args, &block)
         end

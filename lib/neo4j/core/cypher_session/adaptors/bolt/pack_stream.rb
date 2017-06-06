@@ -47,7 +47,7 @@ module Neo4j
         headers[type][size] = [byte].pack('C')
       end
 
-      HEADER_PACK_STRINGS = %w(C S L).freeze
+      HEADER_PACK_STRINGS = %w[C S L].freeze
 
       Structure = Struct.new(:signature, :list)
 
@@ -213,12 +213,12 @@ module Neo4j
         }
 
         def shift_value_for_type!(type, size, marker)
-          if [:text, :list, :map, :struct].include?(type)
+          if %i[text list map struct].include?(type)
             offset = marker - HEADER_BASE_BYTES[type]
             size = shift_stream!(2 << (offset - 1)).reverse.unpack(HEADER_PACK_STRINGS[offset])[0]
           end
 
-          if [:tiny_text, :text, :bytes].include?(type)
+          if %i[tiny_text text bytes].include?(type)
             shift_stream!(size).force_encoding('UTF-8')
           else
             send(METHOD_MAP[type], size)

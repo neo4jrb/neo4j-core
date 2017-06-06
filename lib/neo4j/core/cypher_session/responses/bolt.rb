@@ -126,7 +126,7 @@ module Neo4j
           def validate_message_type!(message, type)
             case message.type
             when type
-              return
+              nil
             when :failure
               data = message.args[0]
               throw :cypher_bolt_failure, data

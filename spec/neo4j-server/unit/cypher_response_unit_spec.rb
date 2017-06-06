@@ -81,7 +81,7 @@ module Neo4j
 
         it 'creates an enumerable of hash key multiple values' do
           response = CypherResponse.new(nil, nil)
-          response.set_data(data: [['Romana', 126], ['The Doctor', 750]], columns: %w(name age))
+          response.set_data(data: [['Romana', 126], ['The Doctor', 750]], columns: %w[name age])
 
           expect(response.to_struct_enumeration.to_a).to eq(
             [hash_to_struct(response, name: 'Romana', age: 126),

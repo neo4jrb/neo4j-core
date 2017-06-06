@@ -19,9 +19,9 @@ Neo4j-core provides classes and methods to work with the graph database Neo4j.
   EOF
 
   s.require_path = 'lib'
-  s.files = Dir.glob('{bin,lib,config}/**/*') + %w(README.md Gemfile neo4j-core.gemspec)
+  s.files = Dir.glob('{bin,lib,config}/**/*') + %w[README.md Gemfile neo4j-core.gemspec]
   s.has_rdoc = true
-  s.extra_rdoc_files = %w( README.md )
+  s.extra_rdoc_files = %w[README.md]
   s.rdoc_options = ['--quiet', '--title', 'Neo4j::Core', '--line-numbers', '--main', 'README.rdoc', '--inline-source']
 
   s.add_dependency('faraday', '>= 0.9.0')
@@ -37,7 +37,7 @@ Neo4j-core provides classes and methods to work with the graph database Neo4j.
   s.add_development_dependency('pry')
   s.add_development_dependency('yard')
   s.add_development_dependency('simplecov')
-  s.add_development_dependency('rubocop', '~> 0.39.0')
+  s.add_development_dependency('rubocop', '~> 0.49.1')
 
   if RUBY_PLATFORM == 'java'
     s.add_dependency('neo4j-community', '>= 2.1.1')

@@ -50,7 +50,7 @@ module Neo4j
           end
 
           included do
-            %w(scheme user password host port).each do |method|
+            %w[scheme user password host port].each do |method|
               define_method(method) do
                 (@uri && @uri.send(method)) || (self.class.default_uri && self.class.default_uri.send(method))
               end

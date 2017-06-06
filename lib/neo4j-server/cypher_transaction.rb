@@ -23,7 +23,7 @@ module Neo4j
         end.to_s
       end
 
-      ROW_REST = %w(row REST)
+      ROW_REST = %w[row REST]
       def _query(cypher_query, params = nil)
         fail 'Transaction expired, unable to perform query' if expired?
         statement = {statement: cypher_query, parameters: params, resultDataContents: ROW_REST}

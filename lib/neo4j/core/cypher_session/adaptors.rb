@@ -118,11 +118,11 @@ ERROR
             end
           end
 
-          [:query_set,
-           :version,
-           :indexes,
-           :constraints,
-           :connected?].each do |method|
+          %i[query_set
+             version
+             indexes
+             constraints
+             connected?].each do |method|
             define_method(method) do |*_args|
               fail "##{method} method not implemented on adaptor!"
             end
@@ -172,7 +172,7 @@ ERROR
           EMPTY = ''
           NEWLINE_W_SPACES = "\n  "
 
-          instrument(:query, 'neo4j.core.cypher_query', %w(query)) do |_, _start, _finish, _id, payload|
+          instrument(:query, 'neo4j.core.cypher_query', %w[query]) do |_, _start, _finish, _id, payload|
             query = payload[:query]
             params_string = (query.parameters && !query.parameters.empty? ? "| #{query.parameters.inspect}" : EMPTY)
             cypher = query.pretty_cypher ? NEWLINE_W_SPACES + query.pretty_cypher.gsub(/\n/, NEWLINE_W_SPACES) : query.cypher
