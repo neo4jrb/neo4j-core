@@ -186,7 +186,7 @@ RSpec.shared_examples 'Neo4j::Session' do
         end
 
         context 'plucking name and age' do
-          let(:pluck_args) { [{n: [:name, :age]}] }
+          let(:pluck_args) { [{n: %i[name age]}] }
 
           it { should match_array([['andreas', 2], ['andreas', 1]]) }
         end
@@ -198,31 +198,31 @@ RSpec.shared_examples 'Neo4j::Session' do
         it 'sorts with: order: :name' do
           result = label_query.order(n: :name).pluck(:n)
           expect(result.count).to eq(4)
-          expect(result.to_a.map { |o| o[:name] }).to eq(%w(andreas andreas kalle zebbe))
+          expect(result.to_a.map { |o| o[:name] }).to eq(%w[andreas andreas kalle zebbe])
         end
 
         it 'sorts with: order: [:name, :age]' do
-          result = label_query.order(n: [:name, :age]).pluck(:n)
+          result = label_query.order(n: %i[name age]).pluck(:n)
           expect(result.count).to eq(4)
-          expect(result.map { |o| o[:name] }).to eq(%w(andreas andreas kalle zebbe))
+          expect(result.map { |o| o[:name] }).to eq(%w[andreas andreas kalle zebbe])
           expect(result.map { |o| o[:age] }).to eq([1, 2, 4, 3])
         end
 
         it 'sorts with order: {name: :desc}' do
           result = label_query.order(n: {name: :desc}).pluck(:n)
-          expect(result.map { |o| o[:name] }).to eq(%w(zebbe kalle andreas andreas))
+          expect(result.map { |o| o[:name] }).to eq(%w[zebbe kalle andreas andreas])
 
           result = label_query.order(n: {name: :asc}).pluck(:n)
-          expect(result.map { |o| o[:name] }).to eq(%w(andreas andreas kalle zebbe))
+          expect(result.map { |o| o[:name] }).to eq(%w[andreas andreas kalle zebbe])
         end
 
         it 'sorts with order: [:name, {age: :desc}]' do
           result = label_query.order(n: [:name, {age: :desc}]).pluck(:n)
-          expect(result.map { |o| o[:name] }).to eq(%w(andreas andreas kalle zebbe))
+          expect(result.map { |o| o[:name] }).to eq(%w[andreas andreas kalle zebbe])
           expect(result.map { |o| o[:age] }).to eq([2, 1, 4, 3])
 
           result = label_query.order(n: [:name, {age: :asc}]).pluck(:n)
-          expect(result.map { |o| o[:name] }).to eq(%w(andreas andreas kalle zebbe))
+          expect(result.map { |o| o[:name] }).to eq(%w[andreas andreas kalle zebbe])
           expect(result.map { |o| o[:age] }).to eq([1, 2, 4, 3])
         end
       end
@@ -235,7 +235,7 @@ RSpec.shared_examples 'Neo4j::Session' do
 
         it 'limits number of results returned when combined with sort' do
           result = label_query.order(n: :name).limit(3).pluck(:n)
-          expect(result.map { |o| o[:name] }).to eq(%w(andreas andreas kalle))
+          expect(result.map { |o| o[:name] }).to eq(%w[andreas andreas kalle])
           expect(result.count).to eq(3)
         end
       end
@@ -281,7 +281,7 @@ RSpec.shared_examples 'Neo4j::Session' do
       describe 'return' do
         describe 'label: :person, return: [:name, :age]' do
           it 'returns two properties in a hash' do
-            result = session.query.match(n: :person).return(n: [:name, :age])
+            result = session.query.match(n: :person).return(n: %i[name age])
             expect(result.first).to respond_to('n.name')
             expect(result.first).to respond_to('n.age')
           end

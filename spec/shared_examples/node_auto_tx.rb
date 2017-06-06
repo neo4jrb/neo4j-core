@@ -163,13 +163,13 @@ RSpec.shared_examples 'Neo4j::Node auto tx' do
           end
 
           it 'can handle ruby arrays of strings' do
-            node[:foo] = %w(hej hopp)
-            expect(node[:foo]).to eq %w(hej hopp)
+            node[:foo] = %w[hej hopp]
+            expect(node[:foo]).to eq %w[hej hopp]
           end
 
           it 'can handle ruby arrays of strings' do
-            node[:foo] = %w(hej hopp)
-            expect(node[:foo]).to eq %w(hej hopp)
+            node[:foo] = %w[hej hopp]
+            expect(node[:foo]).to eq %w[hej hopp]
           end
 
           it 'can handle ruby arrays of true,false' do

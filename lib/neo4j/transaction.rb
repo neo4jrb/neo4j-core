@@ -28,7 +28,7 @@ module Neo4j
       end
 
       def inspect
-        status_string = [:id, :failed?, :active?, :commit_url].map do |method|
+        status_string = %i[id failed? active? commit_url].map do |method|
           "#{method}: #{send(method)}" if respond_to?(method)
         end.compact.join(', ')
 

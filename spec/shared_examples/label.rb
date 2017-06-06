@@ -50,7 +50,7 @@ RSpec.shared_examples 'Neo4j::Label' do
         node = Neo4j::Node.create({}, :one, :two)
         node.set_label(:two, :three, :four)
         node = Neo4j::Node.load(node.neo_id)
-        expect(node.labels).to match_array([:two, :three, :four])
+        expect(node.labels).to match_array(%i[two three four])
       end
 
       it 'can remove all labels' do
@@ -63,14 +63,14 @@ RSpec.shared_examples 'Neo4j::Label' do
       it 'does not change labels if there is no change' do
         node = Neo4j::Node.create({}, :one, :two)
         node.set_label(:one, :two)
-        expect(node.labels).to match_array([:one, :two])
+        expect(node.labels).to match_array(%i[one two])
       end
 
       it 'can set labels without removing any labels' do
         node = Neo4j::Node.create
         node.set_label(:one, :two)
         node = Neo4j::Node.load(node.neo_id)
-        expect(node.labels).to match_array([:one, :two])
+        expect(node.labels).to match_array(%i[one two])
       end
     end
 
@@ -258,7 +258,7 @@ RSpec.shared_examples 'Neo4j::Label' do
     describe 'create_index' do
       it 'creates an index on given properties' do
         people = Neo4j::Label.create(:people1)
-        [:name, :things].each { |i| people.drop_index(i) }
+        %i[name things].each { |i| people.drop_index(i) }
         people.create_index(:name)
         people.create_index(:things)
         expect(people.indexes[:property_keys].count).to eq(2)
@@ -275,7 +275,7 @@ RSpec.shared_examples 'Neo4j::Label' do
     describe 'indexes' do
       it 'returns which properties is indexed' do
         people = Neo4j::Label.create(:people2)
-        [:name1, :name2].each { |i| people.drop_index(i) }
+        %i[name1 name2].each { |i| people.drop_index(i) }
         people.create_index(:name1)
         people.create_index(:name2)
         expect(people.indexes[:property_keys]).to match_array([[:name1], [:name2]])
@@ -285,7 +285,7 @@ RSpec.shared_examples 'Neo4j::Label' do
     describe 'drop_index' do
       it 'drops a index' do
         people = Neo4j::Label.create(:people)
-        [:name, :foo].each { |i| people.drop_index(i) }
+        %i[name foo].each { |i| people.drop_index(i) }
         people.create_index(:name)
         people.create_index(:foo)
         people.drop_index(:foo)

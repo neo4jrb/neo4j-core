@@ -78,7 +78,7 @@ module Neo4j
       describe 'label' do
         it 'by default map the result to single column of nodes' do
           @jimmy = Neo4j::Node.create({name: 'jimmy', age: 42}, :person)
-          result = session.query.match(n: :person).return(n: [:name, :age]).to_a
+          result = session.query.match(n: :person).return(n: %i[name age]).to_a
           expect(result.first).to respond_to('n.name')
           expect(result.first).to respond_to('n.age')
         end

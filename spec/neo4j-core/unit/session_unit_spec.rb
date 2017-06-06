@@ -44,7 +44,7 @@ describe Neo4j::Session do
           expect(foo).to receive(:called).exactly(1).times
           expect(foo).to receive(:called2).exactly(1).times
           expect { create_appropriate_session }.to change { Neo4j::Session._listeners.empty? }
-          expect(results).to eq([:foo, :bar])
+          expect(results).to eq(%i[foo bar])
         end
       end
     end

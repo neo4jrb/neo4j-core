@@ -105,7 +105,7 @@ module Neo4j
         validate_session_num!(db_type)
         name = params[:name]
         default = params[:default]
-        [:name, :default].each { |k| params.delete(k) }
+        %i[name default].each { |k| params.delete(k) }
         register(create_session(db_type, endpoint_url, params), name, default)
       end
 

@@ -18,10 +18,10 @@ group 'development' do
 end
 
 group 'test' do
+  gem 'activesupport', '~> 4.0'
   gem 'coveralls', require: false
-  gem 'simplecov-html', require: false
+  gem 'dotenv'
   gem 'rspec', '~> 3.0'
   gem 'rspec-its'
-  gem 'dotenv'
-  gem 'activesupport', '~> 4.0'
+  gem 'simplecov-html', require: false
 end

@@ -16,14 +16,16 @@ module Neo4j
           end
 
           DEFAULT_FARADAY_CONFIGURATOR = proc do |faraday|
-            faraday.use Faraday::Adapter::NetHttpPersistent
+            require 'typhoeus'
+            require 'typhoeus/adapters/faraday'
+            faraday.adapter :typhoeus
           end
 
           def connect
             @requestor = Requestor.new(@url, USER_AGENT_STRING, self.class.method(:instrument_request), @options.fetch(:faraday_configurator, DEFAULT_FARADAY_CONFIGURATOR))
           end
 
-          ROW_REST = %w(row REST)
+          ROW_REST = %w[row REST]
 
           def query_set(transaction, queries, options = {})
             setup_queries!(queries, transaction)
@@ -89,7 +91,7 @@ module Neo4j
             @connection.get(url)
           end
 
-          instrument(:request, 'neo4j.core.http.request', %w(method url body)) do |_, start, finish, _id, payload|
+          instrument(:request, 'neo4j.core.http.request', %w[method url body]) do |_, start, finish, _id, payload|
             ms = (finish - start) * 1000
             " #{ANSI::BLUE}HTTP REQUEST:#{ANSI::CLEAR} #{ANSI::YELLOW}#{ms.round}ms#{ANSI::CLEAR} #{payload[:method].upcase} #{payload[:url]} (#{payload[:body].size} bytes)"
           end
