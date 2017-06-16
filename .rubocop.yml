@@ -20,11 +20,11 @@ Style/HashSyntax:
   Enabled: true
   EnforcedStyle: ruby19
 
-Style/SpaceInsideHashLiteralBraces:
+Layout/SpaceInsideHashLiteralBraces:
   Enabled: true
   EnforcedStyle: no_space
 
-Style/SpaceAroundOperators:
+Layout/SpaceAroundOperators:
   AllowForAlignment: true
 
 # Offense count: 7
@@ -52,7 +52,7 @@ Style/SignalException:
 
 # Cop supports --auto-correct.
 # Reason: Double spaces can be useful for grouping code
-Style/EmptyLines:
+Layout/EmptyLines:
   Enabled: false
 
 # Cop supports --auto-correct.
