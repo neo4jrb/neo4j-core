@@ -24,7 +24,7 @@ Neo4j-core provides classes and methods to work with the graph database Neo4j.
   s.extra_rdoc_files = %w[README.md]
   s.rdoc_options = ['--quiet', '--title', 'Neo4j::Core', '--line-numbers', '--main', 'README.rdoc', '--inline-source']
 
-  s.add_dependency('faraday', '>= 0.9.0')
+  s.add_dependency('faraday', '>= 0.9.0', '< 0.12.0.1')
   s.add_dependency('typhoeus', '>= 1.1.2')
   s.add_dependency('httpclient')
   s.add_dependency('faraday_middleware', '~> 0.10.0')
