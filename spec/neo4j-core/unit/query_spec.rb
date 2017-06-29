@@ -415,25 +415,6 @@ describe Neo4j::Core::Query do
                    q_created_at_range_min: Date.new(2017, 6, 1),
                    q_created_at_range_max: Date.new(2017, 6, 3)
     end
-
-    # Non-integer ranges
-    describe '.where(q: { created_at: 0.0...5.0 })' do
-      it_generates 'WHERE (q.created_at >= {q_created_at_range_min} AND q.created_at < {q_created_at_range_max})',
-        q_created_at_range_min: 0.0,
-        q_created_at_range_max: 5.0
-    end
-
-    describe '.where(q: { created_at: Date.new(2017, 6, 1)...Date.new(2017, 6, 3) })' do
-      it_generates 'WHERE (q.created_at >= {q_created_at_range_min} AND q.created_at < {q_created_at_range_max})',
-        q_created_at_range_min: Date.new(2017, 6, 1),
-        q_created_at_range_max: Date.new(2017, 6, 3)
-    end
-
-    describe '.where(q: { created_at: Date.new(2017, 6, 1)..Date.new(2017, 6, 3) })' do
-      it_generates 'WHERE (q.created_at >= {q_created_at_range_min} AND q.created_at <= {q_created_at_range_max})',
-        q_created_at_range_min: Date.new(2017, 6, 1),
-        q_created_at_range_max: Date.new(2017, 6, 3)
-    end
   end
 
   describe '#where_not' do
