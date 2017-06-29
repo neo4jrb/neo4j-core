@@ -55,3 +55,8 @@ matrix:
     # Enterprise
     - rvm: 2.3.1
       env: NEO4J_VERSION=enterprise-3.2.1
+
+after_failure:
+  - cat ./db/neo4j/development/logs/neo4j.log
+  - cat ./db/neo4j/development/logs/debug.log
+  - cat ./db/neo4j/development/conf/neo4j.conf
