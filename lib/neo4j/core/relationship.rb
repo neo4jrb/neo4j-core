@@ -7,6 +7,8 @@ module Neo4j
       attr_reader :id, :type, :properties, :start_node_id, :end_node_id
       alias props properties
       alias neo_id id
+      alias start_node_neo_id start_node_id
+      alias end_node_neo_id end_node_id
       alias rel_type type
 
       include Wrappable
