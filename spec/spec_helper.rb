@@ -1,8 +1,11 @@
 # To run coverage via travis
+require 'simplecov'
 require 'coveralls'
-Coveralls.wear!
-# require 'simplecov'
-# SimpleCov.start
+
+SimpleCov.formatter = Coveralls::SimpleCov::Formatter
+SimpleCov.start do
+  add_filter 'spec'
+end
 
 # To run it manually via Rake
 if ENV['COVERAGE']
