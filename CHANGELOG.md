@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [7.2.2] - 2017-07-12
+
+### Added
+
+- `start_node_neo_id` and `end_node_neo_id` on `Neo4j::Core::Relationship` objects (see #298 / thanks @klobuczek)
+
 ## [7.2.1] - 2017-06-04
 
 ### Removed
