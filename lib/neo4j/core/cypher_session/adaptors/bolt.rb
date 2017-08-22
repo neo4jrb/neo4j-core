@@ -182,7 +182,7 @@ module Neo4j
           def sendmsg(message)
             log_message :C, message
 
-            @socket.sendmsg(message)
+            @socket.send(message, 0)
           end
 
           def recvmsg(size, timeout = 10)
