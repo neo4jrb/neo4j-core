@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [7.2.3] - 2017-08-22
+
+### Fixed
+
+- Bolt adaptor fix for JRuby.  `sendmsg` was being used, which JRuby doesn't support.  Switched to `send` (thanks @jgaskins / see #300)
+
 ## [7.2.2] - 2017-07-12
 
 ### Added
