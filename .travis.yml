@@ -6,7 +6,7 @@ before_script:
   - "echo 'dbms.memory.heap.max_size=600' >> ./db/neo4j/development/conf/neo4j$WRAPPER.conf"
   - "echo 'dbms.memory.heap.initial_size=600' >> ./db/neo4j/development/conf/neo4j$WRAPPER.conf"
   - "bin/rake neo4j:start --trace"
-  - "sleep 120"
+  - "while [ $((curl localhost:7474/ > /dev/null 2>&1); echo $?) -ne 0 ]; do; sleep 1; done"
 script:
   - "bundle exec rspec $RSPEC_OPTS"
 language: ruby
