@@ -10,6 +10,10 @@ module Neo4j
           def initialize(faraday_response, options = {})
             @faraday_response = faraday_response
             @request_data = request_data
+            @identity_map = {
+              node: {},
+              relationship: {}
+            }
 
             validate_faraday_response!(faraday_response)
 
@@ -21,27 +25,22 @@ module Neo4j
           end
 
           def result_from_data(columns, entities_data)
-            cache = {
-              node: {},
-              relationship: {},
-            }
-
             rows = entities_data.map do |entity_data|
-              wrap_entity entity_data[:row], entity_data[:rest], cache: cache
+              wrap_entity entity_data[:row], entity_data[:rest]
             end
 
             Result.new(columns, rows)
           end
 
-          def wrap_entity(row_datum, rest_datum, cache: {})
+          def wrap_entity(row_datum, rest_datum)
             case
             when rest_datum.is_a?(Array)
-              row_datum.zip(rest_datum).map { |row, rest| wrap_entity(row, rest, cache: cache) }
+              row_datum.zip(rest_datum).map { |row, rest| wrap_entity(row, rest) }
             when ident = identify_entity(rest_datum)
-              send("wrap_#{ident}", rest_datum, row_datum, cache: cache)
+              send("wrap_#{ident}", rest_datum, row_datum)
             when rest_datum.is_a?(Hash)
               rest_datum.each_with_object({}) do |(k, v), result|
-                result[k.to_sym] = wrap_entity(row_datum[k], v, cache: cache)
+                result[k.to_sym] = wrap_entity(row_datum[k], v)
               end
             else
               row_datum
@@ -61,8 +60,8 @@ module Neo4j
             end
           end
 
-          def wrap_node(rest_datum, row_datum, cache:)
-            cache = cache.fetch(:node)
+          def wrap_node(rest_datum, row_datum)
+            cache = @identity_map.fetch(:node)
 
             cache.fetch(id_from_rest_datum(rest_datum)) do |id|
               cache[id] = wrap_by_level(row_datum) do
@@ -74,8 +73,8 @@ module Neo4j
             end
           end
 
-          def wrap_relationship(rest_datum, row_datum, cache:)
-            cache = cache.fetch(:relationship)
+          def wrap_relationship(rest_datum, row_datum)
+            cache = @identity_map.fetch(:relationship)
 
             cache.fetch(id_from_rest_datum(rest_datum)) do |id|
               cache[id] = wrap_by_level(row_datum) do
