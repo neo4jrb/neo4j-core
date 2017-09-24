@@ -21,22 +21,27 @@ module Neo4j
           end
 
           def result_from_data(columns, entities_data)
+            cache = {
+              node: {},
+              relationship: {},
+            }
+
             rows = entities_data.map do |entity_data|
-              wrap_entity entity_data[:row], entity_data[:rest]
+              wrap_entity entity_data[:row], entity_data[:rest], cache: cache
             end
 
             Result.new(columns, rows)
           end
 
-          def wrap_entity(row_datum, rest_datum)
+          def wrap_entity(row_datum, rest_datum, cache: {})
             case
             when rest_datum.is_a?(Array)
-              row_datum.zip(rest_datum).map { |row, rest| wrap_entity(row, rest) }
+              row_datum.zip(rest_datum).map { |row, rest| wrap_entity(row, rest, cache: cache) }
             when ident = identify_entity(rest_datum)
-              send("wrap_#{ident}", rest_datum, row_datum)
+              send("wrap_#{ident}", rest_datum, row_datum, cache: cache)
             when rest_datum.is_a?(Hash)
               rest_datum.each_with_object({}) do |(k, v), result|
-                result[k.to_sym] = wrap_entity(row_datum[k], v)
+                result[k.to_sym] = wrap_entity(row_datum[k], v, cache: cache)
               end
             else
               row_datum
@@ -56,23 +61,31 @@ module Neo4j
             end
           end
 
-          def wrap_node(rest_datum, row_datum)
-            wrap_by_level(row_datum) do
-              metadata_data = rest_datum[:metadata]
-              ::Neo4j::Core::Node.new(id_from_rest_datum(rest_datum),
-                                      metadata_data && metadata_data[:labels],
-                                      rest_datum[:data])
+          def wrap_node(rest_datum, row_datum, cache:)
+            cache = cache.fetch(:node)
+
+            cache.fetch(id_from_rest_datum(rest_datum)) do |id|
+              cache[id] = wrap_by_level(row_datum) do
+                metadata_data = rest_datum[:metadata]
+                ::Neo4j::Core::Node.new(id,
+                                        metadata_data && metadata_data[:labels],
+                                        rest_datum[:data])
+              end
             end
           end
 
-          def wrap_relationship(rest_datum, row_datum)
-            wrap_by_level(row_datum) do
-              metadata_data = rest_datum[:metadata]
-              ::Neo4j::Core::Relationship.new(id_from_rest_datum(rest_datum),
-                                              metadata_data && metadata_data[:type],
-                                              rest_datum[:data],
-                                              id_from_url(rest_datum[:start]),
-                                              id_from_url(rest_datum[:end]))
+          def wrap_relationship(rest_datum, row_datum, cache:)
+            cache = cache.fetch(:relationship)
+
+            cache.fetch(id_from_rest_datum(rest_datum)) do |id|
+              cache[id] = wrap_by_level(row_datum) do
+                metadata_data = rest_datum[:metadata]
+                ::Neo4j::Core::Relationship.new(id,
+                                                metadata_data && metadata_data[:type],
+                                                rest_datum[:data],
+                                                id_from_url(rest_datum[:start]),
+                                                id_from_url(rest_datum[:end]))
+              end
             end
           end
 
