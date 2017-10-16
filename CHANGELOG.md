@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [8.0.0] - 2017-10-15
+
+### Changed
+
+- `neo4j-rake_tasks` gem is no longer a dependency for `neo4j-core`.  Because many people don't use it, and because many people don't understand it, it will now need to be explicitly required for your project
+
 ## [7.2.3] - 2017-08-22
 
 ### Fixed

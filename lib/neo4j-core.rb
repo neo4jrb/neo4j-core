@@ -23,7 +23,7 @@ require 'neo4j/relationship'
 require 'neo4j/transaction'
 
 require 'rake'
-require 'neo4j/rake_tasks'
+load 'neo4j/core/rake_tasks_deprecation.rake'
 
 require 'logger'
 
