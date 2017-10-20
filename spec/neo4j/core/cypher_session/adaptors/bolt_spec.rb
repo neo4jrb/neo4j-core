@@ -58,4 +58,22 @@ describe Neo4j::Core::CypherSession::Adaptors::Bolt, bolt: true do
 
     it_behaves_like 'Neo4j::Core::CypherSession::Adaptor'
   end
+
+  describe 'timeouts' do
+
+    it 'defaults to 10' do
+      expect(Timeout).to receive(:timeout).with(10)
+      adaptor.send(:recvmsg, 1)
+    end
+
+    context 'when a timeout is configured' do
+      let(:adaptor) { adaptor_class.new(url, timeout: 20) }
+
+      it 'uses the configured timeout' do
+        expect(Timeout).to receive(:timeout).with(20)
+        adaptor.send(:recvmsg, 1)
+      end
+    end
+
+  end
 end
