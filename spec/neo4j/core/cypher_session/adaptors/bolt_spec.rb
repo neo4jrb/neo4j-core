@@ -60,7 +60,6 @@ describe Neo4j::Core::CypherSession::Adaptors::Bolt, bolt: true do
   end
 
   describe 'timeouts' do
-
     it 'defaults to 10' do
       expect(Timeout).to receive(:timeout).with(10)
       adaptor.send(:recvmsg, 1)
@@ -74,6 +73,5 @@ describe Neo4j::Core::CypherSession::Adaptors::Bolt, bolt: true do
         adaptor.send(:recvmsg, 1)
       end
     end
-
   end
 end
