@@ -185,7 +185,7 @@ module Neo4j
             @socket.send(message, 0)
           end
 
-          def recvmsg(size, timeout = 10)
+          def recvmsg(size, timeout = timeout_option)
             Timeout.timeout(timeout) do
               @socket.recv(size).tap do |result|
                 log_message :S, result
@@ -226,6 +226,10 @@ module Neo4j
 
             unpacker = PackStream::Unpacker.new(StringIO.new(chunk))
             [].tap { |r| while arg = unpacker.unpack_value!; r << arg; end }
+          end
+
+          def timeout_option
+            @options.fetch(:timeout) { 10 }
           end
 
           # Represents messages sent to or received from the server
