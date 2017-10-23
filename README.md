@@ -13,9 +13,13 @@ It can be used standalone without the neo4j gem.
 
 ### Executing Cypher queries
 
-To make a basic connection to Neo4j to execute Cypher queries, first choose an adaptor.  Adaptors for HTTP and Embedded mode (jRuby only) are available (support for Neo4j 3.0's [Bolt protocol](http://alpha.neohq.net/docs/server-manual/bolt.html) is planned).  You can create an adaptor like:
+To make a basic connection to Neo4j to execute Cypher queries, first choose an adaptor.  Adaptors for HTTP, Bolt, and Embedded mode (jRuby only) are available.  You can create an adaptor like:
 
     http_adaptor = Neo4j::Core::CypherSession::Adaptors::HTTP.new('http://neo4j:pass@localhost:7474')
+
+    # or
+
+    bolt_adaptor = Neo4j::Core::CypherSession::Adaptors::Bolt.new('http://neo4j:pass@localhost:7474', timeout: 10)
 
     # or
 
@@ -62,7 +66,6 @@ When doing batched queries, there is also a shortcut for getting a new `Neo4j::C
 ### 3.0+ Documentation:
 
  * http://neo4jrb.readthedocs.org/en/stable/
- * https://github.com/neo4jrb/neo4j-core/wiki
 
 ### 2.x Documentation
 
