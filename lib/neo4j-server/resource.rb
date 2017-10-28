@@ -4,7 +4,7 @@ module Neo4j
       class ServerException < Exception
       end
 
-      attr_reader :resource_data, :resource_url
+      attr_reader :resource_data
 
       def init_resource_data(resource_data, resource_url)
         fail "Exception #{resource_data[:exception]}" if resource_data[:exception]

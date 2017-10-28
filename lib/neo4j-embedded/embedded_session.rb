@@ -10,7 +10,7 @@ module Neo4j
       class Error < StandardError
       end
 
-      attr_reader :graph_db, :db_location, :properties_file, :properties_map
+      attr_reader :graph_db, :db_location, :properties_file
       extend Forwardable
       extend Neo4j::Core::TxMethods
       def_delegator :@graph_db, :begin_tx

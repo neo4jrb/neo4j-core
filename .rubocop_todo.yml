@@ -41,12 +41,6 @@ Lint/AmbiguousBlockAssociation:
     - 'spec/neo4j/core/shared_examples/adaptor.rb'
     - 'spec/shared_examples/label.rb'
 
-# Offense count: 2
-Lint/DuplicateMethods:
-  Exclude:
-    - 'lib/neo4j-embedded/embedded_session.rb'
-    - 'lib/neo4j-server/resource.rb'
-
 # Offense count: 1
 Lint/DuplicatedKey:
   Exclude:
