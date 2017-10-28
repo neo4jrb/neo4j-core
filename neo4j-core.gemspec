@@ -42,7 +42,7 @@ Neo4j-core provides classes and methods to work with the graph database Neo4j.
     s.add_dependency('neo4j-community', '>= 2.1.1')
     s.add_development_dependency 'ruby-debug'
   else
-    s.add_development_dependency('rubocop', '~> 0.49.1')
+    s.add_development_dependency('rubocop', '~> 0.51.0')
     s.add_development_dependency('guard')
     s.add_development_dependency('guard-rubocop')
   end
