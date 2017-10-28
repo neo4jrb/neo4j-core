@@ -31,16 +31,21 @@ module Neo4j
         DE: [:struct, 32]
       }
       # For efficiency.  Translates directly from bytes to types
-      MARKER_TYPES.each_key do |key|
-        ord = eval("0x#{key}") # rubocop:disable Security/Eval
+
+      # rubocop:disable Performance/HashEachMethods
+      # Disabling because this needs to be able to change the hash inside the blocks
+      # There's probably a better way
+      MARKER_TYPES.keys.each do |key|
+        ord = key.to_s.to_i(16)
         MARKER_TYPES[ord] = MARKER_TYPES.delete(key)
       end
 
       # Translates directly from types to bytes
       MARKER_BYTES = MARKER_TYPES.invert
-      MARKER_BYTES.each_key do |key|
+      MARKER_BYTES.keys.each do |key|
         MARKER_BYTES.delete(key) if key.is_a?(Array)
       end
+      # rubocop:enable Performance/HashEachMethods
 
       MARKER_HEADERS = MARKER_TYPES.each_with_object({}) do |(byte, (type, size)), headers|
         headers[type] ||= {}
