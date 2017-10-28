@@ -13,14 +13,6 @@ Bundler/DuplicatedGem:
   Exclude:
     - 'Gemfile'
 
-# Offense count: 7
-# Cop supports --auto-correct.
-# Configuration parameters: Include, TreatCommentsAsGroupSeparators.
-# Include: **/*.gemspec
-Gemspec/OrderedDependencies:
-  Exclude:
-    - 'neo4j-core.gemspec'
-
 # Offense count: 6
 # Cop supports --auto-correct.
 # Configuration parameters: AllowAdjacentOneLineDefs, NumberOfEmptyLines.
