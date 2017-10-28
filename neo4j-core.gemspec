@@ -14,9 +14,9 @@ Gem::Specification.new do |s|
   s.summary = 'A basic library to work with the graph database Neo4j.'
   s.license = 'MIT'
 
-  s.description = <<-EOF
+  s.description = <<-DESCRIPTION
 Neo4j-core provides classes and methods to work with the graph database Neo4j.
-  EOF
+DESCRIPTION
 
   s.require_path = 'lib'
   s.files = Dir.glob('{bin,lib,config}/**/*') + %w[README.md Gemfile neo4j-core.gemspec]
