@@ -46,6 +46,9 @@ Style/FileName:
 Style/SignalException:
   EnforcedStyle: semantic
 
+Performance/HashEachMethods:
+  AutoCorrect: true
+
 #---------------------------
 # Don't intend to fix these:
 #---------------------------

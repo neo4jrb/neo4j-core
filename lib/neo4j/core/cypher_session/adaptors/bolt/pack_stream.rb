@@ -31,14 +31,14 @@ module Neo4j
         DE: [:struct, 32]
       }
       # For efficiency.  Translates directly from bytes to types
-      MARKER_TYPES.keys.each do |key|
+      MARKER_TYPES.each_key do |key|
         ord = eval("0x#{key}") # rubocop:disable Security/Eval
         MARKER_TYPES[ord] = MARKER_TYPES.delete(key)
       end
 
       # Translates directly from types to bytes
       MARKER_BYTES = MARKER_TYPES.invert
-      MARKER_BYTES.keys.each do |key|
+      MARKER_BYTES.each_key do |key|
         MARKER_BYTES.delete(key) if key.is_a?(Array)
       end
 
