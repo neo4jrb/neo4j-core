@@ -1,6 +1,7 @@
 require 'neo4j/core/cypher_session/adaptors'
 require 'neo4j/core/cypher_session/adaptors/has_uri'
 require 'neo4j/core/cypher_session/responses/http'
+require 'uri'
 
 # TODO: Work with `Query` objects
 module Neo4j
