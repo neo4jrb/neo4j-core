@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [8.0.2] - 2017-11-21
+
+### Added
+
+- Avoid confusing error for HTTP adaptor when `uri` library isn't loaded (thanks @simpsonjulian / see #305)
+
 ## [8.0.1] - 2017-10-22
 
 ### Added
