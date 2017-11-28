@@ -15,14 +15,17 @@ It can be used standalone without the neo4j gem.
 
 To make a basic connection to Neo4j to execute Cypher queries, first choose an adaptor.  Adaptors for HTTP, Bolt, and Embedded mode (jRuby only) are available.  You can create an adaptor like:
 
+    require 'neo4j/core/cypher_session/adaptors/http'
     http_adaptor = Neo4j::Core::CypherSession::Adaptors::HTTP.new('http://neo4j:pass@localhost:7474')
 
     # or
 
+    require 'neo4j/core/cypher_session/adaptors/bolt'
     bolt_adaptor = Neo4j::Core::CypherSession::Adaptors::Bolt.new('http://neo4j:pass@localhost:7474', timeout: 10)
 
     # or
 
+    require 'neo4j/core/cypher_session/adaptors/embedded'
     neo4j_adaptor = Neo4j::Core::CypherSession::Adaptors::Embedded.new('/file/path/to/graph.db')
 
 Once you have an adaptor you can create a session like so:
