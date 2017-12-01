@@ -48,13 +48,18 @@ module Neo4j
                    "Queries: #{queries.map(&:cypher)}"
             end
 
-            send_query_jobs(queries)
+            self.class.instrument_request do
+              send_query_jobs(queries)
 
-            build_response(queries, options[:wrap_level] || @options[:wrap_level])
+              build_response(queries, options[:wrap_level] || @options[:wrap_level])
+            end
           end
 
-          def version
-            fail 'should be implemented!'
+          def version(session)
+            result = query(session, 'CALL dbms.components()', {}, skip_instrumentation: true)
+
+            # BTW: community / enterprise could be retrieved via `result.first.edition`
+            result.first.versions[0]
           end
 
           def connected?

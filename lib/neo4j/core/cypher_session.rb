@@ -16,18 +16,12 @@ module Neo4j
       end
 
       %w[
-        version
-      ].each do |method, &_block|
-        define_method(method) do |*args, &block|
-          @adaptor.send(method, *args, &block)
-        end
-      end
-
-      %w[
         query
         queries
 
         transaction
+
+        version
 
         indexes
         constraints
