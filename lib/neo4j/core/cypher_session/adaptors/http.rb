@@ -41,7 +41,7 @@ module Neo4j
             Responses::HTTP.new(faraday_response, wrap_level: wrap_level).results
           end
 
-          def version
+          def version(_session)
             @version ||= @requestor.get('db/data/').body[:neo4j_version]
           end
 
