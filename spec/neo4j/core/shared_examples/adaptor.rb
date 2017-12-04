@@ -31,7 +31,7 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
       expect(result[0].to_a[0].n).to be_a(Neo4j::Core::Node)
       expect(result[1].to_a[0].n).to be_a(Neo4j::Core::Node)
       # Maybe should have method like adaptor.returns_node_and_relationship_metadata?
-      if adaptor.is_a?(::Neo4j::Core::CypherSession::Adaptors::HTTP) && adaptor.version < '2.1.5'
+      if adaptor.is_a?(::Neo4j::Core::CypherSession::Adaptors::HTTP) && adaptor.version(session_double) < '2.1.5'
         expect(result[0].to_a[0].n.labels).to eq(nil)
         expect(result[1].to_a[0].n.labels).to eq(nil)
       else
@@ -46,7 +46,7 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
       end
 
       expect(result[0].to_a[0].n).to be_a(Neo4j::Core::Node)
-      if adaptor.is_a?(::Neo4j::Core::CypherSession::Adaptors::HTTP) && adaptor.version < '2.1.5'
+      if adaptor.is_a?(::Neo4j::Core::CypherSession::Adaptors::HTTP) && adaptor.version(session_double) < '2.1.5'
         expect(result[0].to_a[0].n.labels).to eq(nil)
       else
         expect(result[0].to_a[0].n.labels).to eq([:Label1])
