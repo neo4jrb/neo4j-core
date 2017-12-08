@@ -40,7 +40,7 @@ module Neo4j
             raise CypherError.new_from(e.status.to_s, e.message) # , e.stack_track.to_a
           end
 
-          def version
+          def version(_session)
             if defined?(::Neo4j::Community)
               ::Neo4j::Community::NEO_VERSION
             elsif defined?(::Neo4j::Enterprise)

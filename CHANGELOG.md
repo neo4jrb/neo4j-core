@@ -3,6 +3,25 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [8.0.4] - 2017-12-04
+
+### Added
+
+- Add unused argument for HTTP and Embedded adaptors since it was needed for the Bolt adaptor (thanks to @pmaite88 on Gitter)
+
+## [8.0.3] - 2017-12-03
+
+### Added
+
+- Add support for #version in Bolt adaptor to fix migration issue (thanks @gottfrois and @JustinAiken / see #303)
+
+## [8.0.2] - 2017-11-21
+
+### Added
+
+- Avoid confusing error for HTTP adaptor when `uri` library isn't loaded (thanks @simpsonjulian / see #305)
+- Output request times for Bolt adaptor
+
 ## [8.0.1] - 2017-10-22
 
 ### Added
