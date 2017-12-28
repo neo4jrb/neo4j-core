@@ -772,7 +772,6 @@ module Neo4j
             strings = clause_strings(clauses, pretty)
             stripped_string = strings.join(clause_join)
             stripped_string.strip!
-            (pretty && strings.size > 1) ? self::PRETTY_NEW_LINE + stripped_string : stripped_string
           end
 
           # If `.union()` was called with `all: true` option, insert 'UNION ALL' clause
@@ -794,7 +793,7 @@ module Neo4j
           end
 
           def clause_join(options = {})
-            ' '
+            ''
           end
         end
       end

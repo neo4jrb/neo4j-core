@@ -175,7 +175,6 @@ module Neo4j
 
         DEFINED_CLAUSES[clause.to_sym] = clause_class
         define_method(clause) do |*args|
-          # the args splat will contain the method options, if any were given
           build_deeper_query(clause_class, args).ergo do |result|
             BREAK_METHODS.include?(clause) ? result.break : result
           end
