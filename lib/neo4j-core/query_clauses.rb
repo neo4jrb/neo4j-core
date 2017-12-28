@@ -783,5 +783,3 @@ module Neo4j
     end
   end
 end
-
-union(query, {all: true})
