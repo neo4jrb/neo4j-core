@@ -732,6 +732,11 @@ module Neo4j
       class UnionClause < Clause
         KEYWORD = 'UNION'
 
+        def initialize(arg, params, options = {})
+          fail ArgError unless arg
+          super
+        end
+
         def from_query(value)
           from_string(value.to_cypher)
         end
@@ -739,7 +744,9 @@ module Neo4j
         class << self
           # Union clauses can only be called with a string or Query argument
           def from_args(args, params, options = {})
-            from_arg(arg, params, options)
+            arg = args.first
+
+            [from_arg(arg, params, options)]
           end
 
           def from_arg(arg, params, options = {})

@@ -174,7 +174,7 @@ module Neo4j
 
         DEFINED_CLAUSES[clause.to_sym] = clause_class
         define_method(clause) do |*args|
-          # the args splat will contain method "options", if any were given
+          # the args splat will contain the method options, if any were given
           build_deeper_query(clause_class, args).ergo do |result|
             BREAK_METHODS.include?(clause) ? result.break : result
           end
@@ -326,6 +326,18 @@ module Neo4j
       def return_query(columns)
         query = copy
         query.remove_clause_class(ReturnClause)
+
+        # If the query object has union clauses, overwrite the return of each union clause
+        # to return `columns`
+        clauses_by_class = query.partitioned_clauses.last.group_by(&:class)
+        union_clauses = clauses_by_class[::Neo4j::Core::QueryClauses::UnionClause]
+
+        if union_clauses.any?
+          union_clauses.each do |union_clause|
+            union_clause.arg.remove_clause_class(ReturnClause)
+            union_clause.arg.return(*columns)
+          end
+        end
 
         query.return(*columns)
       end
