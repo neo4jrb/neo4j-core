@@ -131,6 +131,10 @@ module Neo4j
       # RETURN clause
       # @return [Query]
 
+      # @method union *args
+      # UNION clause
+      # @return [Query]
+
       # @method create *args
       # CREATE clause
       # @return [Query]
@@ -159,7 +163,7 @@ module Neo4j
       # DETACH DELETE clause
       # @return [Query]
 
-      METHODS = %w[start match optional_match call using where create create_unique merge set on_create_set on_match_set remove unwind delete detach_delete with return order skip limit] # rubocop:disable Metrics/LineLength
+      METHODS = %w[start match optional_match call using where create create_unique merge set on_create_set on_match_set remove unwind delete detach_delete with return order skip limit union] # rubocop:disable Metrics/LineLength
       BREAK_METHODS = %(with call)
 
       CLAUSIFY_CLAUSE = proc { |method| const_get(method.to_s.split('_').map(&:capitalize).join + 'Clause') }
@@ -170,6 +174,7 @@ module Neo4j
 
         DEFINED_CLAUSES[clause.to_sym] = clause_class
         define_method(clause) do |*args|
+          # the args splat will contain method "options", if any were given
           build_deeper_query(clause_class, args).ergo do |result|
             BREAK_METHODS.include?(clause) ? result.break : result
           end
@@ -422,7 +427,9 @@ module Neo4j
 
       def build_deeper_query(clause_class, args = {}, options = {})
         copy.tap do |new_query|
+          # An empty clause (`[nil]`) indicates a "break" to the "generate_partitioning" method
           new_query.add_clauses [nil] if [nil, WithClause].include?(clause_class)
+          # @params stores the query's accumulated ".params()" values
           new_query.add_clauses clause_class.from_args(args, new_query.instance_variable_get('@params'.freeze), options) if clause_class
         end
       end

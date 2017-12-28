@@ -25,11 +25,12 @@ module Neo4j
           @param_vars_added = []
         end
 
+        # Returns the query clause as a cypher string
         def value
           return @value if @value
 
-          [String, Symbol, Integer, Hash, NilClass].each do |arg_class|
-            from_method = "from_#{arg_class.name.downcase}"
+          [String, Symbol, Integer, Hash, NilClass, Query].each do |arg_class|
+            from_method = "from_#{arg_class.name.demodulize.downcase}"
             return @value = send(from_method, @arg) if @arg.is_a?(arg_class) && self.respond_to?(from_method)
           end
 
@@ -727,6 +728,60 @@ module Neo4j
           end
         end
       end
+
+      class UnionClause < Clause
+        KEYWORD = 'UNION'
+
+        def from_query(value)
+          from_string(value.to_cypher)
+        end
+
+        class << self
+          # Union clauses can only be called with a string or Query argument
+          def from_args(args, params, options = {})
+            from_arg(arg, params, options)
+          end
+
+          def from_arg(arg, params, options = {})
+            new(arg, params, options) if arg.is_a?(Query) || arg.is_a?(String)
+          end
+
+          def to_cypher(clauses, pretty = false)
+            clause_string(clauses, pretty)
+          end
+
+          def clause_string(clauses, pretty)
+            strings = clause_strings(clauses, pretty)
+            stripped_string = strings.join(clause_join)
+            stripped_string.strip!
+            (pretty && strings.size > 1) ? PRETTY_NEW_LINE + stripped_string : stripped_string
+          end
+
+          # If `.union()` was called with `all: true` option, insert 'UNION ALL' clause
+          # otherwise insert 'UNION' clause
+          def clause_strings(clauses, pretty)
+            clauses.map do |clause|
+              clause_keyword = if clause.options && clause.options[:all]
+                                 "#{keyword} ALL"
+                               else
+                                 keyword
+                               end
+              
+              if pretty
+                "#{clause_color}#{clause_keyword}#{ANSI::CLEAR} #{clause.value}" + PRETTY_NEW_LINE
+              else
+                "#{clause_keyword} #{clause.value}"
+              end
+            end
+          end
+
+          def clause_join(options = {})
+            ' '
+          end
+        end
+      end
     end
   end
 end
+
+union(query, {all: true})
