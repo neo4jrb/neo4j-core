@@ -25,7 +25,7 @@ module Neo4j
           @param_vars_added = []
         end
 
-        # Returns the query clause as a cypher string
+        # Returns the query clause as a cypher string and caches result
         def value
           return @value if @value
 
@@ -732,13 +732,24 @@ module Neo4j
       class UnionClause < Clause
         KEYWORD = 'UNION'
 
-        def initialize(arg, params, options = {})
-          fail ArgError unless arg
-          super
+        # If `value` is a query object, returns value.to_cypher. Formatting optional
+        def from_query(value, pretty: false)
+          from_string(value.to_cypher(pretty: pretty))
         end
 
-        def from_query(value)
-          from_string(value.to_cypher)
+        # Returns the query clause as a pretty string, if able.
+        # Cannot format Union Clauses if @arg is a string
+        def pretty_value
+          return from_query(@arg, pretty: true) if @arg.is_a? Query
+          value
+        end
+
+        # The query argument stored by the union clause may be mutated if the
+        # query object result is retreaved by `.pluck()` (see Query#pluck)
+        # If so, then the cached union clause value should be tossed
+        def reset_value!
+          @value = nil
+          return self
         end
 
         class << self
@@ -761,7 +772,7 @@ module Neo4j
             strings = clause_strings(clauses, pretty)
             stripped_string = strings.join(clause_join)
             stripped_string.strip!
-            (pretty && strings.size > 1) ? PRETTY_NEW_LINE + stripped_string : stripped_string
+            (pretty && strings.size > 1) ? self::PRETTY_NEW_LINE + stripped_string : stripped_string
           end
 
           # If `.union()` was called with `all: true` option, insert 'UNION ALL' clause
@@ -775,7 +786,7 @@ module Neo4j
                                end
               
               if pretty
-                "#{clause_color}#{clause_keyword}#{ANSI::CLEAR} #{clause.value}" + PRETTY_NEW_LINE
+                "#{clause_color}#{clause_keyword}#{ANSI::CLEAR}" + "\n" + clause.pretty_value + "\n"
               else
                 "#{clause_keyword} #{clause.value}"
               end

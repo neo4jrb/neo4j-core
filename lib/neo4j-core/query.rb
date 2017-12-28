@@ -214,6 +214,11 @@ module Neo4j
         build_deeper_query(nil)
       end
 
+      # UNION ALL cypher clause. Similar to UNION method / clause but doesn't de-duplicate results. See Neo4j docs for more info.
+      def union_all(*args)
+        build_deeper_query(UnionClause, args, all: true)
+      end
+
       # Allows for the specification of values for params specified in query
       # @example
       #   # Creates a query representing the cypher: MATCH (q: Person {id: {id}})
@@ -327,16 +332,28 @@ module Neo4j
         query = copy
         query.remove_clause_class(ReturnClause)
 
-        # If the query object has union clauses, overwrite the return of each union clause
-        # to return `columns`
-        clauses_by_class = query.partitioned_clauses.last.group_by(&:class)
+        # Check for union clauses
+        clauses_by_class = query.clauses.group_by(&:class)
         union_clauses = clauses_by_class[::Neo4j::Core::QueryClauses::UnionClause]
 
-        if union_clauses.any?
+        # If the query object has union clauses, overwrite the return of each union clause
+        # to return `*columns`. Ignore union clauses which have a string `@arg`
+        if union_clauses && union_clauses.any?
+          query.remove_clause_class(UnionClause)
+
           union_clauses.each do |union_clause|
-            union_clause.arg.remove_clause_class(ReturnClause)
-            union_clause.arg.return(*columns)
+            arg = union_clause.arg
+
+            # If `arg` is a Query object, we can overwrite the return. Else, ignore it and hope
+            # the dev has specified the correct return
+            if arg.is_a? Query
+              arg.remove_clause_class(ReturnClause)
+              union_clause.arg = arg.return(*columns)
+              union_clause.reset_value!
+            end
           end
+
+          query.add_clauses(union_clauses)
         end
 
         query.return(*columns)
