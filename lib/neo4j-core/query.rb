@@ -163,6 +163,7 @@ module Neo4j
       # DETACH DELETE clause
       # @return [Query]
 
+      # This ordering of the METHODS will be used when constructing the final cypher query
       METHODS = %w[start match optional_match call using where create create_unique merge set on_create_set on_match_set remove unwind delete detach_delete with return order skip limit union] # rubocop:disable Metrics/LineLength
       BREAK_METHODS = %(with call)
 
