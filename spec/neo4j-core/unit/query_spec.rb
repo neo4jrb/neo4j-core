@@ -645,21 +645,25 @@ describe Neo4j::Core::Query do
 
   # WITH
 
-  describe '#with' do
-    describe ".with('n.age AS age')" do
-      it_generates 'WITH n.age AS age'
-    end
+  %w[with with_distinct].each do |method_name|
+    clause = method_name.upcase.gsub('_', ' ')
 
-    describe ".with('n.age AS age', 'count(n) as c')" do
-      it_generates 'WITH n.age AS age, count(n) as c'
-    end
+    describe "##{method_name}" do
+      describe ".#{method_name}('n.age AS age')" do
+        it_generates "#{clause} n.age AS age"
+      end
 
-    describe ".with(['n.age AS age', 'count(n) as c'])" do
-      it_generates 'WITH n.age AS age, count(n) as c'
-    end
+      describe ".#{method_name}('n.age AS age', 'count(n) as c')" do
+        it_generates "#{clause} n.age AS age, count(n) as c"
+      end
 
-    describe ".with(age: 'n.age')" do
-      it_generates 'WITH n.age AS age'
+      describe ".#{method_name}(['n.age AS age', 'count(n) as c'])" do
+        it_generates "#{clause} n.age AS age, count(n) as c"
+      end
+
+      describe ".#{method_name}(age: 'n.age')" do
+        it_generates "#{clause} n.age AS age"
+      end
     end
   end
 

@@ -406,6 +406,10 @@ module Neo4j
         end
       end
 
+      class WithDistinctClause < WithClause
+        KEYWORD = 'WITH DISTINCT'
+      end
+
       class UsingClause < Clause
         KEYWORD = 'USING'
 
