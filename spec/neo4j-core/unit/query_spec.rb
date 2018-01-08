@@ -646,7 +646,7 @@ describe Neo4j::Core::Query do
   # WITH
 
   %w[with with_distinct].each do |method_name|
-    clause = method_name.upcase.gsub('_', ' ')
+    clause = method_name.upcase.tr('_', ' ')
 
     describe "##{method_name}" do
       describe ".#{method_name}('n.age AS age')" do
