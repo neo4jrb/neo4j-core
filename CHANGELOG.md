@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [8.1.0] - 2017-01-09
+
+### Added
+
+- Added `with_distinct` method since `DISTINCT` is not something that applies to one column but to all columns
+
 ## [8.0.4] - 2017-12-04
 
 ### Added
