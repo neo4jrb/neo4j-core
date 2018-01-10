@@ -141,7 +141,35 @@ module Neo4j
           end
 
           def open_socket
-            @socket = TCPSocket.open(host, port)
+            tcp_socket = TCPSocket.open(host, port)
+
+            # @socket = if @options[:ssl_context]
+            #            tcp_socket
+            #          else
+            #            OpenSSL::SSL::SSLSocket.new(tcp_socket, @options[:ssl_context]).tap do |socket|
+            #              socket.sync_close = true
+            #              socket.connect
+            #            end
+            #          end
+
+            ssl_socket = OpenSSL::SSL::SSLSocket.new(tcp_socket)
+            ssl_socket.connect
+
+            cert = OpenSSL::X509::Certificate.new(ssl_socket.peer_cert)
+            require 'pry'
+            binding.pry
+            ssl_socket.sysclose
+
+            ssl_context = OpenSSL::SSL::SSLContext.new.tap do |context|
+              context.verify_mode = OpenSSL::SSL::VERIFY_PEER
+              context.cert = cert
+              context.cert = OpenSSL::X509::Certificate.new('/Users/brian.underwood/Library/Application Support/Neo4j Desktop for ICIJ/Application/neo4jDatabases/database-3b4a12d2-e1ea-4b72-9591-fe7551b407ca/installation-3.3.0/certificates/neo4j.cert')
+            end
+
+            @socket = OpenSSL::SSL::SSLSocket.new(tcp_socket, ssl_context).tap(&:connect)
+            # tcp_socket.close
+
+            # certprops = OpenSSL::X509::Name.new(cert.issuer).to_a
           rescue Errno::ECONNREFUSED => e
             raise Neo4j::Core::CypherSession::ConnectionFailedError, e.message
           end
