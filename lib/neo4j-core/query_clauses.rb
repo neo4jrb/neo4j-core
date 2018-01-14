@@ -25,11 +25,12 @@ module Neo4j
           @param_vars_added = []
         end
 
+        # Returns the query clause as a cypher string and caches result
         def value
           return @value if @value
 
-          [String, Symbol, Integer, Hash, NilClass].each do |arg_class|
-            from_method = "from_#{arg_class.name.downcase}"
+          [String, Symbol, Integer, Hash, NilClass, Query].each do |arg_class|
+            from_method = "from_#{arg_class.name.demodulize.downcase}"
             return @value = send(from_method, @arg) if @arg.is_a?(arg_class) && self.respond_to?(from_method)
           end
 
@@ -724,6 +725,75 @@ module Neo4j
 
           def clause_join
             Clause::COMMA_SPACE
+          end
+        end
+      end
+
+      class UnionClause < Clause
+        KEYWORD = 'UNION'
+
+        # If `value` is a query object, returns value.to_cypher. Formatting optional
+        def from_query(value, pretty: false)
+          from_string(value.to_cypher(pretty: pretty))
+        end
+
+        # Returns the query clause as a pretty string, if able.
+        # Cannot format Union Clauses if @arg is a string
+        def pretty_value
+          return from_query(@arg, pretty: true) if @arg.is_a? Query
+          value
+        end
+
+        # The query argument stored by the union clause may be mutated if the
+        # query object result is retreaved by `.pluck()` (see Query#pluck)
+        # If so, then the cached union clause value should be tossed
+        def reset_value!
+          @value = nil
+          return self
+        end
+
+        class << self
+          # Union clauses can only be called with a string or Query argument
+          def from_args(args, params, options = {})
+            arg = args.first
+
+            [from_arg(arg, params, options)]
+          end
+
+          def from_arg(arg, params, options = {})
+            new(arg, params, options) if arg.is_a?(Query) || arg.is_a?(String)
+          end
+
+          def to_cypher(clauses, pretty = false)
+            clause_string(clauses, pretty)
+          end
+
+          def clause_string(clauses, pretty)
+            strings = clause_strings(clauses, pretty)
+            stripped_string = strings.join(clause_join)
+            stripped_string.strip!
+          end
+
+          # If `.union()` was called with `all: true` option, insert 'UNION ALL' clause
+          # otherwise insert 'UNION' clause
+          def clause_strings(clauses, pretty)
+            clauses.map do |clause|
+              clause_keyword = if clause.options && clause.options[:all]
+                                 "#{keyword} ALL"
+                               else
+                                 keyword
+                               end
+              
+              if pretty
+                "#{clause_color}#{clause_keyword}#{ANSI::CLEAR}" + "\n" + clause.pretty_value + "\n"
+              else
+                "#{clause_keyword} #{clause.value}"
+              end
+            end
+          end
+
+          def clause_join(options = {})
+            ''
           end
         end
       end

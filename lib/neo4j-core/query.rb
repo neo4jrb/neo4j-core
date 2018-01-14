@@ -131,6 +131,10 @@ module Neo4j
       # RETURN clause
       # @return [Query]
 
+      # @method union *args
+      # UNION clause
+      # @return [Query]
+
       # @method create *args
       # CREATE clause
       # @return [Query]
@@ -159,7 +163,8 @@ module Neo4j
       # DETACH DELETE clause
       # @return [Query]
 
-      METHODS = %w[start match optional_match call using where create create_unique merge set on_create_set on_match_set remove unwind delete detach_delete with return order skip limit] # rubocop:disable Metrics/LineLength
+      # This ordering of the METHODS will be used when constructing the final cypher query
+      METHODS = %w[start match optional_match call using where create create_unique merge set on_create_set on_match_set remove unwind delete detach_delete with return order skip limit union] # rubocop:disable Metrics/LineLength
       BREAK_METHODS = %(with call)
 
       CLAUSIFY_CLAUSE = proc { |method| const_get(method.to_s.split('_').map(&:capitalize).join + 'Clause') }
@@ -207,6 +212,11 @@ module Neo4j
       #   Query.new.match(q: Person).match('r:Car').break.match('(p: Person)-->q')
       def break
         build_deeper_query(nil)
+      end
+
+      # UNION ALL cypher clause. Similar to UNION method / clause but doesn't de-duplicate results. See Neo4j docs for more info.
+      def union_all(*args)
+        build_deeper_query(UnionClause, args, all: true)
       end
 
       # Allows for the specification of values for params specified in query
@@ -322,6 +332,30 @@ module Neo4j
         query = copy
         query.remove_clause_class(ReturnClause)
 
+        # Check for union clauses
+        clauses_by_class = query.clauses.group_by(&:class)
+        union_clauses = clauses_by_class[::Neo4j::Core::QueryClauses::UnionClause]
+
+        # If the query object has union clauses, overwrite the return of each union clause
+        # to return `*columns`. Ignore union clauses which have a string `@arg`
+        if union_clauses && union_clauses.any?
+          query.remove_clause_class(UnionClause)
+
+          union_clauses.each do |union_clause|
+            arg = union_clause.arg
+
+            # If `arg` is a Query object, we can overwrite the return. Else, ignore it and hope
+            # the dev has specified the correct return
+            if arg.is_a? Query
+              arg.remove_clause_class(ReturnClause)
+              union_clause.arg = arg.return(*columns)
+              union_clause.reset_value!
+            end
+          end
+
+          query.add_clauses(union_clauses)
+        end
+
         query.return(*columns)
       end
 
@@ -422,7 +456,9 @@ module Neo4j
 
       def build_deeper_query(clause_class, args = {}, options = {})
         copy.tap do |new_query|
+          # An empty clause (`[nil]`) indicates a "break" to the "generate_partitioning" method
           new_query.add_clauses [nil] if [nil, WithClause].include?(clause_class)
+          # @params stores the query's accumulated ".params()" values
           new_query.add_clauses clause_class.from_args(args, new_query.instance_variable_get('@params'.freeze), options) if clause_class
         end
       end
