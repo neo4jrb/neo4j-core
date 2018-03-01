@@ -4,6 +4,7 @@ require 'neo4j/core/cypher_session/adaptors/bolt/pack_stream'
 require 'neo4j/core/cypher_session/adaptors/bolt/chunk_writer_io'
 require 'neo4j/core/cypher_session/responses/bolt'
 require 'io/wait'
+require 'socket'
 
 # TODO: Work with `Query` objects
 module Neo4j

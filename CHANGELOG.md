@@ -3,7 +3,13 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [8.1.0] - 2017-01-09
+## [8.1.1] - 2018-03-01
+
+### Fixed
+
+- Require `socket` in Bolt adaptor so that users don't have to (thanks @bglowacki / see #311)
+
+## [8.1.0] - 2018-01-09
 
 ### Added
 
