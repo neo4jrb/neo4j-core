@@ -5,6 +5,7 @@ require 'neo4j/core/cypher_session/adaptors/bolt/chunk_writer_io'
 require 'neo4j/core/cypher_session/responses/bolt'
 require 'io/wait'
 require 'socket'
+require 'openssl'
 
 # TODO: Work with `Query` objects
 module Neo4j
@@ -143,8 +144,19 @@ module Neo4j
 
           def open_socket
             @socket = TCPSocket.open(host, port)
+            replace_with_secure_socket if secure_connection?
           rescue Errno::ECONNREFUSED => e
             raise Neo4j::Core::CypherSession::ConnectionFailedError, e.message
+          end
+
+          def replace_with_secure_socket
+            ssl_context = OpenSSL::SSL::SSLContext.new()
+            ssl_context.cert = OpenSSL::X509::Certificate.new(File.open(certificate_crt_path_option))
+            ssl_context.key = OpenSSL::PKey::RSA.new(File.open(certificate_key_path_option))
+            ssl_context.ssl_version = :SSLv23
+
+            @socket = OpenSSL::SSL::SSLSocket.new(@socket, ssl_context)
+            @socket.sync_close = true
           end
 
           GOGOBOLT = "\x60\x60\xB0\x17"
@@ -236,6 +248,18 @@ module Neo4j
 
           def timeout_option
             @options.fetch(:timeout) { 10 }
+          end
+
+          def secure_connection?
+            @options.has_key?(:tls_certificate)
+          end
+
+          def certificate_crt_path_option
+            @options.fetch(:tls_certificate, {}).fetch(:crt_path) { 'certificate.crt' }
+          end
+
+          def certificate_key_path_option
+            @options.fetch(:tls_certificate, {}).fetch(:key_path) { 'certificate.key' }
           end
 
           # Represents messages sent to or received from the server
