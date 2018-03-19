@@ -204,13 +204,23 @@ module Neo4j
           def sendmsg(message)
             log_message :C, message
 
-            @socket.send(message, 0)
+            if secure_connection?
+              @socket.write(message)
+            else
+              @socket.send(message, 0)
+            end
           end
 
           def recvmsg(size, timeout = timeout_option)
             Timeout.timeout(timeout) do
-              @socket.recv(size).tap do |result|
-                log_message :S, result
+              if secure_connection?
+                @socket.read(size).tap do |result|
+                  log_message :S, result
+                end
+              else
+                @socket.recv(size).tap do |result|
+                  log_message :S, result
+                end
               end
             end
           rescue Timeout::Error
