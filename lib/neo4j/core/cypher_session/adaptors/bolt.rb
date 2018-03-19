@@ -19,7 +19,7 @@ module Neo4j
             uri.scheme == 'bolt'
           end
 
-          SUPPORTED_VERSIONS = [1, 0, 0, 0].freeze
+          SUPPORTED_VERSIONS = [1, 0, 0, 0].freeze # Do we need to modify the supported version when using SSL/TLS?
           VERSION = '0.0.1'.freeze
 
           def initialize(url, options = {})
@@ -149,14 +149,18 @@ module Neo4j
             raise Neo4j::Core::CypherSession::ConnectionFailedError, e.message
           end
 
+          #  See below on how to upgrade a socket to a ssl_socket
+          # https://github.com/rocketjob/net_tcp_client/blob/master/lib/net/tcp_client/tcp_client.rb#L678
+          # maybe the verify step as well.
+
           def replace_with_secure_socket
             ssl_context = OpenSSL::SSL::SSLContext.new()
-            ssl_context.cert = OpenSSL::X509::Certificate.new(File.open(certificate_crt_path_option))
-            ssl_context.key = OpenSSL::PKey::RSA.new(File.open(certificate_key_path_option))
-            ssl_context.ssl_version = :SSLv23
+            ssl_context.set_params(ssl_params_from_options)
 
-            @socket = OpenSSL::SSL::SSLSocket.new(@socket, ssl_context)
-            @socket.sync_close = true
+            @socket = OpenSSL::SSL::SSLSocket.new(@socket, ssl_context).tap do |socket|
+              socket.sync_close = true
+              socket.connect
+            end
           end
 
           GOGOBOLT = "\x60\x60\xB0\x17"
@@ -251,15 +255,17 @@ module Neo4j
           end
 
           def secure_connection?
-            @options.has_key?(:tls_certificate)
+            @options.has_key?(:ssl)
           end
 
-          def certificate_crt_path_option
-            @options.fetch(:tls_certificate, {}).fetch(:crt_path) { 'certificate.crt' }
-          end
-
-          def certificate_key_path_option
-            @options.fetch(:tls_certificate, {}).fetch(:key_path) { 'certificate.key' }
+          def ssl_params_from_options
+            ssl_options = @options.fetch(:ssl)
+            default_options = { verify_mode: OpenSSL::SSL::VERIFY_PEER }
+            if ssl_options.is_a? Hash
+              default_options.merge ssl_options
+            else
+              default_options
+            end
           end
 
           # Represents messages sent to or received from the server
