@@ -12,14 +12,14 @@ module Neo4j
   module Core
     class CypherSession
       module Adaptors
-        class Bolt < Base
+        class Bolt < Base # rubocop:disable Metrics/ClassLength
           include Adaptors::HasUri
           default_url('bolt://neo4:neo4j@localhost:7687')
           validate_uri do |uri|
             uri.scheme == 'bolt'
           end
 
-          SUPPORTED_VERSIONS = [1, 0, 0, 0].freeze # Do we need to modify the supported version when using SSL/TLS?
+          SUPPORTED_VERSIONS = [1, 0, 0, 0].freeze
           VERSION = '0.0.1'.freeze
 
           def initialize(url, options = {})
@@ -275,11 +275,7 @@ module Neo4j
           def ssl_params_from_options
             ssl_options = @options.fetch(:ssl)
             default_options = {verify_mode: OpenSSL::SSL::VERIFY_PEER}
-            if ssl_options.is_a? Hash
-              default_options.merge ssl_options
-            else
-              default_options
-            end
+            ssl_options.is_a?(Hash) ? default_options.merge!(ssl_options) : default_options
           end
 
           # Represents messages sent to or received from the server
