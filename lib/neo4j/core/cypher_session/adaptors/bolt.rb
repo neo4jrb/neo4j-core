@@ -44,7 +44,7 @@ module Neo4j
           def query_set(transaction, queries, options = {})
             setup_queries!(queries, transaction, skip_instrumentation: options[:skip_instrumentation])
 
-            if @socket.ready?
+            if socket_ready?
               debug_remaining_buffer
               fail "Making query, but expected there to be no buffer remaining!\n"\
                    "Queries: #{queries.map(&:cypher)}"
@@ -122,7 +122,7 @@ module Neo4j
             logger.debug 'Remaining buffer:'
 
             i = 0
-            while @socket.ready?
+            while socket_ready?
               i += 1
               logger.debug "Message set #{i}:"
               flush_messages
@@ -142,6 +142,10 @@ module Neo4j
             Job.new(self)
           end
 
+          def secure_connection?
+            @is_secure_socket ||= @options.key?(:ssl)
+          end
+
           def open_socket
             @socket = TCPSocket.open(host, port)
             replace_with_secure_socket if secure_connection?
@@ -149,12 +153,16 @@ module Neo4j
             raise Neo4j::Core::CypherSession::ConnectionFailedError, e.message
           end
 
+          def socket_ready?
+            secure_connection? ? @socket.state == 'SSLOK' : @socket.ready?
+          end
+
           #  See below on how to upgrade a socket to a ssl_socket
           # https://github.com/rocketjob/net_tcp_client/blob/master/lib/net/tcp_client/tcp_client.rb#L678
           # maybe the verify step as well.
 
           def replace_with_secure_socket
-            ssl_context = OpenSSL::SSL::SSLContext.new()
+            ssl_context = OpenSSL::SSL::SSLContext.new
             ssl_context.set_params(ssl_params_from_options)
 
             @socket = OpenSSL::SSL::SSLSocket.new(@socket, ssl_context).tap do |socket|
@@ -264,13 +272,9 @@ module Neo4j
             @options.fetch(:timeout) { 10 }
           end
 
-          def secure_connection?
-            @options.has_key?(:ssl)
-          end
-
           def ssl_params_from_options
             ssl_options = @options.fetch(:ssl)
-            default_options = { verify_mode: OpenSSL::SSL::VERIFY_PEER }
+            default_options = {verify_mode: OpenSSL::SSL::VERIFY_PEER}
             if ssl_options.is_a? Hash
               default_options.merge ssl_options
             else
