@@ -12,7 +12,7 @@ module Neo4j
   module Core
     class CypherSession
       module Adaptors
-        class Bolt < Base # rubocop:disable Metrics/ClassLength
+        class Bolt < Base
           include Adaptors::HasUri
           default_url('bolt://neo4:neo4j@localhost:7687')
           validate_uri do |uri|
@@ -44,7 +44,7 @@ module Neo4j
           def query_set(transaction, queries, options = {})
             setup_queries!(queries, transaction, skip_instrumentation: options[:skip_instrumentation])
 
-            if socket_ready?
+            if @socket.ready?
               debug_remaining_buffer
               fail "Making query, but expected there to be no buffer remaining!\n"\
                    "Queries: #{queries.map(&:cypher)}"
@@ -122,7 +122,7 @@ module Neo4j
             logger.debug 'Remaining buffer:'
 
             i = 0
-            while socket_ready?
+            while @socket.ready?
               i += 1
               logger.debug "Message set #{i}:"
               flush_messages
@@ -147,29 +147,14 @@ module Neo4j
           end
 
           def open_socket
-            @socket = TCPSocket.open(host, port)
-            replace_with_secure_socket if secure_connection?
+            @socket = secure_connection? ? SecureSocketWrapper.new(host, port, @options) : SocketWrapper.new(host, port)
           rescue Errno::ECONNREFUSED => e
             raise Neo4j::Core::CypherSession::ConnectionFailedError, e.message
-          end
-
-          def socket_ready?
-            secure_connection? ? @socket.state == 'SSLOK' : @socket.ready?
           end
 
           #  See below on how to upgrade a socket to a ssl_socket
           # https://github.com/rocketjob/net_tcp_client/blob/master/lib/net/tcp_client/tcp_client.rb#L678
           # maybe the verify step as well.
-
-          def replace_with_secure_socket
-            ssl_context = OpenSSL::SSL::SSLContext.new
-            ssl_context.set_params(ssl_params_from_options)
-
-            @socket = OpenSSL::SSL::SSLSocket.new(@socket, ssl_context).tap do |socket|
-              socket.sync_close = true
-              socket.connect
-            end
-          end
 
           GOGOBOLT = "\x60\x60\xB0\x17"
           def handshake
@@ -211,24 +196,13 @@ module Neo4j
 
           def sendmsg(message)
             log_message :C, message
-
-            if secure_connection?
-              @socket.write(message)
-            else
-              @socket.send(message, 0)
-            end
+            @socket.send_message(message)
           end
 
           def recvmsg(size, timeout = timeout_option)
             Timeout.timeout(timeout) do
-              if secure_connection?
-                @socket.read(size).tap do |result|
-                  log_message :S, result
-                end
-              else
-                @socket.recv(size).tap do |result|
-                  log_message :S, result
-                end
+              @socket.receive_message(size) do |result|
+                log_message :S, result
               end
             end
           rescue Timeout::Error
@@ -270,12 +244,6 @@ module Neo4j
 
           def timeout_option
             @options.fetch(:timeout) { 10 }
-          end
-
-          def ssl_params_from_options
-            ssl_options = @options.fetch(:ssl)
-            default_options = {verify_mode: OpenSSL::SSL::VERIFY_PEER}
-            ssl_options.is_a?(Hash) ? default_options.merge!(ssl_options) : default_options
           end
 
           # Represents messages sent to or received from the server
@@ -376,6 +344,62 @@ module Neo4j
 
             def to_s
               @messages.join(' | ')
+            end
+          end
+
+          class SocketWrapper
+            extend Forwardable
+
+            def initialize(host, port)
+              @socket = TCPSocket.open(host, port)
+            end
+
+            def_delegators :@socket, :ready?, :shutdown, :close
+
+            def send_message(message)
+              @socket.send(message, 0)
+            end
+
+            def receive_message(size)
+              @socket.recv(size).tap do |result|
+                yield result
+              end
+            end
+          end
+
+          class SecureSocketWrapper < SocketWrapper
+            def initialize(host, port, options)
+              super(host, port)
+
+              ssl_context = OpenSSL::SSL::SSLContext.new
+              ssl_context.set_params(ssl_params_from_options(options))
+
+              @socket = OpenSSL::SSL::SSLSocket.new(@socket, ssl_context).tap do |socket|
+                socket.sync_close = true
+                socket.connect
+              end
+            end
+
+            def ready?
+              @socket.state == 'SSLOK'
+            end
+
+            def send_message(message)
+              @socket.write(message)
+            end
+
+            def receive_message(size)
+              @socket.read(size).tap do |result|
+                yield result
+              end
+            end
+
+            private
+
+            def ssl_params_from_options(options)
+              ssl_options = options.fetch(:ssl)
+              default_options = {verify_mode: OpenSSL::SSL::VERIFY_PEER}
+              ssl_options.is_a?(Hash) ? default_options.merge!(ssl_options) : default_options
             end
           end
         end
