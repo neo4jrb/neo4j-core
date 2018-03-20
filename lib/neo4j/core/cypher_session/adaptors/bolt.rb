@@ -374,22 +374,27 @@ module Neo4j
               ssl_context = OpenSSL::SSL::SSLContext.new
               ssl_context.set_params(ssl_params_from_options(options))
 
-              @socket = OpenSSL::SSL::SSLSocket.new(@socket, ssl_context).tap do |socket|
+              @ssl_socket = OpenSSL::SSL::SSLSocket.new(@socket, ssl_context).tap do |socket|
                 socket.sync_close = true
                 socket.connect
               end
             end
 
+            def_delegators :@ssl_socket, :close
+            # SSLSocket does not have a :shutdown method, so we'll use the
+            # underlying TCPSocket @socket. Not sure if we need to use ssl_socket.io
+            # instead when attempting to shutdown the socket
+
             def ready?
-              @socket.state == 'SSLOK'
+              @ssl_socket.state == 'SSLOK'
             end
 
             def send_message(message)
-              @socket.write(message)
+              @ssl_socket.write(message)
             end
 
             def receive_message(size)
-              @socket.read(size).tap do |result|
+              @ssl_socket.read(size).tap do |result|
                 yield result
               end
             end
