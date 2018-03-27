@@ -23,11 +23,11 @@ DESCRIPTION
   s.has_rdoc = true
   s.extra_rdoc_files = %w[README.md]
   s.rdoc_options = ['--quiet', '--title', 'Neo4j::Core', '--line-numbers', '--main', 'README.rdoc', '--inline-source']
-  s.metadata    = {
-    "homepage_uri" => "http://neo4jrb.io/",
-    "changelog_uri" => "https://github.com/neo4jrb/neo4j-core/blob/master/CHANGELOG.md",
-    "source_code_uri" => "https://github.com/neo4jrb/neo4j-core/",
-    "bug_tracker_uri" => "https://github.com/neo4jrb/neo4j-core/issues",
+  s.metadata = {
+    'homepage_uri' => 'http://neo4jrb.io/',
+    'changelog_uri' => 'https://github.com/neo4jrb/neo4j-core/blob/master/CHANGELOG.md',
+    'source_code_uri' => 'https://github.com/neo4jrb/neo4j-core/',
+    'bug_tracker_uri' => 'https://github.com/neo4jrb/neo4j-core/issues'
   }
 
 
