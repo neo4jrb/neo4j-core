@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [8.1.2] - 2018-03-27
+
+### Fixed
+
+- Adding link to `CHANGELOG.md` as shown on https://olivierlacan.com/posts/changelogs-on-rubygems-org/
+
 ## [8.1.1] - 2018-03-01
 
 ### Fixed
