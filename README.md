@@ -13,7 +13,7 @@ To make a basic connection to Neo4j to execute Cypher queries, first choose an a
 
     # or
 
-    bolt_adaptor = Neo4j::Core::CypherSession::Adaptors::Bolt.new('http://neo4j:pass@localhost:7474', timeout: 10)
+    bolt_adaptor = Neo4j::Core::CypherSession::Adaptors::Bolt.new('bolt://neo4j:pass@localhost:7687', timeout: 10)
 
     # or
 
