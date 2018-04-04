@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [8.1.3] - 2018-04-03
+
+### Fixed
+
+- When getting an error from the server, handle other error cases than just when `errors` is present in the response (thanks @mrstif / see #313)
+
 ## [8.1.2] - 2018-03-27
 
 ### Fixed
