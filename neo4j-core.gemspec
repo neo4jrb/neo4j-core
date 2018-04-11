@@ -33,7 +33,7 @@ DESCRIPTION
 
   s.add_dependency('activesupport', '>= 4.0')
   s.add_dependency('faraday', '>= 0.9.0')
-  s.add_dependency('faraday_middleware', '~> 0.10.0')
+  s.add_dependency('faraday_middleware', '>= 0.10.0')
   s.add_dependency('faraday_middleware-multi_json')
   s.add_dependency('httpclient')
   s.add_dependency('json')
