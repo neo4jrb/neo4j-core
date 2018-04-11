@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [8.1.4] - 2018-04-10
+
+### Fixed
+
+- Allow newer version of `faraday_middleware` gem (thanks @RicardoTrindade / see #315)
+
 ## [8.1.3] - 2018-04-03
 
 ### Fixed
