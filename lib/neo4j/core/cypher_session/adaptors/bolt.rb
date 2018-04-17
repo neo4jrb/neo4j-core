@@ -181,8 +181,11 @@ module Neo4j
             end
           end
 
+          # Don't need to calculate these every time.  Cache in memory
+          BYTE_STRINGS = (0..255).map { |byte| byte.to_s(16).rjust(2, '0') }
+
           STREAM_INSPECTOR = lambda do |stream|
-            stream.bytes.map { |byte| byte.to_s(16).rjust(2, '0') }.join(':')
+            stream.bytes.map { |byte| BYTE_STRINGS[byte] }.join(':')
           end
 
           def sendmsg(message)
@@ -205,18 +208,22 @@ module Neo4j
             if structures = flush_response
               structures.map do |structure|
                 Message.new(structure.signature, *structure.list).tap do |message|
-                  log_message :S, message.type, message.args.join(' ')
+                  if logger.debug?
+                    log_message :S, message.type, message.args.join(' ')
+                  end
                 end
               end
             end
           end
 
           def log_message(side, *args)
-            if args.size == 1
-              logger.debug "#{side}: #{STREAM_INSPECTOR.call(args[0])}"
-            else
-              type, message = args
-              logger.debug "#{side}: #{ANSI::CYAN}#{type.to_s.upcase}#{ANSI::CLEAR} #{message}"
+            logger.debug do
+              if args.size == 1
+                "#{side}: #{STREAM_INSPECTOR.call(args[0])}"
+              else
+                type, message = args
+                "#{side}: #{ANSI::CYAN}#{type.to_s.upcase}#{ANSI::CLEAR} #{message}"
+              end
             end
           end
 
