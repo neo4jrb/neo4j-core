@@ -32,6 +32,36 @@ end
 
 task default: [:spec]
 
+big_string = 'a' * 100_000
+big_int = 100_000 * 123_456
+big_float = big_int + 0.1359162596523621956
+
+DIFFERENT_QUERIES = [
+  ['MATCH (n) RETURN n LIMIT {limit}', {limit: 20}],
+  ['MATCH (n) DELETE n'],
+  ['CREATE (n:Report) SET n = {props} RETURN n', {props: {big_string: big_string, big_int: big_int, big_float: big_float}}]
+]
+
+task :stress_test do
+  require 'neo4j-core'
+  require 'neo4j/core/cypher_session/adaptors/bolt'
+  system('rm stress_test.log')
+  bolt_adaptor = Neo4j::Core::CypherSession::Adaptors::Bolt.new('bolt://neo4j:neo5j@localhost:7687', timeout: 10, logger_location: 'stress_test.log', logger_level: Logger::DEBUG)
+
+  neo4j_session = Neo4j::Core::CypherSession.new(bolt_adaptor)
+
+  2.times do
+    putc '.'
+    begin
+      neo4j_session.query(*DIFFERENT_QUERIES.sample).to_a.inspect
+    rescue => e
+      raise e
+    end
+  end
+
+  puts 'Done!'
+end
+
 # require 'coveralls/rake/task'
 # Coveralls::RakeTask.new
 # task :test_with_coveralls => [:spec, 'coveralls:push']
