@@ -5,6 +5,7 @@ require 'neo4j/core/cypher_session/adaptors/bolt/chunk_writer_io'
 require 'neo4j/core/cypher_session/responses/bolt'
 require 'io/wait'
 require 'socket'
+require 'openssl'
 
 # TODO: Work with `Query` objects
 module Neo4j
@@ -141,11 +142,19 @@ module Neo4j
             Job.new(self)
           end
 
+          def secure_connection?
+            @is_secure_socket ||= @options.key?(:ssl)
+          end
+
           def open_socket
-            @socket = TCPSocket.open(host, port)
+            @socket = secure_connection? ? SecureSocketWrapper.new(host, port, @options) : SocketWrapper.new(host, port)
           rescue Errno::ECONNREFUSED => e
             raise Neo4j::Core::CypherSession::ConnectionFailedError, e.message
           end
+
+          #  See below on how to upgrade a socket to a ssl_socket
+          # https://github.com/rocketjob/net_tcp_client/blob/master/lib/net/tcp_client/tcp_client.rb#L678
+          # maybe the verify step as well.
 
           GOGOBOLT = "\x60\x60\xB0\x17"
           def handshake
@@ -187,13 +196,12 @@ module Neo4j
 
           def sendmsg(message)
             log_message :C, message
-
-            @socket.send(message, 0)
+            @socket.send_message(message)
           end
 
           def recvmsg(size, timeout = timeout_option)
             Timeout.timeout(timeout) do
-              @socket.recv(size).tap do |result|
+              @socket.receive_message(size) do |result|
                 log_message :S, result
               end
             end
@@ -336,6 +344,67 @@ module Neo4j
 
             def to_s
               @messages.join(' | ')
+            end
+          end
+
+          class SocketWrapper
+            extend Forwardable
+
+            def initialize(host, port)
+              @socket = TCPSocket.open(host, port)
+            end
+
+            def_delegators :@socket, :ready?, :shutdown, :close
+
+            def send_message(message)
+              @socket.send(message, 0)
+            end
+
+            def receive_message(size)
+              @socket.recv(size).tap do |result|
+                yield result
+              end
+            end
+          end
+
+          class SecureSocketWrapper < SocketWrapper
+            def initialize(host, port, options)
+              super(host, port)
+
+              ssl_context = OpenSSL::SSL::SSLContext.new
+              ssl_context.set_params(ssl_params_from_options(options))
+
+              @ssl_socket = OpenSSL::SSL::SSLSocket.new(@socket, ssl_context).tap do |socket|
+                socket.sync_close = true
+                socket.connect
+              end
+            end
+
+            def_delegators :@ssl_socket, :close
+            # SSLSocket does not have a :shutdown method, so we'll use the
+            # underlying TCPSocket @socket. Not sure if we need to use ssl_socket.io
+            # instead when attempting to shutdown the socket
+
+            def ready?
+              @ssl_socket.state == 'SSLOK'
+            end
+
+            def send_message(message)
+              @ssl_socket.write(message)
+            end
+
+            def receive_message(size)
+              @ssl_socket.read(size).tap do |result|
+                yield result
+              end
+            end
+
+            private
+
+            def ssl_params_from_options(options)
+              ssl_options = options.fetch(:ssl)
+              default_options = {verify_mode: OpenSSL::SSL::VERIFY_PEER}
+              ssl_options.is_a?(Hash) ? default_options.merge!(ssl_options) : default_options
             end
           end
         end
