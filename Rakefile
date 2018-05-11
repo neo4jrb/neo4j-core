@@ -33,7 +33,7 @@ end
 task default: [:spec]
 
 big_string = 'a' * 100_000
-big_int = 100_000 * 123456
+big_int = 100_000 * 123_456
 big_float = big_int + 0.1359162596523621956
 
 DIFFERENT_QUERIES = [
