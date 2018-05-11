@@ -7,7 +7,7 @@ require 'io/wait'
 require 'socket'
 require 'openssl'
 
-# TODO: Work with `Query` objects
+# TODO: Work with `Query` objects?
 module Neo4j
   module Core
     class CypherSession
@@ -50,7 +50,7 @@ module Neo4j
                    "Queries: #{queries.map(&:cypher)}"
             end
 
-            self.class.instrument_request do
+            self.class.instrument_request(self) do
               send_query_jobs(queries)
 
               build_response(queries, options[:wrap_level] || @options[:wrap_level])
@@ -91,10 +91,16 @@ module Neo4j
             Neo4j::Core::CypherSession::Transactions::Bolt
           end
 
-          instrument(:request, 'neo4j.core.bolt.request', %w[url body]) do |_, start, finish, _id, payload|
+          instrument(:request, 'neo4j.core.bolt.request', %w[adaptor body]) do |_, start, finish, _id, payload|
             ms = (finish - start) * 1000
+            adaptor = payload[:adaptor]
 
-            " #{ANSI::BLUE}BOLT REQUEST:#{ANSI::CLEAR} #{ANSI::YELLOW}#{ms.round}ms#{ANSI::CLEAR} #{payload[:url]}"
+            type = adaptor.ssl? ? '+TLS' : ' UNSECURE'
+            " #{ANSI::BLUE}BOLT#{type}:#{ANSI::CLEAR} #{ANSI::YELLOW}#{ms.round}ms#{ANSI::CLEAR} #{adaptor.url_without_password}"
+          end
+
+          def ssl?
+            @socket.is_a?(SecureSocketWrapper)
           end
 
           private
@@ -147,7 +153,12 @@ module Neo4j
           end
 
           def open_socket
-            @socket = secure_connection? ? SecureSocketWrapper.new(host, port, @options) : SocketWrapper.new(host, port)
+            ssl_options = @options.fetch(:ssl, {})
+            @socket = if ssl_options == false
+                        SocketWrapper.new(host, port)
+                      else
+                        SecureSocketWrapper.new(host, port, ssl_options)
+                      end
           rescue Errno::ECONNREFUSED => e
             raise Neo4j::Core::CypherSession::ConnectionFailedError, e.message
           end
@@ -375,11 +386,11 @@ module Neo4j
           end
 
           class SecureSocketWrapper < SocketWrapper
-            def initialize(host, port, options)
+            def initialize(host, port, ssl_options)
               super(host, port)
 
               ssl_context = OpenSSL::SSL::SSLContext.new
-              ssl_context.set_params(ssl_params_from_options(options))
+              ssl_context.set_params(ssl_params_from_options(ssl_options))
 
               @ssl_socket = OpenSSL::SSL::SSLSocket.new(@socket, ssl_context).tap do |socket|
                 socket.sync_close = true
@@ -408,9 +419,8 @@ module Neo4j
 
             private
 
-            def ssl_params_from_options(options)
-              ssl_options = options.fetch(:ssl)
-              default_options = {verify_mode: OpenSSL::SSL::VERIFY_PEER}
+            def ssl_params_from_options(ssl_options)
+              default_options = {verify_mode: OpenSSL::SSL::VERIFY_PEER, cert_store: nil}
               ssl_options.is_a?(Hash) ? default_options.merge!(ssl_options) : default_options
             end
           end

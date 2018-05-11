@@ -27,6 +27,7 @@ describe Neo4j::Core::CypherSession::Adaptors::HasUri do
       its(:password) { should eq('baz') }
       its(:host) { should eq('biz') }
       its(:port) { should eq(1234) }
+      its(:url_without_password) { should eq('foo://bar:...@biz:1234') }
     end
 
     let_context url: 'http://localhost:4321' do
@@ -35,6 +36,7 @@ describe Neo4j::Core::CypherSession::Adaptors::HasUri do
       its(:password) { should eq('baz') }
       its(:host) { should eq('localhost') }
       its(:port) { should eq(4321) }
+      its(:url_without_password) { should eq('http://bar:...@localhost:4321') }
     end
   end
 
@@ -49,6 +51,7 @@ describe Neo4j::Core::CypherSession::Adaptors::HasUri do
       its(:password) { should be_nil }
       its(:host) { should eq('localhost') }
       its(:port) { should eq(7474) }
+      its(:url_without_password) { should eq('http://localhost:7474') }
     end
   end
 

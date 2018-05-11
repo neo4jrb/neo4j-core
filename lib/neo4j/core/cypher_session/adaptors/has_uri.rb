@@ -49,6 +49,10 @@ module Neo4j
             @uri = self.class.uri_from_url!(url)
           end
 
+          def url_without_password
+            @url_without_password ||= "#{scheme}://#{user + ':...@' if user}#{host}:#{port}"
+          end
+
           included do
             %w[scheme user password host port].each do |method|
               define_method(method) do
