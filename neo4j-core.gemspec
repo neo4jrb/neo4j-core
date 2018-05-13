@@ -47,7 +47,7 @@ DESCRIPTION
   s.add_development_dependency('yard')
 
   if RUBY_PLATFORM == 'java'
-    s.add_dependency('neo4j-community', '>= 2.1.1')
+    s.add_development_dependency('neo4j-community', '>= 2.1.1')
     s.add_development_dependency 'ruby-debug'
   else
     s.add_development_dependency('guard')

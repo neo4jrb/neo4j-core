@@ -2,6 +2,7 @@ require 'spec_helper'
 require 'neo4j/core/cypher_session/adaptors/embedded'
 require './spec/neo4j/core/shared_examples/adaptor'
 require 'tmpdir'
+require 'neo4j-community'
 
 describe Neo4j::Core::CypherSession::Adaptors::Embedded do
   let(:adaptor_class) { Neo4j::Core::CypherSession::Adaptors::Embedded }
