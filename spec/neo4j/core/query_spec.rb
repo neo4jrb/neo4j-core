@@ -52,16 +52,16 @@ class DocGenerator
 
     add_headers(context_class)
 
-    @file.puts <<-RST
-:Ruby:
-  .. code-block:: ruby
+    @file.puts <<-RST.strip_heredoc
+      :Ruby:
+        .. code-block:: ruby
 
-    #{query_code}
+          #{query_code}
 
-:Cypher:
-  .. code-block:: cypher
+      :Cypher:
+        .. code-block:: cypher
 
-    #{cypher}
+          #{cypher}
 
 RST
 
