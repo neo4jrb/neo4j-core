@@ -24,10 +24,8 @@ module Neo4j
         end
       end
 
-      def find_each(*args)
-        find_in_batches(*args) do |batch|
-          batch.each { |result| yield result }
-        end
+      def find_each(*args, &block)
+        find_in_batches(*args) { |batch| batch.each(&block) }
       end
 
       private
@@ -41,7 +39,7 @@ module Neo4j
         last_record.send(node_var).send(prop_var)
       rescue NoMethodError
         begin
-          last_record.send(node_var)[prop_var.to_sym]
+          last_record.send(node_var).properties[prop_var.to_sym]
         rescue NoMethodError
           last_record.send("#{node_var}.#{prop_var}") # In case we're explicitly returning it
         end

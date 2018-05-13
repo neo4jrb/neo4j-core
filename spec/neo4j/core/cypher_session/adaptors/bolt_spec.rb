@@ -3,17 +3,15 @@ require 'neo4j/core/cypher_session/adaptors/bolt'
 require './spec/neo4j/core/shared_examples/adaptor'
 
 describe Neo4j::Core::CypherSession::Adaptors::Bolt, bolt: true do
-  let(:adaptor_class) { Neo4j::Core::CypherSession::Adaptors::Bolt }
-  let(:url) { ENV['NEO4J_BOLT_URL'] }
-
-  # let(:adaptor) { adaptor_class.new(url, logger_level: Logger::DEBUG) }
-  let(:adaptor) { adaptor_class.new(url) }
+  let(:extra_options) { { } }
+  let(:url) { test_bolt_url }
+  let(:adaptor) { test_bolt_adaptor(url, extra_options) }
 
   subject { adaptor }
 
   describe '#initialize' do
     before do
-      allow_any_instance_of(adaptor_class).to receive(:open_socket)
+      allow_any_instance_of(Neo4j::Core::CypherSession::Adaptors::Bolt).to receive(:open_socket)
     end
 
     let_context(url: 'url') { subject_should_raise ArgumentError, /Invalid URL/ }
@@ -66,7 +64,7 @@ describe Neo4j::Core::CypherSession::Adaptors::Bolt, bolt: true do
     end
 
     context 'when a timeout is configured' do
-      let(:adaptor) { adaptor_class.new(url, timeout: 20) }
+      let(:extra_options) { { timeout: 20 } }
 
       it 'uses the configured timeout' do
         expect(Timeout).to receive(:timeout).with(20)

@@ -145,16 +145,18 @@ module Neo4j
     # To support old syntax of providing run_in_tx first
     # But session first is ideal
     def session_and_run_in_tx_from_args(args)
+      fail ArgumentError, 'Too few arguments' if args.size == 0
       fail ArgumentError, 'Too many arguments' if args.size > 2
 
-      if args.empty?
-        [Session.current!, true]
-      else
-        result = args.dup
-        if result.size == 1
-          result << ([true, false].include?(args[0]) ? Session.current! : true)
-        end
+      result = args.dup
 
+      if args.size == 1
+        if args[0].is_a?(Neo4j::Core::CypherSession)
+          [args[0], true]
+        else
+          fail ArgumentError, 'Session must be specified' if args.size == 1
+        end
+      else
         [true, false].include?(result[0]) ? result.reverse : result
       end
     end

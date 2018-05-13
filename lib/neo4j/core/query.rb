@@ -1,4 +1,5 @@
-require 'neo4j-core/query_clauses'
+require 'neo4j/core/query_clauses'
+require 'neo4j/core/query_find_in_batches'
 require 'active_support/notifications'
 
 module Neo4j
@@ -67,7 +68,7 @@ module Neo4j
       end
 
       def initialize(options = {})
-        @session = options.key?(:session) ? options[:session] : Neo4j::Session.current
+        @session = options[:session]
 
         @options = options
         @clauses = []
@@ -174,9 +175,9 @@ module Neo4j
 
         DEFINED_CLAUSES[clause.to_sym] = clause_class
         define_method(clause) do |*args|
-          build_deeper_query(clause_class, args).ergo do |result|
-            BREAK_METHODS.include?(clause) ? result.break : result
-          end
+          result = build_deeper_query(clause_class, args)
+
+          BREAK_METHODS.include?(clause) ? result.break : result
         end
       end
 
