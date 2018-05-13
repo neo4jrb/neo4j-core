@@ -69,7 +69,7 @@ module Neo4j
           else
             case @object
             when Date, Time, DateTime then string_stream
-            when Integer, Float, String, Symbol, Array, Structure, Hash
+            when Integer, Float, String, Symbol, Array, Set, Structure, Hash
               send(@object.class.name.split('::').last.downcase + '_stream')
             end
           end
@@ -129,6 +129,8 @@ module Neo4j
             Packer.new(e).packed_stream
           end.join
         end
+
+        alias set_stream array_stream
 
         def structure_stream
           fail 'Structure too big' if @object.list.size > 65_535

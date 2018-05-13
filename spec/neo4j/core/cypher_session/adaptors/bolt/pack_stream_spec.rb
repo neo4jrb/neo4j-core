@@ -323,6 +323,11 @@ module Neo4j
             let_context(input: (1..65_535).to_a) { its([0, 10]) { should be_a_byte_stream(0xD5, 0xFF, 0xFF, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07) } }
 
             let_context(input: (1..65_536).to_a) { its([0, 10]) { should be_a_byte_stream(0xD6, 0x00, 0x01, 0x00, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05) } }
+
+            require 'set'
+            let_context(input: Set.new) { it { should be_a_byte_stream(0x90) } }
+            let_context(input: Set.new([true, false])) { it { should be_a_byte_stream(0x92, 0xC3, 0xC2) } }
+            let_context(input: Set.new([1, 2, 3])) { it { should be_a_byte_stream(0x93, 0x01, 0x02, 0x03) } }
           end
 
 
