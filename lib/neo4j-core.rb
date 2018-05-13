@@ -1,3 +1,3 @@
-puts "WARNING: `require 'neo4j-core'` is deprecated.  Please use `require 'neo4j/core'`"
-
+# DO NOT ADD ANYTHING HERE
+# lib/neo4j/core.rb should be the base for requiring essential files
 require 'neo4j/core'
