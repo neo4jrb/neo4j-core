@@ -3,7 +3,7 @@ require 'neo4j/core/cypher_session/adaptors/bolt'
 require './spec/neo4j/core/shared_examples/adaptor'
 
 describe Neo4j::Core::CypherSession::Adaptors::Bolt, bolt: true do
-  let(:extra_options) { { } }
+  let(:extra_options) { {} }
   let(:url) { test_bolt_url }
   let(:adaptor) { test_bolt_adaptor(url, extra_options) }
 
@@ -64,7 +64,7 @@ describe Neo4j::Core::CypherSession::Adaptors::Bolt, bolt: true do
     end
 
     context 'when a timeout is configured' do
-      let(:extra_options) { { timeout: 20 } }
+      let(:extra_options) { {timeout: 20} }
 
       it 'uses the configured timeout' do
         expect(Timeout).to receive(:timeout).with(20)

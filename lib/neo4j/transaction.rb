@@ -145,7 +145,7 @@ module Neo4j
     # To support old syntax of providing run_in_tx first
     # But session first is ideal
     def session_and_run_in_tx_from_args(args)
-      fail ArgumentError, 'Too few arguments' if args.size == 0
+      fail ArgumentError, 'Too few arguments' if args.empty?
       fail ArgumentError, 'Too many arguments' if args.size > 2
 
       result = args.dup

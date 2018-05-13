@@ -10,7 +10,7 @@ describe Neo4j::Transaction do
     end
 
     subject do
-      final_args = args.map {|a| a == :session_double ? session_double : a }
+      final_args = args.map { |a| a == :session_double ? session_double : a }
       Neo4j::Transaction.session_and_run_in_tx_from_args(final_args)
     end
 
