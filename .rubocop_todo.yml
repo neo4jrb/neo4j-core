@@ -101,7 +101,10 @@ Metrics/AbcSize:
 # Offense count: 83
 # Configuration parameters: CountComments, ExcludedMethods.
 Metrics/BlockLength:
-  Max: 717
+  Exclude:
+    - neo4j-core.gemspec
+    - Rakefile
+    - 'spec/**/*'
 
 # Offense count: 12
 # Configuration parameters: CountComments.

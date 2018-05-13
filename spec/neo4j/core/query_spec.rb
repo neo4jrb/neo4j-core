@@ -98,7 +98,7 @@ describe Neo4j::Core::Query do
 
   describe 'batch finding' do
     let(:adaptor) do
-      if ENV.fetch('NEO4J_VERSION', '').match(/^community-2/)
+      if ENV.fetch('NEO4J_VERSION', '') =~ /^community-2/
         test_http_adaptor(test_http_url)
       else
         test_bolt_adaptor(test_bolt_url)
