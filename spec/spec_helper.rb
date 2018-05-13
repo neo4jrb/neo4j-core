@@ -24,15 +24,11 @@ require 'fileutils'
 require 'tmpdir'
 require 'logger'
 require 'rspec/its'
-require 'neo4j-core'
-require 'neo4j-server'
-require 'neo4j-embedded' if RUBY_PLATFORM == 'java'
+require 'neo4j/core'
+require 'neo4j/core/query'
 require 'ostruct'
 
 if RUBY_PLATFORM == 'java'
-  require 'neo4j-embedded/embedded_impermanent_session'
-  require 'ruby-debug'
-
   # for some reason this is not impl. in JRuby
   class OpenStruct
     def [](key)
@@ -49,18 +45,18 @@ EMBEDDED_DB_PATH = File.join(Dir.tmpdir, 'neo4j-core-java')
 require "#{File.dirname(__FILE__)}/helpers"
 
 require 'neo4j/core/cypher_session'
-
 require 'neo4j/core/cypher_session/adaptors/http'
 require 'neo4j/core/cypher_session/adaptors/bolt'
 require 'neo4j/core/cypher_session/adaptors/embedded'
+
 module Neo4jSpecHelpers
-  def log_queries!
-    Neo4j::Server::CypherSession.log_with(&method(:puts))
-    Neo4j::Core::CypherSession::Adaptors::Base.subscribe_to_query(&method(:puts))
-    Neo4j::Core::CypherSession::Adaptors::HTTP.subscribe_to_request(&method(:puts))
-    Neo4j::Core::CypherSession::Adaptors::Bolt.subscribe_to_request(&method(:puts))
-    Neo4j::Core::CypherSession::Adaptors::Embedded.subscribe_to_transaction(&method(:puts))
-  end
+  # def log_queries!
+  #   Neo4j::Server::CypherSession.log_with(&method(:puts))
+  #   Neo4j::Core::CypherSession::Adaptors::Base.subscribe_to_query(&method(:puts))
+  #   Neo4j::Core::CypherSession::Adaptors::HTTP.subscribe_to_request(&method(:puts))
+  #   Neo4j::Core::CypherSession::Adaptors::Bolt.subscribe_to_request(&method(:puts))
+  #   Neo4j::Core::CypherSession::Adaptors::Embedded.subscribe_to_transaction(&method(:puts))
+  # end
 
   def current_transaction
     Neo4j::Transaction.current_for(Neo4j::Session.current)
@@ -91,68 +87,62 @@ module Neo4jSpecHelpers
     end
   end
   # rubocop:enable Style/GlobalVars
+
+  def delete_schema(session = nil)
+    Neo4j::Core::Label.drop_uniqueness_constraints_for(session || current_session)
+    Neo4j::Core::Label.drop_indexes_for(session || current_session)
+  end
+
+  def create_constraint(session, label_name, property, options = {})
+    label_object = Neo4j::Core::Label.new(label_name, session)
+    label_object.create_constraint(property, options)
+  end
+
+  def create_index(session, label_name, property, options = {})
+    label_object = Neo4j::Core::Label.new(label_name, session)
+    label_object.create_index(property, options)
+  end
+
+  def test_bolt_url
+    ENV['NEO4J_BOLT_URL']
+  end
+
+  def test_bolt_adaptor(url, extra_options = {})
+    options = {}
+    options[:logger_level] = Logger::DEBUG if ENV['DEBUG']
+
+    cert_store = OpenSSL::X509::Store.new
+    cert_path = ENV.fetch('TLS_CERTIFICATE_PATH', './db/neo4j/development/certificates/neo4j.cert')
+    cert_store.add_file(cert_path)
+    options[:ssl] = {cert_store: cert_store}
+
+    Neo4j::Core::CypherSession::Adaptors::Bolt.new(url, options.merge(extra_options))
+  end
+
+  def test_http_url
+    ENV['NEO4J_URL']
+  end
+
+  def test_http_adaptor(url, extra_options = {})
+    options = {}
+    options[:logger_level] = Logger::DEBUG if ENV['DEBUG']
+
+    Neo4j::Core::CypherSession::Adaptors::HTTP.new(url, options.merge(extra_options))
+  end
+
+  def delete_db(session)
+    session.query('MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n, r')
+  end
 end
 
-# Introduces `let_context` helper method
-# This allows us to simplify the case where we want to
-# have a context which contains one or more `let` statements
-module FixingRSpecHelpers
-  # Supports giving either a Hash or a String and a Hash as arguments
-  # In both cases the Hash will be used to define `let` statements
-  # When a String is specified that becomes the context description
-  # If String isn't specified, Hash#inspect becomes the context description
-  def let_context(*args, &block)
-    context_string, hash =
-      case args.map(&:class)
-      when [String, Hash] then ["#{args[0]} #{args[1]}", args[1]]
-      when [Hash] then [args[0].inspect, args[0]]
-      end
-
-    context(context_string) do
-      hash.each { |var, value| let(var) { value } }
-
-      instance_eval(&block)
-    end
-  end
-
-  def subject_should_raise(*args)
-    error, message = args
-    it_string = "subject should raise #{error}"
-    it_string += " (#{message.inspect})" if message
-
-    it it_string do
-      expect { subject }.to raise_error error, message
-    end
-  end
-
-  def subject_should_not_raise(*args)
-    error, message = args
-    it_string = "subject should not raise #{error}"
-    it_string += " (#{message.inspect})" if message
-
-    it it_string do
-      expect { subject }.not_to raise_error error, message
-    end
-  end
-end
+require 'dryspec/helpers'
 
 FileUtils.rm_rf(EMBEDDED_DB_PATH)
 
 RSpec.configure do |config|
   config.include Neo4jSpecHelpers
-  config.extend FixingRSpecHelpers
-  config.include Helpers
-
-  config.before(:all, api: :server) do
-    Neo4j::Session.current.close if Neo4j::Session.current
-    create_server_session
-  end
-
-  config.before(:all, api: :embedded) do
-    Neo4j::Session.current.close if Neo4j::Session.current
-    create_embedded_session
-    Neo4j::Session.current.start unless Neo4j::Session.current.running?
-  end
+  config.extend DRYSpec::Helpers
+  # config.include Helpers
 
   config.before(:suite) do
     # for expect_queries method
@@ -161,33 +151,6 @@ RSpec.configure do |config|
     Neo4j::Core::CypherSession::Adaptors::Base.subscribe_to_query do |_message|
       Neo4jSpecHelpers.expect_queries_count += 1
     end
-  end
-
-  # if ENV['TEST_AUTHENTICATION'] == 'true'
-  #   uri = URI.parse("http://localhost:7474/user/neo4j/password")
-  #   db_default = 'neo4j'
-  #   suite_default = 'neo4jrb rules, ok?'
-
-  #   config.before(:suite, api: :server) do
-  #     Net::HTTP.post_form(uri, { 'password' => db_default, 'new_password' => suite_default })
-  #   end
-
-  #   config.after(:suite, api: :server) do
-  #     Net::HTTP.post_form(uri, { 'password' => suite_default, 'new_password' => db_default })
-  #   end
-  # end
-
-  config.before(:each, api: :embedded) do
-    curr_session = Neo4j::Session.current
-    curr_session.close if curr_session && !curr_session.is_a?(Neo4j::Embedded::EmbeddedSession)
-    Neo4j::Session.current || create_embedded_session
-    Neo4j::Session.current.start unless Neo4j::Session.current.running?
-  end
-
-  config.before(:each, api: :server) do
-    curr_session = Neo4j::Session.current
-    curr_session.close if curr_session && !curr_session.is_a?(Neo4j::Server::CypherSession)
-    Neo4j::Session.current || create_server_session
   end
 
   config.exclusion_filter = {

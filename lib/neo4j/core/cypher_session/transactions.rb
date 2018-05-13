@@ -1,3 +1,5 @@
+require 'neo4j/transaction'
+
 module Neo4j
   module Core
     class CypherSession

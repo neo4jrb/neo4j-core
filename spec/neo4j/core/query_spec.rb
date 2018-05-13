@@ -52,16 +52,16 @@ class DocGenerator
 
     add_headers(context_class)
 
-    @file.puts <<-RST
-:Ruby:
-  .. code-block:: ruby
+    @file.puts <<-RST.strip_heredoc
+      :Ruby:
+        .. code-block:: ruby
 
-    #{query_code}
+          #{query_code}
 
-:Cypher:
-  .. code-block:: cypher
+      :Cypher:
+        .. code-block:: cypher
 
-    #{cypher}
+          #{cypher}
 
 RST
 
@@ -97,17 +97,24 @@ describe Neo4j::Core::Query do
   end
 
   describe 'batch finding' do
-    before(:all) do
-      create_server_session
+    let(:adaptor) do
+      if ENV.fetch('NEO4J_VERSION', '') =~ /^community-2/
+        test_http_adaptor(test_http_url)
+      else
+        test_bolt_adaptor(test_bolt_url)
+      end
     end
+    let(:session) { Neo4j::Core::CypherSession.new(adaptor) }
+    let(:query_object) { Neo4j::Core::Query.new(session: session) }
+
     before(:each) do
-      delete_db
+      delete_db(session)
 
       5.times do
-        Neo4j::Node.create({uuid: SecureRandom.uuid}, :Foo)
+        session.query('CREATE (n:Foo {uuid: {uuid}})', uuid: SecureRandom.uuid)
       end
       2.times do
-        Neo4j::Node.create({uuid: SecureRandom.uuid}, :Bar)
+        session.query('CREATE (n:Bar {uuid: {uuid}})', uuid: SecureRandom.uuid)
       end
     end
 
@@ -124,7 +131,7 @@ describe Neo4j::Core::Query do
           context "batch_size of #{batch_size}" do
             it "yields #{expected_yields} times" do
               expect do |block|
-                Neo4j::Core::Query.new.match(f: :Foo).return(:f).find_in_batches(:f, primary_key, batch_size: batch_size, &block)
+                query_object.match(f: :Foo).return(:f).find_in_batches(:f, primary_key, batch_size: batch_size, &block)
               end.to yield_control.exactly(expected_yields).times
             end
           end
@@ -143,7 +150,7 @@ describe Neo4j::Core::Query do
           context "batch_size of #{batch_size}" do
             it "yields #{expected_yields} times" do
               expect do |block|
-                Neo4j::Core::Query.new.match(f: :Foo).return(:f).find_each(:f, primary_key, batch_size: 2, &block)
+                query_object.match(f: :Foo).return(:f).find_each(:f, primary_key, batch_size: 2, &block)
               end.to yield_control.exactly(5).times
             end
           end

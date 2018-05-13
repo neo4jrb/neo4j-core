@@ -30,7 +30,7 @@ module Neo4j
 
           [String, Symbol, Integer, Hash, NilClass].each do |arg_class|
             from_method = "from_#{arg_class.name.downcase}"
-            return @value = send(from_method, @arg) if @arg.is_a?(arg_class) && self.respond_to?(from_method)
+            return @value = send(from_method, @arg) if @arg.is_a?(arg_class) && respond_to?(from_method)
           end
 
           fail ArgError
@@ -42,12 +42,10 @@ module Neo4j
         end
 
         def from_hash(value)
-          if self.respond_to?(:from_key_and_value)
-            value.map do |k, v|
-              from_key_and_value k, v
-            end
-          else
-            fail ArgError
+          fail ArgError if !respond_to?(:from_key_and_value)
+
+          value.map do |k, v|
+            from_key_and_value k, v
           end
         end
 
@@ -107,7 +105,6 @@ module Neo4j
           value.values.any? { |v| v.is_a?(Hash) }
         end
 
-
         def attributes_from_key_and_value(_key, value)
           return nil unless value.is_a?(Hash)
 
@@ -150,7 +147,7 @@ module Neo4j
             strings = clause_strings(clauses)
             stripped_string = strings.join(join_string)
             stripped_string.strip!
-            (pretty && strings.size > 1) ? PRETTY_NEW_LINE + stripped_string : stripped_string
+            pretty && strings.size > 1 ? PRETTY_NEW_LINE + stripped_string : stripped_string
           end
 
           def clause_join
@@ -552,7 +549,7 @@ module Neo4j
           from_string(value)
         end
 
-        def from_nilclass(value)
+        def from_nilclass(_value)
           ''
         end
 

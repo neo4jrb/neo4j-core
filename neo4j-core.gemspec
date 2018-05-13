@@ -1,7 +1,7 @@
 lib = File.expand_path('../lib/', __FILE__)
 $LOAD_PATH.unshift lib unless $LOAD_PATH.include?(lib)
 
-require 'neo4j-core/version'
+require 'neo4j/core/version'
 
 Gem::Specification.new do |s|
   s.name     = 'neo4j-core'
@@ -40,13 +40,14 @@ DESCRIPTION
   s.add_dependency('multi_json')
   s.add_dependency('typhoeus', '>= 1.1.2')
 
+  s.add_development_dependency('dryspec')
   s.add_development_dependency('neo4j-rake_tasks', '>= 0.3.0')
   s.add_development_dependency('pry')
   s.add_development_dependency('simplecov')
   s.add_development_dependency('yard')
 
   if RUBY_PLATFORM == 'java'
-    s.add_dependency('neo4j-community', '>= 2.1.1')
+    s.add_development_dependency('neo4j-community', '>= 2.1.1')
     s.add_development_dependency 'ruby-debug'
   else
     s.add_development_dependency('guard')

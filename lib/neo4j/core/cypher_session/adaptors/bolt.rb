@@ -378,10 +378,8 @@ module Neo4j
               @socket.send(message, 0)
             end
 
-            def receive_message(size)
-              @socket.recv(size).tap do |result|
-                yield result
-              end
+            def receive_message(size, &block)
+              @socket.recv(size).tap(&block)
             end
           end
 
@@ -411,10 +409,8 @@ module Neo4j
               @ssl_socket.write(message)
             end
 
-            def receive_message(size)
-              @ssl_socket.read(size).tap do |result|
-                yield result
-              end
+            def receive_message(size, &block)
+              @ssl_socket.read(size).tap(&block)
             end
 
             private

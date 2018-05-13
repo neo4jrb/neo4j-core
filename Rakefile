@@ -32,31 +32,65 @@ end
 
 task default: [:spec]
 
-big_string = 'a' * 100_000
-big_int = 100_000 * 123_456
-big_float = big_int + 0.1359162596523621956
+CHARS = ('0'..'z').to_a
+def string
+  Arary.new(rand(1_000)) { CHARS.sample }.join
+end
+
+MAX_NUM = 10_00 * 999_999
+HALF_MAX_NUM = MAX_NUM.fdiv(2)
+def int
+  rand(MAX_NUM)
+end
+
+def float
+  (rand * MAX_NUM) - HALF_MAX_NUM
+end
 
 DIFFERENT_QUERIES = [
-  ['MATCH (n) RETURN n LIMIT {limit}', {limit: 20}],
-  ['MATCH (n) DELETE n'],
-  ['CREATE (n:Report) SET n = {props} RETURN n', {props: {big_string: big_string, big_int: big_int, big_float: big_float}}]
+  ['MATCH (n) RETURN n LIMIT {limit}', -> { {limit: rand(20)} }],
+  ['MATCH (n) WITH n LIMIT {limit} DELETE n', -> { {limit: rand(5)} }],
+  ['MATCH (n) SET n.some_prop = {value}', -> { {value: send(%i[string float int].sample)} }],
+  ['CREATE (n:Report) SET n = {props} RETURN n', -> { {props: {a_string: string, a_int: int, a_float: float}} }]
 ]
 
-task :stress_test do
+task :stress_test, [:times, :local] do |_task, args|
   require 'neo4j-core'
   require 'neo4j/core/cypher_session/adaptors/bolt'
   system('rm stress_test.log')
-  bolt_adaptor = Neo4j::Core::CypherSession::Adaptors::Bolt.new('bolt://neo4j:neo5j@localhost:7687', timeout: 10, logger_location: 'stress_test.log', logger_level: Logger::DEBUG)
+
+  if args[:local] == 'true'
+    cert_store = OpenSSL::X509::Store.new.tap { |store| store.add_file('./tmp/certificates/neo4j.cert') }
+    ssl_options = {cert_store: cert_store}
+    url = 'bolt://neo4j:neo5j@localhost:7687'
+  else
+    url = 'bolt://neo4j:y7_mAQaA0RG3pqOmAAVs0hvas_XJWgAG38WOdPWGJ9o@b40527a0.databases.neo4j.io'
+    ssl_options = {}
+  end
+
+  # logger_options = {}
+  logger_options = {logger_location: 'stress_test.log', logger_level: Logger::DEBUG}
+
+  bolt_adaptor = Neo4j::Core::CypherSession::Adaptors::Bolt.new(url, {timeout: 10, ssl: ssl_options}.merge(logger_options))
 
   neo4j_session = Neo4j::Core::CypherSession.new(bolt_adaptor)
 
-  2.times do
-    putc '.'
+  i = 0
+  start = Time.now
+  args.fetch(:times, 100).to_i.times do
+    # putc '.'
+
     begin
-      neo4j_session.query(*DIFFERENT_QUERIES.sample).to_a.inspect
-    rescue => e
+      query, params = DIFFERENT_QUERIES.sample
+      params = params.call if params.respond_to?(:call)
+      params ||= {}
+      neo4j_session.query(query, params).to_a.inspect
+    rescue => e # rubocop:disable Lint/RescueWithoutErrorClass
       raise e
     end
+
+    i += 1
+    puts "#{i.fdiv(Time.now - start)} i/s" if (i % 20).zero?
   end
 
   puts 'Done!'

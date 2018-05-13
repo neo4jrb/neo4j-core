@@ -49,6 +49,9 @@ Style/SignalException:
 Performance/HashEachMethods:
   AutoCorrect: true
 
+Layout/IndentHeredoc:
+  EnforcedStyle: active_support
+
 #---------------------------
 # Don't intend to fix these:
 #---------------------------
