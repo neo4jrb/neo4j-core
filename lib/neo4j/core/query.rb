@@ -202,7 +202,7 @@ module Neo4j
       # @example
       #    # Creates a query representing the cypher: MATCH (n:Person) SET n.age = 19
       #    Query.new.match(n: :Person).set_props(n: {age: 19})
-      def set_props(*args)
+      def set_props(*args) # rubocop:disable Naming/AccessorMethodName
         build_deeper_query(SetClause, args, set_props: true)
       end
 

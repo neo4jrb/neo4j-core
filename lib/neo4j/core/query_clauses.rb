@@ -42,12 +42,10 @@ module Neo4j
         end
 
         def from_hash(value)
-          if respond_to?(:from_key_and_value)
-            value.map do |k, v|
-              from_key_and_value k, v
-            end
-          else
-            fail ArgError
+          fail ArgError if !respond_to?(:from_key_and_value)
+
+          value.map do |k, v|
+            from_key_and_value k, v
           end
         end
 

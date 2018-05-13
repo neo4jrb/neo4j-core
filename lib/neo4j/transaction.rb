@@ -148,16 +148,12 @@ module Neo4j
       fail ArgumentError, 'Too few arguments' if args.empty?
       fail ArgumentError, 'Too many arguments' if args.size > 2
 
-      result = args.dup
-
       if args.size == 1
-        if args[0].is_a?(Neo4j::Core::CypherSession)
-          [args[0], true]
-        else
-          fail ArgumentError, 'Session must be specified' if args.size == 1
-        end
+        fail ArgumentError, 'Session must be specified' if !args[0].is_a?(Neo4j::Core::CypherSession)
+
+        [args[0], true]
       else
-        [true, false].include?(result[0]) ? result.reverse : result
+        [true, false].include?(args[0]) ? args.reverse : args.dup
       end
     end
 

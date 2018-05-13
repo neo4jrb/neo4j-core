@@ -32,13 +32,9 @@ end
 
 task default: [:spec]
 
-big_string = 'a' * 100_000
-big_int = 1000 * 123_456
-big_float = big_int + 0.1359162596523621956
-
 CHARS = ('0'..'z').to_a
 def string
-  rand(1_000).times.map { CHARS.sample }.join
+  Arary.new(rand(1_000)) { CHARS.sample }.join
 end
 
 MAX_NUM = 10_00 * 999_999
@@ -54,8 +50,8 @@ end
 DIFFERENT_QUERIES = [
   ['MATCH (n) RETURN n LIMIT {limit}', -> { {limit: rand(20)} }],
   ['MATCH (n) WITH n LIMIT {limit} DELETE n', -> { {limit: rand(5)} }],
-  ['MATCH (n) SET n.some_prop = {value}', -> { {value: send([:string, :float, :int].sample)} }],
-  ['CREATE (n:Report) SET n = {props} RETURN n', -> { {props: {big_string: string, big_int: int, big_float: float}} }]
+  ['MATCH (n) SET n.some_prop = {value}', -> { {value: send(%i[string float int].sample)} }],
+  ['CREATE (n:Report) SET n = {props} RETURN n', -> { {props: {a_string: string, a_int: int, a_float: float}} }]
 ]
 
 task :stress_test, [:times, :local] do |_task, args|
@@ -64,15 +60,15 @@ task :stress_test, [:times, :local] do |_task, args|
   system('rm stress_test.log')
 
   if args[:local] == 'true'
-    cert_store = OpenSSL::X509::Store.new.tap {|store| store.add_file('./tmp/certificates/neo4j.cert') }
-    ssl_options = { cert_store: cert_store }
+    cert_store = OpenSSL::X509::Store.new.tap { |store| store.add_file('./tmp/certificates/neo4j.cert') }
+    ssl_options = {cert_store: cert_store}
     url = 'bolt://neo4j:neo5j@localhost:7687'
   else
-    url = 'bolt://neo4j:pass@thing.databases.neo4j.io'
+    url = 'bolt://neo4j:y7_mAQaA0RG3pqOmAAVs0hvas_XJWgAG38WOdPWGJ9o@b40527a0.databases.neo4j.io'
     ssl_options = {}
   end
 
-  logger_options = {}
+  # logger_options = {}
   logger_options = {logger_location: 'stress_test.log', logger_level: Logger::DEBUG}
 
   bolt_adaptor = Neo4j::Core::CypherSession::Adaptors::Bolt.new(url, {timeout: 10, ssl: ssl_options}.merge(logger_options))
@@ -89,14 +85,12 @@ task :stress_test, [:times, :local] do |_task, args|
       params = params.call if params.respond_to?(:call)
       params ||= {}
       neo4j_session.query(query, params).to_a.inspect
-    rescue => e
+    rescue => e # rubocop:disable Lint/RescueWithoutErrorClass
       raise e
     end
 
     i += 1
-    if i % 20 == 0
-      puts "#{i.fdiv(Time.now - start)} i/s"
-    end
+    puts "#{i.fdiv(Time.now - start)} i/s" if (i % 20).zero?
   end
 
   puts 'Done!'
