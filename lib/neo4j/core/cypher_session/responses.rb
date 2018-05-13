@@ -28,7 +28,7 @@ module Neo4j
             when :proc
               yield.wrap
             else
-              fail ArgumentError, "Inalid wrap_level: #{@wrap_level.inspect}"
+              fail ArgumentError, "Invalid wrap_level: #{@wrap_level.inspect}"
             end
           end
 
