@@ -97,7 +97,14 @@ describe Neo4j::Core::Query do
   end
 
   describe 'batch finding' do
-    let(:session) { Neo4j::Core::CypherSession.new(test_bolt_adaptor(test_bolt_url)) }
+    let(:adaptor) do
+      if ENV.fetch('NEO4J_VERSION', '').match(/^community-2/)
+        test_http_adaptor(test_http_url)
+      else
+        test_bolt_adaptor(test_bolt_url)
+      end
+    end
+    let(:session) { Neo4j::Core::CypherSession.new(adaptor) }
     let(:query_object) { Neo4j::Core::Query.new(session: session) }
 
     before(:each) do

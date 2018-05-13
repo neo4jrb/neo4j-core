@@ -119,6 +119,17 @@ module Neo4jSpecHelpers
     Neo4j::Core::CypherSession::Adaptors::Bolt.new(url, options.merge(extra_options))
   end
 
+  def test_http_url
+    ENV['NEO4J_URL']
+  end
+
+  def test_http_adaptor(url, extra_options = {})
+    options = {}
+    options[:logger_level] = Logger::DEBUG if ENV['DEBUG']
+
+    Neo4j::Core::CypherSession::Adaptors::Bolt.new(url, options.merge(extra_options))
+  end
+
   def delete_db(session)
     session.query('MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n, r')
   end
