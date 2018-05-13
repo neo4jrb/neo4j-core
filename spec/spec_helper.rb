@@ -127,7 +127,7 @@ module Neo4jSpecHelpers
     options = {}
     options[:logger_level] = Logger::DEBUG if ENV['DEBUG']
 
-    Neo4j::Core::CypherSession::Adaptors::Bolt.new(url, options.merge(extra_options))
+    Neo4j::Core::CypherSession::Adaptors::HTTP.new(url, options.merge(extra_options))
   end
 
   def delete_db(session)
