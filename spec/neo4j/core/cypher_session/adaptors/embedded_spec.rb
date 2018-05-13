@@ -1,13 +1,13 @@
-require 'spec_helper'
-require 'neo4j/core/cypher_session/adaptors/embedded'
-require './spec/neo4j/core/shared_examples/adaptor'
-require 'tmpdir'
-require 'neo4j-community'
+if RUBY_PLATFORM == 'java'
+  require 'spec_helper'
+  require 'neo4j/core/cypher_session/adaptors/embedded'
+  require './spec/neo4j/core/shared_examples/adaptor'
+  require 'tmpdir'
+  require 'neo4j-community'
 
-describe Neo4j::Core::CypherSession::Adaptors::Embedded do
-  let(:adaptor_class) { Neo4j::Core::CypherSession::Adaptors::Embedded }
+  describe Neo4j::Core::CypherSession::Adaptors::Embedded do
+    let(:adaptor_class) { Neo4j::Core::CypherSession::Adaptors::Embedded }
 
-  if RUBY_PLATFORM == 'java'
     describe '#initialize' do
       it 'validates path' do
         expect { adaptor_class.new('./spec/fixtures/notadirectory') }.to raise_error ArgumentError, /Invalid path:/
@@ -24,9 +24,5 @@ describe Neo4j::Core::CypherSession::Adaptors::Embedded do
     let(:adaptor) { @adaptor }
 
     it_behaves_like 'Neo4j::Core::CypherSession::Adaptor'
-  else
-    it 'should raise an error' do
-      expect { adaptor_class.new('/') }.to raise_error 'JRuby is required for embedded mode'
-    end
   end
 end
