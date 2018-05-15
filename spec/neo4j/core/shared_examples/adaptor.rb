@@ -5,7 +5,6 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
     Neo4j::Core::CypherSession.new(adaptor)
   end
   let(:session_double) { double('session', adaptor: adaptor) }
-  # TODO: Test cypher errors
 
   before { adaptor.query(session_double, 'MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n, r') }
 
@@ -235,116 +234,154 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
       expect(structs[0].obj).to eq(a: 1)
     end
 
-    context 'wrapper class exists' do
-      before do
-        stub_const 'WrapperClass', (Class.new do
-          attr_reader :wrapped_object
+    describe 'parameter input and output' do
+      subject { adaptor.query(session_double, 'WITH {param} AS param RETURN param', param: param).first.param }
 
-          def initialize(obj)
-            @wrapped_object = obj
+      [
+        # Integers
+        rand(99_999_999) * -1,
+        -1, 0, 1,
+        rand(99_999_999),
+        # Floats
+        rand * 99_999_999 * -1,
+        -18.6288,
+        -1.0, 0.0, 1.0,
+        18.6288,
+        rand * 99_999_999,
+        # Strings
+        '',
+        'foo',
+        'bar' * 10_000,
+        # Arrays
+        [],
+        [1, 3, 5],
+        %w[foo bar],
+        # Hashes / Maps
+        {},
+        {a: 1, b: 2},
+        {a: 'foo', b: 'bar'}
+      ].each do |value|
+        let_context(param: value) { it { should eq(value) } }
+      end
+
+      # Asymetric values
+      # Symbols
+      let_context(param: :foo) { it { should eq('foo') } }
+      # Sets
+      # Commented out because, while Bolt supports this, the default `to_json`
+      # makes Sets into strings (like "#<Set:0x00007f98f21174b0>"), not arrays when serializing
+      # let_context(param: Set.new([1, 2, 3])) { it { should eq([1, 2, 3]) } }
+      # let_context(param: Set.new([1, 2, 3])) { it { should eq([1, 2, 3]) } }
+    end
+
+    describe 'wrapping' do
+      let(:query) do
+        "MERGE path=(n:Foo {a: 1})-[r:foo {b: 2}]->(b:Foo)
+         RETURN #{return_clause} AS result"
+      end
+      subject { adaptor.query(session_double, query, {}, wrap_level: wrap_level).to_a[0].result }
+
+      # `wrap_level: nil` should resolve to `wrap_level: :core_entity`
+      [nil, :core_entity].each do |type|
+        let_context wrap_level: type do
+          let_context return_clause: 'n' do
+            it { should be_a(Neo4j::Core::Node) }
+            its(:properties) { should eq(a: 1) }
           end
-        end)
 
-        Neo4j::Core::Node.wrapper_callback(->(obj) { WrapperClass.new(obj) })
-        Neo4j::Core::Relationship.wrapper_callback(->(obj) { WrapperClass.new(obj) })
-        Neo4j::Core::Path.wrapper_callback(->(obj) { WrapperClass.new(obj) })
+          let_context return_clause: 'r' do
+            it { should be_a(Neo4j::Core::Relationship) }
+            its(:properties) { should eq(b: 2) }
+          end
+
+          let_context return_clause: 'path' do
+            it { should be_a(Neo4j::Core::Path) }
+          end
+
+          let_context(return_clause: '{c: 3}') { it { should eq(c: 3) } }
+          let_context(return_clause: '[1,3,5]') { it { should eq([1, 3, 5]) } }
+          let_context(return_clause: '["foo", "bar"]') { it { should eq(%w[foo bar]) } }
+        end
       end
 
-      after do
-        Neo4j::Core::Node.clear_wrapper_callback
-        Neo4j::Core::Path.clear_wrapper_callback
-        Neo4j::Core::Relationship.clear_wrapper_callback
+      # Possible to return better data structure for :none?
+      let_context wrap_level: :none do
+        let_context(return_clause: 'n') { it { should eq(a: 1) } }
+        let_context(return_clause: 'r') { it { should eq(b: 2) } }
+        let_context(return_clause: 'path') { it { should eq([{a: 1}, {b: 2}, {}]) } }
+
+        let_context(return_clause: '{c: 3}') { it { should eq(c: 3) } }
+        let_context(return_clause: '[1,3,5]') { it { should eq([1, 3, 5]) } }
+        let_context(return_clause: '["foo", "bar"]') { it { should eq(%w[foo bar]) } }
       end
 
-      # Normally I don't think you wouldn't wrap nodes/relationships/paths
-      # with the same class.  It's just expedient to do so in this spec
+      let_context wrap_level: :proc do
+        before do
+          # Normally I don't think you wouldn't wrap nodes/relationships/paths
+          # with the same class.  It's just expedient to do so in this spec
+          stub_const 'WrapperClass', Struct.new(:wrapped_object)
 
-      describe 'wrapping' do
-        let(:query) do
-          "MERGE path=(n:Foo {a: 1})-[r:foo {b: 2}]->(b:Foo)
-           RETURN #{return_clause} AS result"
+          %i[Node Relationship Path].each do |core_class|
+            Neo4j::Core.const_get(core_class).wrapper_callback(WrapperClass.method(:new))
+          end
         end
 
-        # Default wrap_level should be :core_entity
-        let(:wrap_level) { nil }
-
-        subject { adaptor.query(session_double, query, {}, wrap_level: wrap_level).to_a[0].result }
+        after do
+          %i[Node Relationship Path].each do |core_class|
+            Neo4j::Core.const_get(core_class).clear_wrapper_callback
+          end
+        end
 
         let_context return_clause: 'n' do
-          it { should be_a(Neo4j::Core::Node) }
-          its(:properties) { should eq(a: 1) }
+          it { should be_a(WrapperClass) }
+          its(:wrapped_object) { should be_a(Neo4j::Core::Node) }
+          its(:'wrapped_object.properties') { should eq(a: 1) }
         end
 
         let_context return_clause: 'r' do
-          it { should be_a(Neo4j::Core::Relationship) }
-          its(:properties) { should eq(b: 2) }
+          it { should be_a(WrapperClass) }
+          its(:wrapped_object) { should be_a(Neo4j::Core::Relationship) }
+          its(:'wrapped_object.properties') { should eq(b: 2) }
         end
 
         let_context return_clause: 'path' do
-          it { should be_a(Neo4j::Core::Path) }
+          it { should be_a(WrapperClass) }
+          its(:wrapped_object) { should be_a(Neo4j::Core::Path) }
         end
 
-        let_context return_clause: '{c: 3}' do
-          it { should eq(c: 3) }
-        end
-
-        # Possible to return better data structure for :none?
-        let_context wrap_level: :none do
-          let_context return_clause: 'n' do
-            it { should eq(a: 1) }
-          end
-
-          let_context return_clause: 'r' do
-            it { should eq(b: 2) }
-          end
-
-          let_context return_clause: 'path' do
-            it { should eq([{a: 1}, {b: 2}, {}]) }
-          end
-
-          let_context return_clause: '{c: 3}' do
-            it { should eq(c: 3) }
-          end
-        end
-
-        let_context wrap_level: :proc do
-          let_context return_clause: 'n' do
-            it { should be_a(WrapperClass) }
-            its(:wrapped_object) { should be_a(Neo4j::Core::Node) }
-            its(:'wrapped_object.properties') { should eq(a: 1) }
-          end
-
-          let_context return_clause: 'r' do
-            it { should be_a(WrapperClass) }
-            its(:wrapped_object) { should be_a(Neo4j::Core::Relationship) }
-            its(:'wrapped_object.properties') { should eq(b: 2) }
-          end
-
-          let_context return_clause: 'path' do
-            it { should be_a(WrapperClass) }
-            its(:wrapped_object) { should be_a(Neo4j::Core::Path) }
-          end
-
-          let_context return_clause: '{c: 3}' do
-            it { should eq(c: 3) }
-          end
-        end
+        let_context(return_clause: '{c: 3}') { it { should eq(c: 3) } }
+        let_context(return_clause: '[1,3,5]') { it { should eq([1, 3, 5]) } }
+        let_context(return_clause: '["foo", "bar"]') { it { should eq(%w[foo bar]) } }
       end
     end
   end
 
   describe 'cypher errors' do
-    before { delete_schema(real_session) }
-    before do
-      create_constraint(real_session, :Album, :uuid, type: :unique)
-    end
-
     describe 'unique constraint error' do
-      it 'raises an error?' do
+      before { delete_schema(real_session) }
+      before { create_constraint(real_session, :Album, :uuid, type: :unique) }
+
+      it 'raises an error' do
         adaptor.query(real_session, "CREATE (:Album {uuid: 'dup'})").to_a
         expect do
           adaptor.query(real_session, "CREATE (:Album {uuid: 'dup'})").to_a
         end.to raise_error(::Neo4j::Core::CypherSession::SchemaErrors::ConstraintValidationFailedError)
+      end
+    end
+
+    describe 'Invalid input error' do
+      it 'raises an error' do
+        expect do
+          adaptor.query(real_session, "CRATE (:Album {uuid: 'dup'})").to_a
+        end.to raise_error(::Neo4j::Core::CypherSession::CypherError, /Neo\.ClientError\.Statement\.SyntaxError.*Invalid input 'A'/)
+      end
+    end
+
+    describe 'Clause ordering error' do
+      it 'raises an error' do
+        expect do
+          adaptor.query(real_session, "RETURN a CREATE (a:Album {uuid: 'dup'})").to_a
+        end.to raise_error(::Neo4j::Core::CypherSession::CypherError, /Neo\.ClientError\.Statement\.SyntaxError.*RETURN can only be used at the end of the query/)
       end
     end
   end
