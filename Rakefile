@@ -34,7 +34,7 @@ task default: [:spec]
 
 CHARS = ('0'..'z').to_a
 def string
-  Arary.new(rand(1_000)) { CHARS.sample }.join
+  Array.new(rand(1_000)) { CHARS.sample }.join
 end
 
 MAX_NUM = 10_00 * 999_999
@@ -55,7 +55,8 @@ DIFFERENT_QUERIES = [
 ]
 
 task :stress_test, [:times, :local] do |_task, args|
-  require 'neo4j-core'
+  require 'logger'
+  require 'neo4j/core'
   require 'neo4j/core/cypher_session/adaptors/bolt'
   system('rm stress_test.log')
 
