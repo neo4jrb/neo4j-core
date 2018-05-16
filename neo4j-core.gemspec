@@ -39,6 +39,7 @@ DESCRIPTION
   s.add_dependency('json')
   s.add_dependency('multi_json')
   s.add_dependency('typhoeus', '>= 1.1.2')
+  s.add_dependency('net_tcp_client', '>= 2.0.1')
 
   s.add_development_dependency('dryspec')
   s.add_development_dependency('neo4j-rake_tasks', '>= 0.3.0')
