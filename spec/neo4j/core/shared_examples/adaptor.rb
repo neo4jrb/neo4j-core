@@ -239,19 +239,24 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
 
       [
         # Integers
+        rand(10_000_000_000) * -1,
         rand(99_999_999) * -1,
         -1, 0, 1,
         rand(99_999_999),
+        rand(10_000_000_000),
         # Floats
+        rand * 10_000_000_000 * -1,
         rand * 99_999_999 * -1,
         -18.6288,
         -1.0, 0.0, 1.0,
         18.6288,
         rand * 99_999_999,
+        rand * 10_000_000_000,
         # Strings
         '',
         'foo',
-        'bar' * 10_000,
+        # 'bar' * 10_000, # (16326 - 16329)    16,384 = 2^14
+        'bar' * 5442,
         # Arrays
         [],
         [1, 3, 5],
