@@ -16,17 +16,19 @@ It can be used standalone without the neo4j gem.
 To make a basic connection to Neo4j to execute Cypher queries, first choose an adaptor.  Adaptors for HTTP, Bolt, and Embedded mode (jRuby only) are available.  You can create an adaptor like:
 
     require 'neo4j/core/cypher_session/adaptors/http'
-    http_adaptor = Neo4j::Core::CypherSession::Adaptors::HTTP.new('http://neo4j:pass@localhost:7474')
+    http_adaptor = Neo4j::Core::CypherSession::Adaptors::HTTP.new('http://neo4j:pass@localhost:7474', options)
 
     # or
 
     require 'neo4j/core/cypher_session/adaptors/bolt'
-    bolt_adaptor = Neo4j::Core::CypherSession::Adaptors::Bolt.new('bolt://neo4j:pass@localhost:7687', timeout: 10)
+    bolt_adaptor = Neo4j::Core::CypherSession::Adaptors::Bolt.new('bolt://neo4j:pass@localhost:7687', options)
 
     # or
 
     require 'neo4j/core/cypher_session/adaptors/embedded'
-    neo4j_adaptor = Neo4j::Core::CypherSession::Adaptors::Embedded.new('/file/path/to/graph.db')
+    neo4j_adaptor = Neo4j::Core::CypherSession::Adaptors::Embedded.new('/file/path/to/graph.db', options)
+
+The options are specific to each adaptor.  See below for details.
 
 Once you have an adaptor you can create a session like so:
 
@@ -64,15 +66,54 @@ When doing batched queries, there is also a shortcut for getting a new `Neo4j::C
 
     results[0] # result
 
+### Adaptor Options
+
+As mentioned above, each of the adaptors take different sets of options.  They are enumerated below:
+
+#### Shared options
+
+All adaptors take `wrap_level` as an option.  This can be used to control how nodes, relationships, and path data is returned:
+
+ * `wrap_level: :none` will return Ruby hashes
+ * `wrap_level: :core_entity` will return objects from the `neo4j-core` gem (`Neo4j::Core::Node`, `Neo4j::Core::Relationship`, and `Neo4j::Core::Path`
+ * `wrap_level: :prop` allows you to define Ruby Procs to do your own wrapping.  This is how the `neo4j` gem provides `ActiveNode` and `ActiveRel` objects (see the [`node_wrapper.rb`](https://github.com/neo4jrb/neo4j/blob/master/lib/neo4j/active_node/node_wrapper.rb) and [`rel_wrapper.rb`](https://github.com/neo4jrb/neo4j/blob/master/lib/neo4j/active_rel/rel_wrapper.rb) files for examples on how this works
+
+All adaptors will also take either a `logger` option with a Ruby logger to define where it will log to.
+
+#### Bolt
+
+The Bolt adaptor takes `connect_timeout`, `read_timeout`, and `write_timeout` options which define appropriate timeouts.  Since the `net_tcp_client` gem is used under the covers, it's defaults are the defaults for this adaptor (currently 10s for connect, 60s for read, and 60s for write)
+
+The Bolt adaptor also takes an `ssl` option which also corresponds to `net_tcp_client`'s `ssl` option (which, in turn, corresponds to Ruby's `OpenSSL::SSL::SSLContext`)
+
+#### HTTP
+
+Since the HTTP adaptor uses the `faraday` gem under the covers, it takes a `faraday_configurator` option.  This allows you to pass in a `Proc` which works just like a Faraday setup block:
+
+```ruby
+  faraday_configurator: proc do |faraday|
+    # The default configurator uses typhoeus so if you override the configurator you must specify this
+    faraday.adapter :typhoeus
+    # Optionally you can instead specify another adaptor
+    # faraday.use Faraday::Adapter::NetHttpPersistent
+
+    # If you need to set options which would normally be the second argument of `Faraday.new`, you can do the following:
+    faraday.options[:open_timeout] = 5
+    faraday.options[:timeout] = 65
+    # faraday.options[:ssl] = { verify: true }
+  end
+```
+
+#### Embedded
+
+The Embedded adaptor takes `properties_file` and `properties_map` options which are passed to `loadPropertiesFromFile` and `setConfig` on the `GraphDatabaseBuilder` class from the Neo4j Java API.
+
 ## Documentation
 
-### 3.0+ Documentation:
+Our documentation on ReadTheDocs covers both the `neo4j` and `neo4j-core` gems:
 
  * http://neo4jrb.readthedocs.org/en/stable/
 
-### 2.x Documentation
-
-https://github.com/neo4jrb/neo4j-core/tree/v2.x
 
 ## Support
 
