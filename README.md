@@ -84,7 +84,16 @@ All adaptors will also take either a `logger` option with a Ruby logger to defin
 
 The Bolt adaptor takes `connect_timeout`, `read_timeout`, and `write_timeout` options which define appropriate timeouts.  Since the `net_tcp_client` gem is used under the covers, it's defaults are the defaults for this adaptor (currently 10s for connect, 60s for read, and 60s for write)
 
-The Bolt adaptor also takes an `ssl` option which also corresponds to `net_tcp_client`'s `ssl` option (which, in turn, corresponds to Ruby's `OpenSSL::SSL::SSLContext`)
+The Bolt adaptor also takes an `ssl` option which also corresponds to `net_tcp_client`'s `ssl` option (which, in turn, corresponds to Ruby's `OpenSSL::SSL::SSLContext`).  By default SSL is used.  For most cloud providers that use public certificate authorities this open generally won't be needed.  If you've setup Neo4j yourself you will need to provide the certificate like so:
+
+```ruby
+cert_store = OpenSSL::X509::Store.new
+cert_store.add_file('/the/path/to/your/neo4j.cert')
+ssl: {cert_store: cert_store}}
+bolt_adaptor = Neo4j::Core::CypherSession::Adaptors::Bolt.new('bolt://neo4j:pass@localhost:7687', ssl: {cert_store: cert_store})
+```
+
+You can also turn SSL off by simply specifying `ssl: false`
 
 #### HTTP
 
