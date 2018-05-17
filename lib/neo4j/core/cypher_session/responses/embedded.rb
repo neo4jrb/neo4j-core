@@ -83,16 +83,18 @@ module Neo4j
           end
 
           def wrap_value(entity)
-            if entity.is_a?(Java::ScalaCollectionConvert::Wrappers::MapWrapper)
+            case entity
+            when Java::ScalaCollectionConvert::Wrappers::MapWrapper
               entity.each_with_object({}) { |(k, v), r| r[k.to_sym] = _wrap_entity(v) }
-            elsif entity.is_a?(Java::OrgNeo4jKernelImplCore::NodeProxy) ||
-                  entity.is_a?(Java::OrgNeo4jKernelImplCore::RelationshipProxy)
+            when Java::OrgNeo4jKernelImplCore::NodeProxy, Java::OrgNeo4jKernelImplCore::RelationshipProxy
               entity.property_keys.each_with_object({}) { |key, hash| hash[key.to_sym] = entity.get_property(key) }
-            elsif entity.respond_to?(:path_entities) || entity.is_a?(Java::ScalaCollectionConvert::Wrappers::SeqWrapper)
-              entity.to_a.map(&method(:_wrap_entity))
             else
-              # Convert from Java?
-              entity
+              if entity.respond_to?(:path_entities) || entity.is_a?(Java::ScalaCollectionConvert::Wrappers::SeqWrapper)
+                entity.to_a.map(&method(:_wrap_entity))
+              else
+                # Convert from Java?
+                entity.is_a?(Hash) ? entity.symbolize_keys : entity
+              end
             end
           end
 
