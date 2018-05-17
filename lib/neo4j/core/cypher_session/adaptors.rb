@@ -2,6 +2,7 @@ require 'neo4j/core/cypher_session'
 require 'neo4j/core/instrumentable'
 require 'neo4j/core/label'
 require 'neo4j/core/version'
+require 'neo4j/core/logging'
 require 'neo4j/ansi'
 
 module Neo4j
@@ -178,7 +179,10 @@ ERROR
             params_string = (query.parameters && !query.parameters.empty? ? "| #{query.parameters.inspect}" : EMPTY)
             cypher = query.pretty_cypher ? (NEWLINE_W_SPACES if query.pretty_cypher.include?("\n")).to_s + query.pretty_cypher.gsub(/\n/, NEWLINE_W_SPACES) : query.cypher
 
-            " #{ANSI::CYAN}#{query.context || 'CYPHER'}#{ANSI::CLEAR} #{cypher} #{params_string}"
+            source_line, line_number = Logging.first_external_path_and_line(caller_locations)
+
+            " #{ANSI::CYAN}#{query.context || 'CYPHER'}#{ANSI::CLEAR} #{cypher} #{params_string}" +
+              ("\n   ↳ #{source_line}:#{line_number}" if source_line).to_s
           end
 
           class << self
