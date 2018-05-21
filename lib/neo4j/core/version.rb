@@ -1,5 +1,5 @@
 module Neo4j
   module Core
-    VERSION = '8.1.4'
+    VERSION = '9.0.0'
   end
 end
