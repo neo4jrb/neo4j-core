@@ -14,13 +14,6 @@ Bundler/DuplicatedGem:
     - 'Gemfile'
 
 # Offense count: 1
-# Configuration parameters: Include.
-# Include: **/*.gemspec
-Gemspec/RequiredRubyVersion:
-  Exclude:
-    - 'neo4j-core.gemspec'
-
-# Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: AllowAdjacentOneLineDefs, NumberOfEmptyLines.
 Layout/EmptyLineBetweenDefs:

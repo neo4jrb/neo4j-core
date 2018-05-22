@@ -6,7 +6,7 @@ require 'neo4j/core/version'
 Gem::Specification.new do |s|
   s.name     = 'neo4j-core'
   s.version  = Neo4j::Core::VERSION
-  s.required_ruby_version = '>= 1.9.3'
+  s.required_ruby_version = '>= 2.1.0'
 
   s.authors  = 'Andreas Ronge, Chris Grigg, Brian Underwood'
   s.email    = 'andreas.ronge@gmail.com, chris@subvertallmedia.com, brian@brian-underwood.codes'
