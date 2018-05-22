@@ -11,7 +11,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Bolt adaptor now supports TLS.  TLS / SSL required by default.  See documentation for more information.
 - Speed improvements have been made to the Bolt adaptor
 - Bolt adaptor is now using the `net_tcp_client` gem in an effort to improve robustness
-- Added source line of queries to logs (fixes #1497)
+- Added source line of queries to logs via `verbose_query_logs` option on all adaptors (fixes #1497)
 
 ## [8.1.4] - 2018-04-10
 

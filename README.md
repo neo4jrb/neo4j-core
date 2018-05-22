@@ -80,6 +80,10 @@ All adaptors take `wrap_level` as an option.  This can be used to control how no
 
 All adaptors will also take either a `logger` option with a Ruby logger to define where it will log to.
 
+All adaptors will also take the `skip_instrumentation` option to skip logging of queries.
+
+All adaptors will also take the `verbose_query_logs` option which can be `true` or `false` (`false` being the default).  This will change the logging to output the source line of code which caused a query to be executed (note that the `skip_instrumentation` should not be set for logging to be produced).
+
 #### Bolt
 
 The Bolt adaptor takes `connect_timeout`, `read_timeout`, and `write_timeout` options which define appropriate timeouts.  Since the `net_tcp_client` gem is used under the covers, it's defaults are the defaults for this adaptor (currently 10s for connect, 60s for read, and 60s for write)
