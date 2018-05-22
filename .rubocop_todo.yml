@@ -20,14 +20,6 @@ Layout/EmptyLineBetweenDefs:
   Exclude:
     - 'lib/neo4j/core/cypher_session/adaptors/bolt/pack_stream.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: auto_detection, squiggly, active_support, powerpack, unindent
-Layout/IndentHeredoc:
-  Exclude:
-    - 'neo4j-core.gemspec'
-
 # Offense count: 2
 Lint/AmbiguousBlockAssociation:
   Exclude:
