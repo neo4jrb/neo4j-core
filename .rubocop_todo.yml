@@ -86,12 +86,6 @@ Style/EvalWithLocation:
     - 'spec/neo4j/core/query_spec.rb'
 
 # Offense count: 1
-# Cop supports --auto-correct.
-Style/ExpandPathArguments:
-  Exclude:
-    - 'neo4j-core.gemspec'
-
-# Offense count: 1
 # Configuration parameters: MinBodyLength.
 Style/GuardClause:
   Exclude:
