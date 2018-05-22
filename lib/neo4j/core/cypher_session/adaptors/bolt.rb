@@ -61,7 +61,7 @@ module Neo4j
           end
 
           def connected?
-            !!@tcp_client
+            !!@tcp_client && !@tcp_client.closed?
           end
 
           def indexes(session)
@@ -138,7 +138,7 @@ module Neo4j
           end
 
           def open_socket
-            @tcp_client = Net::TCPClient.new(@net_tcp_client_options.merge(server: "#{host}:#{port}"))
+            @tcp_client = Net::TCPClient.new(@net_tcp_client_options.merge(buffered: false, server: "#{host}:#{port}"))
           rescue Errno::ECONNREFUSED => e
             raise Neo4j::Core::CypherSession::ConnectionFailedError, e.message
           end

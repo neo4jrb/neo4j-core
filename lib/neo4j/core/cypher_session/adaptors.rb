@@ -24,7 +24,6 @@ ERROR
           super(msg)
         end
 
-
         def self.new_from(code, message, stack_trace = nil)
           error_class_from(code).new(code, message, stack_trace)
         end
@@ -69,6 +68,7 @@ ERROR
           end
 
           attr_accessor :wrap_level
+          attr_reader :options
 
           Query = Struct.new(:cypher, :parameters, :pretty_cypher, :context)
 
@@ -167,14 +167,16 @@ ERROR
             fail 'Query attempted without a connection' if !connected?
             fail "Invalid transaction object: #{transaction.inspect}" if !transaction.is_a?(self.class.transaction_class)
 
-            # context option not yet implemented
-            self.class.instrument_queries(queries) unless options[:skip_instrumentation]
+            return if options[:skip_instrumentation]
+            queries.each do |query|
+              self.class.instrument_query(query, self) {}
+            end
           end
 
           EMPTY = ''
           NEWLINE_W_SPACES = "\n  "
 
-          instrument(:query, 'neo4j.core.cypher_query', %w[query]) do |_, _start, _finish, _id, payload|
+          instrument(:query, 'neo4j.core.cypher_query', %w[query adaptor]) do |_, _start, _finish, _id, payload|
             query = payload[:query]
             params_string = (query.parameters && !query.parameters.empty? ? "| #{query.parameters.inspect}" : EMPTY)
             cypher = query.pretty_cypher ? (NEWLINE_W_SPACES if query.pretty_cypher.include?("\n")).to_s + query.pretty_cypher.gsub(/\n/, NEWLINE_W_SPACES) : query.cypher
@@ -182,16 +184,10 @@ ERROR
             source_line, line_number = Logging.first_external_path_and_line(caller_locations)
 
             " #{ANSI::CYAN}#{query.context || 'CYPHER'}#{ANSI::CLEAR} #{cypher} #{params_string}" +
-              ("\n   ↳ #{source_line}:#{line_number}" if source_line).to_s
+              ("\n   ↳ #{source_line}:#{line_number}" if payload[:adaptor].options[:verbose_query_logs] && source_line).to_s
           end
 
           class << self
-            def instrument_queries(queries)
-              queries.each do |query|
-                instrument_query(query) {}
-              end
-            end
-
             def transaction_class
               fail '.transaction_class method not implemented on adaptor!'
             end

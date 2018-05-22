@@ -17,10 +17,14 @@ module Neo4j
         NEO4J_CORE_GEM_ROOT = File.expand_path('../../..', __dir__) + '/'
 
         def ignored_callstack(path)
-          path.start_with?(NEO4J_CORE_GEM_ROOT) ||
-            path.start_with?(RbConfig::CONFIG['rubylibdir']) ||
-            path.start_with?(neo4j_gem_path) ||
-            path.start_with?(active_support_gem_path)
+          paths_to_ignore.any?(&path.method(:start_with?))
+        end
+
+        def paths_to_ignore
+          @paths_to_ignore ||= [NEO4J_CORE_GEM_ROOT,
+                                RbConfig::CONFIG['rubylibdir'],
+                                neo4j_gem_path,
+                                active_support_gem_path].compact
         end
 
         def neo4j_gem_path
