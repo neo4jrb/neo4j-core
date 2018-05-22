@@ -113,8 +113,7 @@ module Neo4j
             @engine ||= Java::OrgNeo4jCypherJavacompat::ExecutionEngine.new(@graph_db)
           end
 
-          def constraint_definitions_for(graph_db, label)
-          end
+          def constraint_definitions_for(graph_db, label); end
         end
       end
     end

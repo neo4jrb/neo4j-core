@@ -66,14 +66,6 @@ Style/Documentation:
   Enabled: false
 
 # Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: compact, expanded
-Style/EmptyMethod:
-  Exclude:
-    - 'lib/neo4j/core/cypher_session/adaptors/embedded.rb'
-
-# Offense count: 1
 Style/EvalWithLocation:
   Exclude:
     - 'spec/neo4j/core/query_spec.rb'
