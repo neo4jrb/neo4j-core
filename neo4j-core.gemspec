@@ -50,9 +50,9 @@ DESCRIPTION
   if RUBY_PLATFORM == 'java'
     s.add_development_dependency('neo4j-community', '>= 2.1.1')
     s.add_development_dependency 'ruby-debug'
-  else
-    s.add_development_dependency('guard')
-    s.add_development_dependency('guard-rubocop')
-    s.add_development_dependency('rubocop', '~> 0.56.0')
   end
+
+  s.add_development_dependency('guard')
+  s.add_development_dependency('guard-rubocop')
+  s.add_development_dependency('rubocop', '~> 0.56.0')
 end

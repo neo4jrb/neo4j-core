@@ -40,14 +40,11 @@ Style/MultilineBlockChain:
 
 
 # I think this one is broken...
-Style/FileName:
+Naming/FileName:
   Enabled: false
 
 Style/SignalException:
   EnforcedStyle: semantic
-
-Performance/HashEachMethods:
-  AutoCorrect: true
 
 Layout/IndentHeredoc:
   EnforcedStyle: active_support
