@@ -29,12 +29,11 @@ module Neo4j
           end
 
           def wrap_entity(row_datum, rest_datum)
-            case
-            when rest_datum.is_a?(Array)
+            if rest_datum.is_a?(Array)
               row_datum.zip(rest_datum).map { |row, rest| wrap_entity(row, rest) }
-            when ident = identify_entity(rest_datum)
+            elsif ident = identify_entity(rest_datum)
               send("wrap_#{ident}", rest_datum, row_datum)
-            when rest_datum.is_a?(Hash)
+            elsif rest_datum.is_a?(Hash)
               rest_datum.each_with_object({}) do |(k, v), result|
                 result[k.to_sym] = wrap_entity(row_datum[k], v)
               end
