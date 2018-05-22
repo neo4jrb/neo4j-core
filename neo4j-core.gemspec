@@ -53,6 +53,6 @@ DESCRIPTION
   else
     s.add_development_dependency('guard')
     s.add_development_dependency('guard-rubocop')
-    s.add_development_dependency('rubocop', '~> 0.51.0')
+    s.add_development_dependency('rubocop', '~> 0.56.0')
   end
 end
