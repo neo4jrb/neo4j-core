@@ -30,13 +30,6 @@ Lint/HandleExceptions:
   Exclude:
     - 'spec/lib/yard_rspec.rb'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Lint/UnneededCopDisableDirective:
-  Exclude:
-    - 'Rakefile'
-    - 'lib/neo4j/core/cypher_session/adaptors/bolt/pack_stream.rb'
-
 # Offense count: 1
 Lint/UselessAssignment:
   Exclude:

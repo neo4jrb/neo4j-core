@@ -46,9 +46,6 @@ Naming/FileName:
 Style/SignalException:
   EnforcedStyle: semantic
 
-Layout/IndentHeredoc:
-  EnforcedStyle: active_support
-
 #---------------------------
 # Don't intend to fix these:
 #---------------------------

@@ -31,8 +31,6 @@ module Neo4j
         DE: [:struct, 32]
       }
       # For efficiency.  Translates directly from bytes to types
-
-      # rubocop:disable Performance/HashEachMethods
       # Disabling because this needs to be able to change the hash inside the blocks
       # There's probably a better way
       MARKER_TYPES.keys.each do |key|
@@ -45,7 +43,7 @@ module Neo4j
       MARKER_BYTES.keys.each do |key|
         MARKER_BYTES.delete(key) if key.is_a?(Array)
       end
-      # rubocop:enable Performance/HashEachMethods
+
 
       MARKER_HEADERS = MARKER_TYPES.each_with_object({}) do |(byte, (type, size)), headers|
         headers[type] ||= {}

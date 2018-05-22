@@ -86,7 +86,7 @@ task :stress_test, [:times, :local] do |_task, args|
       params = params.call if params.respond_to?(:call)
       params ||= {}
       neo4j_session.query(query, params).to_a.inspect
-    rescue => e # rubocop:disable Lint/RescueWithoutErrorClass
+    rescue => e
       raise e
     end
 

@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   s.summary = 'A basic library to work with the graph database Neo4j.'
   s.license = 'MIT'
 
-  s.description = <<-DESCRIPTION.strip_heredoc
+  s.description = <<-DESCRIPTION
     Neo4j-core provides classes and methods to work with the graph database Neo4j.
 DESCRIPTION
 
