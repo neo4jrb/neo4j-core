@@ -257,7 +257,6 @@ module Neo4j
           Structure.new(shift_byte!, value_for_list!(size))
         end
 
-
         def shift_byte!
           shift_bytes!(1).first unless depleted?
         end
