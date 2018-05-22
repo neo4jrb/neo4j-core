@@ -81,12 +81,6 @@ Style/EmptyMethod:
     - 'lib/neo4j/core/cypher_session/adaptors/embedded.rb'
 
 # Offense count: 1
-# Cop supports --auto-correct.
-Style/Encoding:
-  Exclude:
-    - 'spec/neo4j/core/cypher_session/adaptors/bolt/pack_stream_spec.rb'
-
-# Offense count: 1
 Style/EvalWithLocation:
   Exclude:
     - 'spec/neo4j/core/query_spec.rb'

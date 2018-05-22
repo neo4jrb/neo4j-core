@@ -1,5 +1,3 @@
-# encoding: UTF-8
-
 require 'spec_helper'
 require './lib/neo4j/core/cypher_session/adaptors/bolt/pack_stream'
 
