@@ -198,9 +198,7 @@ module Neo4j
             if structures = flush_response
               structures.map do |structure|
                 Message.new(structure.signature, *structure.list).tap do |message|
-                  if logger.debug?
-                    log_message :S, message.type, message.args.join(' ')
-                  end
+                  log_message :S, message.type, message.args.join(' ') if logger.debug?
                 end
               end
             end

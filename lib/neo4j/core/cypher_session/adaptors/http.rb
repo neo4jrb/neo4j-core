@@ -177,9 +177,7 @@ module Neo4j
               body_is_query_array = body.is_a?(Array) && body.all? { |o| o.respond_to?(:cypher) }
               case body
               when Hash, Array
-                if body_is_query_array
-                  return {statements: body.map(&self.class.method(:statement_from_query))}
-                end
+                return {statements: body.map(&self.class.method(:statement_from_query))} if body_is_query_array
 
                 body
               else

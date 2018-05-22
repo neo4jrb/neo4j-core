@@ -81,14 +81,6 @@ Style/IdenticalConditionalBranches:
   Exclude:
     - 'lib/neo4j/core/cypher_session/transactions.rb'
 
-# Offense count: 4
-# Cop supports --auto-correct.
-Style/IfUnlessModifier:
-  Exclude:
-    - 'lib/neo4j/core/cypher_session/adaptors/bolt.rb'
-    - 'lib/neo4j/core/cypher_session/adaptors/http.rb'
-    - 'lib/neo4j/core/query_clauses.rb'
-
 # Offense count: 55
 # Cop supports --auto-correct.
 Style/MutableConstant:

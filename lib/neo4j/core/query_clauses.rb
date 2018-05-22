@@ -62,9 +62,7 @@ module Neo4j
 
           prefix_value = value
           if value.is_a?(Hash)
-            prefix_value = if value.values.any? { |v| v.is_a?(Hash) }
-                             value.keys.join(UNDERSCORE)
-                           end
+            prefix_value = (value.keys.join(UNDERSCORE) if value.values.any? { |v| v.is_a?(Hash) })
           end
 
           prefix_array = [key, prefix_value].tap(&:compact!).join(UNDERSCORE)
@@ -205,9 +203,7 @@ module Neo4j
         end
 
         def format_label(label_arg)
-          if label_arg.is_a?(Array)
-            return label_arg.map { |arg| format_label(arg) }.join
-          end
+          return label_arg.map { |arg| format_label(arg) }.join if label_arg.is_a?(Array)
 
           label_arg = label_arg.to_s
           label_arg.strip!
