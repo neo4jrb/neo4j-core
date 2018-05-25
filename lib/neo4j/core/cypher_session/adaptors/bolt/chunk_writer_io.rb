@@ -13,7 +13,6 @@ class ChunkWriterIO < StringIO
 
   # Write some bytes, splitting into chunks if necessary.
   def write_with_chunking(string)
-    # Kernel.puts "Write!"
     until string.empty?
       future_size = @output_size + string.size
       if future_size >= MAX_CHUNK_SIZE
@@ -56,15 +55,12 @@ class ChunkWriterIO < StringIO
   def buffer_result(zero_chunk = false)
     result = ''
 
-    # Kernel.puts 'result1', result.inspect
     if !@output_buffer.empty?
       result << [@output_size].pack('s>*')
       result.concat(@output_buffer.join)
     end
 
-    # Kernel.puts 'result2', result.inspect
     result << "\x00\x00" if zero_chunk
-    # Kernel.puts 'result3', result.inspect
 
     result
   end
