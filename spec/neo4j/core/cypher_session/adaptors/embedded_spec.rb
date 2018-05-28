@@ -23,6 +23,13 @@ if RUBY_PLATFORM == 'java'
 
     let(:adaptor) { @adaptor }
 
+    describe '#default_subscribe' do
+      it 'makes the right subscription' do
+        expect(adaptor).to receive(:subscribe_to_transaction)
+        adaptor.default_subscribe
+      end
+    end
+
     it_behaves_like 'Neo4j::Core::CypherSession::Adaptor'
   end
 end

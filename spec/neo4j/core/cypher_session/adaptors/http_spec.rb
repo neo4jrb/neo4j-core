@@ -24,6 +24,18 @@ describe Neo4j::Core::CypherSession::Adaptors::HTTP do
     end
   end
 
+  describe '#supports_metadata?' do
+    it 'supports in version 3.4.0' do
+      expect(adaptor).to receive(:version).and_return('3.4.0')
+      expect(adaptor.supports_metadata?).to be true
+    end
+
+    it 'does not supports in version 2.0.0' do
+      expect(adaptor).to receive(:version).and_return('2.0.0')
+      expect(adaptor.supports_metadata?).to be false
+    end
+  end
+
   let(:session_double) { double('session', adaptor: subject) }
 
   before do

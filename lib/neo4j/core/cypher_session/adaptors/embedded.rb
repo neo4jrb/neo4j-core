@@ -91,6 +91,10 @@ module Neo4j
             " #{ANSI::BLUE}EMBEDDED CYPHER TRANSACTION:#{ANSI::CLEAR} #{ANSI::YELLOW}#{ms.round}ms#{ANSI::CLEAR}"
           end
 
+          def default_subscribe
+            subscribe_to_transaction
+          end
+
           private
 
           def execution_results(queries)
@@ -114,10 +118,6 @@ module Neo4j
           end
 
           def constraint_definitions_for(graph_db, label); end
-
-          def default_subscribe
-            subscribe_to_transaction
-          end
         end
       end
     end

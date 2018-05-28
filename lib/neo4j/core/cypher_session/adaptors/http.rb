@@ -102,6 +102,10 @@ module Neo4j
             !!@requestor
           end
 
+          def supports_metadata?
+            version(nil) >= '2.1.5'
+          end
+
           # Basic wrapper around HTTP requests to standard Neo4j HTTP endpoints
           #  - Takes care of JSONifying objects passed as body (Hash/Array/Query)
           #  - Sets headers, including user agent string
@@ -143,10 +147,6 @@ module Neo4j
             # Convenience method to #request(:get, ...)
             def get(path, body = '', options = {})
               request(:get, path, body, options)
-            end
-
-            def supports_metadata?
-              version(_) >= '2.1.5'
             end
 
             private
