@@ -145,6 +145,10 @@ module Neo4j
               request(:get, path, body, options)
             end
 
+            def supports_metadata?
+              version(_) >= '2.1.5'
+            end
+
             private
 
             def faraday_connection(configurator)

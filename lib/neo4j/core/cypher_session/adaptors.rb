@@ -187,6 +187,16 @@ ERROR
               ("\n   ↳ #{source_line}:#{line_number}" if payload[:adaptor].options[:verbose_query_logs] && source_line).to_s
           end
 
+          def default_subscribe
+            subscribe_to_request
+          end
+
+          def close; end
+
+          def supports_metadata?
+            true
+          end
+
           class << self
             def transaction_class
               fail '.transaction_class method not implemented on adaptor!'

@@ -114,6 +114,10 @@ module Neo4j
           end
 
           def constraint_definitions_for(graph_db, label); end
+
+          def default_subscribe
+            subscribe_to_transaction
+          end
         end
       end
     end
