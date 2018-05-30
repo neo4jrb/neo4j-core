@@ -86,7 +86,7 @@ All adaptors will also take the `verbose_query_logs` option which can be `true` 
 
 #### Bolt
 
-The Bolt adaptor takes `connect_timeout`, `read_timeout`, and `write_timeout` options which define appropriate timeouts.  The `connect_timeout` is 10 seconds and the `read_timeout` and `write_timeout` are -1 (no timeout).  This is to cause the underlying `net_tcp_client` gem to operate in blocking mode (as opposed to non-blocking mode).  When using non-blocking mode problems were found and since the official Neo4j drivers in other languages use blocking mode, this is what this gem uses by default.  Set these two timeouts at your own risk.
+The Bolt adaptor takes `connect_timeout`, `read_timeout`, and `write_timeout` options which define appropriate timeouts.  The `connect_timeout` is 10 seconds and the `read_timeout` and `write_timeout` are -1 (no timeout).  This is to cause the underlying `net_tcp_client` gem to operate in blocking mode (as opposed to non-blocking mode).  When using non-blocking mode problems were found and since the official Neo4j drivers in other languages use blocking mode, this is what this gem uses by default.  This issue could potentially be a bug in the handling of the `EAGAIN` signal, but it was not investigated further. Set the read/write timeouts at your own risk.
 
 The Bolt adaptor also takes an `ssl` option which also corresponds to `net_tcp_client`'s `ssl` option (which, in turn, corresponds to Ruby's `OpenSSL::SSL::SSLContext`).  By default SSL is used.  For most cloud providers that use public certificate authorities this open generally won't be needed.  If you've setup Neo4j yourself you will need to provide the certificate like so:
 
