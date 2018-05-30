@@ -23,9 +23,9 @@ module Neo4j
           def initialize(url, options = {})
             self.url = url
             @options = options
-            @net_tcp_client_options = {read_timeout: options[:read_timeout],
-                                       write_timeout: options[:write_timeout],
-                                       connect_timeout: options[:connect_timeout],
+            @net_tcp_client_options = {read_timeout: options.fetch(:read_timeout, -1),
+                                       write_timeout: options.fetch(:write_timeout, -1),
+                                       connect_timeout: options.fetch(:connect_timeout, 10),
                                        ssl: options.fetch(:ssl, {})}
 
             open_socket
