@@ -1,5 +1,3 @@
-require 'active_support'
-
 module Neo4j
   module Core
     class CypherSession

@@ -103,7 +103,7 @@ module Neo4j
           end
 
           def supports_metadata?
-            version(nil) >= '2.1.5'
+            Gem::Version.new(version(nil)) >= Gem::Version.new('2.1.5')
           end
 
           # Basic wrapper around HTTP requests to standard Neo4j HTTP endpoints
