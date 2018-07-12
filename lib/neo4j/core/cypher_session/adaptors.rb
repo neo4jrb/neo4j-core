@@ -164,8 +164,7 @@ ERROR
           end
 
           def setup_queries!(queries, transaction, options = {})
-            fail 'Query attempted without a connection' if !connected?
-            fail "Invalid transaction object: #{transaction.inspect}" if !transaction.is_a?(self.class.transaction_class)
+            validate_connection!(transaction)
 
             return if options[:skip_instrumentation]
             queries.each do |query|
@@ -213,7 +212,7 @@ ERROR
             end
           end
 
-          def validate_query_set!(transaction, _queries, _options = {})
+          def validate_connection!(transaction)
             fail 'Query attempted without a connection' if !connected?
             fail "Invalid transaction object: #{transaction}" if !transaction.is_a?(self.class.transaction_class)
           end
