@@ -1,3 +1,5 @@
+require "active_support/core_ext/module/delegation"
+
 module Neo4j
   module Core
     class CypherSession
