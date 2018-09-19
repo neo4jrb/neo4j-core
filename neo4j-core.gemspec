@@ -31,6 +31,8 @@ DESCRIPTION
   }
 
   s.add_dependency('activesupport', '>= 4.0')
+  s.add_dependency('concurrent-ruby', '>= 1.1.0.pre2')
+  s.add_dependency('concurrent-ruby-edge', '>= 0.4.0.pre1')
   s.add_dependency('faraday', '>= 0.9.0')
   s.add_dependency('faraday_middleware', '>= 0.10.0')
   s.add_dependency('faraday_middleware-multi_json')
@@ -39,7 +41,6 @@ DESCRIPTION
   s.add_dependency('multi_json')
   s.add_dependency('net_tcp_client', '>= 2.0.1')
   s.add_dependency('typhoeus', '>= 1.1.2')
-  s.add_dependency('connection_pool', '>= 2.0.0')
 
   s.add_development_dependency('dryspec')
   s.add_development_dependency('neo4j-rake_tasks', '>= 0.3.0')

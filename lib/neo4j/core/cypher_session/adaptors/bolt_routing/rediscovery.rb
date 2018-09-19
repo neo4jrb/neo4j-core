@@ -19,9 +19,9 @@ module Neo4j
           records = routing_util.call_routing_procedure(session, router_address)
 
           return unless records
-          raise ArgumentError, "Illegal response from router #{ router_address }. Received #{ records.size } records but only expected one." unless records.size == 1
+          raise ArgumentError, "Illegal response from router #{ router_address }. Received #{ records.hashes.size } records but only expected one." unless records.hashes.size == 1
 
-          record = records.first
+          record = records.hashes.first
 
           expiration_time = routing_util.parse_ttl(record, router_address)
           servers = routing_util.parse_servers(record, router_address)

@@ -45,7 +45,7 @@ module Neo4j
             if index == addresses.size - 1
               index = 0
             else
-              index++
+              index += 1
             end
 
             break if index == start_index

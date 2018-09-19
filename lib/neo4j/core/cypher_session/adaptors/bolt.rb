@@ -28,7 +28,7 @@ module Neo4j
             @net_tcp_client_options = {read_timeout: options.fetch(:read_timeout, -1),
                                        write_timeout: options.fetch(:write_timeout, -1),
                                        connect_timeout: options.fetch(:connect_timeout, 10),
-                                       ssl: options.fetch(:ssl, {})}
+                                       ssl: options.fetch(:ssl, false)}
 
             open_socket
           end
