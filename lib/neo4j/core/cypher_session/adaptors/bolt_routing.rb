@@ -8,6 +8,7 @@ require 'neo4j/core/cypher_session/adaptors'
 require 'neo4j/core/cypher_session/adaptors/has_uri'
 require 'neo4j/core/cypher_session/adaptors/bolt/pack_stream'
 require 'neo4j/core/cypher_session/responses/bolt_routing'
+require 'neo4j/core/cypher_session/adaptors/bolt_routing/connection'
 require 'neo4j/core/cypher_session/adaptors/bolt_routing/dns_host_name_resolver'
 require 'neo4j/core/cypher_session/adaptors/bolt_routing/load_balancing_strategies'
 require 'neo4j/core/cypher_session/adaptors/bolt_routing/load_balancer'
@@ -61,52 +62,37 @@ module Neo4j
           def query_set(transaction, queries, options = {})
             setup_queries!(queries, transaction, skip_instrumentation: options[:skip_instrumentation])
 
-            write_queries = queries.select { |q| /(BEGIN|COMMIT|CREATE|DELETE|DETACH|SET|REMOVE|ROLLBACK|FOREACH|MERGE|CALL)/.match?(q.cypher) }
-            read_queries = queries - write_queries
+            conn = if transaction.connection.nil?
+                     connection_provider.acquire_connection(transaction.access_mode)
+                   else
+                     Concurrent::Promises.fulfilled_future(transaction.connection)
+                   end
 
-            write_conn = if write_queries.empty?
-                           Concurrent::Promises.fulfilled_future(nil)
-                         elsif !transaction.connection.nil?
-                           Concurrent::Promises.fulfilled_future(transaction.connection).then(write_queries, options) do |conn, write_queries, options|
-                             self.class.instrument_request(self) do
-                               send_query_jobs(conn, write_queries)
-                               build_response(write_queries, conn, options[:wrap_level] || @options[:wrap_level])
-                             end
-                           end
-                         else
-                           connection_provider.acquire_connection(:write).then(write_queries, options, transaction) do |conn, write_queries, options, transaction|
-                             transaction.connection = conn
-                             self.class.instrument_request(self) do
-                               send_query_jobs(conn, write_queries)
-                               build_response(write_queries, conn, options[:wrap_level] || @options[:wrap_level])
-                             end
-                           end
-                         end
-            read_conn = if read_queries.empty?
-                          Concurrent::Promises.fulfilled_future(nil)
-                        elsif !transaction.connection.nil?
-                          Concurrent::Promises.fulfilled_future(transaction.connection).then(read_queries, options) do |conn, read_queries, options|
-                            self.class.instrument_request(self) do
-                              send_query_jobs(conn, read_queries)
-                              build_response(read_queries, conn, options[:wrap_level] || @options[:wrap_level])
-                            end
-                          end
-                        else
-                          connection_provider.acquire_connection(:read).then(read_queries, options, transaction) do |conn, read_queries, options, transaction|
-                            transaction.connection = conn
-                            self.class.instrument_request(self) do
-                              send_query_jobs(conn, read_queries)
-                              build_response(read_queries, conn, options[:wrap_level] || @options[:wrap_level])
-                            end
-                          end
-                        end
+            responses = conn.then(queries, options, transaction) do |conn, queries, options, transaction|
+              transaction.connection ||= conn
+              self.class.instrument_request(self) do
+                send_query_jobs(conn.client, queries)
+                build_response(queries, conn.client, options[:wrap_level] || @options[:wrap_level])
+              end
+            end
 
-            (write_conn & read_conn).then do |w, r|
-              responses = []
-              responses += w unless w.nil?
-              responses += r unless r.nil?
-              responses
-            end.value!
+            responses.value!
+          end
+
+          def setup_queries!(queries, transaction, options = {})
+            validate_connection!(transaction)
+
+            write_queries = queries.count { |q| /(CREATE|DELETE|DETACH|SET|REMOVE|FOREACH|MERGE|CALL)/.match?(q.cypher) }
+            if write_queries.zero?
+              transaction.access_mode = :read
+            else
+              transaction.access_mode = :write
+            end
+
+            return if options[:skip_instrumentation]
+            queries.each do |query|
+              self.class.instrument_query(query, self) {}
+            end
           end
 
           def self.transaction_class
@@ -134,8 +120,8 @@ module Neo4j
             end
           end
 
-          def close_socket(client)
-            client.close
+          def close_socket(connection)
+            connection.client.close
           end
 
           def connect_socket(host_port, release)
@@ -146,7 +132,7 @@ module Neo4j
             init(client)
 
             message = flush_messages(client)[0]
-            return client if message.type == :success
+            return Neo4j::Core::BoltRouting::Connection.new(host_port, client, release) if message.type == :success
 
             data = message.args[0]
             logger.error { "Init did not complete successfully\n\n#{data['code']}\n#{data['message']}" }
@@ -267,8 +253,8 @@ module Neo4j
             client.write(message)
           end
 
-          def validate_socket(client)
-            client.alive?
+          def validate_socket(connection)
+            connection.client.alive?
           end
         end
       end

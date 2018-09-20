@@ -7,9 +7,9 @@ module Neo4j
     class CypherSession
       module Adaptors
         class SingleConnection < Bolt
-          def initialize(tcp_client)
+          def initialize(connection)
             @options = {}
-            @tcp_client = tcp_client
+            @tcp_client = connection.client
           end
 
           def connect; end

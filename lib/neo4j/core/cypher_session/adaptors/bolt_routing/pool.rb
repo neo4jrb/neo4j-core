@@ -100,11 +100,14 @@ module Neo4j
               pending_request.reject(error)
               nil
             end.then(key, pending_request) do |resource, key, pending_request|
-              return if resource.nil?
-              return release(key, resource) if pending_request.completed?
-
-              resource_acquired!(key)
-              pending_request.resolve(resource)
+              if resource.nil?
+                nil
+              elsif pending_request.completed?
+                release(key, resource)
+              else
+                resource_acquired!(key)
+                pending_request.resolve(resource)
+              end
             end
           end
         end

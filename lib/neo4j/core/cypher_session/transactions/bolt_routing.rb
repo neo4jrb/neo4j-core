@@ -7,9 +7,10 @@ module Neo4j
     class CypherSession
       module Transactions
         class BoltRouting < Base
-          attr_accessor :connection
+          attr_accessor :access_mode, :connection
 
           def initialize(*args)
+            @access_mode = :write
             @connection = nil
 
             super
@@ -19,11 +20,13 @@ module Neo4j
 
           def commit
             tx_query('COMMIT') if root?
+            @connection.release
             @connection = nil
           end
 
           def delete
             tx_query('ROLLBACK')
+            @connection.release
             @connection = nil
           end
 
