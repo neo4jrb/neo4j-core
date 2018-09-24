@@ -53,12 +53,6 @@ module Neo4j
             true
           end
 
-          # FIXME: Drive this down to the connection pool or track active
-          # connections in the adapter.
-          def ssl?
-            !!@options.fetch(:ssl, false)
-          end
-
           def query_set(transaction, queries, options = {})
             setup_queries!(queries, transaction, skip_instrumentation: options[:skip_instrumentation])
 
@@ -72,7 +66,7 @@ module Neo4j
               transaction.connection ||= conn
               self.class.instrument_request(self) do
                 send_query_jobs(conn.client, queries)
-                build_response(queries, conn.client, options[:wrap_level] || @options[:wrap_level])
+                build_response(conn.client, queries, options[:wrap_level] || @options[:wrap_level])
               end
             end
 
@@ -95,6 +89,12 @@ module Neo4j
             end
           end
 
+          # FIXME: Drive this down to the connection pool or track active
+          # connections in the adapter.
+          def ssl?
+            !!@options.fetch(:ssl, false)
+          end
+
           def self.transaction_class
             require 'neo4j/core/cypher_session/transactions/bolt_routing'
             Neo4j::Core::CypherSession::Transactions::BoltRouting
@@ -112,7 +112,7 @@ module Neo4j
 
           attr_reader :host_port, :routing_context
 
-          def build_response(queries, client, wrap_level)
+          def build_response(client, queries, wrap_level)
             catch(:cypher_bolt_failure) do
               Responses::BoltRouting.new(queries, client, method(:flush_messages), wrap_level: wrap_level).results
             end.tap do |error_data|
