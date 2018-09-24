@@ -10,24 +10,23 @@ module Neo4j
           attr_accessor :access_mode, :connection
 
           def initialize(*args)
-            @access_mode = :write
-            @connection = nil
+            reset!
 
             super
+          end
 
+          def begin
             tx_query('BEGIN') if root?
           end
 
           def commit
             tx_query('COMMIT') if root?
-            @connection.release
-            @connection = nil
+            reset!
           end
 
           def delete
             tx_query('ROLLBACK')
-            @connection.release
-            @connection = nil
+            reset!
           end
 
           def started?
@@ -35,6 +34,12 @@ module Neo4j
           end
 
           private
+
+          def reset!
+            @access_mode = :write
+            @connection.release if @connection
+            @connection = nil
+          end
 
           def tx_query(cypher)
             query = Adaptors::Base::Query.new(cypher, {}, cypher)

@@ -53,6 +53,19 @@ module Neo4j
             true
           end
 
+          def queries(session, options = {}, &block)
+            query_builder = QueryBuilder.new
+
+            query_builder.instance_eval(&block)
+
+            write_queries = query_builder.queries.count { |q| /(CREATE|DELETE|DETACH|SET|REMOVE|FOREACH|MERGE|CALL)/.match?(q.cypher) }
+            access_mode = write_queries.zero? ? :read : :write
+
+            new_or_current_transaction(session, access_mode, options[:transaction]) do |tx|
+              query_set(tx, query_builder.queries, { commit: !options[:transaction] }.merge(options))
+            end
+          end
+
           def query_set(transaction, queries, options = {})
             setup_queries!(queries, transaction, skip_instrumentation: options[:skip_instrumentation])
 
@@ -73,26 +86,29 @@ module Neo4j
             responses.value!
           end
 
-          def setup_queries!(queries, transaction, options = {})
-            validate_connection!(transaction)
-
-            write_queries = queries.count { |q| /(CREATE|DELETE|DETACH|SET|REMOVE|FOREACH|MERGE|CALL)/.match?(q.cypher) }
-            if write_queries.zero?
-              transaction.access_mode = :read
-            else
-              transaction.access_mode = :write
-            end
-
-            return if options[:skip_instrumentation]
-            queries.each do |query|
-              self.class.instrument_query(query, self) {}
-            end
-          end
-
           # FIXME: Drive this down to the connection pool or track active
           # connections in the adapter.
           def ssl?
             !!@options.fetch(:ssl, false)
+          end
+
+          def transaction(session, access_mode = :write)
+            if !block_given?
+              tx = self.class.transaction_class.new(session)
+              tx.access_mode = access_mode
+              tx.begin
+              return tx
+            end
+
+            begin
+              tx = transaction(session, access_mode)
+              yield tx
+            rescue => e
+              tx.mark_failed if tx
+              raise e
+            ensure
+              tx.close if tx
+            end
           end
 
           def self.transaction_class
@@ -207,6 +223,14 @@ module Neo4j
                                            return Neo4j::Core::BoltRouting::LeastConenctedLoadBalancingStrategy.new(pool) if strategy == :least_connected
                                            raise ArgumentError, "Unknown load balancing strategy: `#{ strategy }`."
                                          end
+          end
+
+          def new_or_current_transaction(session, access_mode, tx, &block)
+            if tx && tx.access_mode == access_mode
+              yield(tx)
+            else
+              transaction(session, access_mode, &block)
+            end
           end
 
           def open_socket(host_port)
