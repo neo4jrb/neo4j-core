@@ -1,4 +1,5 @@
 require 'stringio'
+require 'active_support/hash_with_indifferent_access'
 
 module Neo4j
   module Core
@@ -67,7 +68,8 @@ module Neo4j
           else
             case @object
             when Date, Time, DateTime then string_stream
-            when Integer, Float, String, Symbol, Array, Set, Structure, Hash
+            when Hash, HashWithIndifferentAccess then hash_stream
+            when Integer, Float, String, Symbol, Array, Set, Structure
               send(@object.class.name.split('::').last.downcase + '_stream')
             end
           end
