@@ -58,7 +58,7 @@ module Neo4j
 
             query_builder.instance_eval(&block)
 
-            write_queries = query_builder.queries.count { |q| /(CREATE|DELETE|DETACH|SET|REMOVE|FOREACH|MERGE|CALL)/.match?(q.cypher) }
+            write_queries = query_builder.queries.count { |q| /(CREATE|DELETE|DETACH|DROP|SET|REMOVE|FOREACH|MERGE|CALL)/.match?(q.cypher) }
             access_mode = write_queries.zero? ? :read : :write
 
             new_or_current_transaction(session, access_mode, options[:transaction]) do |tx|
