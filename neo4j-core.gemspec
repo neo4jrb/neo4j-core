@@ -31,8 +31,8 @@ DESCRIPTION
   }
 
   s.add_dependency('activesupport', '>= 4.0')
-  s.add_dependency('concurrent-ruby', '>= 1.1.0.pre2')
-  s.add_dependency('concurrent-ruby-edge', '>= 0.4.0.pre1')
+  s.add_dependency('concurrent-ruby', '>= 1.1')
+  s.add_dependency('concurrent-ruby-edge', '>= 0.4')
   s.add_dependency('faraday', '>= 0.9.0')
   s.add_dependency('faraday_middleware', '>= 0.10.0')
   s.add_dependency('faraday_middleware-multi_json')
