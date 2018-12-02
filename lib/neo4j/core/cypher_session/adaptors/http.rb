@@ -102,6 +102,10 @@ module Neo4j
             !!@requestor
           end
 
+          def supports_metadata?
+            Gem::Version.new(version(nil)) >= Gem::Version.new('2.1.5')
+          end
+
           # Basic wrapper around HTTP requests to standard Neo4j HTTP endpoints
           #  - Takes care of JSONifying objects passed as body (Hash/Array/Query)
           #  - Sets headers, including user agent string

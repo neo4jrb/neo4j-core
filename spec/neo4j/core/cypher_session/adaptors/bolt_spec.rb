@@ -30,6 +30,13 @@ describe Neo4j::Core::CypherSession::Adaptors::Bolt, bolt: true do
     let_context(url: 'bolt://foo:bar@localhost:7687') { subject_should_not_raise }
   end
 
+  describe '#default_subscribe' do
+    it 'makes the right subscription' do
+      expect(adaptor).to receive(:subscribe_to_request)
+      adaptor.default_subscribe
+    end
+  end
+
   describe 'message in multiple chunks' do
     before do
       # This is standard response for INIT message, split into two chunks.

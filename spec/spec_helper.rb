@@ -48,6 +48,7 @@ require 'neo4j/core/cypher_session'
 require 'neo4j/core/cypher_session/adaptors/http'
 require 'neo4j/core/cypher_session/adaptors/bolt'
 require 'neo4j/core/cypher_session/adaptors/embedded'
+require 'neo4j_spec_helpers'
 
 module Neo4jSpecHelpers
   # def log_queries!
@@ -62,17 +63,7 @@ module Neo4jSpecHelpers
     Neo4j::Transaction.current_for(Neo4j::Session.current)
   end
 
-  class << self
-    attr_accessor :expect_queries_count
-  end
-
   # rubocop:disable Style/GlobalVars
-  def expect_queries(count)
-    start_count = Neo4jSpecHelpers.expect_queries_count
-    yield
-    expect(Neo4jSpecHelpers.expect_queries_count - start_count).to eq(count)
-  end
-
   def expect_http_requests(count)
     start_count = $expect_http_request_count
     yield
@@ -87,21 +78,6 @@ module Neo4jSpecHelpers
     end
   end
   # rubocop:enable Style/GlobalVars
-
-  def delete_schema(session = nil)
-    Neo4j::Core::Label.drop_uniqueness_constraints_for(session || current_session)
-    Neo4j::Core::Label.drop_indexes_for(session || current_session)
-  end
-
-  def create_constraint(session, label_name, property, options = {})
-    label_object = Neo4j::Core::Label.new(label_name, session)
-    label_object.create_constraint(property, options)
-  end
-
-  def create_index(session, label_name, property, options = {})
-    label_object = Neo4j::Core::Label.new(label_name, session)
-    label_object.create_index(property, options)
-  end
 
   def test_bolt_url
     ENV['NEO4J_BOLT_URL']
@@ -145,27 +121,9 @@ RSpec.configure do |config|
   config.extend DRYSpec::Helpers
   # config.include Helpers
 
-  config.before(:suite) do
-    # for expect_queries method
-    Neo4jSpecHelpers.expect_queries_count = 0
-
-    Neo4j::Core::CypherSession::Adaptors::Base.subscribe_to_query do |_message|
-      Neo4jSpecHelpers.expect_queries_count += 1
-    end
-  end
-
   config.exclusion_filter = {
-    api: lambda do |ed|
-      RUBY_PLATFORM != 'java' && ed == :embedded
-    end,
-
-    server_only: lambda do |bool|
-      RUBY_PLATFORM == 'java' && bool
-    end,
-
     bolt: lambda do
-      ENV['NEO4J_VERSION'].to_s.match(/^(community|enterprise)-2\./) ||
-        RUBY_ENGINE == 'jruby' # Because jruby doesn't implement sendmsg.  Hopefully we can figure this out
+      ENV['NEO4J_VERSION'].to_s.match(/^(community|enterprise)-2\./)
     end
   }
 end

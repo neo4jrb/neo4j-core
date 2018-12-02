@@ -18,8 +18,9 @@ Gem::Specification.new do |s|
     Neo4j-core provides classes and methods to work with the graph database Neo4j.
 DESCRIPTION
 
-  s.require_path = 'lib'
+  s.require_paths = %w[lib spec]
   s.files = Dir.glob('{bin,lib,config}/**/*') + %w[README.md Gemfile neo4j-core.gemspec]
+  s.files += Dir['spec/neo4j/core/shared_examples/adaptor.rb', 'spec/neo4j_spec_helpers']
   s.has_rdoc = true
   s.extra_rdoc_files = %w[README.md]
   s.rdoc_options = ['--quiet', '--title', 'Neo4j::Core', '--line-numbers', '--main', 'README.rdoc', '--inline-source']

@@ -1,5 +1,6 @@
 require 'neo4j/core/cypher_session/adaptors'
 require 'neo4j/core/cypher_session/adaptors/has_uri'
+require 'neo4j/core/cypher_session/adaptors/schema'
 require 'neo4j/core/cypher_session/adaptors/bolt/pack_stream'
 require 'neo4j/core/cypher_session/adaptors/bolt/chunk_writer_io'
 require 'neo4j/core/cypher_session/responses/bolt'
@@ -12,6 +13,7 @@ module Neo4j
       module Adaptors
         class Bolt < Base
           include Adaptors::HasUri
+          include Adaptors::Schema
           default_url('bolt://neo4:neo4j@localhost:7687')
           validate_uri do |uri|
             uri.scheme == 'bolt'
@@ -53,33 +55,8 @@ module Neo4j
             end
           end
 
-          def version(session)
-            result = query(session, 'CALL dbms.components()', {}, skip_instrumentation: true)
-
-            # BTW: community / enterprise could be retrieved via `result.first.edition`
-            result.first.versions[0]
-          end
-
           def connected?
             !!@tcp_client && !@tcp_client.closed?
-          end
-
-          def indexes(session)
-            result = query(session, 'CALL db.indexes()', {}, skip_instrumentation: true)
-
-            result.map do |row|
-              label, property = row.description.match(/INDEX ON :([^\(]+)\(([^\)]+)\)/)[1, 2]
-              {type: row.type.to_sym, label: label.to_sym, properties: [property.to_sym], state: row.state.to_sym}
-            end
-          end
-
-          def constraints(session)
-            result = query(session, 'CALL db.indexes()', {}, skip_instrumentation: true)
-
-            result.select { |row| row.type == 'node_unique_property' }.map do |row|
-              label, property = row.description.match(/INDEX ON :([^\(]+)\(([^\)]+)\)/)[1, 2]
-              {type: :uniqueness, label: label.to_sym, properties: [property.to_sym]}
-            end
           end
 
           def self.transaction_class
