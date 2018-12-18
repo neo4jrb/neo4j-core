@@ -31,7 +31,6 @@ DESCRIPTION
     'bug_tracker_uri' => 'https://github.com/neo4jrb/neo4j-core/issues'
   }
 
-
   s.add_dependency('activesupport', '>= 4.0')
   s.add_dependency('faraday', '>= 0.9.0')
   s.add_dependency('faraday_middleware', '>= 0.10.0')
@@ -48,7 +47,8 @@ DESCRIPTION
   s.add_development_dependency('simplecov')
   s.add_development_dependency('yard')
 
-  if RUBY_PLATFORM == 'java'
+  if RUBY_PLATFORM =~ /java/
+    s.add_development_dependency('neo4j-ruby-driver', '1.7.1.beta1')
     s.add_development_dependency('neo4j-community', '>= 2.1.1')
     s.add_development_dependency 'ruby-debug'
   end

@@ -12,6 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Speed improvements have been made to the Bolt adaptor
 - Bolt adaptor is now using the `net_tcp_client` gem in an effort to improve robustness
 - Added source line of queries to logs via `verbose_query_logs` option on all adaptors (fixes #1497)
+- Added Driver adaptor which can leverage a neo4j driver implementation (see preview at https://github.com/neo4jrb/neo4j-ruby-driver )
 
 ## [8.1.4] - 2018-04-10
 
