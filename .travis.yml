@@ -14,8 +14,8 @@ cache: bundler
 sudo: false
 jdk: oraclejdk8
 rvm:
-  - 2.4.2
-  - 2.1.10
+  - 2.5.3
+  - 2.3.8
   - jruby-9
 env:
   global:
@@ -23,42 +23,36 @@ env:
     - NEO4J_URL="http://localhost:7474"
     - NEO4J_BOLT_URL="bolt://localhost:7472"
   matrix:
-    - NEO4J_VERSION=community-3.3.1
+    - NEO4J_VERSION=community-3.5.0
 matrix:
   include:
     - script: "bundle exec rubocop"
-      rvm: 2.4.2
+      rvm: 2.4.5
       jdk:
       before_script:
       env: "RUBOCOP=true"
 
     # Older versions of Neo4j with latest version of Ruby
-    - rvm: 2.4.2
+    - rvm: 2.5.3
       env: NEO4J_VERSION=community-3.2.8
-    - rvm: 2.4.2
+    - rvm: 2.5.3
       env: NEO4J_VERSION=community-3.1.7
-    - rvm: 2.4.2
+    - rvm: 2.5.3
       env: NEO4J_VERSION=community-2.3.11
-    - rvm: 2.4.2
+    - rvm: 2.5.3
       env: NEO4J_VERSION=community-2.1.8
 
     # Older versions of Neo4j with latest version of jRuby
     - rvm: jruby-9
-      env: NEO4J_VERSION=community-3.2.8
-    - rvm: jruby-9
-      env: NEO4J_VERSION=community-3.1.7
-    - rvm: jruby-9
-      env: NEO4J_VERSION=community-2.3.11
-    - rvm: jruby-9
-      env: NEO4J_VERSION=community-2.1.8
+      env: NEO4J_VERSION=community-3.4.11
 
     # NEW_NEO4J_SESSIONS
     - rvm: jruby-9
-      env: RSPEC_OPTS="--tag new_cypher_session" NEO4J_VERSION=community-2.3.11 NEW_NEO4J_SESSIONS=true
+      env: RSPEC_OPTS="--tag new_cypher_session" NEO4J_VERSION=community-3.5.0 NEW_NEO4J_SESSIONS=true
 
     # Enterprise
-    - rvm: 2.4.2
-      env: NEO4J_VERSION=enterprise-3.4.0
+    - rvm: jruby-9
+      env: NEO4J_VERSION=enterprise-3.5.0
 
 after_failure:
   - cat ./db/neo4j/development/logs/neo4j.log
