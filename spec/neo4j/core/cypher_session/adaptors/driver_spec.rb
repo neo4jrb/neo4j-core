@@ -1,4 +1,4 @@
-if RUBY_PLATFORM == 'java'
+if RUBY_PLATFORM =~ /java/
   require 'spec_helper'
   require 'neo4j/core/cypher_session/adaptors/driver'
   require './spec/neo4j/core/shared_examples/adaptor'
