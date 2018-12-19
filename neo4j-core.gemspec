@@ -48,8 +48,8 @@ DESCRIPTION
   s.add_development_dependency('yard')
 
   if RUBY_PLATFORM =~ /java/
-    s.add_development_dependency('neo4j-ruby-driver', '1.7.1.beta1')
     s.add_development_dependency('neo4j-community', '>= 2.1.1')
+    s.add_development_dependency('neo4j-ruby-driver', '1.7.1.beta1')
     s.add_development_dependency 'ruby-debug'
   end
 

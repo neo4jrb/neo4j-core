@@ -30,11 +30,11 @@ module Neo4j
           # In the future the ::Neo4j::Core::Node should either monkey patch or wrap Neo4j::Driver:Types::Node to avoid
           # multiple object creation. This is probably best done once the other adapters (http, embedded) are removed.
           def wrap_node(node)
-            wrap_by_level(->() { node.properties }) { ::Neo4j::Core::Node.new(node.id, node.labels, node.properties) }
+            wrap_by_level(-> { node.properties }) { ::Neo4j::Core::Node.new(node.id, node.labels, node.properties) }
           end
 
           def wrap_relationship(rel)
-            wrap_by_level(->() { rel.properties }) do
+            wrap_by_level(-> { rel.properties }) do
               ::Neo4j::Core::Relationship.new(rel.id, rel.type, rel.properties, rel.start_node_id, rel.end_node_id)
             end
           end
@@ -42,23 +42,23 @@ module Neo4j
           def wrap_path(path)
             nodes = path.nodes
             relationships = path.relationships
-            wrap_by_level(->() { nodes.zip(relationships).flatten.compact.map(&:properties) }) do
+            wrap_by_level(-> { nodes.zip(relationships).flatten.compact.map(&:properties) }) do
               ::Neo4j::Core::Path.new(nodes.map(&method(:wrap_node)),
                                       relationships.map(&method(:wrap_relationship)),
-                                      nil) #remove directions from Path, looks like unused
+                                      nil) # remove directions from Path, looks like unused
             end
           end
 
           def wrap_value(value)
-            if value.kind_of? Array
+            if value.is_a? Array
               value.map(&method(:wrap_value))
-            elsif value.kind_of? Hash
+            elsif value.is_a? Hash
               value.map { |key, val| [key, wrap_value(val)] }.to_h
-            elsif value.kind_of? Neo4j::Driver::Types::Node
+            elsif value.is_a? Neo4j::Driver::Types::Node
               wrap_node(value)
-            elsif value.kind_of? Neo4j::Driver::Types::Relationship
+            elsif value.is_a? Neo4j::Driver::Types::Relationship
               wrap_relationship(value)
-            elsif value.kind_of? Neo4j::Driver::Types::Path
+            elsif value.is_a? Neo4j::Driver::Types::Path
               wrap_path(value)
             else
               value

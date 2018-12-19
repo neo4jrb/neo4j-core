@@ -62,8 +62,7 @@ module Neo4j
             @options = options
           end
 
-          def connect;
-          end
+          def connect; end
 
           def close
             DriverRegistry.instance.close(@driver)
