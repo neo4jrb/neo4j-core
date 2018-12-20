@@ -55,6 +55,7 @@ module Neo4j
           end
 
           attr_reader :driver
+          alias_method :connected?, :driver
 
           def initialize(url, options = {})
             self.url = url
@@ -65,11 +66,7 @@ module Neo4j
           def connect; end
 
           def close
-            DriverRegistry.instance.close(@driver)
-          end
-
-          def connected?
-            @driver
+            DriverRegistry.instance.close(driver)
           end
 
           def query_set(transaction, queries, options = {})
