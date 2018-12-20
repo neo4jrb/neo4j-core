@@ -55,7 +55,7 @@ module Neo4j
           end
 
           attr_reader :driver
-          alias_method :connected?, :driver
+          alias connected? driver
 
           def initialize(url, options = {})
             self.url = url
