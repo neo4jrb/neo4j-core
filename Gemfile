@@ -8,7 +8,15 @@ gemspec
 gem 'tins', '< 1.7' if RUBY_VERSION.to_f < 2.0
 
 group 'development' do
-  gem 'guard-rspec', require: false if RUBY_PLATFORM != 'java'
+  if RUBY_PLATFORM =~ /java/
+    if ENV['USE_LOCAL_DRIVER']
+      gem 'neo4j-ruby-driver', path: '../neo4j-ruby-driver'
+    else
+      gem 'neo4j-ruby-driver'
+    end
+  else
+    gem 'guard-rspec', require: false
+  end
   if RUBY_VERSION.to_f < 2.0
     gem 'overcommit', '< 0.35.0'
     gem 'term-ansicolor', '< 1.4'
@@ -18,10 +26,10 @@ group 'development' do
 end
 
 group 'test' do
-  gem 'activesupport', '~> 4.0'
+  gem 'activesupport'
   gem 'coveralls', require: false
   gem 'dotenv'
-  gem 'rspec', '~> 3.0'
+  gem 'rspec'
   gem 'rspec-its'
   gem 'simplecov-html', require: false
 end
