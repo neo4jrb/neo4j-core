@@ -1,6 +1,7 @@
 # To run coverage via travis
 require 'simplecov'
 require 'coveralls'
+Coveralls.wear_merged!
 
 SimpleCov.formatter = Coveralls::SimpleCov::Formatter
 SimpleCov.start do
