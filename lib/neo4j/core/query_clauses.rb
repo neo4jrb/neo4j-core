@@ -14,6 +14,7 @@ module Neo4j
         COMMA_SPACE = ', '
         AND = ' AND '
         PRETTY_NEW_LINE = "\n  "
+        OR = ' OR '
 
         attr_accessor :params, :arg
         attr_reader :options, :param_vars_added
@@ -329,6 +330,19 @@ module Neo4j
             else
               super
             end
+          end
+        end
+      end
+
+      class WhereOrClause < WhereClause
+        def hash_key_value_string(key, value, previous_keys)
+          string = super
+          string.gsub(AND, OR)
+        end
+
+        class << self
+          def clause_join
+            Clause::OR
           end
         end
       end
