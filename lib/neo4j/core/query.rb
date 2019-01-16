@@ -198,8 +198,7 @@ module Neo4j
         build_deeper_query(WhereClause, args, not: true)
       end
 
-      # Works the same as the #where method, but the clause is surrounded by a
-      # Cypher NOT() function
+      # Works the same as the #where method, but the clauses are connected with OR
       def where_or(*args)
         build_deeper_query(WhereClause, args, or: true)
       end
