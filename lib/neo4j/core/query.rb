@@ -164,7 +164,7 @@ module Neo4j
       # DETACH DELETE clause
       # @return [Query]
 
-      METHODS = %w[start match optional_match call using where where_or create create_unique merge set on_create_set on_match_set remove unwind delete detach_delete with with_distinct return order skip limit] # rubocop:disable Metrics/LineLength
+      METHODS = %w[start match optional_match call using where create create_unique merge set on_create_set on_match_set remove unwind delete detach_delete with with_distinct return order skip limit] # rubocop:disable Metrics/LineLength
       BREAK_METHODS = %(with with_distinct call)
 
       CLAUSIFY_CLAUSE = proc { |method| const_get(method.to_s.split('_').map(&:capitalize).join + 'Clause') }
@@ -196,6 +196,12 @@ module Neo4j
       # Cypher NOT() function
       def where_not(*args)
         build_deeper_query(WhereClause, args, not: true)
+      end
+
+      # Works the same as the #where method, but the clause is surrounded by a
+      # Cypher NOT() function
+      def where_or(*args)
+        build_deeper_query(WhereClause, args, or: true)
       end
 
       # Works the same as the #set method, but when given a nested array it will set properties rather than setting entire objects

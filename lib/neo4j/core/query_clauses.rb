@@ -276,15 +276,25 @@ module Neo4j
 
         class << self
           def clause_strings(clauses)
-            clauses.flat_map do |clause|
-              Array(clause.value).map do |v|
+            condition_string = clauses.each_with_index.inject('') do |str, (clause, inx)|
+              cond = Array(clause.value).map do |v|
                 (clause.options[:not] ? 'NOT' : '') + (v.to_s.match(PAREN_SURROUND_REGEX) ? v.to_s : "(#{v})")
-              end
+              end.first
+              str += (connector(clauses, inx) + cond) 
+            end
+            Array(condition_string)
+          end
+
+          def connector(clauses, inx)
+            if inx == 0
+              ''
+            else
+              clauses[inx].options[:or] && clauses[inx-1].options[:or] ? Clause::OR : Clause::AND
             end
           end
 
           def clause_join
-            Clause::AND
+            ''
           end
         end
 
@@ -298,7 +308,7 @@ module Neo4j
             else
               "#{key}.#{from_key_and_value(k, v, previous_keys + [key])}"
             end
-          end.join(AND)
+          end.join(options[:or] ? OR : AND)
         end
 
         def regexp_key_value_string(key, value, previous_keys)
@@ -330,19 +340,6 @@ module Neo4j
             else
               super
             end
-          end
-        end
-      end
-
-      class WhereOrClause < WhereClause
-        def hash_key_value_string(key, value, previous_keys)
-          string = super
-          string.gsub(AND, OR)
-        end
-
-        class << self
-          def clause_join
-            Clause::OR
           end
         end
       end
