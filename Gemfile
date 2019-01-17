@@ -9,11 +9,7 @@ gem 'tins', '< 1.7' if RUBY_VERSION.to_f < 2.0
 
 group 'development' do
   if RUBY_PLATFORM =~ /java/
-    if ENV['USE_LOCAL_DRIVER']
-      gem 'neo4j-ruby-driver', path: '../neo4j-ruby-driver'
-    else
-      gem 'neo4j-ruby-driver'
-    end
+    gem 'neo4j-ruby-driver', path: '../neo4j-ruby-driver' if ENV['USE_LOCAL_DRIVER']
   else
     gem 'guard-rspec', require: false
   end

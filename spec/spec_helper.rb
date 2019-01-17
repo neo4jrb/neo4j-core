@@ -27,6 +27,7 @@ require 'rspec/its'
 require 'neo4j/core'
 require 'neo4j/core/query'
 require 'ostruct'
+require 'openssl'
 
 if RUBY_PLATFORM == 'java'
   # for some reason this is not impl. in JRuby
