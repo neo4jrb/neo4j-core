@@ -275,17 +275,15 @@ module Neo4j
         end
 
         class << self
-          # rubocop:disable Lint/UselessAssignment
           def clause_strings(clauses)
             condition_string = clauses.each_with_index.inject('') do |str, (clause, inx)|
               cond = Array(clause.value).map do |v|
                 (clause.options[:not] ? 'NOT' : '') + (v.to_s.match(PAREN_SURROUND_REGEX) ? v.to_s : "(#{v})")
               end.first
-              str += (connector(clauses, inx) + cond)
+              str + (connector(clauses, inx) + cond)
             end
             Array(condition_string)
           end
-          # rubocop:enable Lint/UselessAssignment
 
           def connector(clauses, inx)
             if inx.zero?

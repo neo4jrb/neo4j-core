@@ -476,16 +476,36 @@ describe Neo4j::Core::Query do
       it_generates 'WHERE (q.age > 30)'
     end
 
-    describe ".where_or('q.age' => 30)" do
-      it_generates 'WHERE (q.age = {q_age})', q_age: 30
+    describe ".where_or('q.age > 30').where_or('q.age < 50')" do
+      it_generates '"WHERE (q.age > 30) OR (q.age < 50)'
+    end
+
+    describe ".where_or('q.age > 30').where_not('q.age < 50')" do
+      it_generates 'WHERE (q.age > 30) AND NOT(q.age < 50)'
     end
 
     describe ".where_or('q.age IN ?', [30, 32, 34])" do
       it_generates 'WHERE (q.age IN {question_mark_param})', question_mark_param: [30, 32, 34]
     end
 
-    describe ".where_or(q: {age: 30, name: 'Chunky'})" do
-      it_generates 'WHERE (q.age = {q_age} OR q.name = {q_name})', q_age: 30, q_name: 'Chunky'
+    describe ".where_or(q: {age: 30, name: 'Chunky'}).where('q.age > 10')" do
+      it_generates 'WHERE (q.age = {q_age} OR q.name = {q_name}) AND (q.age > 10)', q_age: 30, q_name: 'Chunky'
+    end
+
+    describe ".where('q.age > 10').where_or(q: {age: 30, name: 'Chunky'})" do
+      it_generates 'WHERE (q.age > 10) AND (q.age = {q_age} OR q.name = {q_name})', q_age: 30, q_name: 'Chunky'
+    end
+
+    describe ".where(q: {age: 20, name: 'Bacon'}).where_or(q: {age: 30, name: 'Chunky'})" do
+      it_generates 'WHERE (q.age = {q_age} AND q.name = {q_name}) AND (q.age = {q_age2} OR q.name = {q_name2})', q_age2: 30, q_name2: 'Chunky', q_age: 20, q_name: 'Bacon'
+    end
+
+    describe ".where(q: {age: 20, name: 'Bacon'}).where_or(q: {age: 30, name: 'Chunky'}).where_not(q: {active: false})" do
+      it_generates 'WHERE (q.age = {q_age} AND q.name = {q_name}) AND (q.age = {q_age2} OR q.name = {q_name2}) AND NOT(q.active = {q_active})', q_age2: 30, q_name2: 'Chunky', q_age: 20, q_name: 'Bacon', q_active: false
+    end  
+
+    describe ".where_or(q: {age: 20, name: 'Bacon'}).where_not(q: {age: 30, name: 'Chunky'})" do
+      it_generates 'WHERE (q.age = {q_age} OR q.name = {q_name}) AND NOT(q.age = {q_age2} OR q.name = {q_name2})', q_age2: 30, q_name2: 'Chunky', q_age: 20, q_name: 'Bacon'
     end
 
     describe '.where_or(q: {name: /Chunky.*/i})' do
@@ -504,7 +524,6 @@ describe Neo4j::Core::Query do
       it_generates 'WHERE (q.age = {q_age}) OR (q)->[:ABC]->()', q_age: 30
     end
   end
-
 
   describe '#match_nodes' do
     context 'one node object' do
