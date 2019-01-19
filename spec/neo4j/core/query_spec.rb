@@ -502,7 +502,7 @@ describe Neo4j::Core::Query do
 
     describe ".where(q: {age: 20, name: 'Bacon'}).where_or(q: {age: 30, name: 'Chunky'}).where_not(q: {active: false})" do
       it_generates 'WHERE (q.age = {q_age} AND q.name = {q_name}) AND (q.age = {q_age2} OR q.name = {q_name2}) AND NOT(q.active = {q_active})',
-        q_age2: 30, q_name2: 'Chunky', q_age: 20, q_name: 'Bacon', q_active: false
+                   q_age2: 30, q_name2: 'Chunky', q_age: 20, q_name: 'Bacon', q_active: false
     end  
 
     describe ".where_or(q: {age: 20, name: 'Bacon'}).where_not(q: {age: 30, name: 'Chunky'})" do
