@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 This file should follow the standards specified on [http://keepachangelog.com/]
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [9.1.0] - 2019-01-21
+
+### Added
+
+- Added `.where_or` method so that we can have logical `OR` conditions in `WHERE` clause
+
 ## [9.0.0] - 2018-12-20
 
 ### Changed

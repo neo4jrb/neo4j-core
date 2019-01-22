@@ -509,8 +509,8 @@ describe Neo4j::Core::Query do
       it_generates 'WHERE (q.age = {q_age} OR q.name = {q_name}) AND NOT(q.age = {q_age2} AND q.name = {q_name2})', q_age2: 30, q_name2: 'Chunky', q_age: 20, q_name: 'Bacon'
     end
 
-    describe '.where_or(q: {name: /Chunky.*/i})' do
-      it_generates 'WHERE (q.name =~ {q_name})', q_name: '(?i)Chunky.*'
+    describe ".where_or(q: {age: 20, name: 'Bacon'})" do
+      it_generates 'WHERE (q.age = {q_age} OR q.name = {q_name})', q_age: 20, q_name: 'Bacon'
     end
 
     describe ".where('q.age > 10').where_or('q.age > 30')" do
