@@ -143,8 +143,7 @@ module Neo4j
             join_string = pretty ? clause_join + PRETTY_NEW_LINE : clause_join
 
             strings = clause_strings(clauses)
-            stripped_string = strings.join(join_string)
-            stripped_string.strip!
+            stripped_string = strings.join(join_string).strip
             pretty && strings.size > 1 ? PRETTY_NEW_LINE + stripped_string : stripped_string
           end
 
@@ -205,8 +204,7 @@ module Neo4j
         def format_label(label_arg)
           return label_arg.map { |arg| format_label(arg) }.join if label_arg.is_a?(Array)
 
-          label_arg = label_arg.to_s
-          label_arg.strip!
+          label_arg = label_arg.to_s.strip
           if !label_arg.empty? && label_arg[0] != ':'
             label_arg = "`#{label_arg}`" unless label_arg[' ']
             label_arg = ":#{label_arg}"
