@@ -16,7 +16,7 @@ jdk: oraclejdk8
 rvm:
   - 2.4.5
   - 2.1.10
-  - jruby-9
+  - jruby-9.2.5.0
 env:
   global:
     - JRUBY_OPTS="--debug -J-Xmx1024m -Xcompile.invokedynamic=false -J-XX:+TieredCompilation -J-XX:TieredStopAtLevel=1 -J-noverify -Xcompile.mode=OFF"
@@ -43,22 +43,22 @@ matrix:
       env: NEO4J_VERSION=community-2.1.8
 
     # Older versions of Neo4j with latest version of jRuby
-    - rvm: jruby-9
+    - rvm: jruby-9.2.5.0
       env: NEO4J_VERSION=community-3.2.8
-    - rvm: jruby-9
+    - rvm: jruby-9.2.5.0
       env: NEO4J_VERSION=community-3.1.7
-    - rvm: jruby-9
+    - rvm: jruby-9.2.5.0
       env: NEO4J_VERSION=community-2.3.11
-    - rvm: jruby-9
+    - rvm: jruby-9.2.5.0
       env: NEO4J_VERSION=community-2.1.8
 
     # NEW_NEO4J_SESSIONS
-    - rvm: jruby-9
+    - rvm: jruby-9.2.5.0
       env: RSPEC_OPTS="--tag new_cypher_session" NEO4J_VERSION=community-2.3.11 NEW_NEO4J_SESSIONS=true
 
     # Enterprise
-    - rvm: jruby-9
-      env: NEO4J_VERSION=enterprise-3.5.0
+    - rvm: jruby-9.2.5.0
+      env: NEO4J_VERSION=enterprise-3.5.1
 
 after_failure:
   - cat ./db/neo4j/development/logs/neo4j.log
