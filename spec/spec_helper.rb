@@ -28,6 +28,7 @@ require 'neo4j/core'
 require 'neo4j/core/query'
 require 'ostruct'
 require 'openssl'
+require 'neo4j_ruby_driver'
 
 if RUBY_PLATFORM == 'java'
   # for some reason this is not impl. in JRuby
