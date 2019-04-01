@@ -164,7 +164,7 @@ All new documentation will be done via our [readthedocs](http://neo4jrb.readthed
 * [Heinrich Klobuczek](https://github.com/klobuczek)
 * [Amit Suryavanshi](https://github.com/amitsuryavanshi)
 
-Consulting support? Contact [Heinrich](https://gitter.im/klobuczek) and/or [Brian](https://gitter.im/amitTheSongadya_twitter)
+Consulting support? Contact [Heinrich](https://gitter.im/klobuczek) and/or [Amit](https://gitter.im/amitTheSongadya_twitter)
 
 ## Contributing
 
