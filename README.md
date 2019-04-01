@@ -154,12 +154,17 @@ All new documentation will be done via our [readthedocs](http://neo4jrb.readthed
 
 * [Andreas Ronge](https://github.com/andreasronge)
 
-### Current Maintainers
+### Previous Maintainers
 
 * [Brian Underwood](https://github.com/cheerfulstoic)
 * [Chris Grigg](https://github.com/subvertallchris)
 
-Consulting support? Contact [Chris](http://subvertallmedia.com/) and/or [Brian](http://www.brian-underwood.codes/)
+### Current Maintainers
+
+* [Heinrich Klobuczek](https://gitter.im/klobuczek)
+* [Amit Suryavanshi](https://gitter.im/amitTheSongadya_twitter)
+
+Consulting support? Contact [Heinrich](http://subvertallmedia.com/) and/or [Brian](http://www.brian-underwood.codes/)
 
 ## Contributing
 
