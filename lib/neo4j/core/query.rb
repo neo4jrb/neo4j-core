@@ -350,7 +350,12 @@ module Neo4j
           cypher_parts.join(join_string).tap(&:strip!)
         end.join(join_string)
 
-        cypher_string = "CYPHER #{@options[:parser]} #{cypher_string}" if @options[:parser]
+        cypher_query_options = []
+        cypher_query_options << @options[:parser] if @options[:parser]
+        cypher_query_options << "planner=#{@options[:planner]}" if @options[:planner]
+        cypher_query_options << "runtime=#{@options[:runtime]}" if @options[:runtime]
+        cypher_string = "CYPHER #{cypher_query_options.join(' ')} #{cypher_string}" unless cypher_query_options.empty?
+
         cypher_string.tap(&:strip!)
       end
       alias cypher to_cypher
