@@ -1,3 +1,4 @@
+dist: trusty
 before_script:
   - "travis_retry bin/rake neo4j:install[$NEO4J_VERSION] --trace"
   - "bin/rake neo4j:config[development,7474] --trace"
@@ -12,7 +13,7 @@ script:
 language: ruby
 cache: bundler
 sudo: false
-jdk: oraclejdk9
+jdk: oraclejdk8
 rvm:
   - 2.4.5
   - 2.1.10
