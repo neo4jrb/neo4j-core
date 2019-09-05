@@ -10,6 +10,10 @@ module Neo4j
           def initialize(faraday_response, options = {})
             @faraday_response = faraday_response
             @request_data = request_data
+            @identity_map = {
+              node: {},
+              relationship: {}
+            }
 
             validate_faraday_response!(faraday_response)
 
@@ -56,22 +60,30 @@ module Neo4j
           end
 
           def wrap_node(rest_datum, row_datum)
-            wrap_by_level(row_datum) do
-              metadata_data = rest_datum[:metadata]
-              ::Neo4j::Core::Node.new(id_from_rest_datum(rest_datum),
-                                      metadata_data && metadata_data[:labels],
-                                      rest_datum[:data])
+            cache = @identity_map.fetch(:node)
+
+            cache.fetch(id_from_rest_datum(rest_datum)) do |id|
+              cache[id] = wrap_by_level(row_datum) do
+                metadata_data = rest_datum[:metadata]
+                ::Neo4j::Core::Node.new(id,
+                                        metadata_data && metadata_data[:labels],
+                                        rest_datum[:data])
+              end
             end
           end
 
           def wrap_relationship(rest_datum, row_datum)
-            wrap_by_level(row_datum) do
-              metadata_data = rest_datum[:metadata]
-              ::Neo4j::Core::Relationship.new(id_from_rest_datum(rest_datum),
-                                              metadata_data && metadata_data[:type],
-                                              rest_datum[:data],
-                                              id_from_url(rest_datum[:start]),
-                                              id_from_url(rest_datum[:end]))
+            cache = @identity_map.fetch(:relationship)
+
+            cache.fetch(id_from_rest_datum(rest_datum)) do |id|
+              cache[id] = wrap_by_level(row_datum) do
+                metadata_data = rest_datum[:metadata]
+                ::Neo4j::Core::Relationship.new(id,
+                                                metadata_data && metadata_data[:type],
+                                                rest_datum[:data],
+                                                id_from_url(rest_datum[:start]),
+                                                id_from_url(rest_datum[:end]))
+              end
             end
           end
 
