@@ -78,17 +78,42 @@ describe Neo4j::Core::Query do
   end
 
   describe 'options' do
-    let(:query) { Neo4j::Core::Query.new(parser: 2.0) }
+    let(:query_options) { { parser: 2.0, planner: 'cost', runtime: 'compiled' } }
+    let(:query) { Neo4j::Core::Query.new(query_options) }
 
-    it 'should generate a per-query cypher parser version' do
-      expect(query.to_cypher).to eq('CYPHER 2.0')
+    it 'should generate a per-query cypher parser version, planner and runtime' do
+      expect(query.to_cypher).to eq('CYPHER 2.0 planner=cost runtime=compiled')
+    end
+
+    describe 'parser only' do
+      let(:query_options) { { parser: 2.0 } }
+
+      it 'should generate a per-query cypher parser version' do
+        expect(query.to_cypher).to eq('CYPHER 2.0')
+      end
+    end
+
+    describe 'planner only' do
+      let(:query_options) { { planner: 'cost' } }
+
+      it 'should generate a per-query cypher planner' do
+        expect(query.to_cypher).to eq('CYPHER planner=cost')
+      end
+    end
+
+    describe 'runtime only' do
+      let(:query_options) { { runtime: 'compiled' } }
+
+      it 'should generate a per-query cypher runtime' do
+        expect(query.to_cypher).to eq('CYPHER runtime=compiled')
+      end
     end
 
     describe 'subsequent call' do
       let(:query) { super().match('q:Person') }
 
       it 'should combine the parser version with the rest of the query' do
-        expect(query.to_cypher).to eq('CYPHER 2.0 MATCH q:Person')
+        expect(query.to_cypher).to eq('CYPHER 2.0 planner=cost runtime=compiled MATCH q:Person')
       end
     end
   end
