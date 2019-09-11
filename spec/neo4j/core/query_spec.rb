@@ -882,6 +882,11 @@ describe Neo4j::Core::Query do
       it_generates 'ON MATCH SET n = {name: "Brian"}'
     end
 
+    # ON MATCH SET must come before SET (and immediately after MERGE) or the cypher is invalid
+    describe '.on_match_set(n: { name: "Brian" }).set(n: { age: 30 })' do
+      it_generates 'ON MATCH SET n.`name` = {setter_n_name} SET n.`age` = {setter_n_age}', setter_n_name: 'Brian', setter_n_age: 30
+    end
+
     describe '.on_match_set(n: {})' do
       it_generates '', {}
     end
