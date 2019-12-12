@@ -643,9 +643,7 @@ module Neo4j
           case value
           when /^:/
             "#{key}:`#{value[1..-1]}`"
-          when String
-            "#{key}.#{value}"
-          when Symbol
+          when String, Symbol
             "#{key}:`#{value}`"
           when Array
             value.map do |v|
