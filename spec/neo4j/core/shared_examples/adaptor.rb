@@ -388,7 +388,28 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
   end
 
   describe 'schema inspection' do
-    before { delete_schema(real_session) }
+    def supports_full_text?
+      Gem::Version.new(adaptor.version(real_session)) >= Gem::Version.new('3.5.0')
+    end
+
+    before do
+      delete_schema(real_session)
+
+      if supports_full_text?
+        adaptor.query(
+          real_session,
+          <<-CYPHER
+            CALL db.indexes()
+            YIELD indexName WHERE indexName STARTS WITH "ftIndex"
+            WITH COLLECT(indexName) AS names
+            UNWIND names AS n
+            CALL db.index.fulltext.drop(n)
+            RETURN null
+          CYPHER
+        )
+      end
+    end
+
     before do
       create_constraint(real_session, :Album, :al_id, type: :unique)
       create_constraint(real_session, :Album, :name, type: :unique)
@@ -397,6 +418,12 @@ RSpec.shared_examples 'Neo4j::Core::CypherSession::Adaptor' do
       create_index(real_session, :Band, :ba_id)
       create_index(real_session, :Band, :fisk)
       create_index(real_session, :Person, :name)
+
+      if supports_full_text?
+        adaptor.query(real_session, 'CALL db.index.fulltext.createNodeIndex("ftIndex1", ["Album"], ["name"])')
+        adaptor.query(real_session, 'CALL db.index.fulltext.createNodeIndex("ftIndex2", ["Album", "Song"], ["name", "al_id", "so_id"])')
+        adaptor.query(real_session, 'CALL db.index.fulltext.createRelationshipIndex("ftIndex3", ["ALBUM_SONG"], ["songNumber"])')
+      end
     end
 
     describe 'constraints' do

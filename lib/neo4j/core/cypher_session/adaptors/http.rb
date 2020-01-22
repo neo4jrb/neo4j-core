@@ -1,6 +1,7 @@
 require 'neo4j/core/cypher_session/adaptors'
 require 'neo4j/core/cypher_session/adaptors/has_uri'
 require 'neo4j/core/cypher_session/responses/http'
+require 'neo4j/core/cypher_session/adaptors/schema'
 require 'uri'
 
 # TODO: Work with `Query` objects
@@ -9,6 +10,7 @@ module Neo4j
     class CypherSession
       module Adaptors
         class HTTP < Base
+          include Adaptors::Schema
           attr_reader :requestor, :url
 
           def initialize(url, options = {})
@@ -46,7 +48,15 @@ module Neo4j
           end
 
           # Schema inspection methods
-          def indexes(_session)
+
+          # Does this version support CALL clause?
+          def supports_call?
+            Gem::Version.new(version(nil)) >= Gem::Version.new('3.0.0')
+          end
+
+          def indexes(session)
+            return super(session) if supports_call?
+
             response = @requestor.get('db/data/schema/index')
 
             check_for_schema_response_error!(response)
@@ -61,7 +71,9 @@ module Neo4j
           CONSTRAINT_TYPES = {
             'UNIQUENESS' => :uniqueness
           }
-          def constraints(_session, _label = nil, _options = {})
+          def constraints(session, _label = nil, _options = {})
+            return super(session) if supports_call?
+
             response = @requestor.get('db/data/schema/constraint')
 
             check_for_schema_response_error!(response)
