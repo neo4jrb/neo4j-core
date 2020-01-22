@@ -14,18 +14,24 @@ module Neo4j
             result = query(session, 'CALL db.indexes()', {}, skip_instrumentation: true)
 
             result.map do |row|
-              label, property = row.description.match(/INDEX ON :([^\(]+)\(([^\)]+)\)/)[1, 2]
+              match = row.description.match(/INDEX ON :([^\(]+)\(([^\)]+)\)/)
+              next unless match
+
+              label, property = match[1, 2]
               {type: row.type.to_sym, label: label.to_sym, properties: [property.to_sym], state: row.state.to_sym}
-            end
+            end.compact
           end
 
           def constraints(session)
             result = query(session, 'CALL db.indexes()', {}, skip_instrumentation: true)
 
             result.select { |row| row.type == 'node_unique_property' }.map do |row|
-              label, property = row.description.match(/INDEX ON :([^\(]+)\(([^\)]+)\)/)[1, 2]
+              match = row.description.match(/INDEX ON :([^\(]+)\(([^\)]+)\)/)
+              next unless match
+
+              label, property = match[1, 2]
               {type: :uniqueness, label: label.to_sym, properties: [property.to_sym]}
-            end
+            end.compact
           end
         end
       end
