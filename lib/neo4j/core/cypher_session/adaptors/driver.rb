@@ -72,11 +72,13 @@ module Neo4j
           def query_set(transaction, queries, options = {})
             setup_queries!(queries, transaction, skip_instrumentation: options[:skip_instrumentation])
 
-            responses = queries.map do |query|
-              transaction.root_tx.run(query.cypher, query.parameters)
+            self.class.instrument_request(self) do
+              responses = queries.map do |query|
+                transaction.root_tx.run(query.cypher, query.parameters)
+              end
+              wrap_level = options[:wrap_level] || @options[:wrap_level]
+              Responses::Driver.new(responses, wrap_level: wrap_level).results
             end
-            wrap_level = options[:wrap_level] || @options[:wrap_level]
-            Responses::Driver.new(responses, wrap_level: wrap_level).results
           rescue Neo4j::Driver::Exceptions::Neo4jException => e
             raise Neo4j::Core::CypherSession::CypherError.new_from(e.code, e.message) # , e.stack_track.to_a
           end
