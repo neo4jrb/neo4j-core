@@ -71,13 +71,10 @@ module Neo4j
 
           def query_set(transaction, queries, options = {})
             setup_queries!(queries, transaction, skip_instrumentation: options[:skip_instrumentation])
+            wrap_level = options[:wrap_level] || @options[:wrap_level]
 
             self.class.instrument_request(self) do
-              responses = queries.map do |query|
-                transaction.root_tx.run(query.cypher, query.parameters)
-              end
-              wrap_level = options[:wrap_level] || @options[:wrap_level]
-              Responses::Driver.new(responses, wrap_level: wrap_level).results
+              build_response(transaction, queries, wrap_level)
             end
           rescue Neo4j::Driver::Exceptions::Neo4jException => e
             raise Neo4j::Core::CypherSession::CypherError.new_from(e.code, e.message) # , e.stack_track.to_a
@@ -101,6 +98,15 @@ module Neo4j
 
             type = nil # adaptor.ssl? ? '+TLS' : ' UNSECURE'
             " #{ANSI::BLUE}BOLT#{type}:#{ANSI::CLEAR} #{ANSI::YELLOW}#{ms.round}ms#{ANSI::CLEAR} #{adaptor.url_without_password}"
+          end
+
+          private
+
+          def build_response(transaction, queries, wrap_level)
+            responses = queries.map do |query|
+              transaction.root_tx.run(query.cypher, query.parameters)
+            end
+            Responses::Driver.new(responses, wrap_level: wrap_level).results
           end
         end
       end
